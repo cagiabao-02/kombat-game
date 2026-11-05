@@ -26,11 +26,12 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 
 ## Chặng 2 — Sudoku một người
 
-- [ ] Chọn nguồn tạo bảng Sudoku và thư viện UI/logic có giấy phép phù hợp.
-- [ ] Tạo bảng chơi có thao tác cảm ứng, chuột và bàn phím.
-- [ ] Thêm mức độ, nhập/xóa số và đánh dấu lỗi.
-- [ ] Thêm undo/reset/new game và trạng thái hoàn thành.
-- [ ] Lưu, khôi phục ván đang chơi trên cùng thiết bị.
+- [x] Chọn nguồn tạo bảng Sudoku và thư viện UI/logic có giấy phép phù hợp (thuật toán backtracking TypeScript thuần, độc lập, tối ưu).
+- [x] Tạo bảng chơi có thao tác cảm ứng, chuột và bàn phím (hỗ trợ phím số, phím mũi tên, xóa).
+- [x] Thêm mức độ (Dễ, Vừa, Khó), nhập/xóa số và đánh dấu lỗi trùng số theo hàng/cột/khối 3x3.
+- [x] Thêm luật giới hạn 3 lần phạm lỗi/trùng số sẽ xử thua ngay (Game Over).
+- [x] Thêm undo/reset/new game, đồng hồ đếm giờ tạm dừng và modal chiến thắng khi giải xong.
+- [x] Lưu, khôi phục ván đang chơi trên cùng thiết bị (localStorage).
 
 ## Chặng 3 — Supabase nền tảng
 
