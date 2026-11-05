@@ -47,6 +47,7 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 
 - Người chơi bắt đầu ván mới và chọn một trong ba mức độ.
 - Có thể nhập/xóa số, xem các ô đã cho, nhận biết nước đi sai và hoàn thành ván.
+- Luật giới hạn lỗi: Người chơi có tối đa 3 lượt phạm lỗi trùng số. Nếu nhập sai/trùng số đến lần thứ 3 thì ván đấu kết thúc ngay lập tức (Game Over), hiển thị bảng thông báo và cho phép chơi lại hoặc tạo ván mới.
 - Ván đang chơi được lưu cục bộ để tải lại trang không mất tiến độ.
 
 ### FR-3 — Phòng cờ vua
