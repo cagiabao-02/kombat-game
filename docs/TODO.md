@@ -54,6 +54,7 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [x] Xử lý hiển thị lượt đi, chiếu tướng, chiếu bí, hòa cờ, đầu hàng và kết thúc ván.
 - [x] Tích hợp đồng hồ thi đấu (Chess Clock: Không giới hạn, 3p, 5p, 10p) và xử lý xử thua khi hết giờ (Time Out).
 - [x] Hiển thị biên bản nước đi (Move History) theo cặp chuẩn cờ vua.
+- [x] Nhận diện mất kết nối / đóng tab qua Realtime Presence và bộ đếm ngược 30s tự động xử thắng (Claim Victory).
 - [ ] Kiểm tra bằng hai trình duyệt/thiết bị.
 
 ## Chặng 5 — Ghép ngẫu nhiên (sau MVP hoặc nếu chủ dự án ưu tiên)

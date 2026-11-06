@@ -9,7 +9,7 @@ import { updateChessGameState, leaveChessRoom } from './roomService';
 import { ChessBoard } from './ChessBoard';
 import { MoveHistory } from './MoveHistory';
 import { sounds } from '@/lib/sound/soundService';
-import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle, Clock } from 'lucide-react';
+import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle, Clock, WifiOff, Trophy, Eye } from 'lucide-react';
 
 interface ChessGameViewProps {
   initialRoom: ChessRoom;
@@ -32,6 +32,11 @@ export function ChessGameView({
   const myColor: PlayerColor = isHost ? 'white' : 'black';
   const myTurnChar = myColor === 'white' ? 'w' : 'b';
   const isMyTurn = room.status === 'in_progress' && room.game_state.turn === myTurnChar;
+
+  const opponentId = isHost ? room.guest_id : room.host_id;
+  const [isOpponentDisconnected, setIsOpponentDisconnected] = useState(false);
+  const [disconnectCountdown, setDisconnectCountdown] = useState(30);
+  const [showGameOverModal, setShowGameOverModal] = useState(true);
 
   const timeControl = room.game_state.timeControl ?? 0;
   const [whiteSeconds, setWhiteSeconds] = useState<number>(
@@ -85,6 +90,67 @@ export function ChessGameView({
     [room, whiteSeconds, blackSeconds]
   );
 
+  // Claim victory when opponent disconnects
+  const handleClaimVictory = useCallback(async () => {
+    if (room.status !== 'in_progress') return;
+
+    const winner = myColor;
+    const newGameState: ChessGameState = {
+      ...room.game_state,
+      winner,
+    };
+    const updatedRoom: ChessRoom = {
+      ...room,
+      game_state: newGameState,
+      status: 'completed',
+    };
+
+    setRoom(updatedRoom);
+    sounds.playVictory();
+
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'room_state',
+        payload: updatedRoom,
+      });
+    }
+
+    await updateChessGameState(room.id, newGameState, 'completed');
+  }, [room, myColor]);
+
+  // Disconnection countdown (auto claim victory after 30s)
+  useEffect(() => {
+    if (!isOpponentDisconnected || room.status !== 'in_progress') {
+      setDisconnectCountdown(30);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setDisconnectCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          handleClaimVictory();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isOpponentDisconnected, room.status, handleClaimVictory]);
+
+  // Clean disconnect on tab close
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (channelRef.current) {
+        channelRef.current.untrack();
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
   // Clock countdown interval
   useEffect(() => {
     if (room.status !== 'in_progress' || timeControl <= 0) return;
@@ -124,12 +190,15 @@ export function ChessGameView({
   const mySeconds = myColor === 'white' ? whiteSeconds : blackSeconds;
   const opponentSeconds = myColor === 'white' ? blackSeconds : whiteSeconds;
 
-  // Supabase Realtime: Postgres Changes + Instant Peer-to-Peer Broadcast
+  // Supabase Realtime: Postgres Changes + Broadcast + Presence tracking
   useEffect(() => {
     const channelName = `chess_room_${room.id}`;
     const channel = supabase
       .channel(channelName, {
-        config: { broadcast: { self: false } },
+        config: {
+          broadcast: { self: false },
+          presence: { key: currentUserId },
+        },
       })
       .on(
         'postgres_changes',
@@ -159,7 +228,36 @@ export function ChessGameView({
           }
         }
       })
-      .subscribe();
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        if (opponentId && room.status === 'in_progress') {
+          const hasOpponent = Boolean(state[opponentId] && (state[opponentId] as any[]).length > 0);
+          if (!hasOpponent) {
+            setIsOpponentDisconnected(true);
+          } else {
+            setIsOpponentDisconnected(false);
+          }
+        }
+      })
+      .on('presence', { event: 'join' }, ({ key }) => {
+        if (key === opponentId) {
+          setIsOpponentDisconnected(false);
+          setDisconnectCountdown(30);
+        }
+      })
+      .on('presence', { event: 'leave' }, ({ key }) => {
+        if (key === opponentId && room.status === 'in_progress') {
+          setIsOpponentDisconnected(true);
+        }
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({
+            userId: currentUserId,
+            onlineAt: new Date().toISOString(),
+          });
+        }
+      });
 
     channelRef.current = channel;
 
@@ -167,7 +265,7 @@ export function ChessGameView({
       supabase.removeChannel(channel);
       channelRef.current = null;
     };
-  }, [room.id]);
+  }, [room.id, currentUserId, opponentId, room.status]);
 
   // Fallback Polling (mỗi 1.5s khi đang chờ đối thủ, và 3s trong trận) để đảm bảo không bị lỡ sự kiện
   useEffect(() => {
@@ -405,11 +503,25 @@ export function ChessGameView({
             {opponentColor === 'white' ? '♔' : '♚'}
           </div>
           <div>
-            <p className="text-xs sm:text-sm font-bold text-gray-900 truncate max-w-[140px] sm:max-w-[200px]">
-              {opponentName}
-            </p>
+            <div className="flex items-center gap-1.5">
+              {room.status === 'in_progress' && (
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    isOpponentDisconnected
+                      ? 'bg-amber-500 animate-ping'
+                      : 'bg-emerald-500'
+                  }`}
+                  title={isOpponentDisconnected ? 'Offline' : 'Online'}
+                />
+              )}
+              <p className="text-xs sm:text-sm font-bold text-gray-900 truncate max-w-[140px] sm:max-w-[200px]">
+                {opponentName}
+              </p>
+            </div>
             <span className="text-[10px] text-gray-400 font-medium">
-              {opponentColor === 'white' ? t.chess.white : t.chess.black}
+              {isOpponentDisconnected && room.status === 'in_progress'
+                ? (language === 'vi' ? 'Đang mất kết nối...' : 'Disconnected...')
+                : (opponentColor === 'white' ? t.chess.white : t.chess.black)}
             </span>
           </div>
         </div>
@@ -438,6 +550,25 @@ export function ChessGameView({
           )}
         </div>
       </div>
+
+      {/* Opponent Disconnected Alert Banner */}
+      {isOpponentDisconnected && room.status === 'in_progress' && (
+        <div className="mb-3 rounded-2xl border border-amber-300 bg-amber-50 p-3.5 shadow-sm animate-fade-in">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-200 text-amber-800 animate-pulse">
+              <WifiOff className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs sm:text-sm font-bold text-amber-900">
+                {t.chess.opponentDisconnected}
+              </p>
+              <p className="text-[11px] text-amber-700">
+                {t.chess.reconnectingCountdown.replace('{seconds}', String(disconnectCountdown))}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Chess Board */}
       <ChessBoard
@@ -530,52 +661,119 @@ export function ChessGameView({
         </div>
       )}
 
-      {/* Game Over Dialog */}
-      {room.status === 'completed' && (
-        <div className="mt-6 rounded-2xl border border-indigo-200 bg-white p-6 text-center shadow-lg animate-fade-in">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700 mb-3">
-            <Sparkles className="h-6 w-6" />
-          </div>
-          <h3 className="text-lg font-black text-gray-900">
-            {room.game_state.winner === myColor
-              ? t.chess.youWon
-              : room.game_state.winner === 'draw'
-              ? t.chess.draw
-              : t.chess.youLost}
-          </h3>
-          <p className="mt-1 text-xs text-gray-500">
-            {room.game_state.isCheckmate
-              ? t.chess.checkmate
-              : room.game_state.isTimeout
-              ? room.game_state.winner === myColor
-                ? t.chess.timeoutWon
-                : t.chess.timeoutLost
-              : ''}
-          </p>
+      {/* Game Over Centered Modal */}
+      {room.status === 'completed' && showGameOverModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 sm:p-8 text-center shadow-2xl border border-gray-100 animate-scale-up">
+            <div
+              className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl mb-4 ${
+                room.game_state.winner === myColor
+                  ? 'bg-amber-100 text-amber-600'
+                  : room.game_state.winner === 'draw'
+                  ? 'bg-blue-100 text-blue-600'
+                  : 'bg-gray-100 text-gray-500'
+              }`}
+            >
+              {room.game_state.winner === myColor ? (
+                <Trophy className="h-8 w-8 animate-bounce" />
+              ) : (
+                <Sparkles className="h-8 w-8" />
+              )}
+            </div>
 
+            <h3 className="text-2xl font-black text-gray-900 tracking-tight">
+              {room.game_state.winner === myColor
+                ? t.chess.youWon
+                : room.game_state.winner === 'draw'
+                ? t.chess.draw
+                : t.chess.youLost}
+            </h3>
+
+            <p className="mt-2 text-sm text-gray-600">
+              {room.game_state.isCheckmate
+                ? t.chess.checkmate
+                : room.game_state.isTimeout
+                ? room.game_state.winner === myColor
+                  ? t.chess.timeoutWon
+                  : t.chess.timeoutLost
+                : isOpponentDisconnected && room.game_state.winner === myColor
+                ? t.chess.opponentAbandonedWin
+                : ''}
+            </p>
+
+            <div className="mt-6 flex flex-col gap-2.5">
+              <button
+                type="button"
+                onClick={onExitRoom}
+                className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-md hover:bg-indigo-700 active:scale-95 transition-all"
+              >
+                {t.common.backToLobby}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowGameOverModal(false)}
+                className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white py-2.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-all"
+              >
+                <Eye className="h-4 w-4" />
+                <span>{language === 'vi' ? 'Xem lại bàn cờ' : 'Review Board'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Game Over Review Banner at Bottom (when modal is dismissed) */}
+      {room.status === 'completed' && !showGameOverModal && (
+        <div className="mt-4 flex items-center justify-between rounded-2xl border border-indigo-200 bg-white p-4 shadow-sm animate-fade-in">
+          <div>
+            <h4 className="text-sm font-bold text-gray-900">
+              {room.game_state.winner === myColor
+                ? t.chess.youWon
+                : room.game_state.winner === 'draw'
+                ? t.chess.draw
+                : t.chess.youLost}
+            </h4>
+            <p className="text-xs text-gray-500">
+              {room.game_state.isCheckmate
+                ? t.chess.checkmate
+                : room.game_state.isTimeout
+                ? room.game_state.winner === myColor
+                  ? t.chess.timeoutWon
+                  : t.chess.timeoutLost
+                : isOpponentDisconnected && room.game_state.winner === myColor
+                ? t.chess.opponentAbandonedWin
+                : ''}
+            </p>
+          </div>
           <button
             type="button"
             onClick={onExitRoom}
-            className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-6 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-indigo-700"
+            className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-indigo-700"
           >
-            <span>{t.common.backToLobby}</span>
+            {t.common.backToLobby}
           </button>
         </div>
       )}
 
-      {/* Opponent Abandoned / Left Banner */}
+      {/* Opponent Abandoned / Left Modal */}
       {room.status === 'abandoned' && (
-        <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-md animate-fade-in">
-          <p className="text-sm font-semibold text-gray-700">
-            {t.chess.opponentLeft}
-          </p>
-          <button
-            type="button"
-            onClick={onExitRoom}
-            className="mt-4 rounded-xl bg-gray-900 px-5 py-2 text-xs font-bold text-white"
-          >
-            {t.common.backToLobby}
-          </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 sm:p-8 text-center shadow-2xl border border-gray-100">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-gray-600 mb-3">
+              <LogOut className="h-7 w-7" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900">
+              {t.chess.opponentLeft}
+            </h3>
+            <button
+              type="button"
+              onClick={onExitRoom}
+              className="mt-6 w-full rounded-xl bg-gray-900 py-3 text-sm font-bold text-white hover:bg-black"
+            >
+              {t.common.backToLobby}
+            </button>
+          </div>
         </div>
       )}
     </div>

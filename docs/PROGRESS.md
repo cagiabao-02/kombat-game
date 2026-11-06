@@ -25,7 +25,8 @@
   - Đồng bộ nước đi và trạng thái thời gian thực qua cơ chế kép (Supabase Realtime Broadcast + Polling dự phòng).
   - Tích hợp **Đồng hồ thi đấu (Chess Clock)**: Tùy chọn Không giới hạn, 3 phút Blitz, 5 phút Rapid, 10 phút Standard; đếm ngược theo lượt, đổi màu đỏ cảnh báo < 30s và xử thua khi hết giờ (Time Out).
   - Tích hợp **Biên bản ván đấu (Move History)**: Hiển thị danh sách nước đi theo cặp chuẩn cờ vua (1. e4 e5...), tự cuộn xuống nước mới nhất.
-  - Xử lý các tình huống: Đầu hàng, đối thủ thoát phòng, chiếu bí, hết giờ, hòa cờ.
+  - Tích hợp **Cơ chế Presence & Reconnect (Cách 2)**: Nhận diện đối thủ đóng tab/mất mạng tức thì, hiện cảnh báo đếm ngược 30 giây và tự động xử thắng cho người ở lại (hoặc bấm nhận thắng ngay).
+  - Xử lý các tình huống: Đầu hàng, đối thủ thoát phòng/mất kết nối, chiếu bí, hết giờ, hòa cờ.
 
 ## Đang làm
 

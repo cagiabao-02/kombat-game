@@ -100,6 +100,9 @@ export const translations = {
       timeoutLost: 'Bạn đã hết thời gian! Đối thủ chiến thắng!',
       moveHistory: 'Biên bản nước đi',
       noMovesYet: 'Chưa có nước đi nào',
+      opponentDisconnected: 'Đối thủ đã mất kết nối!',
+      reconnectingCountdown: 'Đang đợi đối thủ kết nối lại... Tự động xử bạn thắng sau {seconds}s.',
+      opponentAbandonedWin: 'Đối thủ đã mất kết nối quá thời gian. Bạn giành chiến thắng!',
     },
   },
   en: {
@@ -201,6 +204,9 @@ export const translations = {
       timeoutLost: 'You ran out of time! Opponent won!',
       moveHistory: 'Move history',
       noMovesYet: 'No moves yet',
+      opponentDisconnected: 'Opponent disconnected!',
+      reconnectingCountdown: 'Waiting for opponent to reconnect... Auto-claim victory in {seconds}s.',
+      opponentAbandonedWin: 'Opponent disconnected for too long. You won!',
     },
   },
 };
