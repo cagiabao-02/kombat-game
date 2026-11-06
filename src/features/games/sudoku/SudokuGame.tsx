@@ -20,6 +20,7 @@ import { NumberPad } from './NumberPad';
 import { SudokuControls } from './SudokuControls';
 import { VictoryModal } from './VictoryModal';
 import { GameOverModal } from './GameOverModal';
+import { sounds } from '@/lib/sound/soundService';
 
 export function SudokuGame() {
   const [difficulty, setDifficulty] = useState<SudokuDifficulty>('easy');
@@ -184,6 +185,7 @@ export function SudokuGame() {
 
       // Handle mistake tracking
       if (isConflict) {
+        sounds.playError();
         const nextMistakes = mistakes + 1;
         setMistakes(nextMistakes);
 
@@ -191,10 +193,13 @@ export function SudokuGame() {
           setIsGameOver(true);
           return;
         }
+      } else {
+        sounds.playClick();
       }
 
       // Check win condition
       if (isBoardComplete(newBoard, solution)) {
+        sounds.playVictory();
         setIsCompleted(true);
         setShowVictoryModal(true);
         clearSavedSudokuGame();
@@ -231,6 +236,7 @@ export function SudokuGame() {
       { row, col, prevValue: currentValue, newValue: null },
     ]);
     setBoard(newBoard);
+    sounds.playClick();
   }, [selectedCell, isPaused, isCompleted, isGameOver, initialBoard, board]);
 
   // Undo last action
@@ -244,6 +250,7 @@ export function SudokuGame() {
     setBoard(newBoard);
     setSelectedCell({ row: lastMove.row, col: lastMove.col });
     setMoveHistory((prev) => prev.slice(0, -1));
+    sounds.playClick();
   }, [moveHistory, isPaused, isCompleted, isGameOver, board]);
 
   // Reset current board to initial clues

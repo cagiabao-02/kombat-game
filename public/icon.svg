@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="tg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="100%" stop-color="#3730A3" />
+    </linearGradient>
+  </defs>
+  <!-- Background Rounded Squircle -->
+  <rect width="512" height="512" rx="128" fill="url(#tg-grad)" />
+  
+  <!-- Stylized Gamepad / Crown Accent -->
+  <path d="M144 200 C144 160, 180 144, 256 144 C332 144, 368 160, 368 200 C368 240, 350 336, 310 336 C280 336, 270 290, 256 290 C242 290, 232 336, 202 336 C162 336, 144 240, 144 200 Z" fill="#FFFFFF" fill-opacity="0.15" />
+  
+  <!-- White KB monogram -->
+  <text x="256" y="320" font-family="system-ui, -apple-system, sans-serif" font-size="190" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="-6">
+    KB
+  </text>
+  
+  <!-- Subtle decorative spark dots -->
+  <circle cx="360" cy="150" r="14" fill="#FBBF24" />
+  <circle cx="150" cy="350" r="10" fill="#FBBF24" opacity="0.8" />
+</svg>
+

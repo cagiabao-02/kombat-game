@@ -3,7 +3,7 @@ export type Language = 'vi' | 'en';
 export const translations = {
   vi: {
     app: {
-      name: 'Togame',
+      name: 'Kombat',
       tagline: 'Sảnh trò chơi ngắn gọn nhẹ',
       guestBadge: 'Khách',
       loginNotice: 'Tài khoản khách được lưu trên trình duyệt này.',
@@ -94,7 +94,7 @@ export const translations = {
   },
   en: {
     app: {
-      name: 'Togame',
+      name: 'Kombat',
       tagline: 'Lightweight Indie Mini-Games Lobby',
       guestBadge: 'Guest',
       loginNotice: 'Guest session stored locally in this browser.',

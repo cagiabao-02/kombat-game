@@ -7,6 +7,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { ChessRoom, ChessGameState, PlayerColor, RoomStatus } from './types';
 import { updateChessGameState, leaveChessRoom } from './roomService';
 import { ChessBoard } from './ChessBoard';
+import { sounds } from '@/lib/sound/soundService';
 import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle } from 'lucide-react';
 
 interface ChessGameViewProps {
@@ -54,7 +55,16 @@ export function ChessGameView({
       )
       .on('broadcast', { event: 'room_state' }, ({ payload }) => {
         if (payload) {
-          setRoom(payload as ChessRoom);
+          const updated = payload as ChessRoom;
+          setRoom(updated);
+          // Play sound for opponent move
+          if (updated.game_state.isCheckmate || updated.game_state.winner) {
+            sounds.playVictory();
+          } else if (updated.game_state.isCheck) {
+            sounds.playCheck();
+          } else if (updated.game_state.lastMove) {
+            sounds.playMove();
+          }
         }
       })
       .subscribe();
@@ -126,6 +136,18 @@ export function ChessGameView({
         const isCheckmate = chess.isCheckmate();
         const isDraw = chess.isDraw();
         const isCheck = chess.inCheck();
+        const isCaptured = moveResult.captured;
+
+        // Play tactile local sound
+        if (isCheckmate) {
+          sounds.playVictory();
+        } else if (isCheck) {
+          sounds.playCheck();
+        } else if (isCaptured) {
+          sounds.playCapture();
+        } else {
+          sounds.playMove();
+        }
 
         let winner: 'white' | 'black' | 'draw' | null = null;
         let newStatus: RoomStatus = room.status;

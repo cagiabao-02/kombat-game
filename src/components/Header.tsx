@@ -1,16 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/features/auth/AuthContext';
-import { Globe, User, Edit3, X, Check } from 'lucide-react';
+import { Globe, User, Edit3, X, Check, Volume2, VolumeX } from 'lucide-react';
+import { sounds } from '@/lib/sound/soundService';
 
 export function Header() {
   const { language, setLanguage } = useLanguage();
   const { guestName, updateGuestName } = useAuth();
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState('');
+  const [isMuted, setIsMuted] = useState(false);
+
+  useEffect(() => {
+    setIsMuted(sounds.isMuted());
+  }, []);
+
+  const toggleSound = () => {
+    const next = sounds.toggleMute();
+    setIsMuted(next);
+  };
 
   const toggleLanguage = () => {
     setLanguage(language === 'vi' ? 'en' : 'vi');
@@ -35,10 +46,10 @@ export function Header() {
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 font-bold text-white shadow-sm transition-transform group-hover:scale-105">
-              TG
+              KB
             </div>
             <div>
-              <span className="text-lg font-black tracking-tight text-gray-900">TOGAME</span>
+              <span className="text-lg font-black tracking-tight text-gray-900">KOMBAT</span>
               <span className="hidden sm:inline-block ml-2 text-xs font-medium text-gray-400">
                 Indie Lobby
               </span>
@@ -56,6 +67,20 @@ export function Header() {
               <User className="h-3.5 w-3.5 text-indigo-600" />
               <span className="max-w-[120px] truncate">{guestName}</span>
               <Edit3 className="h-3 w-3 text-gray-400 hover:text-gray-700" />
+            </button>
+
+            {/* Sound Toggle */}
+            <button
+              onClick={toggleSound}
+              className="flex items-center justify-center rounded-lg border border-gray-200 bg-white p-2 text-xs text-gray-700 shadow-sm transition-colors hover:bg-gray-50 active:scale-95"
+              title={isMuted ? 'Bật âm thanh / Unmute' : 'Tắt âm thanh / Mute'}
+              aria-label="Toggle Sound"
+            >
+              {isMuted ? (
+                <VolumeX className="h-3.5 w-3.5 text-gray-400" />
+              ) : (
+                <Volume2 className="h-3.5 w-3.5 text-indigo-600" />
+              )}
             </button>
 
             {/* Language Switcher */}
