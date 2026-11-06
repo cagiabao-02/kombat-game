@@ -35,10 +35,10 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 
 ## Chặng 3 — Supabase nền tảng
 
-- [ ] Tạo project Supabase dev và cấu hình URL/key trong `.env.local`.
-- [ ] Khởi tạo Supabase CLI cho local development.
-- [ ] Tạo migration đầu tiên và kiểm tra RLS/policies trước khi dùng bảng từ client.
-- [ ] Bật Supabase Auth anonymous sign-in cho phiên khách; thêm tên hiển thị riêng.
+- [x] Tạo project Supabase dev và cấu hình URL/key trong `.env.local`.
+- [x] Cài đặt thư viện `@supabase/supabase-js` và khởi tạo Supabase client an toàn.
+- [x] Tạo migration đầu tiên cho bảng phòng (`rooms`) cùng đầy đủ Row Level Security (RLS) và Realtime publication.
+- [x] Bật Supabase Auth anonymous sign-in cho phiên khách; hỗ trợ hiển thị và cập nhật tên riêng trong header.
 - [ ] Thiết kế nâng cấp/liên kết phiên khách thành tài khoản thường và giữ dữ liệu/user id; quyết định cách xử lý khi đăng nhập vào tài khoản đã tồn tại.
 - [ ] Chốt quyền/tính năng của khách và tài khoản đăng nhập; bảo vệ phần chỉ dành cho tài khoản ở server/database.
 - [ ] Cấu hình chống lạm dụng anonymous sign-in trước khi public rộng (ví dụ CAPTCHA/Turnstile nếu cần).
@@ -46,12 +46,12 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 
 ## Chặng 4 — Cờ vua phòng riêng
 
-- [ ] Chọn thư viện kiểm tra luật cờ vua.
-- [ ] Thiết kế bảng phòng, thành viên và trạng thái trận tối thiểu.
-- [ ] Tạo migration cùng RLS để chỉ thành viên phòng truy cập được dữ liệu.
-- [ ] Tạo phòng, liên kết/mã mời, tham gia và rời phòng.
-- [ ] Đồng bộ nước đi/trạng thái qua Supabase Realtime.
-- [ ] Xử lý reconnect, đối thủ rời, hết giờ chờ và kết thúc ván.
+- [x] Chọn thư viện kiểm tra luật cờ vua (`chess.js`).
+- [x] Thiết kế bảng phòng, thành viên và trạng thái trận tối thiểu (Bảng `rooms`).
+- [x] Tạo migration cùng RLS để chỉ thành viên phòng truy cập được dữ liệu.
+- [x] Tạo phòng, liên kết/mã mời 6 ký tự, tham gia và rời phòng.
+- [x] Đồng bộ nước đi/trạng thái qua Supabase Realtime (`postgres_changes`).
+- [x] Xử lý hiển thị lượt đi, chiếu tướng, chiếu bí, hòa cờ, đầu hàng và kết thúc ván.
 - [ ] Kiểm tra bằng hai trình duyệt/thiết bị.
 
 ## Chặng 5 — Ghép ngẫu nhiên (sau MVP hoặc nếu chủ dự án ưu tiên)
