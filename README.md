@@ -1,4 +1,4 @@
-# Togame — Indie Mini-Games Lobby
+# Kombat — Indie Mini-Games Lobby
 
 Sảnh trò chơi mini gọn nhẹ, đa nền tảng (Web mobile & desktop), khởi đầu với Sudoku và Cờ vua phòng riêng.
 

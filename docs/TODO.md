@@ -64,9 +64,10 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 
 ## Chặng 6 — Hoàn thiện và phát hành bản đầu
 
+- [x] Thêm PWA manifest, viewport mobile app và icon cho phép cài đặt ra màn hình chính.
+- [x] Tích hợp bộ tạo âm thanh procedural chân thực Web Audio API (đi cờ, ăn quân, chiếu tướng, gõ số sudoku, chiến thắng) kèm nút Bật/Tắt âm thanh trên Header.
 - [ ] Cải thiện accessibility, thao tác bàn phím và thông báo lỗi.
-- [ ] Thêm PWA manifest và biểu tượng nếu vẫn phù hợp mục tiêu.
-- [ ] Chọn nơi deploy và cấu hình biến môi trường production riêng.
+- [ ] Chọn nơi deploy và cấu hình biến môi trường production riêng (Vercel).
 - [ ] Kiểm tra quyền truy cập/RLS và không đưa secret key lên client.
 - [ ] Viết hướng dẫn build/deploy và danh sách giới hạn đã biết.
 - [ ] Tạo PR phát hành, review diff và merge sau khi sẵn sàng.

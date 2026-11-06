@@ -40,7 +40,7 @@ export const GAME_REGISTRY: GameMetadata[] = [
       en: 'Standard 1v1 tactical showdown. Create a private room and share code with friends.',
     },
     route: '/games/chess',
-    status: 'beta',
+    status: 'available',
     modes: ['multiplayer_room'],
     minPlayers: 2,
     maxPlayers: 2,
