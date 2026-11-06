@@ -4,10 +4,10 @@
 
 ## Trạng thái tổng quan
 
-- **Giai đoạn:** Đã hoàn thành Chặng 0, Chặng 1 và Chặng 2 (Sudoku một người chơi hoàn chỉnh).
-- **Mã nguồn:** Next.js 15 App Router, TypeScript, Tailwind CSS, i18n Việt/Anh, Sảnh game và Game Sudoku hoàn chỉnh với bộ tạo đề, kiểm tra luật, thao tác cảm ứng/bàn phím, lưu tiến độ cục bộ.
-- **Git/GitHub:** Đã khởi tạo Git local (`git init`). Chưa commit/push lên remote theo đúng quy định.
-- **Supabase:** Sẵn sàng file cấu hình `.env.example`, chuẩn bị cho Chặng 3 (Supabase nền tảng & phòng cờ vua).
+- **Giai đoạn:** Đã hoàn thành Chặng 0, 1, 2, 3 và triển khai toàn diện Chặng 4 (Cờ vua phòng riêng Realtime).
+- **Mã nguồn:** Next.js 15 App Router, TypeScript, Tailwind CSS, i18n Việt/Anh, Sảnh game, Sudoku hoàn chỉnh (luật 3 lỗi), tích hợp thư viện `chess.js`, Supabase Realtime phòng chơi 1v1.
+- **Git/GitHub:** Đã gộp PR Chặng 2 vào `main`.
+- **Supabase:** Đã cấu hình `.env.local`, tạo bảng `rooms` với RLS và Realtime, hỗ trợ Auth khách ẩn danh.
 - **Asset:** Đã có cấu trúc thư mục quy chuẩn.
 
 ## Đã hoàn thành
@@ -20,16 +20,15 @@
 - Xây dựng `src/types/game.ts` và `src/features/games/registry.ts` cho phép sảnh game hiển thị linh hoạt theo cấu hình.
 - Xây dựng lớp đa ngôn ngữ i18n (Việt/Anh) với `LanguageContext` lưu tuỳ chọn vào localStorage và tự nhận diện trình duyệt.
 - Xây dựng layout, sảnh mini-game (`LobbyPage`), các thẻ game `GameCard`, `Header` hiển thị trạng thái khách và chuyển ngôn ngữ.
-- **Triển khai toàn diện Sudoku một người chơi (Chặng 2):**
-  - Đã bổ sung luật giới hạn 3 lần phạm lỗi trùng số (`mistakes: 0/3`): Khi người chơi nhập sai/trùng số lần thứ 3 sẽ bị xử thua ngay (Game Over), hiển thị bảng thông báo và cho phép chơi lại ván đó hoặc bắt đầu ván mới.
-  - Thuật toán sinh đề và giải Sudoku bằng TypeScript thuần (`generator.ts`), bảo đảm tính duy nhất và hỗ trợ 3 mức độ (Dễ, Vừa, Khó). Đã tinh chỉnh phân bổ đều các ô trống qua cả 9 khối 3x3.
-  - Thuật toán xác thực và phát hiện xung đột hàng/cột/khối 3x3 tức thì (`validator.ts`).
-  - Giao diện bàn cờ 9x9 (`SudokuBoard.tsx`) tương tác mượt mà, phân biệt ô ban đầu và ô nhập, đánh dấu ô liên quan, ô cùng số và lỗi.
-  - Bàn phím số ảo (`NumberPad.tsx`) hiển thị số lượng số còn lại cần điền (1-9), hỗ trợ xóa và hoàn tác (Undo).
-  - Điều hướng đa dạng: Bàn phím máy tính (phím mũi tên, 1-9, Delete/Backspace, U/Ctrl+Z) và màn hình cảm ứng/chuột.
-  - Điều khiển ván chơi (`SudokuControls.tsx`): Đếm giờ, tạm dừng/tiếp tục, ván mới, chơi lại từ đầu, bật/tắt báo lỗi.
-  - Tự động lưu/khôi phục ván đang chơi vào `localStorage` (`storage.ts`).
-  - Modal chúc mừng chiến thắng (`VictoryModal.tsx`) với thống kê thời gian và cấp độ.
+- Triển khai toàn diện Sudoku một người chơi (Chặng 2) với luật giới hạn 3 lỗi và bộ tạo đề cân bằng.
+- Thiết lập nền tảng Supabase & Khách ẩn danh (Chặng 3): Cài đặt `@supabase/supabase-js`, tạo client singleton, `AuthProvider` phiên ẩn danh và migration RLS cho bảng `rooms`.
+- **Triển khai Cờ vua phòng riêng Realtime (Chặng 4):**
+  - Tích hợp thư viện luật cờ vua quốc tế `chess.js` (kiểm tra nước đi hợp lệ, chiếu tướng, chiếu bí, hòa cờ, phong cấp tốt).
+  - Bàn cờ vua responsive (`ChessBoard.tsx`) chuẩn màu thi đấu quốc tế, hiển thị gợi ý ô đi hợp lệ, đánh dấu nước đi vừa thực hiện và cảnh báo vua bị chiếu đỏ rực.
+  - Tự động xoay bàn cờ theo phe người chơi (Chủ phòng cầm Trắng thấy hàng 1 ở dưới; Khách cầm Đen thấy hàng 8 ở dưới).
+  - Dịch vụ phòng (`roomService.ts`): Tạo mã phòng 6 ký tự ngẫu nhiên dễ nhớ, sao chép liên kết mời bạn bè (`/games/chess?room=CODE`), tự động vào phòng qua URL.
+  - Đồng bộ nước đi và trạng thái thời gian thực qua Supabase Realtime channel (`postgres_changes`).
+  - Xử lý các tình huống: Đầu hàng, đối thủ thoát phòng, chiếu bí, hòa cờ.
 
 ## Đang làm
 
