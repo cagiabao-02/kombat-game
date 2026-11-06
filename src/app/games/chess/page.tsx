@@ -88,7 +88,7 @@ function ChessGameContainer() {
   }, [searchParams, user, guestName, currentRoom, t, ensureUser, authError]);
 
   // Handle user clicking "Create Room"
-  const handleCreateRoom = useCallback(async () => {
+  const handleCreateRoom = useCallback(async (timeControl: number = 0) => {
     try {
       setIsCreating(true);
       setErrorMessage(null);
@@ -107,7 +107,7 @@ function ChessGameContainer() {
         return;
       }
 
-      const room = await createChessRoom(activeUser.id, guestName);
+      const room = await createChessRoom(activeUser.id, guestName, timeControl);
       setCurrentRoom(room);
     } catch (err: any) {
       console.error('Create room error:', err);

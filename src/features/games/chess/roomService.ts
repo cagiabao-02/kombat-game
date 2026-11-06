@@ -23,9 +23,21 @@ function generateRoomCode(): string {
   return result;
 }
 
-export async function createChessRoom(hostId: string, hostName: string): Promise<ChessRoom> {
+export async function createChessRoom(
+  hostId: string,
+  hostName: string,
+  timeControl: number = 0
+): Promise<ChessRoom> {
   let code = generateRoomCode();
   let attempts = 0;
+
+  const initialGameState: ChessGameState = {
+    ...INITIAL_GAME_STATE,
+    timeControl,
+    whiteTime: timeControl,
+    blackTime: timeControl,
+    lastMoveTimestamp: Date.now(),
+  };
 
   while (attempts < 5) {
     const { data, error } = await supabase
@@ -36,7 +48,7 @@ export async function createChessRoom(hostId: string, hostName: string): Promise
         status: 'waiting',
         host_id: hostId,
         host_name: hostName,
-        game_state: INITIAL_GAME_STATE,
+        game_state: initialGameState,
       } as any)
       .select('*')
       .single();

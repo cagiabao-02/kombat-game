@@ -53,6 +53,8 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 ### FR-3 — Phòng cờ vua
 
 - Người chơi tạo phòng riêng và sao chép liên kết/mã mời.
+- Tùy chọn thời gian ván đấu (Chess Clock): Không giới hạn, 3 phút, 5 phút hoặc 10 phút mỗi bên; đồng hồ đếm ngược khi đến lượt đi của từng người chơi và xử thua khi hết giờ (Time Out).
+- Biên bản nước đi (Move History): Hiển thị danh sách các nước đi chuẩn cờ vua theo cặp để hai bên theo dõi.
 - Người nhận liên kết tham gia với tên hiển thị; phòng có tối đa hai người chơi.
 - Hai người thấy cùng trạng thái bàn cờ và lượt đi; nước đi không hợp lệ bị từ chối.
 - Giao diện cho biết đang kết nối, đối thủ đã rời đi và ván kết thúc.

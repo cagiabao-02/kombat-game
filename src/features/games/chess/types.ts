@@ -11,6 +11,11 @@ export interface ChessGameState {
   isDraw: boolean;
   winner: 'white' | 'black' | 'draw' | null;
   lastMove: { from: string; to: string } | null;
+  timeControl?: number; // 0: unlimited, 180: 3m, 300: 5m, 600: 10m
+  whiteTime?: number;
+  blackTime?: number;
+  isTimeout?: boolean;
+  lastMoveTimestamp?: number;
 }
 
 export interface ChessRoom {

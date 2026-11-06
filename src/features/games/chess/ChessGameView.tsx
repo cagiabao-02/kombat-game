@@ -7,8 +7,9 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { ChessRoom, ChessGameState, PlayerColor, RoomStatus } from './types';
 import { updateChessGameState, leaveChessRoom } from './roomService';
 import { ChessBoard } from './ChessBoard';
+import { MoveHistory } from './MoveHistory';
 import { sounds } from '@/lib/sound/soundService';
-import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle } from 'lucide-react';
+import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle, Clock } from 'lucide-react';
 
 interface ChessGameViewProps {
   initialRoom: ChessRoom;
@@ -31,6 +32,97 @@ export function ChessGameView({
   const myColor: PlayerColor = isHost ? 'white' : 'black';
   const myTurnChar = myColor === 'white' ? 'w' : 'b';
   const isMyTurn = room.status === 'in_progress' && room.game_state.turn === myTurnChar;
+
+  const timeControl = room.game_state.timeControl ?? 0;
+  const [whiteSeconds, setWhiteSeconds] = useState<number>(
+    room.game_state.whiteTime ?? (timeControl > 0 ? timeControl : 0)
+  );
+  const [blackSeconds, setBlackSeconds] = useState<number>(
+    room.game_state.blackTime ?? (timeControl > 0 ? timeControl : 0)
+  );
+
+  // Sync remaining seconds when room state updates from server / peer
+  useEffect(() => {
+    if (room.game_state.whiteTime !== undefined) {
+      setWhiteSeconds(room.game_state.whiteTime);
+    }
+    if (room.game_state.blackTime !== undefined) {
+      setBlackSeconds(room.game_state.blackTime);
+    }
+  }, [room.game_state.whiteTime, room.game_state.blackTime, room.game_state.history.length]);
+
+  const handleTimeout = useCallback(
+    async (timedOutSide: 'white' | 'black') => {
+      if (room.status !== 'in_progress') return;
+      const winner = timedOutSide === 'white' ? 'black' : 'white';
+      const newGameState: ChessGameState = {
+        ...room.game_state,
+        winner,
+        isTimeout: true,
+        whiteTime: timedOutSide === 'white' ? 0 : whiteSeconds,
+        blackTime: timedOutSide === 'black' ? 0 : blackSeconds,
+      };
+
+      const updatedRoom: ChessRoom = {
+        ...room,
+        game_state: newGameState,
+        status: 'completed',
+      };
+
+      setRoom(updatedRoom);
+      sounds.playVictory();
+
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'room_state',
+          payload: updatedRoom,
+        });
+      }
+
+      await updateChessGameState(room.id, newGameState, 'completed');
+    },
+    [room, whiteSeconds, blackSeconds]
+  );
+
+  // Clock countdown interval
+  useEffect(() => {
+    if (room.status !== 'in_progress' || timeControl <= 0) return;
+
+    const timer = setInterval(() => {
+      if (room.game_state.turn === 'w') {
+        setWhiteSeconds((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            handleTimeout('white');
+            return 0;
+          }
+          return prev - 1;
+        });
+      } else {
+        setBlackSeconds((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            handleTimeout('black');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [room.status, room.game_state.turn, timeControl, handleTimeout]);
+
+  const formatTime = (seconds: number) => {
+    const s = Math.max(0, Math.floor(seconds));
+    const m = Math.floor(s / 60);
+    const rem = s % 60;
+    return `${String(m).padStart(2, '0')}:${String(rem).padStart(2, '0')}`;
+  };
+
+  const mySeconds = myColor === 'white' ? whiteSeconds : blackSeconds;
+  const opponentSeconds = myColor === 'white' ? blackSeconds : whiteSeconds;
 
   // Supabase Realtime: Postgres Changes + Instant Peer-to-Peer Broadcast
   useEffect(() => {
@@ -169,6 +261,10 @@ export function ChessGameView({
           isDraw,
           winner,
           lastMove: { from: moveData.from, to: moveData.to },
+          timeControl,
+          whiteTime: whiteSeconds,
+          blackTime: blackSeconds,
+          lastMoveTimestamp: Date.now(),
         };
 
         const updatedRoom: ChessRoom = {
@@ -197,7 +293,7 @@ export function ChessGameView({
         setIsSubmittingMove(false);
       }
     },
-    [isMyTurn, isSubmittingMove, room, myColor]
+    [isMyTurn, isSubmittingMove, room, myColor, timeControl, whiteSeconds, blackSeconds]
   );
 
   // Copy room link
@@ -318,18 +414,29 @@ export function ChessGameView({
           </div>
         </div>
 
-        {/* Opponent turn indicator */}
-        {room.status === 'in_progress' && (
-          <span
-            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-              !isMyTurn
-                ? 'bg-amber-100 text-amber-800 animate-pulse'
-                : 'bg-gray-100 text-gray-500'
-            }`}
-          >
-            {!isMyTurn ? t.chess.opponentTurn : ''}
-          </span>
-        )}
+        {/* Opponent turn & Clock indicator */}
+        <div className="flex items-center gap-2">
+          {timeControl > 0 && (
+            <div
+              className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-mono text-xs font-bold transition-all ${
+                opponentSeconds < 30 && room.status === 'in_progress'
+                  ? 'border-red-400 bg-red-50 text-red-600 animate-pulse'
+                  : !isMyTurn && room.status === 'in_progress'
+                  ? 'border-amber-400 bg-amber-50 text-amber-800 ring-2 ring-amber-200'
+                  : 'border-gray-200 bg-gray-50 text-gray-700'
+              }`}
+            >
+              <Clock className="h-3.5 w-3.5" />
+              <span>{formatTime(opponentSeconds)}</span>
+            </div>
+          )}
+
+          {room.status === 'in_progress' && !isMyTurn && (
+            <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800 animate-pulse">
+              {t.chess.opponentTurn}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Main Chess Board */}
@@ -365,17 +472,26 @@ export function ChessGameView({
           </div>
         </div>
 
-        {/* Player turn indicator & Actions */}
+        {/* Player turn indicator, Clock & Actions */}
         <div className="flex items-center gap-2">
-          {room.status === 'in_progress' && (
-            <span
-              className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
-                isMyTurn
-                  ? 'bg-emerald-100 text-emerald-800 animate-pulse'
-                  : 'bg-gray-100 text-gray-400'
+          {timeControl > 0 && (
+            <div
+              className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-mono text-xs font-bold transition-all ${
+                mySeconds < 30 && room.status === 'in_progress'
+                  ? 'border-red-400 bg-red-50 text-red-600 animate-pulse'
+                  : isMyTurn && room.status === 'in_progress'
+                  ? 'border-emerald-400 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-200'
+                  : 'border-gray-200 bg-gray-50 text-gray-700'
               }`}
             >
-              {isMyTurn ? t.chess.yourTurn : ''}
+              <Clock className="h-3.5 w-3.5" />
+              <span>{formatTime(mySeconds)}</span>
+            </div>
+          )}
+
+          {room.status === 'in_progress' && isMyTurn && (
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-800 animate-pulse">
+              {t.chess.yourTurn}
             </span>
           )}
 
@@ -401,6 +517,11 @@ export function ChessGameView({
         </div>
       </div>
 
+      {/* Move History */}
+      <div className="mt-3">
+        <MoveHistory history={room.game_state.history} />
+      </div>
+
       {/* Check Alert Banner */}
       {room.game_state.isCheck && room.status === 'in_progress' && (
         <div className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-red-50 border border-red-200 py-2 px-4 text-xs font-bold text-red-700 animate-bounce">
@@ -423,7 +544,13 @@ export function ChessGameView({
               : t.chess.youLost}
           </h3>
           <p className="mt-1 text-xs text-gray-500">
-            {room.game_state.isCheckmate ? t.chess.checkmate : ''}
+            {room.game_state.isCheckmate
+              ? t.chess.checkmate
+              : room.game_state.isTimeout
+              ? room.game_state.winner === myColor
+                ? t.chess.timeoutWon
+                : t.chess.timeoutLost
+              : ''}
           </p>
 
           <button

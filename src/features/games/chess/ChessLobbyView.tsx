@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Plus, Users, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { Plus, Users, ArrowRight, ShieldCheck, Sparkles, Clock } from 'lucide-react';
 
 interface ChessLobbyViewProps {
-  onCreateRoom: () => void;
+  onCreateRoom: (timeControl: number) => void;
   onJoinRoom: (code: string) => void;
   isCreating: boolean;
   isJoining: boolean;
@@ -21,6 +21,14 @@ export function ChessLobbyView({
 }: ChessLobbyViewProps) {
   const { t, language } = useLanguage();
   const [inputCode, setInputCode] = useState('');
+  const [selectedTime, setSelectedTime] = useState<number>(0);
+
+  const timeOptions = [
+    { value: 0, label: t.chess.timeUnlimited },
+    { value: 180, label: t.chess.time3m },
+    { value: 300, label: t.chess.time5m },
+    { value: 600, label: t.chess.time10m },
+  ];
 
   const handleJoinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +66,7 @@ export function ChessLobbyView({
       <div className="flex flex-col gap-5">
         {/* Card 1: Create Room */}
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-indigo-300">
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-3 mb-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
               <Plus className="h-5 w-5" />
             </div>
@@ -70,11 +78,35 @@ export function ChessLobbyView({
             </div>
           </div>
 
+          {/* Time control selection */}
+          <div className="mb-4">
+            <label className="mb-2 flex items-center gap-1.5 text-xs font-bold text-gray-700">
+              <Clock className="h-3.5 w-3.5 text-indigo-600" />
+              <span>{t.chess.timeControl}</span>
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {timeOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setSelectedTime(opt.value)}
+                  className={`rounded-xl border py-2 px-3 text-xs font-semibold transition-all ${
+                    selectedTime === opt.value
+                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-600'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <button
             type="button"
             disabled={isCreating || isJoining}
-            onClick={onCreateRoom}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-95 disabled:opacity-50"
+            onClick={() => onCreateRoom(selectedTime)}
+            className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-95 disabled:opacity-50"
           >
             {isCreating ? t.common.loading : t.chess.createRoom}
           </button>

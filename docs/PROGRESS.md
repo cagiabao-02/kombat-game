@@ -4,31 +4,28 @@
 
 ## Trạng thái tổng quan
 
-- **Giai đoạn:** Đã hoàn thành Chặng 0, 1, 2, 3 và triển khai toàn diện Chặng 4 (Cờ vua phòng riêng Realtime).
-- **Mã nguồn:** Next.js 15 App Router, TypeScript, Tailwind CSS, i18n Việt/Anh, Sảnh game, Sudoku hoàn chỉnh (luật 3 lỗi), tích hợp thư viện `chess.js`, Supabase Realtime phòng chơi 1v1.
-- **Git/GitHub:** Đã gộp PR Chặng 2 vào `main`.
-- **Supabase:** Đã cấu hình `.env.local`, tạo bảng `rooms` với RLS và Realtime, hỗ trợ Auth khách ẩn danh.
-- **Asset:** Đã có cấu trúc thư mục quy chuẩn.
+- **Giai đoạn:** Đã hoàn thành Chặng 0, 1, 2, 3, 4, 6 và bổ sung Đồng hồ thi đấu + Biên bản nước đi cho Cờ vua.
+- **Mã nguồn:** Next.js 15 App Router, TypeScript, Tailwind CSS, i18n Việt/Anh, Sảnh game Kombat, Sudoku hoàn chỉnh (luật 3 lỗi), cờ vua Realtime kèm đồng hồ thi đấu & biên bản nước đi, âm thanh tổng hợp Web Audio API, PWA.
+- **Git/GitHub:** Đang trên nhánh tính năng `chess-clock-history`.
+- **Supabase:** Đã cấu hình `.env.local`, bảng `rooms` với RLS và Realtime, hỗ trợ Auth khách ẩn danh.
+- **Asset:** Đã có cấu trúc thư mục quy chuẩn, icon PWA SVG.
 
 ## Đã hoàn thành
 
 - Tạo tài liệu yêu cầu sản phẩm và phạm vi MVP.
-- Ghi nhận quyết định ban đầu: guest-first, Việt/Anh, Sudoku và Cờ vua để thử; ghép ngẫu nhiên sau MVP.
-- Tạo hướng dẫn cho AI, GitHub, Supabase và cách tổ chức asset.
-- Khởi tạo local Git repo (`git init`), `.gitignore`, `.env.example`, `README.md`.
-- Khởi tạo cấu hình Next.js App Router, TypeScript, Tailwind CSS theo `DEVELOPMENT.md`.
-- Xây dựng `src/types/game.ts` và `src/features/games/registry.ts` cho phép sảnh game hiển thị linh hoạt theo cấu hình.
-- Xây dựng lớp đa ngôn ngữ i18n (Việt/Anh) với `LanguageContext` lưu tuỳ chọn vào localStorage và tự nhận diện trình duyệt.
-- Xây dựng layout, sảnh mini-game (`LobbyPage`), các thẻ game `GameCard`, `Header` hiển thị trạng thái khách và chuyển ngôn ngữ.
-- Triển khai toàn diện Sudoku một người chơi (Chặng 2) với luật giới hạn 3 lỗi và bộ tạo đề cân bằng.
+- Đổi tên dự án từ Togame thành **Kombat** trên toàn bộ giao diện, manifest PWA và tài liệu.
+- Tích hợp hệ thống âm thanh Web Audio API (`soundService.ts`) không cần tải file mp3, có nút bật/tắt âm thanh trên Header.
+- Triển khai toàn diện Sudoku một người chơi (Chặng 2) với luật giới hạn 3 lỗi và bộ tạo đề 2 pha cân bằng.
 - Thiết lập nền tảng Supabase & Khách ẩn danh (Chặng 3): Cài đặt `@supabase/supabase-js`, tạo client singleton, `AuthProvider` phiên ẩn danh và migration RLS cho bảng `rooms`.
 - **Triển khai Cờ vua phòng riêng Realtime (Chặng 4):**
   - Tích hợp thư viện luật cờ vua quốc tế `chess.js` (kiểm tra nước đi hợp lệ, chiếu tướng, chiếu bí, hòa cờ, phong cấp tốt).
   - Bàn cờ vua responsive (`ChessBoard.tsx`) chuẩn màu thi đấu quốc tế, hiển thị gợi ý ô đi hợp lệ, đánh dấu nước đi vừa thực hiện và cảnh báo vua bị chiếu đỏ rực.
   - Tự động xoay bàn cờ theo phe người chơi (Chủ phòng cầm Trắng thấy hàng 1 ở dưới; Khách cầm Đen thấy hàng 8 ở dưới).
   - Dịch vụ phòng (`roomService.ts`): Tạo mã phòng 6 ký tự ngẫu nhiên dễ nhớ, sao chép liên kết mời bạn bè (`/games/chess?room=CODE`), tự động vào phòng qua URL.
-  - Đồng bộ nước đi và trạng thái thời gian thực qua Supabase Realtime channel (`postgres_changes`).
-  - Xử lý các tình huống: Đầu hàng, đối thủ thoát phòng, chiếu bí, hòa cờ.
+  - Đồng bộ nước đi và trạng thái thời gian thực qua cơ chế kép (Supabase Realtime Broadcast + Polling dự phòng).
+  - Tích hợp **Đồng hồ thi đấu (Chess Clock)**: Tùy chọn Không giới hạn, 3 phút Blitz, 5 phút Rapid, 10 phút Standard; đếm ngược theo lượt, đổi màu đỏ cảnh báo < 30s và xử thua khi hết giờ (Time Out).
+  - Tích hợp **Biên bản ván đấu (Move History)**: Hiển thị danh sách nước đi theo cặp chuẩn cờ vua (1. e4 e5...), tự cuộn xuống nước mới nhất.
+  - Xử lý các tình huống: Đầu hàng, đối thủ thoát phòng, chiếu bí, hết giờ, hòa cờ.
 
 ## Đang làm
 
