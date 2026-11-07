@@ -10,7 +10,8 @@ import { ChessBoard } from './ChessBoard';
 import { MoveHistory } from './MoveHistory';
 import { sounds } from '@/lib/sound/soundService';
 import { getBotMove, simulateBotThinkingDelay } from './ai/chessBot';
-import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle, Clock, WifiOff, Trophy, Eye, RotateCcw, Bot } from 'lucide-react';
+import { recordChessGameResult } from './statsService';
+import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle, Clock, WifiOff, Trophy, Eye, RotateCcw, Bot, Smile } from 'lucide-react';
 
 interface ChessGameViewProps {
   initialRoom: ChessRoom;
@@ -52,6 +53,77 @@ export function ChessGameView({
   const [showGameOverModal, setShowGameOverModal] = useState(true);
   const [rematchRequestedByMe, setRematchRequestedByMe] = useState(false);
   const [rematchOfferedByOpponent, setRematchOfferedByOpponent] = useState(false);
+
+  // Emoji Reactions State
+  const [activeReactions, setActiveReactions] = useState<{
+    id: string;
+    emoji: string;
+    target: 'me' | 'opponent';
+  }[]>([]);
+  const [showReactionPicker, setShowReactionPicker] = useState(false);
+  const EMOJI_OPTIONS = ['👍', '🔥', '👏', '🤔', '😂', '😭'];
+
+  // Ref to prevent duplicate recording of match stats
+  const hasRecordedResultRef = useRef<string | null>(null);
+
+  const handleIncomingReaction = useCallback(
+    (emoji: string, target: 'me' | 'opponent') => {
+      sounds.playClick();
+      const id = `${Date.now()}_${Math.random()}`;
+      setActiveReactions((prev) => [...prev, { id, emoji, target }]);
+      setTimeout(() => {
+        setActiveReactions((prev) => prev.filter((r) => r.id !== id));
+      }, 2500);
+    },
+    []
+  );
+
+  const handleSendReaction = useCallback(
+    (emoji: string) => {
+      handleIncomingReaction(emoji, 'me');
+      setShowReactionPicker(false);
+
+      if (!isBotGame && channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'chess_reaction',
+          payload: {
+            from: currentUserId,
+            emoji,
+          },
+        });
+      }
+
+      // If playing with Bot, bot playfully replies with subtle probability
+      if (isBotGame) {
+        if (Math.random() < 0.45) {
+          setTimeout(() => {
+            const botReplies = ['👍', '🔥', '🤔', '👏'];
+            const randomReply =
+              botReplies[Math.floor(Math.random() * botReplies.length)];
+            handleIncomingReaction(randomReply, 'opponent');
+          }, 850);
+        }
+      }
+    },
+    [currentUserId, isBotGame, handleIncomingReaction]
+  );
+
+  // Auto record match stats in localStorage once when game ends
+  useEffect(() => {
+    if (room.status === 'completed' && room.game_state.winner) {
+      if (hasRecordedResultRef.current !== room.id) {
+        hasRecordedResultRef.current = room.id;
+        const result: 'win' | 'loss' | 'draw' =
+          room.game_state.winner === myColor
+            ? 'win'
+            : room.game_state.winner === 'draw'
+            ? 'draw'
+            : 'loss';
+        recordChessGameResult(result, isBotGame);
+      }
+    }
+  }, [room.status, room.game_state.winner, room.id, myColor, isBotGame]);
 
   const timeControl = room.game_state.timeControl ?? 0;
   const [whiteSeconds, setWhiteSeconds] = useState<number>(
@@ -437,6 +509,11 @@ export function ChessGameView({
           sounds.playMatchFound();
         }
       })
+      .on('broadcast', { event: 'chess_reaction' }, ({ payload }) => {
+        if (payload && payload.from !== currentUserId && payload.emoji) {
+          handleIncomingReaction(payload.emoji, 'opponent');
+        }
+      })
       .on('presence', { event: 'sync' }, () => {
         const state = channel.presenceState();
         const curOpponentId = opponentIdRef.current;
@@ -738,7 +815,21 @@ export function ChessGameView({
       )}
 
       {/* Opponent Profile Bar */}
-      <div className="flex items-center justify-between rounded-xl bg-white border border-gray-200 px-4 py-3 mb-3 shadow-sm">
+      <div className="relative flex items-center justify-between rounded-xl bg-white border border-gray-200 px-4 py-3 mb-3 shadow-sm">
+        {/* Floating Opponent Reactions */}
+        <div className="absolute -top-7 left-8 flex items-center gap-1.5 pointer-events-none z-30">
+          {activeReactions
+            .filter((r) => r.target === 'opponent')
+            .map((r) => (
+              <span
+                key={r.id}
+                className="inline-block text-2xl animate-bounce filter drop-shadow-md select-none transform transition-all duration-300"
+              >
+                {r.emoji}
+              </span>
+            ))}
+        </div>
+
         <div className="flex items-center gap-2.5">
           <div
             className={`flex h-8 w-8 items-center justify-center rounded-lg font-bold text-sm ${
@@ -840,7 +931,21 @@ export function ChessGameView({
       />
 
       {/* Player Profile & Controls Bar */}
-      <div className="mt-3 flex items-center justify-between rounded-xl bg-white border border-gray-200 px-4 py-3 shadow-sm">
+      <div className="relative mt-3 flex items-center justify-between rounded-xl bg-white border border-gray-200 px-4 py-3 shadow-sm">
+        {/* Floating Player Reactions */}
+        <div className="absolute -top-7 left-8 flex items-center gap-1.5 pointer-events-none z-30">
+          {activeReactions
+            .filter((r) => r.target === 'me')
+            .map((r) => (
+              <span
+                key={r.id}
+                className="inline-block text-2xl animate-bounce filter drop-shadow-md select-none transform transition-all duration-300"
+              >
+                {r.emoji}
+              </span>
+            ))}
+        </div>
+
         <div className="flex items-center gap-2.5">
           <div
             className={`flex h-8 w-8 items-center justify-center rounded-lg font-bold text-sm ${
@@ -883,6 +988,38 @@ export function ChessGameView({
               {t.chess.yourTurn}
             </span>
           )}
+
+          {/* Reaction Emoji Picker */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowReactionPicker((prev) => !prev)}
+              className={`rounded-lg border p-1.5 transition-colors ${
+                showReactionPicker
+                  ? 'border-indigo-400 bg-indigo-50 text-indigo-600'
+                  : 'border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              title={t.chess.sendReaction}
+            >
+              <Smile className="h-4 w-4" />
+            </button>
+
+            {/* Reaction Popover */}
+            {showReactionPicker && (
+              <div className="absolute bottom-full right-0 mb-2 flex items-center gap-1 rounded-2xl border border-gray-200 bg-white/95 backdrop-blur-sm p-1.5 shadow-xl animate-scale-up z-40">
+                {EMOJI_OPTIONS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => handleSendReaction(emoji)}
+                    className="flex h-8 w-8 items-center justify-center rounded-xl text-lg hover:bg-gray-100 hover:scale-125 active:scale-95 transition-transform"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {room.status === 'in_progress' && (
             <button
