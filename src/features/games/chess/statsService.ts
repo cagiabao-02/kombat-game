@@ -1,3 +1,5 @@
+import { supabase } from '@/lib/supabase/client';
+
 export interface ModeStats {
   total: number;
   wins: number;
@@ -10,6 +12,7 @@ export interface ChessStats {
   wins: number;
   losses: number;
   draws: number;
+  streak?: number;
   currentStreak: number;
   bestStreak: number;
   pvp: ModeStats;
@@ -24,6 +27,7 @@ const DEFAULT_STATS: ChessStats = {
   wins: 0,
   losses: 0,
   draws: 0,
+  streak: 0,
   currentStreak: 0,
   bestStreak: 0,
   pvp: { total: 0, wins: 0, losses: 0, draws: 0 },
@@ -39,11 +43,34 @@ export function getChessStats(): ChessStats {
     return {
       ...DEFAULT_STATS,
       ...parsed,
+      streak: parsed.currentStreak ?? parsed.streak ?? 0,
       pvp: { ...DEFAULT_STATS.pvp, ...(parsed.pvp || {}) },
       bot: { ...DEFAULT_STATS.bot, ...(parsed.bot || {}) },
     };
   } catch {
     return DEFAULT_STATS;
+  }
+}
+
+export function saveChessStatsLocally(stats: ChessStats): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+  } catch (e) {
+    console.error('Failed to save chess stats to localStorage:', e);
+  }
+}
+
+export async function syncChessStatsToCloud(stats: ChessStats): Promise<void> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.auth.updateUser({
+        data: { chess_stats: stats },
+      });
+    }
+  } catch (err) {
+    console.error('Failed to sync stats to cloud:', err);
   }
 }
 
@@ -82,19 +109,17 @@ export function recordChessGameResult(
     wins: newWins,
     losses: newLosses,
     draws: newDraws,
+    streak: newCurrentStreak,
     currentStreak: newCurrentStreak,
     bestStreak: newBestStreak,
     [targetCategory]: categoryStats,
     lastUpdated: Date.now(),
   };
 
-  if (typeof window !== 'undefined') {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedStats));
-    } catch (e) {
-      console.error('Failed to save chess stats to localStorage:', e);
-    }
-  }
+  saveChessStatsLocally(updatedStats);
+
+  // Asynchronously sync to cloud
+  syncChessStatsToCloud(updatedStats).catch(() => {});
 
   return updatedStats;
 }

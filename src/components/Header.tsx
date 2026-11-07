@@ -4,14 +4,15 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/features/auth/AuthContext';
-import { Globe, User, Edit3, X, Check, Volume2, VolumeX } from 'lucide-react';
+import { Globe, Volume2, VolumeX, ShieldCheck } from 'lucide-react';
 import { sounds } from '@/lib/sound/soundService';
+import { ProfileAuthModal } from '@/features/auth/ProfileAuthModal';
+import { UserAvatar } from '@/components/UserAvatar';
 
 export function Header() {
   const { language, setLanguage } = useLanguage();
-  const { guestName, updateGuestName } = useAuth();
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [tempName, setTempName] = useState('');
+  const { guestName, avatar, isAnonymous } = useAuth();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
@@ -25,19 +26,6 @@ export function Header() {
 
   const toggleLanguage = () => {
     setLanguage(language === 'vi' ? 'en' : 'vi');
-  };
-
-  const handleOpenEdit = () => {
-    setTempName(guestName);
-    setIsEditingName(true);
-  };
-
-  const handleSaveName = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (tempName.trim()) {
-      await updateGuestName(tempName);
-      setIsEditingName(false);
-    }
   };
 
   return (
@@ -57,16 +45,27 @@ export function Header() {
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Guest Identity pill & Edit trigger */}
+            {/* User Profile Pill & Modal Trigger */}
             <button
               type="button"
-              onClick={handleOpenEdit}
-              className="flex items-center gap-1.5 rounded-full bg-gray-100 hover:bg-gray-200/80 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors"
-              title="Đổi tên hiển thị / Change display name"
+              onClick={() => setIsProfileOpen(true)}
+              className="flex items-center gap-1.5 rounded-full bg-gray-100 hover:bg-gray-200/80 px-2.5 py-1 text-xs font-medium text-gray-800 transition-all border border-gray-200/60 shadow-2xs hover:scale-102 active:scale-98"
+              title={
+                language === 'vi'
+                  ? 'Hồ sơ, Avatar & Tài khoản / Profile & Account'
+                  : 'Profile, Avatar & Account'
+              }
             >
-              <User className="h-3.5 w-3.5 text-indigo-600" />
-              <span className="max-w-[120px] truncate">{guestName}</span>
-              <Edit3 className="h-3 w-3 text-gray-400 hover:text-gray-700" />
+              <UserAvatar
+                avatar={avatar}
+                className="h-5 w-5 text-xs rounded-full border-0 shadow-none bg-transparent"
+              />
+              <span className="max-w-[100px] sm:max-w-[130px] truncate font-semibold">
+                {guestName}
+              </span>
+              {!isAnonymous && (
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              )}
             </button>
 
             {/* Sound Toggle */}
@@ -97,65 +96,11 @@ export function Header() {
         </div>
       </header>
 
-      {/* Edit Display Name Modal */}
-      {isEditingName && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-sm rounded-3xl border border-gray-100 bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-gray-900">
-                {language === 'vi' ? 'Đổi tên hiển thị' : 'Change Display Name'}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsEditingName(false)}
-                className="rounded-lg p-1 text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveName}>
-              <div className="mb-4">
-                <label className="block text-xs font-medium text-gray-600 mb-1.5">
-                  {language === 'vi' ? 'Tên hiển thị trong phòng chơi:' : 'Display name in rooms:'}
-                </label>
-                <input
-                  type="text"
-                  maxLength={20}
-                  value={tempName}
-                  onChange={(e) => setTempName(e.target.value)}
-                  className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600"
-                  placeholder={language === 'vi' ? 'Nhập tên của bạn...' : 'Enter your name...'}
-                  autoFocus
-                />
-                <p className="mt-1.5 text-[11px] text-gray-400">
-                  {language === 'vi'
-                    ? 'Tên này sẽ hiển thị cho đối thủ thấy khi bạn tham gia phòng đấu.'
-                    : 'This name is visible to opponents when you join game rooms.'}
-                </p>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsEditingName(false)}
-                  className="flex-1 rounded-xl border border-gray-200 py-2.5 text-xs font-semibold text-gray-600 hover:bg-gray-50"
-                >
-                  {language === 'vi' ? 'Hủy' : 'Cancel'}
-                </button>
-                <button
-                  type="submit"
-                  disabled={!tempName.trim()}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
-                >
-                  <Check className="h-4 w-4" />
-                  <span>{language === 'vi' ? 'Lưu' : 'Save'}</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Profile & Auth Modal */}
+      <ProfileAuthModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+      />
     </>
   );
 }

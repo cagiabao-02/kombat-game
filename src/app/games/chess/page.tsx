@@ -21,7 +21,7 @@ import { ChessGameView } from '@/features/games/chess/ChessGameView';
 import { sounds } from '@/lib/sound/soundService';
 
 function ChessGameContainer() {
-  const { user, guestName, ensureUser, authError } = useAuth();
+  const { user, guestName, avatar, ensureUser, authError } = useAuth();
   const { t } = useLanguage();
   const searchParams = useSearchParams();
 
@@ -80,7 +80,7 @@ function ChessGameContainer() {
         }
 
         if (room.status === 'waiting' && !room.guest_id) {
-          const updated = await joinChessRoom(room.id, activeUser.id, guestName);
+          const updated = await joinChessRoom(room.id, activeUser.id, guestName, avatar);
           setCurrentRoom(updated);
         } else {
           setErrorMessage(t.chess.roomFull);
@@ -93,7 +93,7 @@ function ChessGameContainer() {
     }
 
     handleAutoJoin(roomCodeFromUrl);
-  }, [searchParams, user, guestName, currentRoom, t, ensureUser, authError]);
+  }, [searchParams, user, guestName, avatar, currentRoom, t, ensureUser, authError]);
 
   // Handle user clicking "Create Room"
   const handleCreateRoom = useCallback(
@@ -116,7 +116,7 @@ function ChessGameContainer() {
           return;
         }
 
-        const room = await createChessRoom(activeUser.id, guestName, timeControl);
+        const room = await createChessRoom(activeUser.id, guestName, timeControl, avatar);
         setCurrentRoom(room);
       } catch (err: any) {
         console.error('Create room error:', err);
@@ -125,7 +125,7 @@ function ChessGameContainer() {
         setIsCreating(false);
       }
     },
-    [user, guestName, ensureUser, authError]
+    [user, guestName, avatar, ensureUser, authError]
   );
 
   // Handle user entering room code to join
@@ -161,7 +161,7 @@ function ChessGameContainer() {
         }
 
         if (room.status === 'waiting' && !room.guest_id) {
-          const updated = await joinChessRoom(room.id, activeUser.id, guestName);
+          const updated = await joinChessRoom(room.id, activeUser.id, guestName, avatar);
           setCurrentRoom(updated);
         } else {
           setErrorMessage(t.chess.roomFull);
@@ -172,7 +172,7 @@ function ChessGameContainer() {
         setIsJoining(false);
       }
     },
-    [user, guestName, t, ensureUser, authError]
+    [user, guestName, avatar, t, ensureUser, authError]
   );
 
   // Cancel Quick Match
@@ -261,7 +261,8 @@ function ChessGameContainer() {
         const result = await findOrCreateQuickMatchRoom(
           activeUser.id,
           guestName,
-          timeControl
+          timeControl,
+          avatar
         );
 
         if (isCancelledRef.current) {
@@ -387,7 +388,7 @@ function ChessGameContainer() {
         setErrorMessage(err?.message || 'Có lỗi xảy ra khi tìm trận.');
       }
     },
-    [user, guestName, ensureUser, authError, handleCancelQuickMatch]
+    [user, guestName, avatar, ensureUser, authError, handleCancelQuickMatch]
   );
 
   const handleStartBotMatch = useCallback(
@@ -402,12 +403,13 @@ function ChessGameContainer() {
         guestName,
         playerColor,
         difficulty,
-        timeControl
+        timeControl,
+        avatar
       );
       sounds.playMatchFound();
       setCurrentRoom(botRoom);
     },
-    [user, guestName, handleCancelQuickMatch]
+    [user, guestName, avatar, handleCancelQuickMatch]
   );
 
   return (

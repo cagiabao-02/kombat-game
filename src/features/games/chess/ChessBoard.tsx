@@ -102,7 +102,7 @@ export function ChessBoard({
   };
 
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[460px] select-none overflow-hidden rounded-2xl border-4 border-amber-900/40 bg-amber-900/20 shadow-xl">
+    <div className="relative mx-auto aspect-square w-full max-w-[460px] select-none overflow-hidden rounded-xl border-4 border-amber-900/40 bg-amber-900/20 shadow-xl">
       {/* Promotion Choice Modal */}
       {pendingPromotion && (
         <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-[2px] p-4 animate-fade-in">
@@ -187,10 +187,19 @@ export function ChessBoard({
                 className={`relative flex items-center justify-center transition-colors focus:outline-none ${bgClass}`}
                 aria-label={`Square ${square}`}
               >
-                {/* Coordinates labels */}
+                {/* Chess piece */}
+                {piece && (
+                  <ChessPiece
+                    type={piece.type}
+                    color={piece.color}
+                    className="w-full h-full transform scale-85 sm:scale-95"
+                  />
+                )}
+
+                {/* Coordinates labels - rendered with z-10 on top */}
                 {fIdx === 0 && (
                   <span
-                    className={`absolute left-1 top-0.5 text-[10px] font-bold ${
+                    className={`pointer-events-none select-none absolute left-1 top-1 text-[9px] sm:text-[11px] font-black leading-none drop-shadow-xs z-10 ${
                       isLightSquare ? 'text-[#769656]' : 'text-[#EEEED2]'
                     }`}
                   >
@@ -199,20 +208,12 @@ export function ChessBoard({
                 )}
                 {rIdx === 7 && (
                   <span
-                    className={`absolute bottom-0.5 right-1 text-[10px] font-bold ${
+                    className={`pointer-events-none select-none absolute right-1.5 bottom-1.5 text-[9px] sm:text-[11px] font-black leading-none drop-shadow-xs z-10 ${
                       isLightSquare ? 'text-[#769656]' : 'text-[#EEEED2]'
                     }`}
                   >
                     {file}
                   </span>
-                )}
-
-                {/* Chess piece */}
-                {piece && (
-                  <ChessPiece
-                    type={piece.type}
-                    color={piece.color}
-                  />
                 )}
 
                 {/* Valid Move Indicator Dot / Ring */}
