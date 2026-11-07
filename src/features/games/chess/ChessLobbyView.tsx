@@ -155,15 +155,15 @@ export function ChessLobbyView({
         </div>
 
         {/* CARD 2: CREATE PRIVATE ROOM */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-gray-300">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-700">
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm transition-all hover:border-gray-300">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-700">
                 <Plus className="h-5 w-5" />
               </div>
-              <div>
-                <h3 className="font-bold text-gray-900 text-sm">{t.chess.createRoom}</h3>
-                <p className="text-xs text-gray-500">
+              <div className="min-w-0">
+                <h3 className="font-bold text-gray-900 text-sm truncate">{t.chess.createRoom}</h3>
+                <p className="text-xs text-gray-500 truncate">
                   {language === 'vi' ? 'Tạo phòng lấy mã mời gửi bạn bè' : 'Create private room to invite friends'}
                 </p>
               </div>
@@ -173,7 +173,7 @@ export function ChessLobbyView({
               type="button"
               disabled={isCreating || isJoining || isSearchingMatch}
               onClick={() => onCreateRoom(selectedTime)}
-              className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 active:scale-95 disabled:opacity-50"
+              className="shrink-0 whitespace-nowrap rounded-xl border border-gray-300 bg-white px-3.5 sm:px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 active:scale-95 disabled:opacity-50"
             >
               {isCreating ? t.common.loading : t.chess.createRoom}
             </button>
@@ -181,12 +181,12 @@ export function ChessLobbyView({
         </div>
 
         {/* CARD 3: JOIN EXISTING ROOM */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-gray-300">
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm transition-all hover:border-gray-300">
           <div className="flex items-center gap-3 mb-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
               <Users className="h-5 w-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <h3 className="font-bold text-gray-900 text-sm">{t.chess.joinRoom}</h3>
               <p className="text-xs text-gray-500">
                 {language === 'vi' ? 'Nhập mã 6 ký tự do bạn bè gửi' : 'Enter 6-char code from friend'}
@@ -194,19 +194,19 @@ export function ChessLobbyView({
             </div>
           </div>
 
-          <form onSubmit={handleJoinSubmit} className="flex gap-2">
+          <form onSubmit={handleJoinSubmit} className="flex items-center gap-2">
             <input
               type="text"
               maxLength={8}
               value={inputCode}
               onChange={(e) => setInputCode(e.target.value.toUpperCase())}
               placeholder="VD: 8K2M9A"
-              className="flex-1 rounded-xl border border-gray-300 px-4 py-2.5 text-center font-mono text-base font-bold tracking-widest text-gray-900 uppercase placeholder:text-gray-400 focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              className="min-w-0 flex-1 rounded-xl border border-gray-300 px-3 py-2.5 text-center font-mono text-sm sm:text-base font-bold tracking-widest text-gray-900 uppercase placeholder:text-gray-400 placeholder:tracking-normal focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600"
             />
             <button
               type="submit"
               disabled={isJoining || isCreating || isSearchingMatch || inputCode.trim().length < 4}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-gray-900 px-5 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-black active:scale-95 disabled:opacity-50"
+              className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl bg-gray-900 px-4 sm:px-5 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-black active:scale-95 disabled:opacity-50"
             >
               <span>{isJoining ? t.common.loading : t.chess.joinButton}</span>
               <ArrowRight className="h-4 w-4" />
