@@ -5,11 +5,11 @@ import { Chess, Move } from 'chess.js';
 import { supabase } from '@/lib/supabase/client';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { ChessRoom, ChessGameState, PlayerColor, RoomStatus } from './types';
-import { updateChessGameState, leaveChessRoom } from './roomService';
+import { updateChessGameState, leaveChessRoom, startRematchRoom } from './roomService';
 import { ChessBoard } from './ChessBoard';
 import { MoveHistory } from './MoveHistory';
 import { sounds } from '@/lib/sound/soundService';
-import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle, Clock, WifiOff, Trophy, Eye } from 'lucide-react';
+import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle, Clock, WifiOff, Trophy, Eye, RotateCcw } from 'lucide-react';
 
 interface ChessGameViewProps {
   initialRoom: ChessRoom;
@@ -34,9 +34,17 @@ export function ChessGameView({
   const isMyTurn = room.status === 'in_progress' && room.game_state.turn === myTurnChar;
 
   const opponentId = isHost ? room.guest_id : room.host_id;
+  const opponentIdRef = useRef<string | null | undefined>(opponentId);
+  opponentIdRef.current = opponentId;
+
+  const roomStatusRef = useRef<RoomStatus>(room.status);
+  roomStatusRef.current = room.status;
+
   const [isOpponentDisconnected, setIsOpponentDisconnected] = useState(false);
   const [disconnectCountdown, setDisconnectCountdown] = useState(30);
   const [showGameOverModal, setShowGameOverModal] = useState(true);
+  const [rematchRequestedByMe, setRematchRequestedByMe] = useState(false);
+  const [rematchOfferedByOpponent, setRematchOfferedByOpponent] = useState(false);
 
   const timeControl = room.game_state.timeControl ?? 0;
   const [whiteSeconds, setWhiteSeconds] = useState<number>(
@@ -54,7 +62,17 @@ export function ChessGameView({
     if (room.game_state.blackTime !== undefined) {
       setBlackSeconds(room.game_state.blackTime);
     }
-  }, [room.game_state.whiteTime, room.game_state.blackTime, room.game_state.history.length]);
+    if (room.status === 'in_progress') {
+      setShowGameOverModal(true);
+      setRematchRequestedByMe(false);
+      setRematchOfferedByOpponent(false);
+    }
+  }, [
+    room.game_state.whiteTime,
+    room.game_state.blackTime,
+    room.game_state.history.length,
+    room.status,
+  ]);
 
   const handleTimeout = useCallback(
     async (timedOutSide: 'white' | 'black') => {
@@ -118,6 +136,49 @@ export function ChessGameView({
 
     await updateChessGameState(room.id, newGameState, 'completed');
   }, [room, myColor]);
+
+  // Offer rematch to opponent
+  const handleOfferRematch = useCallback(() => {
+    setRematchRequestedByMe(true);
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'rematch_offer',
+        payload: { from: currentUserId },
+      });
+    }
+  }, [currentUserId]);
+
+  // Accept rematch from opponent
+  const handleAcceptRematch = useCallback(async () => {
+    try {
+      if (!room.guest_id) return;
+      const newRoom = await startRematchRoom(
+        room.id,
+        room.host_id,
+        room.guest_id,
+        room.host_name,
+        room.guest_name || '',
+        room.game_state.timeControl || 0
+      );
+
+      setRoom(newRoom);
+      setShowGameOverModal(true);
+      setRematchRequestedByMe(false);
+      setRematchOfferedByOpponent(false);
+      sounds.playMatchFound();
+
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'rematch_accepted',
+          payload: newRoom,
+        });
+      }
+    } catch (err) {
+      console.error('Failed to accept rematch:', err);
+    }
+  }, [room]);
 
   // Disconnection countdown (auto claim victory after 30s)
   useEffect(() => {
@@ -193,6 +254,22 @@ export function ChessGameView({
   // Supabase Realtime: Postgres Changes + Broadcast + Presence tracking
   useEffect(() => {
     const channelName = `chess_room_${room.id}`;
+
+    // Safely remove any existing channel with the same topic to avoid duplicate callback errors
+    const channels = supabase.getChannels();
+    for (const ch of channels) {
+      if (ch.topic === `realtime:${channelName}` || ch.subTopic === channelName) {
+        ch.unsubscribe();
+        supabase.removeChannel(ch);
+      }
+    }
+    // Also synchronously purge from RealtimeClient internal cache to prevent reusing an already subscribed instance
+    if ((supabase as any).realtime?.channels) {
+      (supabase as any).realtime.channels = (supabase as any).realtime.channels.filter(
+        (ch: any) => ch.topic !== `realtime:${channelName}` && ch.subTopic !== channelName
+      );
+    }
+
     const channel = supabase
       .channel(channelName, {
         config: {
@@ -210,7 +287,11 @@ export function ChessGameView({
         },
         (payload) => {
           if (payload.new) {
-            setRoom(payload.new as ChessRoom);
+            const updated = payload.new as ChessRoom;
+            setRoom(updated);
+            if (updated.status === 'abandoned' || updated.game_state?.winner) {
+              sounds.playVictory();
+            }
           }
         }
       )
@@ -218,8 +299,12 @@ export function ChessGameView({
         if (payload) {
           const updated = payload as ChessRoom;
           setRoom(updated);
-          // Play sound for opponent move
-          if (updated.game_state.isCheckmate || updated.game_state.winner) {
+          // Play sound for opponent move or victory
+          if (
+            updated.status === 'abandoned' ||
+            updated.game_state.isCheckmate ||
+            updated.game_state.winner
+          ) {
             sounds.playVictory();
           } else if (updated.game_state.isCheck) {
             sounds.playCheck();
@@ -228,10 +313,30 @@ export function ChessGameView({
           }
         }
       })
+      .on('broadcast', { event: 'rematch_offer' }, ({ payload }) => {
+        if (payload && payload.from !== currentUserId) {
+          setRematchOfferedByOpponent(true);
+          sounds.playClick();
+        }
+      })
+      .on('broadcast', { event: 'rematch_accepted' }, ({ payload }) => {
+        if (payload) {
+          const updated = payload as ChessRoom;
+          setRoom(updated);
+          setShowGameOverModal(true);
+          setRematchRequestedByMe(false);
+          setRematchOfferedByOpponent(false);
+          sounds.playMatchFound();
+        }
+      })
       .on('presence', { event: 'sync' }, () => {
         const state = channel.presenceState();
-        if (opponentId && room.status === 'in_progress') {
-          const hasOpponent = Boolean(state[opponentId] && (state[opponentId] as any[]).length > 0);
+        const curOpponentId = opponentIdRef.current;
+        const curStatus = roomStatusRef.current;
+        if (curOpponentId && curStatus === 'in_progress') {
+          const hasOpponent = Boolean(
+            state[curOpponentId] && (state[curOpponentId] as any[]).length > 0
+          );
           if (!hasOpponent) {
             setIsOpponentDisconnected(true);
           } else {
@@ -240,13 +345,13 @@ export function ChessGameView({
         }
       })
       .on('presence', { event: 'join' }, ({ key }) => {
-        if (key === opponentId) {
+        if (key === opponentIdRef.current) {
           setIsOpponentDisconnected(false);
           setDisconnectCountdown(30);
         }
       })
       .on('presence', { event: 'leave' }, ({ key }) => {
-        if (key === opponentId && room.status === 'in_progress') {
+        if (key === opponentIdRef.current && roomStatusRef.current === 'in_progress') {
           setIsOpponentDisconnected(true);
         }
       })
@@ -263,9 +368,14 @@ export function ChessGameView({
 
     return () => {
       supabase.removeChannel(channel);
+      if ((supabase as any).realtime?.channels) {
+        (supabase as any).realtime.channels = (supabase as any).realtime.channels.filter(
+          (ch: any) => ch !== channel
+        );
+      }
       channelRef.current = null;
     };
-  }, [room.id, currentUserId, opponentId, room.status]);
+  }, [room.id, currentUserId]);
 
   // Fallback Polling (mỗi 1.5s khi đang chờ đối thủ, và 3s trong trận) để đảm bảo không bị lỡ sự kiện
   useEffect(() => {
@@ -409,6 +519,7 @@ export function ChessGameView({
       const newGameState: ChessGameState = {
         ...room.game_state,
         winner,
+        isResigned: true,
       };
       const updatedRoom: ChessRoom = {
         ...room,
@@ -432,7 +543,29 @@ export function ChessGameView({
   // Leave room
   const handleLeave = async () => {
     if (window.confirm('Bạn có chắc muốn rời khỏi phòng chơi?')) {
-      await leaveChessRoom(room.id, currentUserId, isHost);
+      if (room.status === 'in_progress') {
+        const winner = myColor === 'white' ? 'black' : 'white';
+        const newGameState: ChessGameState = {
+          ...room.game_state,
+          winner,
+          isResigned: true,
+        };
+        const updatedRoom: ChessRoom = {
+          ...room,
+          game_state: newGameState,
+          status: 'completed',
+        };
+        if (channelRef.current) {
+          channelRef.current.send({
+            type: 'broadcast',
+            event: 'room_state',
+            payload: updatedRoom,
+          });
+        }
+        await updateChessGameState(room.id, newGameState, 'completed');
+      } else {
+        await leaveChessRoom(room.id, currentUserId, isHost);
+      }
       onExitRoom();
     }
   };
@@ -696,20 +829,47 @@ export function ChessGameView({
                 ? room.game_state.winner === myColor
                   ? t.chess.timeoutWon
                   : t.chess.timeoutLost
+                : room.game_state.isResigned
+                ? room.game_state.winner === myColor
+                  ? t.chess.resignedWon
+                  : t.chess.resignedLost
                 : isOpponentDisconnected && room.game_state.winner === myColor
                 ? t.chess.opponentAbandonedWin
                 : ''}
             </p>
 
             <div className="mt-6 flex flex-col gap-2.5">
-              <button
-                type="button"
-                onClick={onExitRoom}
-                className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-md hover:bg-indigo-700 active:scale-95 transition-all"
-              >
-                {t.common.backToLobby}
-              </button>
+              {/* Rematch Button */}
+              {rematchOfferedByOpponent ? (
+                <button
+                  type="button"
+                  onClick={handleAcceptRematch}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-md hover:bg-emerald-700 active:scale-95 transition-all animate-pulse"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  <span>{t.chess.acceptRematch}</span>
+                </button>
+              ) : rematchRequestedByMe ? (
+                <button
+                  type="button"
+                  disabled
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 py-3 text-xs font-semibold text-indigo-700 opacity-90 cursor-not-allowed"
+                >
+                  <Clock className="h-4 w-4 animate-spin text-indigo-600" />
+                  <span>{t.chess.rematchWaiting}</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleOfferRematch}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-md hover:bg-indigo-700 active:scale-95 transition-all"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  <span>{t.chess.rematch}</span>
+                </button>
+              )}
 
+              {/* Review Board Button */}
               <button
                 type="button"
                 onClick={() => setShowGameOverModal(false)}
@@ -718,6 +878,15 @@ export function ChessGameView({
                 <Eye className="h-4 w-4" />
                 <span>{language === 'vi' ? 'Xem lại bàn cờ' : 'Review Board'}</span>
               </button>
+
+              {/* Back to Lobby Button */}
+              <button
+                type="button"
+                onClick={onExitRoom}
+                className="w-full rounded-xl border border-transparent bg-gray-100 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-200 active:scale-95 transition-all"
+              >
+                {t.common.backToLobby}
+              </button>
             </div>
           </div>
         </div>
@@ -725,7 +894,7 @@ export function ChessGameView({
 
       {/* Game Over Review Banner at Bottom (when modal is dismissed) */}
       {room.status === 'completed' && !showGameOverModal && (
-        <div className="mt-4 flex items-center justify-between rounded-2xl border border-indigo-200 bg-white p-4 shadow-sm animate-fade-in">
+        <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-indigo-200 bg-white p-4 shadow-sm animate-fade-in">
           <div>
             <h4 className="text-sm font-bold text-gray-900">
               {room.game_state.winner === myColor
@@ -741,35 +910,68 @@ export function ChessGameView({
                 ? room.game_state.winner === myColor
                   ? t.chess.timeoutWon
                   : t.chess.timeoutLost
+                : room.game_state.isResigned
+                ? room.game_state.winner === myColor
+                  ? t.chess.resignedWon
+                  : t.chess.resignedLost
                 : isOpponentDisconnected && room.game_state.winner === myColor
                 ? t.chess.opponentAbandonedWin
                 : ''}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onExitRoom}
-            className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-indigo-700"
-          >
-            {t.common.backToLobby}
-          </button>
-        </div>
-      )}
+          <div className="flex items-center gap-2">
+            {rematchOfferedByOpponent ? (
+              <button
+                type="button"
+                onClick={handleAcceptRematch}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 animate-pulse"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span>{t.chess.acceptRematch}</span>
+              </button>
+            ) : rematchRequestedByMe ? (
+              <span className="rounded-xl bg-indigo-50 px-3 py-2 text-[11px] font-semibold text-indigo-700">
+                {t.chess.rematchWaiting}
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={handleOfferRematch}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-indigo-700"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span>{t.chess.rematch}</span>
+              </button>
+            )}
 
-      {/* Opponent Abandoned / Left Modal */}
-      {room.status === 'abandoned' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 sm:p-8 text-center shadow-2xl border border-gray-100">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-gray-600 mb-3">
-              <LogOut className="h-7 w-7" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900">
-              {t.chess.opponentLeft}
-            </h3>
             <button
               type="button"
               onClick={onExitRoom}
-              className="mt-6 w-full rounded-xl bg-gray-900 py-3 text-sm font-bold text-white hover:bg-black"
+              className="rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50"
+            >
+              {t.common.backToLobby}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Opponent Abandoned / Left Modal -> Award victory to remaining player */}
+      {room.status === 'abandoned' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 sm:p-8 text-center shadow-2xl border border-gray-100 animate-scale-up">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 mb-4">
+              <Trophy className="h-8 w-8 animate-bounce" />
+            </div>
+            <h3 className="text-2xl font-black text-gray-900 tracking-tight">
+              {t.chess.youWon}
+            </h3>
+            <p className="mt-2 text-sm text-gray-600">
+              {t.chess.opponentLeftWin}
+            </p>
+            <button
+              type="button"
+              onClick={onExitRoom}
+              className="mt-6 w-full rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-md hover:bg-indigo-700 active:scale-95 transition-all"
             >
               {t.common.backToLobby}
             </button>

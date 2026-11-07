@@ -57,13 +57,14 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [x] Nhận diện mất kết nối / đóng tab qua Realtime Presence và bộ đếm ngược 30s tự động xử thắng (Claim Victory).
 - [ ] Kiểm tra bằng hai trình duyệt/thiết bị.
 
-## Chặng 5 — Ghép ngẫu nhiên (sau MVP hoặc nếu chủ dự án ưu tiên)
+## Chặng 5 — Ghép ngẫu nhiên (Quick Match) & Đấu lại (Rematch)
 
-- [ ] Chốt luật ghép: guest hay tài khoản, timeout, hủy tìm và vùng/độ trễ.
-- [ ] Thiết kế thao tác ghép nguyên tử để không ghép một người vào hai trận.
-- [ ] Tạo trạng thái hàng đợi, ghép cặp và dọn hàng đợi cũ.
-- [ ] Bảo vệ endpoint/RPC, giới hạn spam và xác thực thành viên trận.
-- [ ] Xử lý timeout, người chơi thoát giữa chừng và ghép lại.
+- [x] Thiết kế luồng ghép ngẫu nhiên và giả lập thời gian tìm trận ngẫu nhiên 1–5 giây.
+- [x] Thêm dịch vụ tìm hoặc tạo phòng ghép trận (`findOrCreateQuickMatchRoom`) và hủy tìm kiếm (`cancelQuickMatch`) trong `roomService.ts`.
+- [x] Thêm thẻ giao diện "Ghép trận nhanh" và hoạt ảnh radar tìm kiếm trong `ChessLobbyView.tsx`.
+- [x] Xử lý tự động hủy, nhận diện đối thủ vào phòng, âm thanh tìm thấy trận đấu và chuyển thẳng vào trận trong `page.tsx`.
+- [x] Tích hợp tính năng Đấu lại ván mới (Rematch): Mời đấu lại, chấp nhận, tự động đổi màu quân (swap color) và reset đồng hồ/bàn cờ chuẩn cờ vua.
+- [ ] Kiểm tra thực tế bằng hai tab/trình duyệt.
 
 ## Chặng 6 — Hoàn thiện và phát hành bản đầu
 

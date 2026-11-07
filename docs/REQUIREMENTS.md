@@ -59,6 +59,13 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 - Hai người thấy cùng trạng thái bàn cờ và lượt đi; nước đi không hợp lệ bị từ chối.
 - Giao diện cho biết đang kết nối, đối thủ đã rời đi và ván kết thúc.
 
+### FR-3.1 — Ghép trận ngẫu nhiên (Quick Match)
+
+- Cho phép người chơi bấm "Ghép trận nhanh" mà không cần gửi mã phòng thủ công.
+- Tùy chọn chế độ thời gian mong muốn (3 phút, 5 phút, 10 phút hoặc Không giới hạn).
+- Giả lập thời gian tìm kiếm ngẫu nhiên từ 1 đến 5 giây trước khi thực hiện ghép, hiển thị đồng hồ thời gian tìm kiếm và cho phép hủy bất kỳ lúc nào.
+- Hệ thống tự động ghép với phòng chờ tương thích hoặc tạo phòng mới chờ đối thủ vào. Khi có đối thủ, tự động thông báo và vào ván đấu.
+
 ### FR-4 — Danh tính và quyền truy cập
 
 - Người chơi vào bằng tài khoản khách, không bắt buộc tự đăng ký email/mật khẩu; có tên hiển thị.
