@@ -15,6 +15,7 @@ export interface ChessGameState {
   whiteTime?: number;
   blackTime?: number;
   isTimeout?: boolean;
+  isResigned?: boolean;
   lastMoveTimestamp?: number;
 }
 

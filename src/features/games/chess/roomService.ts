@@ -140,3 +140,105 @@ export async function leaveChessRoom(
 
   await supabase.from('rooms').update(payload as any).eq('id', roomId);
 }
+
+export async function findOrCreateQuickMatchRoom(
+  userId: string,
+  userName: string,
+  timeControl: number = 0
+): Promise<{ room: ChessRoom; role: 'host' | 'guest' }> {
+  // 1. Look for existing available room created in the last 15 minutes
+  const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+
+  const { data: availableRooms, error: searchError } = await supabase
+    .from('rooms')
+    .select('*')
+    .eq('game_id', 'chess')
+    .eq('status', 'waiting')
+    .is('guest_id', null)
+    .neq('host_id', userId)
+    .gte('created_at', fifteenMinutesAgo)
+    .order('created_at', { ascending: true })
+    .limit(5);
+
+  if (!searchError && availableRooms && availableRooms.length > 0) {
+    // STRICT MATCH: ONLY join if timeControl is EXACTLY identical
+    const matchingRoom = availableRooms.find(
+      (r: any) => Number(r.game_state?.timeControl ?? 0) === Number(timeControl ?? 0)
+    );
+
+    if (matchingRoom) {
+      // Atomically join this room (concurrency guard: status must still be 'waiting')
+      const { data: joinedRoom, error: joinError } = await supabase
+        .from('rooms')
+        .update({
+          guest_id: userId,
+          guest_name: userName,
+          status: 'in_progress',
+          updated_at: new Date().toISOString(),
+        } as any)
+        .eq('id', matchingRoom.id)
+        .eq('status', 'waiting')
+        .is('guest_id', null)
+        .select('*')
+        .single();
+
+      if (!joinError && joinedRoom) {
+        return { room: joinedRoom as ChessRoom, role: 'guest' };
+      }
+    }
+  }
+
+  // 2. If no room available or joining failed due to race condition, create a new waiting room
+  const newRoom = await createChessRoom(userId, userName, timeControl);
+  return { room: newRoom, role: 'host' };
+}
+
+export async function cancelQuickMatch(roomId: string): Promise<void> {
+  await supabase
+    .from('rooms')
+    .update({
+      status: 'abandoned',
+      updated_at: new Date().toISOString(),
+    } as any)
+    .eq('id', roomId)
+    .eq('status', 'waiting');
+}
+
+export async function startRematchRoom(
+  roomId: string,
+  currentHostId: string,
+  currentGuestId: string,
+  currentHostName: string,
+  currentGuestName: string,
+  timeControl: number = 0
+): Promise<ChessRoom> {
+  const initialGameState: ChessGameState = {
+    ...INITIAL_GAME_STATE,
+    timeControl,
+    whiteTime: timeControl,
+    blackTime: timeControl,
+    lastMoveTimestamp: Date.now(),
+  };
+
+  // Swap colors on rematch: Previous guest becomes host (White), previous host becomes guest (Black)
+  const { data, error } = await supabase
+    .from('rooms')
+    .update({
+      host_id: currentGuestId,
+      host_name: currentGuestName,
+      guest_id: currentHostId,
+      guest_name: currentHostName,
+      status: 'in_progress',
+      game_state: initialGameState,
+      updated_at: new Date().toISOString(),
+    } as any)
+    .eq('id', roomId)
+    .select('*')
+    .single();
+
+  if (error || !data) {
+    throw new Error('Không thể bắt đầu ván mới.');
+  }
+
+  return data as ChessRoom;
+}

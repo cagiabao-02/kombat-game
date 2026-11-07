@@ -4,9 +4,9 @@
 
 ## Trạng thái tổng quan
 
-- **Giai đoạn:** Đã hoàn thành Chặng 0, 1, 2, 3, 4, 6 và bổ sung Đồng hồ thi đấu + Biên bản nước đi cho Cờ vua.
-- **Mã nguồn:** Next.js 15 App Router, TypeScript, Tailwind CSS, i18n Việt/Anh, Sảnh game Kombat, Sudoku hoàn chỉnh (luật 3 lỗi), cờ vua Realtime kèm đồng hồ thi đấu & biên bản nước đi, âm thanh tổng hợp Web Audio API, PWA.
-- **Git/GitHub:** Đang trên nhánh tính năng `chess-clock-history`.
+- **Giai đoạn:** Đã hoàn thành Chặng 0, 1, 2, 3, 4, 6 và triển khai Chặng 5 — Ghép trận ngẫu nhiên (Quick Match).
+- **Mã nguồn:** Next.js 15 App Router, TypeScript, Tailwind CSS, i18n Việt/Anh, Sảnh game Kombat, Sudoku hoàn chỉnh (luật 3 lỗi), cờ vua Realtime kèm đồng hồ thi đấu, biên bản nước đi, ghép trận ngẫu nhiên 1–5s, âm thanh tổng hợp Web Audio API, PWA.
+- **Git/GitHub:** Đang trên nhánh tính năng `feat-chess-quick-match`.
 - **Supabase:** Đã cấu hình `.env.local`, bảng `rooms` với RLS và Realtime, hỗ trợ Auth khách ẩn danh.
 - **Asset:** Đã có cấu trúc thư mục quy chuẩn, icon PWA SVG.
 
@@ -14,7 +14,7 @@
 
 - Tạo tài liệu yêu cầu sản phẩm và phạm vi MVP.
 - Đổi tên dự án từ Togame thành **Kombat** trên toàn bộ giao diện, manifest PWA và tài liệu.
-- Tích hợp hệ thống âm thanh Web Audio API (`soundService.ts`) không cần tải file mp3, có nút bật/tắt âm thanh trên Header.
+- Tích hợp hệ thống âm thanh Web Audio API (`soundService.ts`) không cần tải file mp3, có nút bật/tắt âm thanh trên Header và âm thanh tìm thấy trận đấu `playMatchFound()`.
 - Triển khai toàn diện Sudoku một người chơi (Chặng 2) với luật giới hạn 3 lỗi và bộ tạo đề 2 pha cân bằng.
 - Thiết lập nền tảng Supabase & Khách ẩn danh (Chặng 3): Cài đặt `@supabase/supabase-js`, tạo client singleton, `AuthProvider` phiên ẩn danh và migration RLS cho bảng `rooms`.
 - **Triển khai Cờ vua phòng riêng Realtime (Chặng 4):**
@@ -25,8 +25,14 @@
   - Đồng bộ nước đi và trạng thái thời gian thực qua cơ chế kép (Supabase Realtime Broadcast + Polling dự phòng).
   - Tích hợp **Đồng hồ thi đấu (Chess Clock)**: Tùy chọn Không giới hạn, 3 phút Blitz, 5 phút Rapid, 10 phút Standard; đếm ngược theo lượt, đổi màu đỏ cảnh báo < 30s và xử thua khi hết giờ (Time Out).
   - Tích hợp **Biên bản ván đấu (Move History)**: Hiển thị danh sách nước đi theo cặp chuẩn cờ vua (1. e4 e5...), tự cuộn xuống nước mới nhất.
-  - Tích hợp **Cơ chế Presence & Reconnect (Cách 2)**: Nhận diện đối thủ đóng tab/mất mạng tức thì, hiện cảnh báo đếm ngược 30 giây và tự động xử thắng cho người ở lại (hoặc bấm nhận thắng ngay).
-  - Xử lý các tình huống: Đầu hàng, đối thủ thoát phòng/mất kết nối, chiếu bí, hết giờ, hòa cờ.
+  - Tích hợp **Cơ chế Presence & Reconnect (Cách 2)**: Nhận diện đối thủ đóng tab/mất mạng tức thì, hiện cảnh báo đếm ngược 30 giây và tự động xử thắng cho người ở lại.
+  - Hộp thoại kết thúc ván (Centered Modal) chính giữa màn hình với icon Cúp vàng và nút xem lại bàn cờ.
+- **Triển khai Ghép trận ngẫu nhiên (Chặng 5 — Quick Match):**
+  - Thẻ "Ghép trận nhanh" nổi bật ngay đầu sảnh cờ vua kèm tùy chọn thời gian đấu (3p, 5p, 10p, Không giới hạn).
+  - Giả lập thời gian tìm kiếm ngẫu nhiên 1–5 giây tạo nhịp độ hàng đợi thực tế, hiển thị radar xung nhịp và đồng hồ đếm giây.
+  - Nút "Hủy tìm kiếm" cho phép rút khỏi hàng đợi bất cứ lúc nào không để lại phòng rác.
+  - Tự động ghép nối vào phòng đang chờ hoặc tạo phòng chờ người khác tham gia qua Supabase Realtime, phát âm thanh và chuyển thẳng vào trận.
+  - Tích hợp tính năng **Đấu lại ván mới (Rematch)**: Cho phép gửi lời mời đấu lại ngay trên popup kết thúc trận hoặc thanh review bàn cờ; khi đối thủ chấp nhận, hệ thống tự động đổi màu quân (người cầm Trắng đổi sang Đen và ngược lại), reset đồng hồ thi đấu và bắt đầu ván mới ngay lập tức.
 
 ## Đang làm
 
