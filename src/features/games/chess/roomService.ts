@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
-import { ChessRoom, ChessGameState, RoomStatus } from './types';
+import { ChessRoom, ChessGameState, RoomStatus, BotDifficulty } from './types';
 
 const INITIAL_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
@@ -241,4 +241,100 @@ export async function startRematchRoom(
   }
 
   return data as ChessRoom;
+}
+
+export function createBotChessRoom(
+  userId: string,
+  userName: string,
+  playerColorChoice: 'white' | 'black' | 'random' = 'white',
+  difficulty: BotDifficulty = 'medium',
+  timeControl: number = 0
+): ChessRoom {
+  const chosenColor: 'white' | 'black' =
+    playerColorChoice === 'random'
+      ? Math.random() < 0.5
+        ? 'white'
+        : 'black'
+      : playerColorChoice;
+
+  const botColor: 'white' | 'black' = chosenColor === 'white' ? 'black' : 'white';
+  const botName =
+    difficulty === 'easy'
+      ? 'Bot Kombat (Dễ)'
+      : difficulty === 'medium'
+      ? 'Bot Kombat (Vừa)'
+      : 'Bot Kombat (Khó)';
+
+  const initialGameState: ChessGameState = {
+    ...INITIAL_GAME_STATE,
+    timeControl,
+    whiteTime: timeControl,
+    blackTime: timeControl,
+    lastMoveTimestamp: Date.now(),
+    isBotGame: true,
+    botDifficulty: difficulty,
+    botColor,
+  };
+
+  const isPlayerWhite = chosenColor === 'white';
+
+  return {
+    id: `bot_room_${Date.now()}`,
+    code: 'BOTAI1',
+    game_id: 'chess',
+    status: 'in_progress',
+    host_id: isPlayerWhite ? userId : 'bot_kombat',
+    host_name: isPlayerWhite ? userName : botName,
+    guest_id: isPlayerWhite ? 'bot_kombat' : userId,
+    guest_name: isPlayerWhite ? botName : userName,
+    game_state: initialGameState,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    is_bot_game: true,
+    bot_difficulty: difficulty,
+  };
+}
+
+export function startBotRematchRoom(currentRoom: ChessRoom): ChessRoom {
+  const previousBotColor = currentRoom.game_state.botColor || 'black';
+  const newBotColor = previousBotColor === 'white' ? 'black' : 'white';
+  const timeControl = currentRoom.game_state.timeControl || 0;
+  const difficulty = currentRoom.bot_difficulty || 'medium';
+
+  const isPlayerWhite = newBotColor === 'black';
+  const botName =
+    currentRoom.host_id === 'bot_kombat'
+      ? currentRoom.host_name
+      : currentRoom.guest_name || 'Bot Kombat';
+  const playerName =
+    currentRoom.host_id !== 'bot_kombat'
+      ? currentRoom.host_name
+      : currentRoom.guest_name || 'Người chơi';
+  const playerId =
+    currentRoom.host_id !== 'bot_kombat'
+      ? currentRoom.host_id
+      : currentRoom.guest_id || 'player';
+
+  const initialGameState: ChessGameState = {
+    ...INITIAL_GAME_STATE,
+    timeControl,
+    whiteTime: timeControl,
+    blackTime: timeControl,
+    lastMoveTimestamp: Date.now(),
+    isBotGame: true,
+    botDifficulty: difficulty,
+    botColor: newBotColor,
+  };
+
+  return {
+    ...currentRoom,
+    id: `bot_room_${Date.now()}`,
+    status: 'in_progress',
+    host_id: isPlayerWhite ? playerId : 'bot_kombat',
+    host_name: isPlayerWhite ? playerName : botName,
+    guest_id: isPlayerWhite ? 'bot_kombat' : playerId,
+    guest_name: isPlayerWhite ? botName : playerName,
+    game_state: initialGameState,
+    updated_at: new Date().toISOString(),
+  };
 }

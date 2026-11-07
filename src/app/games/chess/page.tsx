@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/features/auth/AuthContext';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { ArrowLeft } from 'lucide-react';
-import { ChessRoom } from '@/features/games/chess/types';
+import { ChessRoom, BotDifficulty } from '@/features/games/chess/types';
 import { supabase } from '@/lib/supabase/client';
 import {
   createChessRoom,
@@ -14,6 +14,7 @@ import {
   joinChessRoom,
   findOrCreateQuickMatchRoom,
   cancelQuickMatch,
+  createBotChessRoom,
 } from '@/features/games/chess/roomService';
 import { ChessLobbyView } from '@/features/games/chess/ChessLobbyView';
 import { ChessGameView } from '@/features/games/chess/ChessGameView';
@@ -389,6 +390,26 @@ function ChessGameContainer() {
     [user, guestName, ensureUser, authError, handleCancelQuickMatch]
   );
 
+  const handleStartBotMatch = useCallback(
+    (
+      difficulty: BotDifficulty,
+      playerColor: 'white' | 'black' | 'random',
+      timeControl: number
+    ) => {
+      handleCancelQuickMatch();
+      const botRoom = createBotChessRoom(
+        user?.id || 'guest_player',
+        guestName,
+        playerColor,
+        difficulty,
+        timeControl
+      );
+      sounds.playMatchFound();
+      setCurrentRoom(botRoom);
+    },
+    [user, guestName, handleCancelQuickMatch]
+  );
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 sm:py-8">
       {/* Top back navigation (only visible when in lobby) */}
@@ -411,6 +432,7 @@ function ChessGameContainer() {
           onJoinRoom={handleJoinRoom}
           onStartQuickMatch={handleStartQuickMatch}
           onCancelQuickMatch={handleCancelQuickMatch}
+          onStartBotMatch={handleStartBotMatch}
           isCreating={isCreating}
           isJoining={isJoining}
           isSearchingMatch={isSearchingMatch}

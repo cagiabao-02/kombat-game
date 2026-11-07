@@ -75,3 +75,11 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [ ] Kiểm tra quyền truy cập/RLS và không đưa secret key lên client.
 - [ ] Viết hướng dẫn build/deploy và danh sách giới hạn đã biết.
 - [ ] Tạo PR phát hành, review diff và merge sau khi sẵn sàng.
+
+## Chặng 7 — Hệ thống Bot cờ vua tự động (Chess AI & Matchmaking Fallback)
+
+- [x] Xây dựng Chess AI Engine (`chessBot.ts`): Minimax + Alpha-Beta pruning + Piece-Square Tables với 3 cấp độ (Dễ, Vừa, Khó).
+- [x] Thêm thẻ "Chơi với Máy (Bot)" ở sảnh cờ vua: chọn cấp độ thông minh và màu quân (Trắng, Đen, Ngẫu nhiên).
+- [x] Tích hợp chế độ chơi offline với Bot trong `ChessGameView`: Giả lập thời gian suy nghĩ 0.6s–1.2s, xử lý bot tự động đi cờ, ăn quân, chiếu tướng.
+- [x] Tích hợp đề xuất đấu với Bot trong Ghép trận nhanh (Quick Match fallback) khi tìm trận quá 2 phút (120s).
+- [x] Hỗ trợ tính năng Đấu lại ván mới với Bot (hoán đổi màu quân).

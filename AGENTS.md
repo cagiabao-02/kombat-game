@@ -18,7 +18,8 @@
 5. Supabase: mọi bảng trong schema được expose phải bật RLS và có policy theo đúng quyền truy cập. Không bao giờ đưa `service_role`/secret key vào ứng dụng trình duyệt. Không tin dữ liệu do client tự gửi để quyết định quyền hoặc kết quả trận.
 6. Thay đổi schema cần migration có tên mô tả, được lưu cùng repo; tránh sửa schema remote thủ công mà không có migration tương ứng.
 7. Khi hoàn tất, nêu rõ tệp đã sửa, lý do, các kiểm tra đã chạy và việc còn chờ. Không khẳng định đã kiểm tra nếu chưa chạy.
-8. Theo cấu trúc và quy ước trong `docs/DEVELOPMENT.md`. Cập nhật `docs/PROGRESS.md` khi hoàn tất một chặng hoặc có thay đổi đáng kể về trạng thái.
+8. Khi người dùng yêu cầu hướng dẫn push Git/tạo PR, luôn soạn sẵn cả lệnh Git, link PR, Tiêu đề (Title) và Nội dung mô tả (Description) chi tiết của PR để người dùng tiện sao chép.
+9. Theo cấu trúc và quy ước trong `docs/DEVELOPMENT.md`. Cập nhật `docs/PROGRESS.md` khi hoàn tất một chặng hoặc có thay đổi đáng kể về trạng thái.
 
 ## Quy ước dự án
 

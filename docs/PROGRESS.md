@@ -4,9 +4,9 @@
 
 ## Trạng thái tổng quan
 
-- **Giai đoạn:** Đã hoàn thành Chặng 0, 1, 2, 3, 4, 6 và triển khai Chặng 5 — Ghép trận ngẫu nhiên (Quick Match).
-- **Mã nguồn:** Next.js 15 App Router, TypeScript, Tailwind CSS, i18n Việt/Anh, Sảnh game Kombat, Sudoku hoàn chỉnh (luật 3 lỗi), cờ vua Realtime kèm đồng hồ thi đấu, biên bản nước đi, ghép trận ngẫu nhiên 1–5s, âm thanh tổng hợp Web Audio API, PWA.
-- **Git/GitHub:** Đang trên nhánh tính năng `feat-chess-quick-match`.
+- **Giai đoạn:** Đã hoàn thành Chặng 0, 1, 2, 3, 4, 5, 6 và triển khai Chặng 7 — Hệ thống Bot cờ vua tự động (Chess AI & Matchmaking Fallback).
+- **Mã nguồn:** Next.js 15 App Router, TypeScript, Tailwind CSS, i18n Việt/Anh, Sảnh game Kombat, Sudoku hoàn chỉnh (luật 3 lỗi), cờ vua Realtime kèm đồng hồ thi đấu, biên bản nước đi, ghép trận ngẫu nhiên 1–5s, hệ thống Bot cờ vua 3 cấp độ (Dễ/Vừa/Khó) chạy offline local, âm thanh tổng hợp Web Audio API, PWA.
+- **Git/GitHub:** Đang trên nhánh tính năng `feat-chess-bot`.
 - **Supabase:** Đã cấu hình `.env.local`, bảng `rooms` với RLS và Realtime, hỗ trợ Auth khách ẩn danh.
 - **Asset:** Đã có cấu trúc thư mục quy chuẩn, icon PWA SVG.
 
