@@ -2,15 +2,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { useAuth } from '@/features/auth/AuthContext';
 import {
   ChessStats,
   getChessStats,
   calculateWinrate,
 } from './statsService';
-import { Trophy, Flame, Swords, Bot, Award, Percent } from 'lucide-react';
+import { Trophy, Flame, Swords, Bot, Award, Percent, ShieldCheck } from 'lucide-react';
+import { UserAvatar } from '@/components/UserAvatar';
 
 export function ChessStatsCard() {
   const { t, language } = useLanguage();
+  const { guestName, avatar, isAnonymous } = useAuth();
   const [stats, setStats] = useState<ChessStats | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'pvp' | 'bot'>('all');
 
@@ -38,15 +41,27 @@ export function ChessStatsCard() {
     <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm transition-all hover:border-gray-300">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-700 shadow-xs">
-            <Award className="h-5 w-5" />
-          </div>
+          <UserAvatar
+            avatar={avatar}
+            className="h-10 w-10 text-2xl rounded-xl border border-indigo-100/80 bg-indigo-50"
+          />
           <div>
-            <h3 className="font-bold text-gray-900 text-sm">{t.chess.statsTitle}</h3>
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-bold text-gray-900 text-sm">{guestName}</h3>
+              {!isAnonymous && (
+                <span
+                  className="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200"
+                  title={language === 'vi' ? 'Đã liên kết tài khoản đám mây' : 'Cloud account synced'}
+                >
+                  <ShieldCheck className="h-3 w-3" />
+                  <span>Cloud</span>
+                </span>
+              )}
+            </div>
             <p className="text-[11px] text-gray-400">
-              {language === 'vi'
-                ? 'Dữ liệu được lưu an toàn trên trình duyệt này'
-                : 'Stats stored locally on this device'}
+              {!isAnonymous
+                ? (language === 'vi' ? 'Thành tích đã đồng bộ đám mây' : 'Stats synced to cloud')
+                : (language === 'vi' ? 'Dữ liệu lưu trên thiết bị này' : 'Stats stored locally on this device')}
             </p>
           </div>
         </div>

@@ -9,8 +9,10 @@ import { updateChessGameState, leaveChessRoom, startRematchRoom, startBotRematch
 import { ChessBoard } from './ChessBoard';
 import { MoveHistory } from './MoveHistory';
 import { sounds } from '@/lib/sound/soundService';
+import { useAuth } from '@/features/auth/AuthContext';
 import { getBotMove, simulateBotThinkingDelay } from './ai/chessBot';
 import { recordChessGameResult } from './statsService';
+import { UserAvatar } from '@/components/UserAvatar';
 import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle, Clock, WifiOff, Trophy, Eye, RotateCcw, Bot, Smile } from 'lucide-react';
 
 interface ChessGameViewProps {
@@ -25,6 +27,7 @@ export function ChessGameView({
   onExitRoom,
 }: ChessGameViewProps) {
   const { t, language } = useLanguage();
+  const { avatar: myAvatar } = useAuth();
   const [room, setRoom] = useState<ChessRoom>(initialRoom);
   const [copied, setCopied] = useState(false);
   const [isSubmittingMove, setIsSubmittingMove] = useState(false);
@@ -40,6 +43,12 @@ export function ChessGameView({
   const botTurnChar = botColor === 'white' ? 'w' : 'b';
   const isBotTurn = isBotGame && room.status === 'in_progress' && room.game_state.turn === botTurnChar;
   const [isBotThinking, setIsBotThinking] = useState(false);
+
+  const opponentAvatar = isBotGame
+    ? '🤖'
+    : isHost
+    ? room.game_state.guestAvatar || (myColor === 'white' ? '♚' : '♔')
+    : room.game_state.hostAvatar || (myColor === 'white' ? '♚' : '♔');
 
   const opponentId = isHost ? room.guest_id : room.host_id;
   const opponentIdRef = useRef<string | null | undefined>(opponentId);
@@ -223,7 +232,7 @@ export function ChessGameView({
   // Offer rematch to opponent
   const handleOfferRematch = useCallback(() => {
     if (isBotGame) {
-      const newRoom = startBotRematchRoom(room);
+      const newRoom = startBotRematchRoom(room, myAvatar);
       setRoom(newRoom);
       setShowGameOverModal(true);
       setRematchRequestedByMe(false);
@@ -240,7 +249,7 @@ export function ChessGameView({
         payload: { from: currentUserId },
       });
     }
-  }, [currentUserId, isBotGame, room]);
+  }, [currentUserId, isBotGame, room, myAvatar]);
 
   // Accept rematch from opponent
   const handleAcceptRematch = useCallback(async () => {
@@ -252,7 +261,9 @@ export function ChessGameView({
         room.guest_id,
         room.host_name,
         room.guest_name || '',
-        room.game_state.timeControl || 0
+        room.game_state.timeControl || 0,
+        room.game_state.hostAvatar,
+        room.game_state.guestAvatar
       );
 
       setRoom(newRoom);
@@ -815,7 +826,7 @@ export function ChessGameView({
       )}
 
       {/* Opponent Profile Bar */}
-      <div className="relative flex items-center justify-between rounded-xl bg-white border border-gray-200 px-4 py-3 mb-3 shadow-sm">
+      <div className="relative flex items-center justify-between rounded-xl bg-white border border-gray-200 px-3 py-2.5 sm:px-4 sm:py-3 mb-3 shadow-sm min-w-0">
         {/* Floating Opponent Reactions */}
         <div className="absolute -top-7 left-8 flex items-center gap-1.5 pointer-events-none z-30">
           {activeReactions
@@ -830,23 +841,32 @@ export function ChessGameView({
             ))}
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <div
-            className={`flex h-8 w-8 items-center justify-center rounded-lg font-bold text-sm ${
-              isBotGame
-                ? 'bg-purple-100 text-purple-700 border border-purple-200'
-                : opponentColor === 'white'
-                ? 'bg-gray-100 text-gray-800 border border-gray-300'
-                : 'bg-gray-900 text-white'
-            }`}
-          >
-            {isBotGame ? <Bot className="h-4 w-4" /> : opponentColor === 'white' ? '♔' : '♚'}
+        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 pr-1">
+          <div className="relative shrink-0">
+            <UserAvatar
+              avatar={opponentAvatar}
+              className={`h-9 w-9 text-lg rounded-xl border shadow-2xs ${
+                isBotGame
+                  ? 'border-purple-200 bg-purple-50 text-purple-700'
+                  : 'border-gray-200 bg-white'
+              }`}
+            />
+            <span
+              className={`absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold shadow-2xs border ${
+                opponentColor === 'white'
+                  ? 'bg-white text-gray-800 border-gray-300'
+                  : 'bg-gray-900 text-white border-gray-800'
+              }`}
+              title={opponentColor === 'white' ? t.chess.white : t.chess.black}
+            >
+              {isBotGame ? <Bot className="h-2.5 w-2.5" /> : opponentColor === 'white' ? '♔' : '♚'}
+            </span>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               {room.status === 'in_progress' && (
                 <span
-                  className={`h-2 w-2 rounded-full ${
+                  className={`h-2 w-2 rounded-full shrink-0 ${
                     isBotGame
                       ? 'bg-purple-500'
                       : isOpponentDisconnected
@@ -856,7 +876,7 @@ export function ChessGameView({
                   title={isBotGame ? 'AI Bot' : isOpponentDisconnected ? 'Offline' : 'Online'}
                 />
               )}
-              <p className="text-xs sm:text-sm font-bold text-gray-900 truncate max-w-[140px] sm:max-w-[200px]">
+              <p className="text-xs sm:text-sm font-bold text-gray-900 truncate max-w-[100px] sm:max-w-[200px]">
                 {opponentName}
               </p>
             </div>
@@ -871,10 +891,10 @@ export function ChessGameView({
         </div>
 
         {/* Opponent turn & Clock indicator */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {timeControl > 0 && (
             <div
-              className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-mono text-xs font-bold transition-all ${
+              className={`flex items-center gap-1.5 rounded-lg border px-2 py-1 sm:px-2.5 sm:py-1 font-mono text-[11px] sm:text-xs font-bold transition-all shrink-0 ${
                 opponentSeconds < 30 && room.status === 'in_progress'
                   ? 'border-red-400 bg-red-50 text-red-600 animate-pulse'
                   : !isMyTurn && room.status === 'in_progress'
@@ -882,18 +902,18 @@ export function ChessGameView({
                   : 'border-gray-200 bg-gray-50 text-gray-700'
               }`}
             >
-              <Clock className="h-3.5 w-3.5" />
+              <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               <span>{formatTime(opponentSeconds)}</span>
             </div>
           )}
 
           {isBotThinking ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-1 text-[11px] font-bold text-purple-800 animate-pulse">
+            <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-[11px] font-bold text-purple-800 animate-pulse shrink-0">
               <Bot className="h-3 w-3" />
               <span>{t.chess.botThinking}</span>
             </span>
           ) : room.status === 'in_progress' && !isMyTurn ? (
-            <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800 animate-pulse">
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-[11px] font-semibold text-amber-800 animate-pulse shrink-0">
               {t.chess.opponentTurn}
             </span>
           ) : null}
@@ -931,7 +951,7 @@ export function ChessGameView({
       />
 
       {/* Player Profile & Controls Bar */}
-      <div className="relative mt-3 flex items-center justify-between rounded-xl bg-white border border-gray-200 px-4 py-3 shadow-sm">
+      <div className="relative mt-3 flex items-center justify-between rounded-xl bg-white border border-gray-200 px-3 py-2.5 sm:px-4 sm:py-3 shadow-sm min-w-0">
         {/* Floating Player Reactions */}
         <div className="absolute -top-7 left-8 flex items-center gap-1.5 pointer-events-none z-30">
           {activeReactions
@@ -946,31 +966,45 @@ export function ChessGameView({
             ))}
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <div
-            className={`flex h-8 w-8 items-center justify-center rounded-lg font-bold text-sm ${
-              myColor === 'white'
-                ? 'bg-gray-100 text-gray-800 border border-gray-300'
-                : 'bg-gray-900 text-white'
-            }`}
-          >
-            {myColor === 'white' ? '♔' : '♚'}
+        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 pr-1">
+          <div className="relative shrink-0">
+            <UserAvatar
+              avatar={myAvatar}
+              className="h-9 w-9 text-lg rounded-xl border border-gray-200 bg-white shadow-2xs"
+            />
+            <span
+              className={`absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold shadow-2xs border ${
+                myColor === 'white'
+                  ? 'bg-white text-gray-800 border-gray-300'
+                  : 'bg-gray-900 text-white border-gray-800'
+              }`}
+              title={myColor === 'white' ? t.chess.white : t.chess.black}
+            >
+              {myColor === 'white' ? '♔' : '♚'}
+            </span>
           </div>
-          <div>
-            <p className="text-xs sm:text-sm font-bold text-indigo-700 truncate max-w-[140px] sm:max-w-[200px]">
-              {isHost ? room.host_name : room.guest_name} ({language === 'vi' ? 'Bạn' : 'You'})
-            </p>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs sm:text-sm font-bold text-indigo-700 truncate max-w-[85px] sm:max-w-[160px]">
+                {isHost ? room.host_name : room.guest_name}
+              </p>
+              {room.status === 'in_progress' && isMyTurn && (
+                <span className="sm:hidden rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold text-emerald-800 animate-pulse shrink-0">
+                  {language === 'vi' ? 'Lượt bạn' : 'Turn'}
+                </span>
+              )}
+            </div>
             <span className="text-[10px] text-gray-400 font-medium">
-              {myColor === 'white' ? t.chess.white : t.chess.black}
+              {myColor === 'white' ? t.chess.white : t.chess.black} ({language === 'vi' ? 'Bạn' : 'You'})
             </span>
           </div>
         </div>
 
         {/* Player turn indicator, Clock & Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {timeControl > 0 && (
             <div
-              className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-mono text-xs font-bold transition-all ${
+              className={`flex items-center gap-1.5 rounded-lg border px-2 py-1 sm:px-2.5 sm:py-1 font-mono text-[11px] sm:text-xs font-bold transition-all shrink-0 ${
                 mySeconds < 30 && room.status === 'in_progress'
                   ? 'border-red-400 bg-red-50 text-red-600 animate-pulse'
                   : isMyTurn && room.status === 'in_progress'
@@ -978,19 +1012,19 @@ export function ChessGameView({
                   : 'border-gray-200 bg-gray-50 text-gray-700'
               }`}
             >
-              <Clock className="h-3.5 w-3.5" />
+              <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               <span>{formatTime(mySeconds)}</span>
             </div>
           )}
 
           {room.status === 'in_progress' && isMyTurn && (
-            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-800 animate-pulse">
+            <span className="hidden sm:inline-block rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-800 animate-pulse shrink-0">
               {t.chess.yourTurn}
             </span>
           )}
 
           {/* Reaction Emoji Picker */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setShowReactionPicker((prev) => !prev)}
@@ -1025,7 +1059,7 @@ export function ChessGameView({
             <button
               type="button"
               onClick={handleResign}
-              className="rounded-lg border border-gray-200 p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+              className="shrink-0 rounded-lg border border-gray-200 p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
               title={t.chess.resign}
             >
               <Flag className="h-4 w-4" />
@@ -1035,7 +1069,7 @@ export function ChessGameView({
           <button
             type="button"
             onClick={handleLeave}
-            className="rounded-lg border border-gray-200 p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+            className="shrink-0 rounded-lg border border-gray-200 p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
             title={t.chess.leaveRoom}
           >
             <LogOut className="h-4 w-4" />

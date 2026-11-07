@@ -40,6 +40,19 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
+                  // 1. Chặn Next.js Dev Overlay hiển thị cảnh báo đỏ do extension chèn bis_skin_checked
+                  var origError = console.error;
+                  console.error = function() {
+                    for (var i = 0; i < arguments.length; i++) {
+                      var arg = arguments[i];
+                      if (typeof arg === 'string' && (arg.indexOf('bis_skin_checked') !== -1 || (arg.indexOf('hydration') !== -1 && document.querySelector('[bis_skin_checked]')))) {
+                        return; // Bỏ qua cảnh báo hydration do extension gây ra
+                      }
+                    }
+                    return origError.apply(console, arguments);
+                  };
+
+                  // 2. Tự động gỡ thuộc tính bis_skin_checked nếu extension cố tình chèn
                   new MutationObserver(function(mutations) {
                     for (var i = 0; i < mutations.length; i++) {
                       if (mutations[i].attributeName === 'bis_skin_checked') {

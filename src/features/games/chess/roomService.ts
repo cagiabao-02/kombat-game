@@ -26,7 +26,8 @@ function generateRoomCode(): string {
 export async function createChessRoom(
   hostId: string,
   hostName: string,
-  timeControl: number = 0
+  timeControl: number = 0,
+  hostAvatar?: string
 ): Promise<ChessRoom> {
   let code = generateRoomCode();
   let attempts = 0;
@@ -37,6 +38,7 @@ export async function createChessRoom(
     whiteTime: timeControl,
     blackTime: timeControl,
     lastMoveTimestamp: Date.now(),
+    hostAvatar: hostAvatar || '👑',
   };
 
   while (attempts < 5) {
@@ -82,14 +84,28 @@ export async function getChessRoomByCode(code: string): Promise<ChessRoom | null
 export async function joinChessRoom(
   roomId: string,
   guestId: string,
-  guestName: string
+  guestName: string,
+  guestAvatar?: string
 ): Promise<ChessRoom> {
+  // Fetch existing room state to preserve hostAvatar
+  const { data: currentRoom } = await supabase
+    .from('rooms')
+    .select('game_state')
+    .eq('id', roomId)
+    .single();
+
+  const existingState = currentRoom?.game_state || {};
+
   const { data, error } = await supabase
     .from('rooms')
     .update({
       guest_id: guestId,
       guest_name: guestName,
       status: 'in_progress',
+      game_state: {
+        ...existingState,
+        guestAvatar: guestAvatar || '👑',
+      },
       updated_at: new Date().toISOString(),
     } as any)
     .eq('id', roomId)
@@ -144,7 +160,8 @@ export async function leaveChessRoom(
 export async function findOrCreateQuickMatchRoom(
   userId: string,
   userName: string,
-  timeControl: number = 0
+  timeControl: number = 0,
+  userAvatar?: string
 ): Promise<{ room: ChessRoom; role: 'host' | 'guest' }> {
   // 1. Look for existing available room created in the last 15 minutes
   const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
@@ -167,6 +184,7 @@ export async function findOrCreateQuickMatchRoom(
     );
 
     if (matchingRoom) {
+      const existingState = matchingRoom.game_state || {};
       // Atomically join this room (concurrency guard: status must still be 'waiting')
       const { data: joinedRoom, error: joinError } = await supabase
         .from('rooms')
@@ -174,6 +192,10 @@ export async function findOrCreateQuickMatchRoom(
           guest_id: userId,
           guest_name: userName,
           status: 'in_progress',
+          game_state: {
+            ...existingState,
+            guestAvatar: userAvatar || '👑',
+          },
           updated_at: new Date().toISOString(),
         } as any)
         .eq('id', matchingRoom.id)
@@ -189,7 +211,7 @@ export async function findOrCreateQuickMatchRoom(
   }
 
   // 2. If no room available or joining failed due to race condition, create a new waiting room
-  const newRoom = await createChessRoom(userId, userName, timeControl);
+  const newRoom = await createChessRoom(userId, userName, timeControl, userAvatar);
   return { room: newRoom, role: 'host' };
 }
 
@@ -210,7 +232,9 @@ export async function startRematchRoom(
   currentGuestId: string,
   currentHostName: string,
   currentGuestName: string,
-  timeControl: number = 0
+  timeControl: number = 0,
+  currentHostAvatar?: string,
+  currentGuestAvatar?: string
 ): Promise<ChessRoom> {
   const initialGameState: ChessGameState = {
     ...INITIAL_GAME_STATE,
@@ -218,6 +242,8 @@ export async function startRematchRoom(
     whiteTime: timeControl,
     blackTime: timeControl,
     lastMoveTimestamp: Date.now(),
+    hostAvatar: currentGuestAvatar || '👑',
+    guestAvatar: currentHostAvatar || '👑',
   };
 
   // Swap colors on rematch: Previous guest becomes host (White), previous host becomes guest (Black)
@@ -248,7 +274,8 @@ export function createBotChessRoom(
   userName: string,
   playerColorChoice: 'white' | 'black' | 'random' = 'white',
   difficulty: BotDifficulty = 'medium',
-  timeControl: number = 0
+  timeControl: number = 0,
+  userAvatar?: string
 ): ChessRoom {
   const chosenColor: 'white' | 'black' =
     playerColorChoice === 'random'
@@ -265,6 +292,8 @@ export function createBotChessRoom(
       ? 'Bot Kombat (Vừa)'
       : 'Bot Kombat (Khó)';
 
+  const isPlayerWhite = chosenColor === 'white';
+
   const initialGameState: ChessGameState = {
     ...INITIAL_GAME_STATE,
     timeControl,
@@ -274,9 +303,9 @@ export function createBotChessRoom(
     isBotGame: true,
     botDifficulty: difficulty,
     botColor,
+    hostAvatar: isPlayerWhite ? (userAvatar || '👑') : '🤖',
+    guestAvatar: isPlayerWhite ? '🤖' : (userAvatar || '👑'),
   };
-
-  const isPlayerWhite = chosenColor === 'white';
 
   return {
     id: `bot_room_${Date.now()}`,
@@ -295,7 +324,7 @@ export function createBotChessRoom(
   };
 }
 
-export function startBotRematchRoom(currentRoom: ChessRoom): ChessRoom {
+export function startBotRematchRoom(currentRoom: ChessRoom, userAvatar?: string): ChessRoom {
   const previousBotColor = currentRoom.game_state.botColor || 'black';
   const newBotColor = previousBotColor === 'white' ? 'black' : 'white';
   const timeControl = currentRoom.game_state.timeControl || 0;
@@ -324,6 +353,8 @@ export function startBotRematchRoom(currentRoom: ChessRoom): ChessRoom {
     isBotGame: true,
     botDifficulty: difficulty,
     botColor: newBotColor,
+    hostAvatar: isPlayerWhite ? (userAvatar || '👑') : '🤖',
+    guestAvatar: isPlayerWhite ? '🤖' : (userAvatar || '👑'),
   };
 
   return {

@@ -22,6 +22,8 @@ export interface ChessGameState {
   isBotGame?: boolean;
   botDifficulty?: BotDifficulty;
   botColor?: PlayerColor;
+  hostAvatar?: string;
+  guestAvatar?: string;
 }
 
 export interface ChessRoom {

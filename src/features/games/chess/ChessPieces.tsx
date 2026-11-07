@@ -23,7 +23,7 @@ export function ChessPiece({ type, color, className = 'w-full h-full' }: ChessPi
 
   return (
     <span
-      className={`inline-flex items-center justify-center select-none text-3xl sm:text-4xl md:text-5xl font-serif transition-transform active:scale-110 ${className} ${
+      className={`inline-flex items-center justify-center select-none text-[28px] sm:text-4xl md:text-5xl font-serif leading-none transition-transform active:scale-110 ${className} ${
         isWhite
           ? 'text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] filter hover:brightness-110'
           : 'text-gray-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] hover:brightness-125'

@@ -4,10 +4,12 @@
 
 ## Trạng thái tổng quan
 
-- **Giai đoạn:** Đã hoàn thành Chặng 0, 1, 2, 3, 4, 5, 6, 7 và triển khai Chặng 8 — Biểu cảm tương tác (Emoji Reactions) & Bảng thành tích (Stats).
-- **Mã nguồn:** Next.js 15 App Router, TypeScript, Tailwind CSS, i18n Việt/Anh, Sảnh game Kombat, Sudoku hoàn chỉnh (luật 3 lỗi), cờ vua Realtime kèm đồng hồ thi đấu, biên bản nước đi, ghép trận ngẫu nhiên 1–5s, Bot cờ vua 3 cấp độ offline, thả biểu cảm thời gian thực (Emoji Reactions), bảng thống kê cá nhân tự động (Stats Widget), âm thanh tổng hợp Web Audio API, PWA.
-- **Git/GitHub:** Đang trên nhánh tính năng `feat-chess-reactions-stats`.
-- **Supabase:** Đã cấu hình `.env.local`, bảng `rooms` với RLS và Realtime, hỗ trợ Auth khách ẩn danh.
+- **Giai đoạn:** Đã hoàn thành Chặng 0–8 và triển khai **Chặng 9 — Hồ sơ cá nhân, Bộ sưu tập Avatar & Đồng bộ Tài khoản Đám mây (User Profile & Cloud Account Sync)**.
+- **Mã nguồn:** Next.js 15 App Router, TypeScript, Tailwind CSS, i18n Việt/Anh, Sảnh game Kombat, Sudoku hoàn chỉnh, Cờ vua Realtime kèm đồng hồ thi đấu, biên bản nước đi, ghép trận ngẫu nhiên 1–5s, Bot cờ vua 3 cấp độ offline, biểu cảm tương tác (Emoji Reactions), bảng thành tích (Stats Widget), bộ sưu tập Avatar 12 linh vật, hồ sơ cá nhân và đồng bộ tài khoản đám mây Supabase Auth.
+- **Git/GitHub:** Đang trên nhánh tính năng `feat-user-auth-profile`.
+- **Supabase:** Đã cấu hình `.env.local`, bảng `rooms` với RLS và Realtime, hỗ trợ Auth khách ẩn danh tự động nâng cấp tài khoản vĩnh viễn (Email / Google OAuth).
+- **Hồ sơ & Avatar Realtime:** Đồng bộ avatar người chơi vào trạng thái phòng cờ vua (`hostAvatar`, `guestAvatar`), hiển thị avatar của đối thủ trong phòng thi đấu PvP và Bot AI. Hỗ trợ người dùng tự tải ảnh cá nhân từ máy (`UserAvatar.tsx`) với tính năng tự động crop vuông & nén nhẹ (đặc quyền riêng dành cho tài khoản đã liên kết Đám mây).
+- **Tối ưu Mobile & Giao diện:** Sửa lỗi tràn viền/lệch nút thoát phòng trên điện thoại; tối ưu hiển thị nhãn tọa độ `a,b,c...` / `1,2,3...` trên bàn cờ; chuẩn hóa nền avatar luôn sáng sủa (`bg-white`) kèm huy hiệu quân cờ mini `♔`/`♚` ở góc dưới.
 - **Asset:** Đã có cấu trúc thư mục quy chuẩn, icon PWA SVG.
 
 ## Đã hoàn thành
