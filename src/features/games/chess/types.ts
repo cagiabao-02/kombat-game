@@ -2,6 +2,8 @@ export type PlayerColor = 'white' | 'black';
 
 export type RoomStatus = 'waiting' | 'in_progress' | 'completed' | 'abandoned';
 
+export type BotDifficulty = 'easy' | 'medium' | 'hard';
+
 export interface ChessGameState {
   fen: string;
   history: string[];
@@ -17,6 +19,9 @@ export interface ChessGameState {
   isTimeout?: boolean;
   isResigned?: boolean;
   lastMoveTimestamp?: number;
+  isBotGame?: boolean;
+  botDifficulty?: BotDifficulty;
+  botColor?: PlayerColor;
 }
 
 export interface ChessRoom {
@@ -31,5 +36,7 @@ export interface ChessRoom {
   game_state: ChessGameState;
   created_at: string;
   updated_at: string;
+  is_bot_game?: boolean;
+  bot_difficulty?: BotDifficulty;
 }
 

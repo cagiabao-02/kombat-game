@@ -32,7 +32,9 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 - Thanh toán, quảng cáo, ứng dụng native, thông báo đẩy, dashboard quản trị.
 - Nhiều biến thể cờ hoặc nhiều game online khác.
 
-**Giai đoạn kế tiếp:** thêm hàng đợi ghép ngẫu nhiên cho cờ vua sau khi phòng riêng và đồng bộ ổn định. Hàng đợi phải ghép đúng một lần, loại bỏ người chơi đã hủy/đang mất kết nối và tránh ghép tài khoản với chính họ.
+**Giai đoạn kế tiếp:** 
+- Đã hoàn tất: Hàng đợi ghép ngẫu nhiên (Quick Match) với radar quét, chọn mốc thời gian và tính năng Đấu lại (Rematch).
+- Đang phát triển: Hệ thống Bot cờ vua tự động (3 cấp độ Dễ/Vừa/Khó) chơi offline local, kèm đề xuất chuyển sang đấu với Bot nếu tìm trận quá 2 phút.
 
 ## 4. Yêu cầu chức năng
 

@@ -33,8 +33,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi">
-      <body className="min-h-screen flex flex-col bg-[#F6F7FB] text-[#1F2937] antialiased">
+    <html lang="vi" suppressHydrationWarning>
+      <body suppressHydrationWarning className="min-h-screen flex flex-col bg-[#F6F7FB] text-[#1F2937] antialiased">
         <AuthProvider>
           <LanguageProvider>
             <Header />

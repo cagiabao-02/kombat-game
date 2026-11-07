@@ -5,11 +5,12 @@ import { Chess, Move } from 'chess.js';
 import { supabase } from '@/lib/supabase/client';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { ChessRoom, ChessGameState, PlayerColor, RoomStatus } from './types';
-import { updateChessGameState, leaveChessRoom, startRematchRoom } from './roomService';
+import { updateChessGameState, leaveChessRoom, startRematchRoom, startBotRematchRoom } from './roomService';
 import { ChessBoard } from './ChessBoard';
 import { MoveHistory } from './MoveHistory';
 import { sounds } from '@/lib/sound/soundService';
-import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle, Clock, WifiOff, Trophy, Eye, RotateCcw } from 'lucide-react';
+import { getBotMove, simulateBotThinkingDelay } from './ai/chessBot';
+import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle, Clock, WifiOff, Trophy, Eye, RotateCcw, Bot } from 'lucide-react';
 
 interface ChessGameViewProps {
   initialRoom: ChessRoom;
@@ -29,9 +30,15 @@ export function ChessGameView({
   const channelRef = useRef<any>(null);
 
   const isHost = room.host_id === currentUserId;
+  const isBotGame = Boolean(room.is_bot_game || room.game_state.isBotGame);
   const myColor: PlayerColor = isHost ? 'white' : 'black';
   const myTurnChar = myColor === 'white' ? 'w' : 'b';
   const isMyTurn = room.status === 'in_progress' && room.game_state.turn === myTurnChar;
+
+  const botColor: PlayerColor = room.game_state.botColor || (myColor === 'white' ? 'black' : 'white');
+  const botTurnChar = botColor === 'white' ? 'w' : 'b';
+  const isBotTurn = isBotGame && room.status === 'in_progress' && room.game_state.turn === botTurnChar;
+  const [isBotThinking, setIsBotThinking] = useState(false);
 
   const opponentId = isHost ? room.guest_id : room.host_id;
   const opponentIdRef = useRef<string | null | undefined>(opponentId);
@@ -95,7 +102,7 @@ export function ChessGameView({
       setRoom(updatedRoom);
       sounds.playVictory();
 
-      if (channelRef.current) {
+      if (!isBotGame && channelRef.current) {
         channelRef.current.send({
           type: 'broadcast',
           event: 'room_state',
@@ -103,9 +110,11 @@ export function ChessGameView({
         });
       }
 
-      await updateChessGameState(room.id, newGameState, 'completed');
+      if (!isBotGame) {
+        await updateChessGameState(room.id, newGameState, 'completed');
+      }
     },
-    [room, whiteSeconds, blackSeconds]
+    [room, whiteSeconds, blackSeconds, isBotGame]
   );
 
   // Claim victory when opponent disconnects
@@ -126,7 +135,7 @@ export function ChessGameView({
     setRoom(updatedRoom);
     sounds.playVictory();
 
-    if (channelRef.current) {
+    if (!isBotGame && channelRef.current) {
       channelRef.current.send({
         type: 'broadcast',
         event: 'room_state',
@@ -134,11 +143,23 @@ export function ChessGameView({
       });
     }
 
-    await updateChessGameState(room.id, newGameState, 'completed');
-  }, [room, myColor]);
+    if (!isBotGame) {
+      await updateChessGameState(room.id, newGameState, 'completed');
+    }
+  }, [room, myColor, isBotGame]);
 
   // Offer rematch to opponent
   const handleOfferRematch = useCallback(() => {
+    if (isBotGame) {
+      const newRoom = startBotRematchRoom(room);
+      setRoom(newRoom);
+      setShowGameOverModal(true);
+      setRematchRequestedByMe(false);
+      setRematchOfferedByOpponent(false);
+      sounds.playMatchFound();
+      return;
+    }
+
     setRematchRequestedByMe(true);
     if (channelRef.current) {
       channelRef.current.send({
@@ -147,7 +168,7 @@ export function ChessGameView({
         payload: { from: currentUserId },
       });
     }
-  }, [currentUserId]);
+  }, [currentUserId, isBotGame, room]);
 
   // Accept rematch from opponent
   const handleAcceptRematch = useCallback(async () => {
@@ -182,7 +203,7 @@ export function ChessGameView({
 
   // Disconnection countdown (auto claim victory after 30s)
   useEffect(() => {
-    if (!isOpponentDisconnected || room.status !== 'in_progress') {
+    if (isBotGame || !isOpponentDisconnected || room.status !== 'in_progress') {
       setDisconnectCountdown(30);
       return;
     }
@@ -199,10 +220,11 @@ export function ChessGameView({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isOpponentDisconnected, room.status, handleClaimVictory]);
+  }, [isOpponentDisconnected, room.status, handleClaimVictory, isBotGame]);
 
   // Clean disconnect on tab close
   useEffect(() => {
+    if (isBotGame) return;
     const handleBeforeUnload = () => {
       if (channelRef.current) {
         channelRef.current.untrack();
@@ -210,7 +232,7 @@ export function ChessGameView({
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
+  }, [isBotGame]);
 
   // Clock countdown interval
   useEffect(() => {
@@ -251,8 +273,94 @@ export function ChessGameView({
   const mySeconds = myColor === 'white' ? whiteSeconds : blackSeconds;
   const opponentSeconds = myColor === 'white' ? blackSeconds : whiteSeconds;
 
+  // Bot Turn Execution
+  useEffect(() => {
+    if (!isBotTurn) return;
+
+    let isCancelled = false;
+
+    const executeBotTurn = async () => {
+      setIsBotThinking(true);
+      await simulateBotThinkingDelay(room.bot_difficulty || 'medium');
+
+      if (isCancelled || room.status !== 'in_progress') {
+        setIsBotThinking(false);
+        return;
+      }
+
+      const chess = new Chess(room.game_state.fen);
+      const botMove = getBotMove(chess, room.bot_difficulty || 'medium');
+
+      if (!botMove || isCancelled) {
+        setIsBotThinking(false);
+        return;
+      }
+
+      const moveResult = chess.move(botMove);
+      if (!moveResult || isCancelled) {
+        setIsBotThinking(false);
+        return;
+      }
+
+      const isCheckmate = chess.isCheckmate();
+      const isDraw = chess.isDraw();
+      const isCheck = chess.inCheck();
+      const isCaptured = moveResult.captured;
+
+      if (isCheckmate) {
+        sounds.playVictory();
+      } else if (isCheck) {
+        sounds.playCheck();
+      } else if (isCaptured) {
+        sounds.playCapture();
+      } else {
+        sounds.playMove();
+      }
+
+      let winner: 'white' | 'black' | 'draw' | null = null;
+      let newStatus: RoomStatus = room.status;
+
+      if (isCheckmate) {
+        winner = botColor;
+        newStatus = 'completed';
+      } else if (isDraw) {
+        winner = 'draw';
+        newStatus = 'completed';
+      }
+
+      const newGameState: ChessGameState = {
+        ...room.game_state,
+        fen: chess.fen(),
+        history: [...room.game_state.history, moveResult.san],
+        turn: chess.turn() as 'w' | 'b',
+        isCheck,
+        isCheckmate,
+        isDraw,
+        winner,
+        lastMove: { from: botMove.from, to: botMove.to },
+        lastMoveTimestamp: Date.now(),
+      };
+
+      const updatedRoom: ChessRoom = {
+        ...room,
+        game_state: newGameState,
+        status: newStatus,
+      };
+
+      setRoom(updatedRoom);
+      setIsBotThinking(false);
+    };
+
+    executeBotTurn();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isBotTurn, room.game_state.fen, room.status, room.bot_difficulty, botColor]);
+
   // Supabase Realtime: Postgres Changes + Broadcast + Presence tracking
   useEffect(() => {
+    if (isBotGame) return;
     const channelName = `chess_room_${room.id}`;
 
     // Safely remove any existing channel with the same topic to avoid duplicate callback errors
@@ -375,11 +483,11 @@ export function ChessGameView({
       }
       channelRef.current = null;
     };
-  }, [room.id, currentUserId]);
+  }, [room.id, currentUserId, isBotGame]);
 
   // Fallback Polling (mỗi 1.5s khi đang chờ đối thủ, và 3s trong trận) để đảm bảo không bị lỡ sự kiện
   useEffect(() => {
-    if (room.status === 'completed' || room.status === 'abandoned') return;
+    if (isBotGame || room.status === 'completed' || room.status === 'abandoned') return;
 
     const intervalTime = room.status === 'waiting' ? 1500 : 3000;
 
@@ -485,7 +593,7 @@ export function ChessGameView({
         setRoom(updatedRoom);
 
         // Broadcast to opponent via Realtime
-        if (channelRef.current) {
+        if (!isBotGame && channelRef.current) {
           channelRef.current.send({
             type: 'broadcast',
             event: 'room_state',
@@ -494,14 +602,16 @@ export function ChessGameView({
         }
 
         // Persist to Supabase Database
-        await updateChessGameState(room.id, newGameState, newStatus);
+        if (!isBotGame) {
+          await updateChessGameState(room.id, newGameState, newStatus);
+        }
       } catch (err) {
         console.error('Failed to make move:', err);
       } finally {
         setIsSubmittingMove(false);
       }
     },
-    [isMyTurn, isSubmittingMove, room, myColor, timeControl, whiteSeconds, blackSeconds]
+    [isMyTurn, isSubmittingMove, room, myColor, timeControl, whiteSeconds, blackSeconds, isBotGame]
   );
 
   // Copy room link
@@ -528,7 +638,7 @@ export function ChessGameView({
       };
       setRoom(updatedRoom);
 
-      if (channelRef.current) {
+      if (!isBotGame && channelRef.current) {
         channelRef.current.send({
           type: 'broadcast',
           event: 'room_state',
@@ -536,7 +646,9 @@ export function ChessGameView({
         });
       }
 
-      await updateChessGameState(room.id, newGameState, 'completed');
+      if (!isBotGame) {
+        await updateChessGameState(room.id, newGameState, 'completed');
+      }
     }
   };
 
@@ -555,15 +667,17 @@ export function ChessGameView({
           game_state: newGameState,
           status: 'completed',
         };
-        if (channelRef.current) {
+        if (!isBotGame && channelRef.current) {
           channelRef.current.send({
             type: 'broadcast',
             event: 'room_state',
             payload: updatedRoom,
           });
         }
-        await updateChessGameState(room.id, newGameState, 'completed');
-      } else {
+        if (!isBotGame) {
+          await updateChessGameState(room.id, newGameState, 'completed');
+        }
+      } else if (!isBotGame) {
         await leaveChessRoom(room.id, currentUserId, isHost);
       }
       onExitRoom();
@@ -628,23 +742,27 @@ export function ChessGameView({
         <div className="flex items-center gap-2.5">
           <div
             className={`flex h-8 w-8 items-center justify-center rounded-lg font-bold text-sm ${
-              opponentColor === 'white'
+              isBotGame
+                ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                : opponentColor === 'white'
                 ? 'bg-gray-100 text-gray-800 border border-gray-300'
                 : 'bg-gray-900 text-white'
             }`}
           >
-            {opponentColor === 'white' ? '♔' : '♚'}
+            {isBotGame ? <Bot className="h-4 w-4" /> : opponentColor === 'white' ? '♔' : '♚'}
           </div>
           <div>
             <div className="flex items-center gap-1.5">
               {room.status === 'in_progress' && (
                 <span
                   className={`h-2 w-2 rounded-full ${
-                    isOpponentDisconnected
+                    isBotGame
+                      ? 'bg-purple-500'
+                      : isOpponentDisconnected
                       ? 'bg-amber-500 animate-ping'
                       : 'bg-emerald-500'
                   }`}
-                  title={isOpponentDisconnected ? 'Offline' : 'Online'}
+                  title={isBotGame ? 'AI Bot' : isOpponentDisconnected ? 'Offline' : 'Online'}
                 />
               )}
               <p className="text-xs sm:text-sm font-bold text-gray-900 truncate max-w-[140px] sm:max-w-[200px]">
@@ -652,7 +770,9 @@ export function ChessGameView({
               </p>
             </div>
             <span className="text-[10px] text-gray-400 font-medium">
-              {isOpponentDisconnected && room.status === 'in_progress'
+              {isBotGame
+                ? `${opponentColor === 'white' ? t.chess.white : t.chess.black} • AI`
+                : isOpponentDisconnected && room.status === 'in_progress'
                 ? (language === 'vi' ? 'Đang mất kết nối...' : 'Disconnected...')
                 : (opponentColor === 'white' ? t.chess.white : t.chess.black)}
             </span>
@@ -676,11 +796,16 @@ export function ChessGameView({
             </div>
           )}
 
-          {room.status === 'in_progress' && !isMyTurn && (
+          {isBotThinking ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-1 text-[11px] font-bold text-purple-800 animate-pulse">
+              <Bot className="h-3 w-3" />
+              <span>{t.chess.botThinking}</span>
+            </span>
+          ) : room.status === 'in_progress' && !isMyTurn ? (
             <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800 animate-pulse">
               {t.chess.opponentTurn}
             </span>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -840,7 +965,16 @@ export function ChessGameView({
 
             <div className="mt-6 flex flex-col gap-2.5">
               {/* Rematch Button */}
-              {rematchOfferedByOpponent ? (
+              {isBotGame ? (
+                <button
+                  type="button"
+                  onClick={handleOfferRematch}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-purple-600 py-3 text-sm font-bold text-white shadow-md hover:bg-purple-700 active:scale-95 transition-all"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  <span>{t.chess.rematch}</span>
+                </button>
+              ) : rematchOfferedByOpponent ? (
                 <button
                   type="button"
                   onClick={handleAcceptRematch}
@@ -920,7 +1054,16 @@ export function ChessGameView({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {rematchOfferedByOpponent ? (
+            {isBotGame ? (
+              <button
+                type="button"
+                onClick={handleOfferRematch}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-purple-700"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span>{t.chess.rematch}</span>
+              </button>
+            ) : rematchOfferedByOpponent ? (
               <button
                 type="button"
                 onClick={handleAcceptRematch}
