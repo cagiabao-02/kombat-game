@@ -83,3 +83,10 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [x] Tích hợp chế độ chơi offline với Bot trong `ChessGameView`: Giả lập thời gian suy nghĩ 0.6s–1.2s, xử lý bot tự động đi cờ, ăn quân, chiếu tướng.
 - [x] Tích hợp đề xuất đấu với Bot trong Ghép trận nhanh (Quick Match fallback) khi tìm trận quá 2 phút (120s).
 - [x] Hỗ trợ tính năng Đấu lại ván mới với Bot (hoán đổi màu quân).
+
+## Chặng 8 — Biểu cảm tương tác (Emoji Reactions) & Bảng thành tích (Stats)
+
+- [x] Thiết kế dịch vụ lưu trữ thành tích cờ vua vào `localStorage` (`statsService.ts`): ghi nhận trận thắng/thua/hòa, chuỗi thắng, phân loại đấu người / đấu bot.
+- [x] Hiển thị thẻ Thống kê thành tích cá nhân (Stats Card) tại Sảnh cờ vua (`ChessLobbyView.tsx`).
+- [x] Tích hợp tính năng Thả biểu cảm cảm xúc (Emoji Reactions: 👍, 🔥, 👏, 🤔, 😂, 😭) qua Realtime Broadcast trong `ChessGameView.tsx`.
+- [x] Hiệu ứng biểu cảm bay nổi bật (Floating animated emoji) phía trên avatar người chơi khi nhận được biểu cảm.

@@ -15,6 +15,7 @@ import {
   Bot,
 } from 'lucide-react';
 import { BotDifficulty } from './types';
+import { ChessStatsCard } from './ChessStatsCard';
 
 interface ChessLobbyViewProps {
   onCreateRoom: (timeControl: number) => void;
@@ -97,6 +98,9 @@ export function ChessLobbyView({
           {errorMessage}
         </div>
       )}
+
+      {/* Player Stats Widget */}
+      <ChessStatsCard />
 
       {/* Action Cards */}
       <div className="flex flex-col gap-5">

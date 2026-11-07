@@ -34,6 +34,29 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  new MutationObserver(function(mutations) {
+                    for (var i = 0; i < mutations.length; i++) {
+                      if (mutations[i].attributeName === 'bis_skin_checked') {
+                        mutations[i].target.removeAttribute('bis_skin_checked');
+                      }
+                    }
+                  }).observe(document.documentElement, {
+                    attributes: true,
+                    subtree: true,
+                    attributeFilter: ['bis_skin_checked']
+                  });
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body suppressHydrationWarning className="min-h-screen flex flex-col bg-[#F6F7FB] text-[#1F2937] antialiased">
         <AuthProvider>
           <LanguageProvider>
