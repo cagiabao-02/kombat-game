@@ -107,6 +107,9 @@ export function ProfileAuthModal({
   // Profile Form State
   const [tempName, setTempName] = useState(guestName);
   const [tempAvatar, setTempAvatar] = useState(avatar);
+  const [customPhoto, setCustomPhoto] = useState<string | null>(
+    isCustomImageAvatar(avatar) ? avatar : null
+  );
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [profileSuccessMsg, setProfileSuccessMsg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -149,6 +152,7 @@ export function ProfileAuthModal({
         if (ctx) {
           ctx.drawImage(img, startX, startY, size, size, 0, 0, 128, 128);
           const base64 = canvas.toDataURL('image/jpeg', 0.85);
+          setCustomPhoto(base64);
           setTempAvatar(base64);
         }
       };
@@ -157,6 +161,14 @@ export function ProfileAuthModal({
     reader.readAsDataURL(file);
     // Reset input so same file can be re-selected if desired
     e.target.value = '';
+  };
+
+  const handleRemoveCustomPhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCustomPhoto(null);
+    if (tempAvatar === customPhoto || isCustomImageAvatar(tempAvatar)) {
+      setTempAvatar('👑');
+    }
   };
 
   // Auth Form State
@@ -174,6 +186,7 @@ export function ProfileAuthModal({
     if (isOpen) {
       setTempName(guestName);
       setTempAvatar(avatar);
+      setCustomPhoto(isCustomImageAvatar(avatar) ? avatar : null);
       setProfileSuccessMsg(null);
       setAuthError(null);
       setAuthSuccess(null);
@@ -326,8 +339,8 @@ export function ProfileAuthModal({
                 {!isAnonymous && user?.email
                   ? user.email
                   : language === 'vi'
-                  ? 'Khách tạm thời • Dữ liệu lưu trình duyệt'
-                  : 'Temporary Guest • Saved in browser'}
+                    ? 'Khách tạm thời • Dữ liệu lưu trình duyệt'
+                    : 'Temporary Guest • Saved in browser'}
               </p>
             </div>
           </div>
@@ -337,22 +350,20 @@ export function ProfileAuthModal({
             <button
               type="button"
               onClick={() => setActiveTab('profile')}
-              className={`flex-1 rounded-lg py-1.5 transition-colors ${
-                activeTab === 'profile'
+              className={`flex-1 rounded-lg py-1.5 transition-colors ${activeTab === 'profile'
                   ? 'bg-white text-indigo-700 shadow-sm'
                   : 'text-white/80 hover:text-white'
-              }`}
+                }`}
             >
               {language === 'vi' ? 'Hồ sơ & Avatar' : 'Profile & Avatar'}
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('account')}
-              className={`flex-1 rounded-lg py-1.5 transition-colors ${
-                activeTab === 'account'
+              className={`flex-1 rounded-lg py-1.5 transition-colors ${activeTab === 'account'
                   ? 'bg-white text-indigo-700 shadow-sm'
                   : 'text-white/80 hover:text-white'
-              }`}
+                }`}
             >
               {language === 'vi' ? 'Tài khoản Đám mây' : 'Cloud Account'}
             </button>
@@ -372,11 +383,10 @@ export function ProfileAuthModal({
                   <button
                     type="button"
                     onClick={handleUploadClick}
-                    className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors ${
-                      isAnonymous
+                    className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors ${isAnonymous
                         ? 'border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100'
                         : 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
-                    }`}
+                      }`}
                     title={
                       isAnonymous
                         ? language === 'vi'
@@ -396,8 +406,8 @@ export function ProfileAuthModal({
                           ? 'Tải ảnh (Cần tài khoản)'
                           : 'Tải ảnh từ máy'
                         : isAnonymous
-                        ? 'Upload photo (Account)'
-                        : 'Upload photo'}
+                          ? 'Upload photo (Account)'
+                          : 'Upload photo'}
                     </span>
                   </button>
                   <input
@@ -409,27 +419,50 @@ export function ProfileAuthModal({
                   />
                 </div>
 
-                {/* Show custom uploaded photo card if active */}
-                {isCustomImageAvatar(tempAvatar) && (
-                  <div className="mb-3 flex items-center justify-between rounded-2xl border-2 border-indigo-600 bg-indigo-50/50 p-2.5">
+                {/* Show custom uploaded photo card if available */}
+                {customPhoto && (
+                  <div
+                    onClick={() => setTempAvatar(customPhoto)}
+                    className={`mb-3 flex items-center justify-between rounded-2xl p-2.5 transition-all cursor-pointer ${tempAvatar === customPhoto
+                        ? 'border-2 border-indigo-600 bg-indigo-50/70 shadow-xs'
+                        : 'border border-gray-200 bg-gray-50/80 hover:bg-gray-100 hover:border-gray-300'
+                      }`}
+                  >
                     <div className="flex items-center gap-2.5">
-                      <div className="h-10 w-10 overflow-hidden rounded-xl border border-indigo-300 shadow-xs">
+                      <div className={`h-10 w-10 overflow-hidden rounded-xl border shadow-xs ${tempAvatar === customPhoto ? 'border-indigo-400' : 'border-gray-200'
+                        }`}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={tempAvatar} alt="Custom" className="h-full w-full object-cover" />
+                        <img src={customPhoto} alt="Custom" className="h-full w-full object-cover" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-indigo-900">
-                          {language === 'vi' ? 'Ảnh bạn tự tải lên' : 'Custom uploaded photo'}
-                        </p>
-                        <p className="text-[10px] text-indigo-600">
-                          {language === 'vi' ? 'Đang được chọn làm đại diện' : 'Active profile photo'}
+                        <div className="flex items-center gap-2">
+                          <p className={`text-xs font-bold ${tempAvatar === customPhoto ? 'text-indigo-900' : 'text-gray-800'
+                            }`}>
+                            {language === 'vi' ? 'Ảnh bạn tự tải lên' : 'Custom uploaded photo'}
+                          </p>
+                          {tempAvatar === customPhoto && (
+                            <span className="rounded-full bg-indigo-600 px-1.5 py-0.2 text-[9px] font-bold text-white uppercase tracking-wider">
+                              {language === 'vi' ? 'Đang chọn' : 'Active'}
+                            </span>
+                          )}
+                        </div>
+                        <p className={`text-[10px] ${tempAvatar === customPhoto ? 'text-indigo-600 font-medium' : 'text-gray-500'
+                          }`}>
+                          {tempAvatar === customPhoto
+                            ? language === 'vi'
+                              ? 'Đang được chọn làm đại diện'
+                              : 'Active profile photo'
+                            : language === 'vi'
+                              ? 'Bấm để dùng lại ảnh này'
+                              : 'Click to select this photo'}
                         </p>
                       </div>
                     </div>
                     <button
                       type="button"
-                      onClick={() => setTempAvatar('👑')}
-                      className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      onClick={handleRemoveCustomPhoto}
+                      title={language === 'vi' ? 'Xóa vĩnh viễn ảnh tải lên' : 'Delete uploaded photo'}
+                      className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors z-10"
                     >
                       <Trash2 className="h-3 w-3" />
                       <span>{language === 'vi' ? 'Gỡ ảnh' : 'Remove'}</span>
@@ -445,11 +478,10 @@ export function ProfileAuthModal({
                         key={item.id}
                         type="button"
                         onClick={() => setTempAvatar(item.emoji)}
-                        className={`group relative flex flex-col items-center justify-center rounded-2xl p-2.5 transition-all text-2xl ${
-                          isSelected
+                        className={`group relative flex flex-col items-center justify-center rounded-2xl p-2.5 transition-all text-2xl ${isSelected
                             ? 'bg-indigo-50 border-2 border-indigo-600 shadow-sm scale-105'
                             : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
-                        }`}
+                          }`}
                         title={language === 'vi' ? item.nameVi : item.nameEn}
                       >
                         <span>{item.emoji}</span>
@@ -612,11 +644,10 @@ export function ProfileAuthModal({
                         setAuthError(null);
                         setAuthSuccess(null);
                       }}
-                      className={`flex-1 rounded-lg py-1.5 transition-colors ${
-                        authMode === 'signin'
+                      className={`flex-1 rounded-lg py-1.5 transition-colors ${authMode === 'signin'
                           ? 'bg-white text-indigo-600 shadow-xs'
                           : 'text-gray-500 hover:text-gray-800'
-                      }`}
+                        }`}
                     >
                       {language === 'vi' ? 'Đăng nhập' : 'Sign In'}
                     </button>
@@ -627,11 +658,10 @@ export function ProfileAuthModal({
                         setAuthError(null);
                         setAuthSuccess(null);
                       }}
-                      className={`flex-1 rounded-lg py-1.5 transition-colors ${
-                        authMode === 'signup'
+                      className={`flex-1 rounded-lg py-1.5 transition-colors ${authMode === 'signup'
                           ? 'bg-white text-indigo-600 shadow-xs'
                           : 'text-gray-500 hover:text-gray-800'
-                      }`}
+                        }`}
                     >
                       {language === 'vi' ? 'Đăng ký mới' : 'Register'}
                     </button>
@@ -727,8 +757,8 @@ export function ProfileAuthModal({
                             ? 'Đăng nhập'
                             : 'Sign In'
                           : language === 'vi'
-                          ? 'Tạo tài khoản'
-                          : 'Create Account'}
+                            ? 'Tạo tài khoản'
+                            : 'Create Account'}
                       </span>
                     </button>
                   </form>
