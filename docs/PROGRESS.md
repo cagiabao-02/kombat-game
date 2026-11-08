@@ -8,8 +8,8 @@
 - **Mã nguồn:** Next.js 15 App Router, TypeScript, Tailwind CSS, i18n Việt/Anh, Sảnh game Kombat, Sudoku hoàn chỉnh, Cờ vua Realtime kèm đồng hồ thi đấu, biên bản nước đi, ghép trận ngẫu nhiên 1–5s, Bot cờ vua 3 cấp độ offline, biểu cảm tương tác (Emoji Reactions), bảng thành tích (Stats Widget), bộ sưu tập Avatar 12 linh vật, hồ sơ cá nhân và đồng bộ tài khoản đám mây Supabase Auth.
 - **Git/GitHub:** Đang trên nhánh tính năng `feat-user-auth-profile`.
 - **Supabase:** Đã cấu hình `.env.local`, bảng `rooms` với RLS và Realtime, hỗ trợ Auth khách ẩn danh tự động nâng cấp tài khoản vĩnh viễn (Email / Google OAuth).
-- **Hồ sơ & Avatar Realtime:** Đồng bộ avatar người chơi vào trạng thái phòng cờ vua (`hostAvatar`, `guestAvatar`), hiển thị avatar của đối thủ trong phòng thi đấu PvP và Bot AI. Hỗ trợ người dùng tự tải ảnh cá nhân từ máy (`UserAvatar.tsx`) với tính năng tự động crop vuông & nén nhẹ (đặc quyền riêng dành cho tài khoản đã liên kết Đám mây).
-- **Tối ưu Mobile & Giao diện:** Sửa lỗi tràn viền/lệch nút thoát phòng trên điện thoại; tối ưu hiển thị nhãn tọa độ `a,b,c...` / `1,2,3...` trên bàn cờ; chuẩn hóa nền avatar luôn sáng sủa (`bg-white`) kèm huy hiệu quân cờ mini `♔`/`♚` ở góc dưới.
+- **Hồ sơ & Avatar Realtime:** Đồng bộ avatar người chơi vào trạng thái phòng cờ vua (`hostAvatar`, `guestAvatar`), hiển thị avatar của đối thủ trong phòng thi đấu PvP và Bot AI. Hỗ trợ người dùng tự tải ảnh cá nhân từ máy (`UserAvatar.tsx`) với tính năng tự động crop vuông & nén nhẹ (đặc quyền riêng dành cho tài khoản đã liên kết Đám mây). Giữ lại ảnh tự tải trong modal hồ sơ (`customPhoto`), cho phép chuyển qua lại giữa ảnh và avatar có sẵn trước khi lưu.
+- **Tối ưu Mobile & Giao diện:** Sửa lỗi tràn viền/lệch nút thoát phòng trên điện thoại; tối ưu hiển thị nhãn tọa độ `a,b,c...` / `1,2,3...` trên bàn cờ; chuẩn hóa nền avatar luôn sáng sủa (`bg-white`) kèm huy hiệu quân cờ mini `♔`/`♚` ở góc dưới; giảm thời gian gợi ý chuyển sang đấu với Bot từ 2 phút xuống 1 phút khi tìm trận nhanh.
 - **Asset:** Đã có cấu trúc thư mục quy chuẩn, icon PWA SVG.
 
 ## Đã hoàn thành

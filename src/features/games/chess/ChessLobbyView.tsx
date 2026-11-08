@@ -376,8 +376,8 @@ export function ChessLobbyView({
                   </span>
                 </div>
 
-                {/* 2-minute Timeout Suggestion to Play with Bot */}
-                {searchElapsedSeconds >= 120 && (
+                {/* 1-minute Timeout Suggestion to Play with Bot */}
+                {searchElapsedSeconds >= 60 && (
                   <div className="mb-4 rounded-2xl border border-purple-200 bg-purple-50 p-4 text-center animate-fade-in shadow-sm">
                     <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-purple-600 text-white mb-2 shadow-sm">
                       <Bot className="h-5 w-5" />
