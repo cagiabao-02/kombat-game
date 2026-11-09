@@ -1,57 +1,51 @@
 # Tiến độ dự án
 
-> Cập nhật lần cuối: 2026-11-02
+> Cập nhật lần cuối: 2026-11-09
 
 ## Trạng thái tổng quan
 
-- **Giai đoạn:** Đã hoàn thành Chặng 0–8 và triển khai **Chặng 9 — Hồ sơ cá nhân, Bộ sưu tập Avatar & Đồng bộ Tài khoản Đám mây (User Profile & Cloud Account Sync)**.
-- **Mã nguồn:** Next.js 15 App Router, TypeScript, Tailwind CSS, i18n Việt/Anh, Sảnh game Kombat, Sudoku hoàn chỉnh, Cờ vua Realtime kèm đồng hồ thi đấu, biên bản nước đi, ghép trận ngẫu nhiên 1–5s, Bot cờ vua 3 cấp độ offline, biểu cảm tương tác (Emoji Reactions), bảng thành tích (Stats Widget), bộ sưu tập Avatar 12 linh vật, hồ sơ cá nhân và đồng bộ tài khoản đám mây Supabase Auth.
+- **Giai đoạn:** Đã hoàn thành Chặng 0–9 và hoàn tất **Chặng 10 — Trò chơi thứ 3: Cờ Caro (Gomoku / 5 in a row)**.
+- **Mã nguồn:** Next.js 15 App Router, TypeScript, Tailwind CSS, i18n Việt/Anh, Sảnh game Kombat, Sudoku hoàn chỉnh, Cờ vua Realtime kèm đồng hồ thi đấu, Cờ Caro 15x15 (Bot AI 3 cấp, Chơi đôi Pass & Play, Phòng riêng PvP Online Realtime & Ghép nhanh), hệ thống âm thanh Web Audio API, Avatar và tài khoản đám mây Supabase Auth.
 - **Git/GitHub:** Đang trên nhánh tính năng `feat-user-auth-profile`.
-- **Supabase:** Đã cấu hình `.env.local`, bảng `rooms` với RLS và Realtime, hỗ trợ Auth khách ẩn danh tự động nâng cấp tài khoản vĩnh viễn (Email / Google OAuth).
-- **Hồ sơ & Avatar Realtime:** Đồng bộ avatar người chơi vào trạng thái phòng cờ vua (`hostAvatar`, `guestAvatar`), hiển thị avatar của đối thủ trong phòng thi đấu PvP và Bot AI. Hỗ trợ người dùng tự tải ảnh cá nhân từ máy (`UserAvatar.tsx`) với tính năng tự động crop vuông & nén nhẹ (đặc quyền riêng dành cho tài khoản đã liên kết Đám mây). Giữ lại ảnh tự tải trong modal hồ sơ (`customPhoto`), cho phép chuyển qua lại giữa ảnh và avatar có sẵn trước khi lưu.
-- **Tối ưu Mobile & Giao diện:** Sửa lỗi tràn viền/lệch nút thoát phòng trên điện thoại; tối ưu hiển thị nhãn tọa độ `a,b,c...` / `1,2,3...` trên bàn cờ; chuẩn hóa nền avatar luôn sáng sủa (`bg-white`) kèm huy hiệu quân cờ mini `♔`/`♚` ở góc dưới; giảm thời gian gợi ý chuyển sang đấu với Bot từ 2 phút xuống 1 phút khi tìm trận nhanh.
+- **Supabase:** Đã cấu hình `.env.local`, bảng `rooms` với RLS và Realtime hỗ trợ cả `chess` và `caro`.
+- **Cờ Caro (Gomoku):** Bàn cờ 15x15 chuẩn quốc tế tối ưu cảm ứng di động, thuật toán nhận diện thắng 5 quân thẳng hàng, Bot AI phân tích thế cờ theo trọng số và bán kính co cụm di chuyển, đồng bộ nước đi thời gian thực qua Realtime Broadcast + Supabase Postgres changes, âm thanh xúc giác click cờ và thắng/thua/hòa.
 - **Nâng cấp UI/UX toàn diện (Áp dụng skill UI/UX Pro Max):**
   - **Header:** Chuẩn hóa vùng chạm di động $\ge 40\text{px}$ cho nút âm thanh, ngôn ngữ và pill hồ sơ cá nhân; bổ sung viền focus bàn phím rõ nét.
-  - **Sảnh game & GameCard:** Biến toàn bộ thẻ game thành vùng nhấn tương tác mượt mà (`hover:scale-[1.02] active:scale-[0.99]`), nâng cấp khối minh họa đồ họa Sudoku & Cờ vua kèm nhãn chế độ chơi trực quan.
-  - **Cờ vua Mobile:** Thay thế hộp thoại `window.confirm` trình duyệt bằng popover xác nhận đầu hàng / rời phòng thanh lịch, song ngữ Việt-Anh; chuẩn hóa hitbox các nút thao tác nhanh.
+  - **Sảnh game & GameCard:** Biến toàn bộ thẻ game thành vùng nhấn tương tác mượt mà (`hover:scale-[1.02] active:scale-[0.99]`), nâng cấp khối minh họa đồ họa Sudoku, Cờ vua & Cờ Caro kèm nhãn chế độ chơi trực quan.
+  - **Cờ vua & Cờ Caro Mobile:** Thay thế hộp thoại `window.confirm` trình duyệt bằng popover xác nhận đầu hàng / rời phòng thanh lịch, song ngữ Việt-Anh; chuẩn hóa hitbox các nút thao tác nhanh.
   - **Sudoku Mobile:** Nâng cấp độ tương phản bảng số (ô đang chọn nổi bật nền tím đậm chữ trắng, các ô cùng số được làm sáng rõ nét); tăng chiều cao bàn phím số $1-9$ lên $48-54\text{px}$ cho thao tác ngón cái trên điện thoại; đồng bộ hóa ngôn ngữ i18n cho nút Hoàn tác, Xóa ô và màn hình tạm dừng.
-- **Asset:** Đã có cấu trúc thư mục quy chuẩn, icon PWA SVG.
 
 ## Đã hoàn thành
 
 - Tạo tài liệu yêu cầu sản phẩm và phạm vi MVP.
 - Đổi tên dự án từ Togame thành **Kombat** trên toàn bộ giao diện, manifest PWA và tài liệu.
-- Tích hợp hệ thống âm thanh Web Audio API (`soundService.ts`) không cần tải file mp3, có nút bật/tắt âm thanh trên Header và âm thanh tìm thấy trận đấu `playMatchFound()`.
+- Tích hợp hệ thống âm thanh Web Audio API (`soundService.ts`) không cần tải file mp3, có nút bật/tắt âm thanh trên Header, âm thanh di chuyển, chiếu tướng, ăn quân, tìm thấy trận đấu, chiến thắng, thất bại và hòa cờ.
 - Triển khai toàn diện Sudoku một người chơi (Chặng 2) với luật giới hạn 3 lỗi và bộ tạo đề 2 pha cân bằng.
 - Thiết lập nền tảng Supabase & Khách ẩn danh (Chặng 3): Cài đặt `@supabase/supabase-js`, tạo client singleton, `AuthProvider` phiên ẩn danh và migration RLS cho bảng `rooms`.
-- **Triển khai Cờ vua phòng riêng Realtime (Chặng 4):**
-  - Tích hợp thư viện luật cờ vua quốc tế `chess.js` (kiểm tra nước đi hợp lệ, chiếu tướng, chiếu bí, hòa cờ, phong cấp tốt).
-  - Bàn cờ vua responsive (`ChessBoard.tsx`) chuẩn màu thi đấu quốc tế, hiển thị gợi ý ô đi hợp lệ, đánh dấu nước đi vừa thực hiện và cảnh báo vua bị chiếu đỏ rực.
-  - Tự động xoay bàn cờ theo phe người chơi (Chủ phòng cầm Trắng thấy hàng 1 ở dưới; Khách cầm Đen thấy hàng 8 ở dưới).
-  - Dịch vụ phòng (`roomService.ts`): Tạo mã phòng 6 ký tự ngẫu nhiên dễ nhớ, sao chép liên kết mời bạn bè (`/games/chess?room=CODE`), tự động vào phòng qua URL.
-  - Đồng bộ nước đi và trạng thái thời gian thực qua cơ chế kép (Supabase Realtime Broadcast + Polling dự phòng).
-  - Tích hợp **Đồng hồ thi đấu (Chess Clock)**: Tùy chọn Không giới hạn, 3 phút Blitz, 5 phút Rapid, 10 phút Standard; đếm ngược theo lượt, đổi màu đỏ cảnh báo < 30s và xử thua khi hết giờ (Time Out).
-  - Tích hợp **Biên bản ván đấu (Move History)**: Hiển thị danh sách nước đi theo cặp chuẩn cờ vua (1. e4 e5...), tự cuộn xuống nước mới nhất.
-  - Tích hợp **Cơ chế Presence & Reconnect (Cách 2)**: Nhận diện đối thủ đóng tab/mất mạng tức thì, hiện cảnh báo đếm ngược 30 giây và tự động xử thắng cho người ở lại.
-  - Hộp thoại kết thúc ván (Centered Modal) chính giữa màn hình với icon Cúp vàng và nút xem lại bàn cờ.
-- **Triển khai Ghép trận ngẫu nhiên (Chặng 5 — Quick Match):**
-  - Thẻ "Ghép trận nhanh" nổi bật ngay đầu sảnh cờ vua kèm tùy chọn thời gian đấu (3p, 5p, 10p, Không giới hạn).
-  - Giả lập thời gian tìm kiếm ngẫu nhiên 1–5 giây tạo nhịp độ hàng đợi thực tế, hiển thị radar xung nhịp và đồng hồ đếm giây.
-  - Nút "Hủy tìm kiếm" cho phép rút khỏi hàng đợi bất cứ lúc nào không để lại phòng rác.
-  - Tự động ghép nối vào phòng đang chờ hoặc tạo phòng chờ người khác tham gia qua Supabase Realtime, phát âm thanh và chuyển thẳng vào trận.
-  - Tích hợp tính năng **Đấu lại ván mới (Rematch)**: Cho phép gửi lời mời đấu lại ngay trên popup kết thúc trận hoặc thanh review bàn cờ; khi đối thủ chấp nhận, hệ thống tự động đổi màu quân (người cầm Trắng đổi sang Đen và ngược lại), reset đồng hồ thi đấu và bắt đầu ván mới ngay lập tức.
+- Triển khai Cờ vua phòng riêng Realtime (Chặng 4).
+- Triển khai Ghép trận ngẫu nhiên (Chặng 5 — Quick Match).
+- Triển khai Bot cờ vua AI 3 cấp độ offline (Chặng 6).
+- Triển khai Biểu cảm tương tác Emoji Reactions & Âm thanh bàn cờ (Chặng 7).
+- Triển khai Bảng thành tích cá nhân Stats Widget (Chặng 8).
+- Triển khai Hồ sơ cá nhân, Bộ sưu tập Avatar & Đồng bộ Tài khoản Đám mây (Chặng 9).
+- **Triển khai Cờ Caro (Gomoku) 15x15 đa nền tảng (Chặng 10):**
+  - Động cơ luật cờ Caro 15x15 (`caroLogic.ts`) kiểm tra hợp lệ, tìm kiếm 5 quân thẳng hàng theo 4 vector hướng, phát hiện hòa cờ khi kín ô.
+  - Trí tuệ nhân tạo Bot AI 3 cấp độ (`ai/caroBot.ts`) với ma trận điểm thế cờ: 5 quân ($100.000$), 4 quân mở 2 đầu ($10.000$), 4 quân chặn 1 đầu ($2.500$), 3 quân mở ($1.200$)... cùng thuật toán lọc ứng viên bán kính 2 xung quanh các quân cờ đã đánh giúp tính toán tức thì không giật lag.
+  - Giao diện bàn cờ (`CaroBoard.tsx`) responsive tỷ lệ co giãn thông minh, vẽ 5 điểm sao định vị (Hoshi/Tengen), hiệu ứng ring xung nhịp nước đi vừa đánh và dải sáng neon cho đường 5 quân chiến thắng.
+  - Bộ điều khiển ván đấu (`CaroControls.tsx`) hiển thị lượt đi động, số nước cờ, nút xin thua, chơi lại, về sảnh và popover xác nhận in-game không dùng dialog trình duyệt.
+  - Sảnh chờ (`CaroLobbyView.tsx`) với 3 chế độ: Đấu Máy (chọn độ khó và quân đi trước), Chơi Đôi trên cùng máy (Pass & Play) và Online PvP (Phòng riêng 6 ký tự hoặc Ghép nhanh).
+  - Tích hợp Realtime đồng bộ hai chiều qua Supabase Realtime Broadcast + `rooms` database (`caroRoomService.ts`).
+  - Đăng ký trò chơi trong `registry.ts`, hiển thị card đồ họa tương tác tại Sảnh chính và hỗ trợ song ngữ Việt-Anh (`translations.ts`).
 
 ## Đang làm
 
-- Chưa có hạng mục implementation nào đang được thực hiện.
+- Đã hoàn tất implementation Chặng 10 và build thành công với 0 lỗi.
 
 ## Việc kế tiếp
 
-1. Chọn tên dự án (có thể tạm để tên trung tính).
-2. Tạo Git repository và commit tài liệu khởi đầu.
-3. Tạo ứng dụng Next.js TypeScript với cấu trúc `src/` theo `DEVELOPMENT.md`.
-4. Xây sảnh game và nền tảng Việt/Anh; đăng ký Sudoku/Cờ vua trong game registry.
-5. Sau khi có luồng frontend cơ bản, cấu hình Supabase dev và anonymous guest session.
+1. Trải nghiệm thử nghiệm thực tế các chế độ chơi của Cờ Caro.
+2. Bổ sung bảng thành tích thống kê (Stats Widget) cho Cờ Caro tương tự Cờ vua (thắng/thua/hòa/chuỗi thắng).
+3. Đề xuất các trò chơi tiếp theo (Cờ ca-rô 3D, Cờ vây mini, Cờ cá ngựa hoặc Cờ tướng).
 
 ## Quyết định còn mở
 

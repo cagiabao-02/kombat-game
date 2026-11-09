@@ -1,4 +1,4 @@
-export type GameId = 'sudoku' | 'chess';
+export type GameId = 'sudoku' | 'chess' | 'caro';
 
 export type GameStatus = 'available' | 'beta' | 'coming_soon';
 

@@ -83,6 +83,17 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 - Có bộ chọn ngôn ngữ; ưu tiên ngôn ngữ trình duyệt, mặc định tiếng Việt nếu không nhận diện được, và ghi nhớ lựa chọn.
 - Tên/mô tả game hiển thị theo ngôn ngữ đang chọn.
 
+### FR-6 — Cờ Caro (Gomoku / 5 in a row)
+
+- Bàn cờ chuẩn $15 \times 15$ ô, thao tác chạm hoặc click vào giao điểm / ô cờ.
+- Luật chơi: 5 quân liên tiếp theo hàng ngang, dọc hoặc chéo sẽ chiến thắng.
+- Hỗ trợ đánh dấu nước đi vừa đánh, đánh dấu đường 5 quân chiến thắng nổi bật.
+- Chế độ chơi đa dạng:
+  - Đấu với Bot AI thông minh (3 cấp độ Dễ / Vừa / Khó).
+  - Chơi 2 người cùng thiết bị (Pass & Play).
+  - Phòng riêng PvP Realtime mời bạn bè và Ghép trận ngẫu nhiên (Quick Match).
+  - Đồng hồ thi đấu đếm ngược (Không giới hạn, 3p, 5p).
+
 ## 5. Yêu cầu phi chức năng
 
 - Mobile-first, phù hợp màn hình nhỏ và lớn; hỗ trợ xoay/ngang nếu bàn cờ cần.
