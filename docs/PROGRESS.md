@@ -10,6 +10,11 @@
 - **Supabase:** Đã cấu hình `.env.local`, bảng `rooms` với RLS và Realtime, hỗ trợ Auth khách ẩn danh tự động nâng cấp tài khoản vĩnh viễn (Email / Google OAuth).
 - **Hồ sơ & Avatar Realtime:** Đồng bộ avatar người chơi vào trạng thái phòng cờ vua (`hostAvatar`, `guestAvatar`), hiển thị avatar của đối thủ trong phòng thi đấu PvP và Bot AI. Hỗ trợ người dùng tự tải ảnh cá nhân từ máy (`UserAvatar.tsx`) với tính năng tự động crop vuông & nén nhẹ (đặc quyền riêng dành cho tài khoản đã liên kết Đám mây). Giữ lại ảnh tự tải trong modal hồ sơ (`customPhoto`), cho phép chuyển qua lại giữa ảnh và avatar có sẵn trước khi lưu.
 - **Tối ưu Mobile & Giao diện:** Sửa lỗi tràn viền/lệch nút thoát phòng trên điện thoại; tối ưu hiển thị nhãn tọa độ `a,b,c...` / `1,2,3...` trên bàn cờ; chuẩn hóa nền avatar luôn sáng sủa (`bg-white`) kèm huy hiệu quân cờ mini `♔`/`♚` ở góc dưới; giảm thời gian gợi ý chuyển sang đấu với Bot từ 2 phút xuống 1 phút khi tìm trận nhanh.
+- **Nâng cấp UI/UX toàn diện (Áp dụng skill UI/UX Pro Max):**
+  - **Header:** Chuẩn hóa vùng chạm di động $\ge 40\text{px}$ cho nút âm thanh, ngôn ngữ và pill hồ sơ cá nhân; bổ sung viền focus bàn phím rõ nét.
+  - **Sảnh game & GameCard:** Biến toàn bộ thẻ game thành vùng nhấn tương tác mượt mà (`hover:scale-[1.02] active:scale-[0.99]`), nâng cấp khối minh họa đồ họa Sudoku & Cờ vua kèm nhãn chế độ chơi trực quan.
+  - **Cờ vua Mobile:** Thay thế hộp thoại `window.confirm` trình duyệt bằng popover xác nhận đầu hàng / rời phòng thanh lịch, song ngữ Việt-Anh; chuẩn hóa hitbox các nút thao tác nhanh.
+  - **Sudoku Mobile:** Nâng cấp độ tương phản bảng số (ô đang chọn nổi bật nền tím đậm chữ trắng, các ô cùng số được làm sáng rõ nét); tăng chiều cao bàn phím số $1-9$ lên $48-54\text{px}$ cho thao tác ngón cái trên điện thoại; đồng bộ hóa ngôn ngữ i18n cho nút Hoàn tác, Xóa ô và màn hình tạm dừng.
 - **Asset:** Đã có cấu trúc thư mục quy chuẩn, icon PWA SVG.
 
 ## Đã hoàn thành

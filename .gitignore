@@ -39,3 +39,6 @@ yarn-error.log*
 *.sln
 *.sw?
 
+
+# AI agent skills (third-party, installed locally)
+.agents/skills/ui-ux-pro-max/
