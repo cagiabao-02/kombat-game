@@ -62,6 +62,8 @@ export function ChessGameView({
   const [showGameOverModal, setShowGameOverModal] = useState(true);
   const [rematchRequestedByMe, setRematchRequestedByMe] = useState(false);
   const [rematchOfferedByOpponent, setRematchOfferedByOpponent] = useState(false);
+  const [showResignConfirm, setShowResignConfirm] = useState(false);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
 
   // Emoji Reactions State
   const [activeReactions, setActiveReactions] = useState<{
@@ -711,8 +713,38 @@ export function ChessGameView({
   };
 
   // Resign match
-  const handleResign = async () => {
-    if (window.confirm('Bạn có chắc chắn muốn đầu hàng ván đấu này không?')) {
+  const confirmResign = async () => {
+    setShowResignConfirm(false);
+    const winner = myColor === 'white' ? 'black' : 'white';
+    const newGameState: ChessGameState = {
+      ...room.game_state,
+      winner,
+      isResigned: true,
+    };
+    const updatedRoom: ChessRoom = {
+      ...room,
+      game_state: newGameState,
+      status: 'completed',
+    };
+    setRoom(updatedRoom);
+
+    if (!isBotGame && channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'room_state',
+        payload: updatedRoom,
+      });
+    }
+
+    if (!isBotGame) {
+      await updateChessGameState(room.id, newGameState, 'completed');
+    }
+  };
+
+  // Leave room
+  const confirmLeave = async () => {
+    setShowLeaveConfirm(false);
+    if (room.status === 'in_progress') {
       const winner = myColor === 'white' ? 'black' : 'white';
       const newGameState: ChessGameState = {
         ...room.game_state,
@@ -724,8 +756,6 @@ export function ChessGameView({
         game_state: newGameState,
         status: 'completed',
       };
-      setRoom(updatedRoom);
-
       if (!isBotGame && channelRef.current) {
         channelRef.current.send({
           type: 'broadcast',
@@ -733,42 +763,22 @@ export function ChessGameView({
           payload: updatedRoom,
         });
       }
-
       if (!isBotGame) {
         await updateChessGameState(room.id, newGameState, 'completed');
       }
+    } else if (!isBotGame) {
+      await leaveChessRoom(room.id, currentUserId, isHost);
     }
+    onExitRoom();
   };
 
-  // Leave room
-  const handleLeave = async () => {
-    if (window.confirm('Bạn có chắc muốn rời khỏi phòng chơi?')) {
-      if (room.status === 'in_progress') {
-        const winner = myColor === 'white' ? 'black' : 'white';
-        const newGameState: ChessGameState = {
-          ...room.game_state,
-          winner,
-          isResigned: true,
-        };
-        const updatedRoom: ChessRoom = {
-          ...room,
-          game_state: newGameState,
-          status: 'completed',
-        };
-        if (!isBotGame && channelRef.current) {
-          channelRef.current.send({
-            type: 'broadcast',
-            event: 'room_state',
-            payload: updatedRoom,
-          });
-        }
-        if (!isBotGame) {
-          await updateChessGameState(room.id, newGameState, 'completed');
-        }
-      } else if (!isBotGame) {
-        await leaveChessRoom(room.id, currentUserId, isHost);
-      }
-      onExitRoom();
+  const handleLeaveClick = () => {
+    if (room.status === 'in_progress') {
+      setShowLeaveConfirm((prev) => !prev);
+      setShowResignConfirm(false);
+      setShowReactionPicker(false);
+    } else {
+      confirmLeave();
     }
   };
 
@@ -815,8 +825,8 @@ export function ChessGameView({
 
             <button
               type="button"
-              onClick={handleLeave}
-              className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-3 text-xs font-semibold text-gray-600 hover:bg-gray-50"
+              onClick={confirmLeave}
+              className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-3 text-xs font-semibold text-gray-600 hover:bg-gray-50 active:scale-95 transition-all"
             >
               <LogOut className="h-4 w-4" />
               <span>{t.chess.leaveRoom}</span>
@@ -1027,26 +1037,31 @@ export function ChessGameView({
           <div className="relative shrink-0">
             <button
               type="button"
-              onClick={() => setShowReactionPicker((prev) => !prev)}
-              className={`rounded-lg border p-1.5 transition-colors ${
+              onClick={() => {
+                setShowReactionPicker((prev) => !prev);
+                setShowResignConfirm(false);
+                setShowLeaveConfirm(false);
+              }}
+              className={`h-9 w-9 sm:h-10 sm:w-10 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-xl border transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none ${
                 showReactionPicker
                   ? 'border-indigo-400 bg-indigo-50 text-indigo-600'
                   : 'border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50'
               }`}
               title={t.chess.sendReaction}
+              aria-label="Send Reaction"
             >
               <Smile className="h-4 w-4" />
             </button>
 
             {/* Reaction Popover */}
             {showReactionPicker && (
-              <div className="absolute bottom-full right-0 mb-2 flex items-center gap-1 rounded-2xl border border-gray-200 bg-white/95 backdrop-blur-sm p-1.5 shadow-xl animate-scale-up z-40">
+              <div className="absolute bottom-full right-0 mb-2 flex items-center gap-1.5 rounded-2xl border border-gray-200 bg-white/95 backdrop-blur-md p-1.5 shadow-xl animate-scale-up z-40">
                 {EMOJI_OPTIONS.map((emoji) => (
                   <button
                     key={emoji}
                     type="button"
                     onClick={() => handleSendReaction(emoji)}
-                    className="flex h-8 w-8 items-center justify-center rounded-xl text-lg hover:bg-gray-100 hover:scale-125 active:scale-95 transition-transform"
+                    className="flex h-9 w-9 items-center justify-center rounded-xl text-lg hover:bg-gray-100 hover:scale-125 active:scale-95 transition-transform"
                   >
                     {emoji}
                   </button>
@@ -1055,25 +1070,99 @@ export function ChessGameView({
             )}
           </div>
 
+          {/* Resign Button & Confirmation Popover */}
           {room.status === 'in_progress' && (
-            <button
-              type="button"
-              onClick={handleResign}
-              className="shrink-0 rounded-lg border border-gray-200 p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
-              title={t.chess.resign}
-            >
-              <Flag className="h-4 w-4" />
-            </button>
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowResignConfirm((prev) => !prev);
+                  setShowLeaveConfirm(false);
+                  setShowReactionPicker(false);
+                }}
+                className={`h-9 w-9 sm:h-10 sm:w-10 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-xl border transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-red-500 outline-none ${
+                  showResignConfirm
+                    ? 'border-red-400 bg-red-50 text-red-600 ring-2 ring-red-200'
+                    : 'border-gray-200 text-gray-500 hover:text-red-600 hover:bg-red-50'
+                }`}
+                title={t.chess.resign}
+                aria-label="Resign"
+              >
+                <Flag className="h-4 w-4" />
+              </button>
+
+              {showResignConfirm && (
+                <div className="absolute bottom-full right-0 mb-2 w-48 rounded-2xl border border-red-200 bg-white p-3 shadow-2xl z-40 animate-scale-up">
+                  <p className="text-xs font-bold text-gray-900 mb-1">
+                    {language === 'vi' ? 'Bạn muốn đầu hàng?' : 'Resign this match?'}
+                  </p>
+                  <p className="text-[10px] text-gray-500 mb-2.5">
+                    {language === 'vi' ? 'Đối thủ sẽ được xử thắng ván này.' : 'Opponent will be awarded the win.'}
+                  </p>
+                  <div className="flex gap-1.5">
+                    <button
+                      type="button"
+                      onClick={confirmResign}
+                      className="flex-1 rounded-xl bg-red-600 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-red-700 active:scale-95 transition-all"
+                    >
+                      {language === 'vi' ? 'Đầu hàng' : 'Resign'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowResignConfirm(false)}
+                      className="flex-1 rounded-xl border border-gray-200 bg-gray-50 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-100 active:scale-95 transition-all"
+                    >
+                      {language === 'vi' ? 'Hủy' : 'Cancel'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
-          <button
-            type="button"
-            onClick={handleLeave}
-            className="shrink-0 rounded-lg border border-gray-200 p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
-            title={t.chess.leaveRoom}
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
+          {/* Leave Button & Confirmation Popover */}
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              onClick={handleLeaveClick}
+              className={`h-9 w-9 sm:h-10 sm:w-10 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-xl border transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-gray-500 outline-none ${
+                showLeaveConfirm
+                  ? 'border-gray-400 bg-gray-100 text-gray-900 ring-2 ring-gray-200'
+                  : 'border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+              title={t.chess.leaveRoom}
+              aria-label="Leave Room"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+
+            {showLeaveConfirm && (
+              <div className="absolute bottom-full right-0 mb-2 w-52 rounded-2xl border border-amber-200 bg-white p-3 shadow-2xl z-40 animate-scale-up">
+                <p className="text-xs font-bold text-gray-900 mb-1">
+                  {language === 'vi' ? 'Rời phòng thi đấu?' : 'Leave this game?'}
+                </p>
+                <p className="text-[10px] text-amber-700 mb-2.5">
+                  {language === 'vi' ? 'Trận đấu đang diễn ra sẽ bị xử thua!' : 'You will forfeit this ongoing match!'}
+                </p>
+                <div className="flex gap-1.5">
+                  <button
+                    type="button"
+                    onClick={confirmLeave}
+                    className="flex-1 rounded-xl bg-amber-600 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-amber-700 active:scale-95 transition-all"
+                  >
+                    {language === 'vi' ? 'Rời phòng' : 'Leave'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowLeaveConfirm(false)}
+                    className="flex-1 rounded-xl border border-gray-200 bg-gray-50 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-100 active:scale-95 transition-all"
+                  >
+                    {language === 'vi' ? 'Ở lại' : 'Stay'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
