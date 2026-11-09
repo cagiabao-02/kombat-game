@@ -15,6 +15,7 @@ export function GameCard({ game }: GameCardProps) {
 
   const isSudoku = game.id === 'sudoku';
   const isChess = game.id === 'chess';
+  const isCaro = game.id === 'caro';
 
   const statusLabel = t.status[game.status];
 
@@ -69,13 +70,13 @@ export function GameCard({ game }: GameCardProps) {
           {isChess && (
             <div className="flex flex-col items-center gap-2">
               <div className="flex items-center gap-3">
-                <div className="flex h-13 w-13 items-center justify-center rounded-2xl bg-white shadow-md border border-gray-200/80 text-3xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-200">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-md border border-gray-200/80 text-3xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-200">
                   ♔
                 </div>
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-black text-white shadow-xs">
                   VS
                 </div>
-                <div className="flex h-13 w-13 items-center justify-center rounded-2xl bg-gray-900 shadow-md border border-gray-700 text-3xl text-white group-hover:scale-110 group-hover:rotate-3 transition-transform duration-200">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-900 shadow-md border border-gray-700 text-3xl text-white group-hover:scale-110 group-hover:rotate-3 transition-transform duration-200">
                   ♚
                 </div>
               </div>
@@ -89,6 +90,45 @@ export function GameCard({ game }: GameCardProps) {
                   <Bot className="h-3 w-3" />
                   <span>Bot 3 Cấp</span>
                 </span>
+              </div>
+            </div>
+          )}
+
+          {isCaro && (
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 aspect-square items-center justify-center rounded-2xl bg-rose-50 shadow-md border border-rose-200/80 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-200">
+                  <svg
+                    className="h-6 w-6 text-rose-600"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </div>
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-rose-600 text-[10px] font-black text-white shadow-xs">
+                  VS
+                </div>
+                <div className="flex h-12 w-12 aspect-square items-center justify-center rounded-2xl bg-indigo-50 shadow-md border border-indigo-200/80 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200">
+                  <svg
+                    className="h-6 w-6 text-indigo-600"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3.5"
+                  >
+                    <circle cx="12" cy="12" r="7.5" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500">
+                <Users className="h-3.5 w-3.5 text-indigo-600" />
+                <span>{language === 'vi' ? 'Chơi đôi & Online' : 'Local & Online'}</span>
               </div>
             </div>
           )}

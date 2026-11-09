@@ -90,3 +90,20 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [x] Hiển thị thẻ Thống kê thành tích cá nhân (Stats Card) tại Sảnh cờ vua (`ChessLobbyView.tsx`).
 - [x] Tích hợp tính năng Thả biểu cảm cảm xúc (Emoji Reactions: 👍, 🔥, 👏, 🤔, 😂, 😭) qua Realtime Broadcast trong `ChessGameView.tsx`.
 - [x] Hiệu ứng biểu cảm bay nổi bật (Floating animated emoji) phía trên avatar người chơi khi nhận được biểu cảm.
+
+## Chặng 9 — Hồ sơ cá nhân, Avatar & Nâng cấp UI/UX
+
+- [x] Bộ sưu tập 12 Avatar linh vật chọn lọc (`avatarConstants.ts`) và hỗ trợ tải ảnh tùy biến (`UserAvatar.tsx`).
+- [x] Tích hợp Supabase Auth (Đăng nhập Email, Đăng ký, Google OAuth) nâng cấp từ tài khoản khách.
+- [x] Đồng bộ Avatar thời gian thực 2 chiều giữa 2 người chơi trong phòng thi đấu.
+- [x] Bảo toàn ảnh tải lên trong modal hồ sơ (`customPhoto`), chuyển đổi mượt mà trước khi lưu.
+- [x] Nâng cấp UI/UX toàn diện: Chuẩn hóa vùng chạm di động $\ge 40-44\text{px}$, in-game popovers cờ vua, làm sáng số trùng và tối ưu phím số Sudoku.
+
+## Chặng 10 — Cờ Caro (Gomoku / 5 in a row)
+
+- [x] Thiết kế bàn cờ Caro $15 \times 15$ chuẩn quốc tế, thuật toán kiểm tra 5 quân liên tiếp (hàng ngang, dọc, chéo).
+- [x] Xây dựng thuật toán Bot Caro AI offline (Dễ, Vừa, Khó) dựa trên đánh giá thế cờ (Heuristic pattern matching).
+- [x] Tạo module `src/features/games/caro/` (`CaroBoard.tsx`, `CaroControls.tsx`, `CaroLobbyView.tsx`, `CaroGameView.tsx`).
+- [x] Tích hợp chế độ chơi offline với Bot AI và chế độ 2 người chơi cùng thiết bị (Pass & Play).
+- [x] Tích hợp chế độ phòng riêng PvP Realtime qua Supabase và ghép trận ngẫu nhiên (Quick Match).
+- [x] Đăng ký Cờ Caro vào `GAME_REGISTRY` và route `/games/caro`.

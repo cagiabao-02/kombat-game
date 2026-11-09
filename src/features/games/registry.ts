@@ -49,9 +49,32 @@ export const GAME_REGISTRY: GameMetadata[] = [
       en: '1v1 Room',
     },
   },
+  {
+    id: 'caro',
+    name: {
+      vi: 'Cờ Caro',
+      en: 'Gomoku',
+    },
+    shortDescription: {
+      vi: 'Năm quân thẳng hàng - đấu máy hoặc so tài online',
+      en: 'Five in a row - battle AI, local or online',
+    },
+    description: {
+      vi: 'Trò chơi cờ Caro 15x15 kinh điển. Thử sức với Bot AI thông minh, chơi đôi trên cùng thiết bị hoặc tạo phòng thách đấu bạn bè.',
+      en: 'Classic 15x15 Gomoku (Five in a Row). Battle smart AI, pass & play with a friend locally, or challenge online.',
+    },
+    route: '/games/caro',
+    status: 'available',
+    modes: ['single_player', 'multiplayer_room'],
+    minPlayers: 1,
+    maxPlayers: 2,
+    badge: {
+      vi: 'Bot & 1v1 Online',
+      en: 'Bot & 1v1 Online',
+    },
+  },
 ];
 
 export function getGameById(id: string): GameMetadata | undefined {
   return GAME_REGISTRY.find((game) => game.id === id);
 }
-
