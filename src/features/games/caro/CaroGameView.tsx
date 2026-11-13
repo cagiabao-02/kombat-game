@@ -19,6 +19,7 @@ import {
   startCaroRematch,
   startBotCaroRematch,
 } from './caroRoomService';
+import { recordCaroGameResult } from './caroStatsService';
 import { soundService } from '@/lib/sound/soundService';
 import { useLanguage } from '@/i18n/LanguageContext';
 import {
@@ -203,8 +204,14 @@ export function CaroGameView({
       // Sound effect
       if (winResult) {
         soundService.playVictory();
+        if (!isLocalGame) {
+          recordCaroGameResult(myPiece === winResult.winner ? 'win' : 'loss', isBotGame);
+        }
       } else if (boardFull) {
         soundService.playDraw();
+        if (!isLocalGame) {
+          recordCaroGameResult('draw', isBotGame);
+        }
       } else {
         soundService.playMove();
       }
@@ -281,8 +288,10 @@ export function CaroGameView({
 
         if (winResult) {
           soundService.playDefeat();
+          recordCaroGameResult('loss', true);
         } else if (boardFull) {
           soundService.playDraw();
+          recordCaroGameResult('draw', true);
         } else {
           soundService.playMove();
         }
@@ -331,6 +340,9 @@ export function CaroGameView({
 
     setRoom(updatedRoom);
     soundService.playDefeat();
+    if (!isLocalGame) {
+      recordCaroGameResult('loss', isBotGame);
+    }
 
     if (isOnline) {
       try {

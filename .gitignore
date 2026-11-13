@@ -40,5 +40,9 @@ yarn-error.log*
 *.sw?
 
 
+# TypeScript build info cache
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
 # AI agent skills (third-party, installed locally)
 .agents/skills/ui-ux-pro-max/

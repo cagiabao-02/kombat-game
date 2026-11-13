@@ -445,7 +445,7 @@ function ChessGameContainer() {
       ) : (
         <ChessGameView
           initialRoom={currentRoom}
-          currentUserId={user?.id || ''}
+          currentUserId={user?.id || 'guest_player'}
           onExitRoom={() => setCurrentRoom(null)}
         />
       )}

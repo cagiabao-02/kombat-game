@@ -35,11 +35,13 @@ export function ChessGameView({
 
   const isHost = room.host_id === currentUserId;
   const isBotGame = Boolean(room.is_bot_game || room.game_state.isBotGame);
-  const myColor: PlayerColor = isHost ? 'white' : 'black';
+  const botColor: PlayerColor =
+    room.game_state.botColor || (room.host_id === 'bot_kombat' ? 'white' : 'black');
+  const myColor: PlayerColor = isBotGame
+    ? (botColor === 'white' ? 'black' : 'white')
+    : (isHost ? 'white' : 'black');
   const myTurnChar = myColor === 'white' ? 'w' : 'b';
   const isMyTurn = room.status === 'in_progress' && room.game_state.turn === myTurnChar;
-
-  const botColor: PlayerColor = room.game_state.botColor || (myColor === 'white' ? 'black' : 'white');
   const botTurnChar = botColor === 'white' ? 'w' : 'b';
   const isBotTurn = isBotGame && room.status === 'in_progress' && room.game_state.turn === botTurnChar;
   const [isBotThinking, setIsBotThinking] = useState(false);
@@ -181,6 +183,7 @@ export function ChessGameView({
         game_state: newGameState,
         status: 'completed',
       };
+      recordChessGameResult('loss', isBotGame);
 
       setRoom(updatedRoom);
       sounds.playVictory();
@@ -393,7 +396,7 @@ export function ChessGameView({
       const isCaptured = moveResult.captured;
 
       if (isCheckmate) {
-        sounds.playVictory();
+        sounds.playDefeat();
       } else if (isCheck) {
         sounds.playCheck();
       } else if (isCaptured) {
@@ -727,6 +730,8 @@ export function ChessGameView({
       status: 'completed',
     };
     setRoom(updatedRoom);
+    recordChessGameResult('loss', isBotGame);
+    sounds.playDefeat();
 
     if (!isBotGame && channelRef.current) {
       channelRef.current.send({
@@ -756,6 +761,7 @@ export function ChessGameView({
         game_state: newGameState,
         status: 'completed',
       };
+      recordChessGameResult('loss', isBotGame);
       if (!isBotGame && channelRef.current) {
         channelRef.current.send({
           type: 'broadcast',

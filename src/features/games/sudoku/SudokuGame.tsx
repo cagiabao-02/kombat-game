@@ -20,6 +20,7 @@ import { NumberPad } from './NumberPad';
 import { SudokuControls } from './SudokuControls';
 import { VictoryModal } from './VictoryModal';
 import { GameOverModal } from './GameOverModal';
+import { recordSudokuVictory } from './sudokuStatsService';
 import { sounds } from '@/lib/sound/soundService';
 
 export function SudokuGame() {
@@ -200,6 +201,7 @@ export function SudokuGame() {
       // Check win condition
       if (isBoardComplete(newBoard, solution)) {
         sounds.playVictory();
+        recordSudokuVictory(difficulty, elapsedSeconds);
         setIsCompleted(true);
         setShowVictoryModal(true);
         clearSavedSudokuGame();

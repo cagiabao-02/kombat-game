@@ -15,3 +15,10 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Vô hiệu hóa Next.js Dev Overlay che phủ giao diện và chặn click chuột */
+nextjs-portal,
+#nextjs-dev-overlay {
+  display: none !important;
+  pointer-events: none !important;
+}
+
