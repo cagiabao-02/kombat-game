@@ -19,6 +19,7 @@ export interface AuthContextType {
   signInWithGoogle: () => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   ensureUser: () => Promise<User | null>;
+  refreshUser: () => Promise<User | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,6 +27,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const GUEST_NAME_KEY = 'togame_guest_display_name';
 const AVATAR_KEY = 'kombat_user_avatar';
 const CHESS_STATS_KEY = 'kombat_chess_stats';
+const CARO_STATS_KEY = 'kombat_caro_stats';
+const SUDOKU_STATS_KEY = 'kombat_sudoku_stats';
 
 let supabasePromise: Promise<SupabaseClient<any, 'public', any>> | null = null;
 async function getClient(): Promise<SupabaseClient<any, 'public', any>> {
@@ -35,15 +38,18 @@ async function getClient(): Promise<SupabaseClient<any, 'public', any>> {
   return supabasePromise;
 }
 
-function syncCloudChessStats(cloudStats: any) {
-  if (typeof window === 'undefined' || !cloudStats) return;
-  try {
-    const raw = localStorage.getItem(CHESS_STATS_KEY);
-    const localStats = raw ? JSON.parse(raw) : null;
-    if (!localStats || localStats.totalGames === 0 || ((cloudStats.lastUpdated || 0) > (localStats.lastUpdated || 0))) {
-      localStorage.setItem(CHESS_STATS_KEY, JSON.stringify(cloudStats));
-    }
-  } catch {}
+function syncAllCloudStats(userMetadata: any) {
+  if (typeof window === 'undefined' || !userMetadata) return;
+  const syncKey = (storageKey: string, cloudStats: any) => {
+    if (!cloudStats) return;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(cloudStats));
+    } catch {}
+  };
+
+  if (userMetadata.chess_stats) syncKey(CHESS_STATS_KEY, userMetadata.chess_stats);
+  if (userMetadata.caro_stats) syncKey(CARO_STATS_KEY, userMetadata.caro_stats);
+  if (userMetadata.sudoku_stats) syncKey(SUDOKU_STATS_KEY, userMetadata.sudoku_stats);
 }
 
 function generateDefaultGuestName(userId?: string): string {
@@ -60,6 +66,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authError, setAuthError] = useState<string | null>(null);
 
   const isAnonymous = !user || Boolean(user.is_anonymous) || user.app_metadata?.provider === 'anonymous';
+
+  // Lấy dữ liệu người dùng MỚI NHẤT từ Supabase Server (Nguồn chân lý duy nhất / Single Source of Truth)
+  const syncFreshUserData = useCallback(async (customClient?: SupabaseClient<any, 'public', any>): Promise<User | null> => {
+    try {
+      const sb = customClient || (await getClient());
+      const { data: { user: freshUser }, error: userError } = await sb.auth.getUser();
+      if (!userError && freshUser) {
+        setUser(freshUser);
+
+        const isUserCloudAccount =
+          !freshUser.is_anonymous &&
+          freshUser.app_metadata?.provider !== 'anonymous';
+
+        const metadataName = freshUser.user_metadata?.display_name;
+        const savedName = typeof window !== 'undefined' ? localStorage.getItem(GUEST_NAME_KEY) : null;
+        const finalName = isUserCloudAccount
+          ? (metadataName || savedName || generateDefaultGuestName(freshUser.id))
+          : (savedName || metadataName || generateDefaultGuestName(freshUser.id));
+
+        setGuestName(finalName);
+        if (typeof window !== 'undefined') localStorage.setItem(GUEST_NAME_KEY, finalName);
+
+        const metadataAvatar = freshUser.user_metadata?.avatar;
+        const savedAvatar = typeof window !== 'undefined' ? localStorage.getItem(AVATAR_KEY) : null;
+        const finalAvatar = isUserCloudAccount
+          ? (metadataAvatar ? getValidAvatar(metadataAvatar) : getValidAvatar(savedAvatar))
+          : (metadataAvatar ? getValidAvatar(metadataAvatar) : getValidAvatar(savedAvatar));
+
+        setAvatar(finalAvatar);
+        if (typeof window !== 'undefined') localStorage.setItem(AVATAR_KEY, finalAvatar);
+
+        syncAllCloudStats(freshUser.user_metadata);
+        return freshUser;
+      }
+    } catch (e) {
+      console.error('syncFreshUserData error:', e);
+    }
+    return null;
+  }, []);
 
   // Helper to ensure an authenticated user exists (or sign in anonymously on demand)
   const ensureUser = useCallback(async (): Promise<User | null> => {
@@ -134,18 +179,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (existingSession?.user) {
           if (!isMounted) return;
           setSession(existingSession);
-          setUser(existingSession.user);
 
-          const metadataName = existingSession.user.user_metadata?.display_name;
-          const finalName = savedName || metadataName || generateDefaultGuestName(existingSession.user.id);
-          setGuestName(finalName);
-
-          const metadataAvatar = existingSession.user.user_metadata?.avatar;
-          const finalAvatar = getValidAvatar(savedAvatar || metadataAvatar);
-          setAvatar(finalAvatar);
-
-          const cloudStats = existingSession.user.user_metadata?.chess_stats;
-          syncCloudChessStats(cloudStats);
+          // Lấy dữ liệu người dùng MỚI NHẤT từ Supabase Auth Server (vượt qua cache JWT của trình duyệt)
+          await syncFreshUserData(sb);
         } else {
           // Attempt initial anonymous sign in
           const { data: anonData, error: anonError } = await sb.auth.signInAnonymously();
@@ -175,23 +211,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Listen for auth state changes
-        const { data: { subscription } } = sb.auth.onAuthStateChange((_event, currentSession) => {
+        const { data: { subscription } } = sb.auth.onAuthStateChange(async (_event, currentSession) => {
           if (!isMounted) return;
           setSession(currentSession);
-          setUser(currentSession?.user || null);
-
-          if (currentSession?.user) {
-            const metadataName = currentSession.user.user_metadata?.display_name;
-            if (metadataName) {
-              setGuestName(metadataName);
-            }
-            const metadataAvatar = currentSession.user.user_metadata?.avatar;
-            if (metadataAvatar) {
-              setAvatar(getValidAvatar(metadataAvatar));
-            }
-            const cloudStats = currentSession.user.user_metadata?.chess_stats;
-            syncCloudChessStats(cloudStats);
+          if (!currentSession?.user) {
+            setUser(null);
+            return;
           }
+
+          // Luôn đồng bộ dữ liệu người dùng mới nhất từ Supabase Cloud Server
+          await syncFreshUserData(sb);
         });
         unsubscribe = () => subscription.unsubscribe();
       } catch (err: any) {
@@ -204,11 +233,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initAuth();
 
+    // Tự động làm mới khi người dùng chuyển lại tab này (ví dụ vừa sửa trên điện thoại xong quay lại máy tính)
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
+        syncFreshUserData();
+      }
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('focus', handleVisibilityOrFocus);
+      document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    }
+
     return () => {
       isMounted = false;
       if (unsubscribe) unsubscribe();
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('focus', handleVisibilityOrFocus);
+        document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      }
     };
-  }, []);
+  }, [syncFreshUserData]);
 
   // Update display name
   const updateGuestName = useCallback(async (newName: string) => {
@@ -405,6 +449,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signInWithGoogle,
         signOut,
         ensureUser,
+        refreshUser: syncFreshUserData,
       }}
     >
       {children}
