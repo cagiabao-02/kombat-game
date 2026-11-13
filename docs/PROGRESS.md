@@ -49,6 +49,9 @@
   - Hệ thống Thách đấu 1 chạm (Direct 1-Click Challenge): Chọn người chơi -> Chọn game (Cờ vua hoặc Cờ Caro 15x15) -> Tự động tạo phòng ngầm và gửi broadcast tới đối thủ.
   - Modal nhận lời thách đấu (`IncomingChallengeModal.tsx`) với âm thanh chuông báo, đếm ngược 15s tự động và nút "Chiến ngay" / "Từ chối" đưa thẳng cả hai người vào bàn đấu.
   - Khắc phục triệt để lỗi đơ thanh Header do Webpack bundling xung đột eval syntax với `@supabase/auth-js`: Tách `@supabase/supabase-js` thành dynamic lazy-load trong `AuthContext.tsx`, giảm 98% kích thước chunk `layout.js` (từ 3.3MB xuống ~60KB), giúp toàn bộ nút bấm trên Header (Hồ sơ, BXH, Âm thanh, Ngôn ngữ) phản hồi tức thì và không bị crash.
+  - Tối ưu giao diện Header di động: Gom các nút phụ (BXH, Âm thanh, Ngôn ngữ) vào menu 3 gạch (Hamburger) hiện đại, mở drawer popover trực quan tránh tràn viền; giữ nguyên pill Hồ sơ nhỏ gọn trên thanh điều hướng.
+  - Tối ưu thẻ ảnh đại diện tự tải lên trong `ProfileAuthModal.tsx`: Bỏ nhãn "Đang chọn" bị vỡ dòng trên màn hình điện thoại hẹp, làm nổi bật viền tím và dòng mô tả tinh tế.
+  - **Đồng bộ đám mây đa thiết bị (Laptop & Mobile Sync):** Thiết lập Supabase Auth Server (`supabase.auth.getUser()`) làm nguồn chân lý duy nhất (Single Source of Truth) thay vì phụ thuộc `localStorage` hay cache JWT cũ. Tự động đồng bộ ảnh đại diện, tên người chơi và thành tích thi đấu tức thì giữa các thiết bị ngay khi vào trang, khi chuyển tab (`focus`) và kết nối trực tiếp với thanh Header bên ngoài.
 
 ## Đang làm
 

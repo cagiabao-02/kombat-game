@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from './AuthContext';
-import { AVATAR_OPTIONS, isCustomImageAvatar } from './avatarConstants';
+import { AVATAR_OPTIONS, isCustomImageAvatar, getValidAvatar } from './avatarConstants';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { getChessStats, ChessStats } from '@/features/games/chess/statsService';
 import { getCaroStats, CaroStats } from '@/features/games/caro/caroStatsService';
@@ -99,6 +99,7 @@ export function ProfileAuthModal({
     signUpWithEmail,
     signInWithGoogle,
     signOut,
+    refreshUser,
   } = useAuth();
   const { language } = useLanguage();
 
@@ -187,16 +188,43 @@ export function ProfileAuthModal({
 
   useEffect(() => {
     if (isOpen) {
-      setTempName(guestName);
-      setTempAvatar(avatar);
-      setCustomPhoto(isCustomImageAvatar(avatar) ? avatar : null);
+      // 1. Ưu tiên tuyệt đối dữ liệu từ Supabase Cloud
+      const meta = user?.user_metadata || {};
+      const cloudName = meta.display_name || guestName;
+      const cloudAvatar = meta.avatar ? getValidAvatar(meta.avatar) : avatar;
+
+      setTempName(cloudName);
+      setTempAvatar(cloudAvatar);
+      setCustomPhoto(isCustomImageAvatar(cloudAvatar) ? cloudAvatar : null);
+
       setProfileSuccessMsg(null);
       setAuthError(null);
       setAuthSuccess(null);
-      setChessStats(getChessStats());
-      setCaroStats(getCaroStats());
+
+      // Thống kê thi đấu lấy trực tiếp từ Supabase
+      setChessStats(meta.chess_stats || getChessStats());
+      setCaroStats(meta.caro_stats || getCaroStats());
+
+      // 2. Kéo dữ liệu mới nhất từ Supabase Cloud Server (đồng bộ cả Modal lẫn Header bên ngoài)
+      if (user) {
+        refreshUser().then((freshUser) => {
+          if (freshUser?.user_metadata) {
+            const m = freshUser.user_metadata;
+            if (m.display_name) setTempName(m.display_name);
+            if (m.avatar) {
+              const freshAv = getValidAvatar(m.avatar);
+              setTempAvatar(freshAv);
+              if (isCustomImageAvatar(freshAv)) {
+                setCustomPhoto(freshAv);
+              }
+            }
+            if (m.caro_stats) setCaroStats(m.caro_stats);
+            if (m.chess_stats) setChessStats(m.chess_stats);
+          }
+        }).catch(() => {});
+      }
     }
-  }, [isOpen, guestName, avatar]);
+  }, [isOpen, guestName, avatar, user, isAnonymous, refreshUser]);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -468,11 +496,6 @@ export function ProfileAuthModal({
                             }`}>
                             {language === 'vi' ? 'Ảnh bạn tự tải lên' : 'Custom uploaded photo'}
                           </p>
-                          {tempAvatar === customPhoto && (
-                            <span className="rounded-full bg-indigo-600 px-1.5 py-0.2 text-[9px] font-bold text-white uppercase tracking-wider">
-                              {language === 'vi' ? 'Đang chọn' : 'Active'}
-                            </span>
-                          )}
                         </div>
                         <p className={`text-[10px] ${tempAvatar === customPhoto ? 'text-indigo-600 font-medium' : 'text-gray-500'
                           }`}>

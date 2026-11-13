@@ -115,6 +115,6 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [x] Thiết kế `LeaderboardModal.tsx` chuẩn UI/UX Pro Max với bục vinh danh Top 3 Podium (Vàng, Bạc, Đồng), danh sách thứ hạng và thanh cố định vị trí cá nhân.
 - [x] Tích hợp nút mở Bảng xếp hạng trên Header và Sảnh chính (Lobby).
 - [x] Tạo migration Supabase lưu trữ bảng xếp hạng (`supabase/migrations/20261109000000_leaderboard_schema.sql`).
-- [ ] Triển khai bộ đếm người chơi trực tuyến tại sảnh (Realtime Presence) và lời mời thách đấu 1 chạm.
+- [x] Triển khai bộ đếm người chơi trực tuyến tại sảnh (Realtime Presence) và lời mời thách đấu 1 chạm.
 - [ ] Tích hợp máy phát nhạc nền Lo-fi/Chiptune thư giãn bằng Web Audio API.
 
