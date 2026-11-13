@@ -5,6 +5,7 @@ import { useAuth } from './AuthContext';
 import { AVATAR_OPTIONS, isCustomImageAvatar } from './avatarConstants';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { getChessStats, ChessStats } from '@/features/games/chess/statsService';
+import { getCaroStats, CaroStats } from '@/features/games/caro/caroStatsService';
 import {
   X,
   User,
@@ -180,7 +181,9 @@ export function ProfileAuthModal({
   const [authSuccess, setAuthSuccess] = useState<string | null>(null);
 
   // Stats
-  const [stats, setStats] = useState<ChessStats | null>(null);
+  const [chessStats, setChessStats] = useState<ChessStats | null>(null);
+  const [caroStats, setCaroStats] = useState<CaroStats | null>(null);
+  const [statsGameTab, setStatsGameTab] = useState<'chess' | 'caro' | 'all'>('all');
 
   useEffect(() => {
     if (isOpen) {
@@ -190,11 +193,10 @@ export function ProfileAuthModal({
       setProfileSuccessMsg(null);
       setAuthError(null);
       setAuthSuccess(null);
-      setStats(getChessStats());
+      setChessStats(getChessStats());
+      setCaroStats(getCaroStats());
     }
   }, [isOpen, guestName, avatar]);
-
-  if (!isOpen) return null;
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -295,8 +297,34 @@ export function ProfileAuthModal({
     onClose();
   };
 
-  const totalGames = (stats?.wins || 0) + (stats?.losses || 0) + (stats?.draws || 0);
-  const winRate = totalGames > 0 ? Math.round(((stats?.wins || 0) / totalGames) * 100) : 0;
+  const currentStatData = React.useMemo(() => {
+    if (statsGameTab === 'chess') {
+      const wins = chessStats?.wins || 0;
+      const losses = chessStats?.losses || 0;
+      const draws = chessStats?.draws || 0;
+      const total = wins + losses + draws;
+      const rate = total > 0 ? Math.round((wins / total) * 100) : 0;
+      return { wins, losses, draws, total, rate, streak: chessStats?.streak || chessStats?.currentStreak || 0 };
+    }
+    if (statsGameTab === 'caro') {
+      const wins = caroStats?.wins || 0;
+      const losses = caroStats?.losses || 0;
+      const draws = caroStats?.draws || 0;
+      const total = wins + losses + draws;
+      const rate = total > 0 ? Math.round((wins / total) * 100) : 0;
+      return { wins, losses, draws, total, rate, streak: caroStats?.currentStreak || 0 };
+    }
+    // all (tổng hợp)
+    const wins = (chessStats?.wins || 0) + (caroStats?.wins || 0);
+    const losses = (chessStats?.losses || 0) + (caroStats?.losses || 0);
+    const draws = (chessStats?.draws || 0) + (caroStats?.draws || 0);
+    const total = wins + losses + draws;
+    const rate = total > 0 ? Math.round((wins / total) * 100) : 0;
+    const streak = Math.max(chessStats?.streak || 0, caroStats?.currentStreak || 0);
+    return { wins, losses, draws, total, rate, streak };
+  }, [statsGameTab, chessStats, caroStats]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
@@ -521,35 +549,68 @@ export function ProfileAuthModal({
 
               {/* Quick Stats Snapshot */}
               <div className="rounded-2xl border border-gray-100 bg-gray-50/70 p-3.5">
-                <div className="flex items-center justify-between text-xs font-bold text-gray-700 mb-2">
+                <div className="flex items-center justify-between text-xs font-bold text-gray-700 mb-2.5">
                   <span className="flex items-center gap-1.5">
                     <Trophy className="h-3.5 w-3.5 text-amber-500" />
-                    {language === 'vi' ? 'Thành tích Cờ vua' : 'Chess Record'}
+                    <span>{language === 'vi' ? 'Thành tích thi đấu' : 'Competitive Record'}</span>
                   </span>
-                  <span className="text-[11px] text-gray-400">
-                    {totalGames} {language === 'vi' ? 'trận' : 'games'}
-                  </span>
+                  <div className="flex items-center gap-1 bg-gray-200/70 p-0.5 rounded-lg text-[10px]">
+                    <button
+                      type="button"
+                      onClick={() => setStatsGameTab('all')}
+                      className={`px-2 py-0.5 rounded-md font-bold transition-all ${
+                        statsGameTab === 'all' ? 'bg-white text-gray-900 shadow-2xs' : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                    >
+                      {language === 'vi' ? 'Tất cả' : 'All'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStatsGameTab('chess')}
+                      className={`px-2 py-0.5 rounded-md font-bold transition-all ${
+                        statsGameTab === 'chess' ? 'bg-white text-gray-900 shadow-2xs' : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                    >
+                      {language === 'vi' ? 'Cờ vua' : 'Chess'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStatsGameTab('caro')}
+                      className={`px-2 py-0.5 rounded-md font-bold transition-all ${
+                        statsGameTab === 'caro' ? 'bg-white text-gray-900 shadow-2xs' : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                    >
+                      {language === 'vi' ? 'Caro' : 'Caro'}
+                    </button>
+                  </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-center">
+
+                <div className="grid grid-cols-4 gap-1.5 text-center">
                   <div className="rounded-xl bg-white p-2 border border-gray-200/60 shadow-xs">
-                    <p className="text-base font-black text-indigo-600">{stats?.wins || 0}</p>
+                    <p className="text-sm sm:text-base font-black text-indigo-600">{currentStatData.wins}</p>
                     <p className="text-[10px] text-gray-400 font-medium">
                       {language === 'vi' ? 'Thắng' : 'Wins'}
                     </p>
                   </div>
                   <div className="rounded-xl bg-white p-2 border border-gray-200/60 shadow-xs">
-                    <p className="text-base font-black text-emerald-600">{winRate}%</p>
+                    <p className="text-sm sm:text-base font-black text-rose-600">{currentStatData.losses}</p>
+                    <p className="text-[10px] text-gray-400 font-medium">
+                      {language === 'vi' ? 'Thua' : 'Losses'}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-white p-2 border border-gray-200/60 shadow-xs">
+                    <p className="text-sm sm:text-base font-black text-emerald-600">{currentStatData.rate}%</p>
                     <p className="text-[10px] text-gray-400 font-medium">
                       {language === 'vi' ? 'Tỉ lệ thắng' : 'Win Rate'}
                     </p>
                   </div>
                   <div className="rounded-xl bg-white p-2 border border-gray-200/60 shadow-xs">
-                    <p className="text-base font-black text-amber-600 flex items-center justify-center gap-0.5">
-                      <Flame className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-                      {stats?.streak || 0}
+                    <p className="text-sm sm:text-base font-black text-amber-600 flex items-center justify-center gap-0.5">
+                      <Flame className="h-3 w-3 fill-amber-500 text-amber-500" />
+                      {currentStatData.streak}
                     </p>
                     <p className="text-[10px] text-gray-400 font-medium">
-                      {language === 'vi' ? 'Chuỗi thắng' : 'Streak'}
+                      {language === 'vi' ? 'Chuỗi' : 'Streak'}
                     </p>
                   </div>
                 </div>

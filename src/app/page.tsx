@@ -1,13 +1,22 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { GAME_REGISTRY } from '@/features/games/registry';
 import { GameCard } from '@/components/GameCard';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Gamepad2, Sparkles, ShieldCheck, Zap, Bot, Smartphone } from 'lucide-react';
+import { Gamepad2, Sparkles, ShieldCheck, Zap, Bot, Smartphone, Trophy, Swords } from 'lucide-react';
+
+const LeaderboardModal = dynamic(
+  () => import('@/features/leaderboard/LeaderboardModal').then((mod) => mod.LeaderboardModal),
+  { ssr: false }
+);
+
+import { LobbyPresenceWidget } from '@/features/presence/LobbyPresenceWidget';
 
 export default function LobbyPage() {
   const { language, t } = useLanguage();
+  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
@@ -26,6 +35,15 @@ export default function LobbyPage() {
 
         {/* Feature Highlights Pills */}
         <div className="mt-5 flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
+          <LobbyPresenceWidget />
+          <button
+            type="button"
+            onClick={() => setIsLeaderboardOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-amber-50 border border-amber-200/90 hover:bg-amber-100 text-amber-700 px-3 py-1.5 text-xs font-bold shadow-2xs hover:scale-102 active:scale-95 transition-all"
+          >
+            <Trophy className="h-3.5 w-3.5 fill-current" />
+            <span>{language === 'vi' ? 'Bảng Xếp Hạng' : 'Leaderboard'}</span>
+          </button>
           <div className="inline-flex items-center gap-1.5 rounded-xl bg-gray-50 border border-gray-200/80 px-2.5 py-1 text-xs font-semibold text-gray-700 shadow-2xs">
             <Zap className="h-3.5 w-3.5 text-amber-500" />
             <span>{language === 'vi' ? 'Không cần cài đặt' : 'Instant Play'}</span>
@@ -68,6 +86,14 @@ export default function LobbyPage() {
           ))}
         </div>
       </section>
+
+      {/* Leaderboard Modal */}
+      {isLeaderboardOpen && (
+        <LeaderboardModal
+          isOpen={isLeaderboardOpen}
+          onClose={() => setIsLeaderboardOpen(false)}
+        />
+      )}
     </div>
   );
 }

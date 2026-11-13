@@ -36,16 +36,28 @@
   - Sảnh chờ (`CaroLobbyView.tsx`) với 3 chế độ: Đấu Máy (chọn độ khó và quân đi trước), Chơi Đôi trên cùng máy (Pass & Play) và Online PvP (Phòng riêng 6 ký tự hoặc Ghép nhanh).
   - Tích hợp Realtime đồng bộ hai chiều qua Supabase Realtime Broadcast + `rooms` database (`caroRoomService.ts`).
   - Đăng ký trò chơi trong `registry.ts`, hiển thị card đồ họa tương tác tại Sảnh chính và hỗ trợ song ngữ Việt-Anh (`translations.ts`).
+- **Triển khai Bảng xếp hạng toàn sảnh Leaderboard (Chặng 11 - Bước 3.1):**
+  - Xây dựng module `src/features/leaderboard/` vinh danh cao thủ cho cả 3 tựa game (Cờ vua Elo & số trận thắng, Cờ Caro chuỗi thắng & tổng thắng, Sudoku kỷ lục thời gian giải nhanh nhất).
+  - Thiết kế bục vinh danh Top 3 Podium (1st Quán quân Vàng 🥇, 2nd Bạc 🥈, 3rd Đồng 🥉) và danh sách thứ hạng chi tiết kèm avatar người chơi.
+  - Thanh ghim cố định vị trí xếp hạng của người dùng hiện tại (Your Rank) giúp theo dõi thứ hạng cá nhân tức thì.
+  - Tích hợp dịch vụ lưu trữ thành tích tự động cho Cờ Caro (`caroStatsService.ts`) và Sudoku (`sudokuStatsService.ts`).
+  - Nút bấm mở Bảng xếp hạng trực quan trên thanh Header và khu vực Hero tại Sảnh chính.
+  - Migration database `20261109000000_leaderboard_schema.sql` với RLS an toàn.
+- **Triển khai Người chơi trực tuyến & Thách đấu 1 chạm (Chặng 11 - Bước 3.2):**
+  - Xây dựng module `src/features/presence/` dùng Supabase Realtime Presence channel (`kombat_lobby_presence`) theo dõi danh sách người chơi online tại sảnh.
+  - Widget trạng thái trực tuyến hiển thị trực quan ở Hero sảnh chính (`🟢 X người online • ⚔️`) với danh sách đối thủ sẵn sàng. Render tĩnh SSR đảm bảo luôn hiển thị ngay từ frame đầu tiên (kể cả khi chỉ có 1 người online).
+  - Hệ thống Thách đấu 1 chạm (Direct 1-Click Challenge): Chọn người chơi -> Chọn game (Cờ vua hoặc Cờ Caro 15x15) -> Tự động tạo phòng ngầm và gửi broadcast tới đối thủ.
+  - Modal nhận lời thách đấu (`IncomingChallengeModal.tsx`) với âm thanh chuông báo, đếm ngược 15s tự động và nút "Chiến ngay" / "Từ chối" đưa thẳng cả hai người vào bàn đấu.
+  - Khắc phục triệt để lỗi đơ thanh Header do Webpack bundling xung đột eval syntax với `@supabase/auth-js`: Tách `@supabase/supabase-js` thành dynamic lazy-load trong `AuthContext.tsx`, giảm 98% kích thước chunk `layout.js` (từ 3.3MB xuống ~60KB), giúp toàn bộ nút bấm trên Header (Hồ sơ, BXH, Âm thanh, Ngôn ngữ) phản hồi tức thì và không bị crash.
 
 ## Đang làm
 
-- Đã hoàn tất implementation Chặng 10 và build thành công với 0 lỗi.
+- Bước 3.3: Máy phát nhạc nền Lo-fi thư giãn (BGM) bằng Web Audio API procedural synthesis.
 
 ## Việc kế tiếp
 
-1. Trải nghiệm thử nghiệm thực tế các chế độ chơi của Cờ Caro.
-2. Bổ sung bảng thành tích thống kê (Stats Widget) cho Cờ Caro tương tự Cờ vua (thắng/thua/hòa/chuỗi thắng).
-3. Đề xuất các trò chơi tiếp theo (Cờ ca-rô 3D, Cờ vây mini, Cờ cá ngựa hoặc Cờ tướng).
+1. Tích hợp máy phát nhạc nền Lo-fi thư giãn bằng Web Audio API.
+2. Kiểm tra thực tế bằng 2 tab/cửa sổ để trải nghiệm luồng Thách đấu 1 chạm.
 
 ## Quyết định còn mở
 

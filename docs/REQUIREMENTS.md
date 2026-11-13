@@ -94,6 +94,14 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
   - Phòng riêng PvP Realtime mời bạn bè và Ghép trận ngẫu nhiên (Quick Match).
   - Đồng hồ thi đấu đếm ngược (Không giới hạn, 3p, 5p).
 
+### FR-7 — Bảng xếp hạng toàn sảnh (Leaderboard)
+
+- Bảng xếp hạng vinh danh người chơi cho cả 3 trò chơi: Cờ vua (Elo & Số trận thắng), Cờ Caro (Số trận thắng & Chuỗi thắng), Sudoku (Kỷ lục giải nhanh nhất).
+- Bục vinh danh Top 3 Podium (Hạng 1 Vàng, Hạng 2 Bạc, Hạng 3 Đồng) cùng danh sách thứ hạng đầy đủ.
+- Tự động hiển thị thanh ghim cố định vị trí xếp hạng của người dùng hiện tại (Your Rank).
+- Truy cập thuận tiện từ Header và nút mở tại Sảnh chính (Lobby).
+- Hỗ trợ lưu trữ cục bộ kèm đồng bộ Supabase Cloud.
+
 ## 5. Yêu cầu phi chức năng
 
 - Mobile-first, phù hợp màn hình nhỏ và lớn; hỗ trợ xoay/ngang nếu bàn cờ cần.

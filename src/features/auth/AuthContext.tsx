@@ -1,10 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase/client';
+import type { User, Session, SupabaseClient } from '@supabase/supabase-js';
 import { DEFAULT_AVATAR, getValidAvatar } from './avatarConstants';
-import { getChessStats, saveChessStatsLocally } from '@/features/games/chess/statsService';
 
 export interface AuthContextType {
   user: User | null;
@@ -27,6 +25,26 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const GUEST_NAME_KEY = 'togame_guest_display_name';
 const AVATAR_KEY = 'kombat_user_avatar';
+const CHESS_STATS_KEY = 'kombat_chess_stats';
+
+let supabasePromise: Promise<SupabaseClient<any, 'public', any>> | null = null;
+async function getClient(): Promise<SupabaseClient<any, 'public', any>> {
+  if (!supabasePromise) {
+    supabasePromise = import('@/lib/supabase/client').then((mod) => mod.supabase);
+  }
+  return supabasePromise;
+}
+
+function syncCloudChessStats(cloudStats: any) {
+  if (typeof window === 'undefined' || !cloudStats) return;
+  try {
+    const raw = localStorage.getItem(CHESS_STATS_KEY);
+    const localStats = raw ? JSON.parse(raw) : null;
+    if (!localStats || localStats.totalGames === 0 || ((cloudStats.lastUpdated || 0) > (localStats.lastUpdated || 0))) {
+      localStorage.setItem(CHESS_STATS_KEY, JSON.stringify(cloudStats));
+    }
+  } catch {}
+}
 
 function generateDefaultGuestName(userId?: string): string {
   const suffix = userId ? userId.slice(-4).toUpperCase() : Math.floor(1000 + Math.random() * 9000).toString();
@@ -46,7 +64,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Helper to ensure an authenticated user exists (or sign in anonymously on demand)
   const ensureUser = useCallback(async (): Promise<User | null> => {
     try {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      const sb = await getClient();
+      const { data: { session: currentSession } } = await sb.auth.getSession();
       if (currentSession?.user) {
         setUser(currentSession.user);
         setSession(currentSession);
@@ -54,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Try signing in anonymously
-      const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously();
+      const { data: anonData, error: anonError } = await sb.auth.signInAnonymously();
       if (anonError) {
         console.error('Anonymous sign-in error:', anonError);
         setAuthError(anonError.message);
@@ -75,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAvatar(initialAvatar);
 
         // Update user metadata in background
-        supabase.auth.updateUser({
+        sb.auth.updateUser({
           data: { display_name: initialName, avatar: initialAvatar },
         }).catch(() => {});
 
@@ -92,13 +111,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Initialize auth & session on mount
   useEffect(() => {
     let isMounted = true;
+    let unsubscribe: (() => void) | undefined;
+
+    // 1. Phục hồi NGAY LẬP TỨC (0ms) từ LocalStorage để giao diện hiển thị tên & avatar tức thì
+    try {
+      const immediateName = localStorage.getItem(GUEST_NAME_KEY);
+      const immediateAvatar = localStorage.getItem(AVATAR_KEY);
+      if (immediateName) setGuestName(immediateName);
+      if (immediateAvatar) setAvatar(getValidAvatar(immediateAvatar, true));
+    } catch {}
 
     async function initAuth() {
       try {
+        const sb = await getClient();
+        if (!isMounted) return;
+
         const savedName = typeof window !== 'undefined' ? localStorage.getItem(GUEST_NAME_KEY) : null;
         const savedAvatar = typeof window !== 'undefined' ? localStorage.getItem(AVATAR_KEY) : null;
 
-        const { data: { session: existingSession } } = await supabase.auth.getSession();
+        const { data: { session: existingSession } } = await sb.auth.getSession();
 
         if (existingSession?.user) {
           if (!isMounted) return;
@@ -114,15 +145,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setAvatar(finalAvatar);
 
           const cloudStats = existingSession.user.user_metadata?.chess_stats;
-          if (cloudStats && typeof window !== 'undefined') {
-            const localStats = getChessStats();
-            if (localStats.totalGames === 0 || ((cloudStats.lastUpdated || 0) > (localStats.lastUpdated || 0))) {
-              saveChessStatsLocally(cloudStats);
-            }
-          }
+          syncCloudChessStats(cloudStats);
         } else {
           // Attempt initial anonymous sign in
-          const { data: anonData, error: anonError } = await supabase.auth.signInAnonymously();
+          const { data: anonData, error: anonError } = await sb.auth.signInAnonymously();
           if (anonError) {
             console.warn('Anonymous sign-in is disabled or pending setup in Supabase:', anonError.message);
             if (isMounted) {
@@ -142,11 +168,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setGuestName(initialName);
             setAvatar(initialAvatar);
 
-            await supabase.auth.updateUser({
+            await sb.auth.updateUser({
               data: { display_name: initialName, avatar: initialAvatar },
             });
           }
         }
+
+        // Listen for auth state changes
+        const { data: { subscription } } = sb.auth.onAuthStateChange((_event, currentSession) => {
+          if (!isMounted) return;
+          setSession(currentSession);
+          setUser(currentSession?.user || null);
+
+          if (currentSession?.user) {
+            const metadataName = currentSession.user.user_metadata?.display_name;
+            if (metadataName) {
+              setGuestName(metadataName);
+            }
+            const metadataAvatar = currentSession.user.user_metadata?.avatar;
+            if (metadataAvatar) {
+              setAvatar(getValidAvatar(metadataAvatar));
+            }
+            const cloudStats = currentSession.user.user_metadata?.chess_stats;
+            syncCloudChessStats(cloudStats);
+          }
+        });
+        unsubscribe = () => subscription.unsubscribe();
       } catch (err: any) {
         console.error('Auth initialization error:', err);
         if (isMounted) setAuthError(err?.message || 'Lỗi kết nối');
@@ -157,34 +204,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initAuth();
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
-      if (!isMounted) return;
-      setSession(currentSession);
-      setUser(currentSession?.user || null);
-
-      if (currentSession?.user) {
-        const metadataName = currentSession.user.user_metadata?.display_name;
-        if (metadataName) {
-          setGuestName(metadataName);
-        }
-        const metadataAvatar = currentSession.user.user_metadata?.avatar;
-        if (metadataAvatar) {
-          setAvatar(getValidAvatar(metadataAvatar));
-        }
-        const cloudStats = currentSession.user.user_metadata?.chess_stats;
-        if (cloudStats && typeof window !== 'undefined') {
-          const localStats = getChessStats();
-          if (localStats.totalGames === 0 || ((cloudStats.lastUpdated || 0) > (localStats.lastUpdated || 0))) {
-            saveChessStatsLocally(cloudStats);
-          }
-        }
-      }
-    });
-
     return () => {
       isMounted = false;
-      subscription.unsubscribe();
+      if (unsubscribe) unsubscribe();
     };
   }, []);
 
@@ -200,8 +222,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (user) {
-        await supabase.auth.updateUser({
-          data: { display_name: trimmed },
+        // Đồng bộ lên Supabase Cloud trong nền (không làm nghẽn UI)
+        getClient().then((sb) => {
+          sb.auth.updateUser({
+            data: { display_name: trimmed },
+          }).catch((err) => console.error('Failed to sync display name to cloud:', err));
         });
       }
     } catch (err) {
@@ -219,8 +244,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (user) {
-        await supabase.auth.updateUser({
-          data: { avatar: validAvatar },
+        // Đồng bộ lên Supabase Cloud trong nền (không làm nghẽn UI)
+        getClient().then((sb) => {
+          sb.auth.updateUser({
+            data: { avatar: validAvatar },
+          }).catch((err) => console.error('Failed to sync avatar to cloud:', err));
         });
       }
     } catch (err) {
@@ -232,7 +260,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithEmail = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
     try {
       setAuthError(null);
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const sb = await getClient();
+      const { data, error } = await sb.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
@@ -264,10 +293,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setAuthError(null);
       const cleanEmail = email.trim();
+      const sb = await getClient();
 
       // If user is currently anonymous, try upgrading the account directly
       if (user && isAnonymous) {
-        const { data, error: updateError } = await supabase.auth.updateUser({
+        const { data, error: updateError } = await sb.auth.updateUser({
           email: cleanEmail,
           password,
           data: {
@@ -284,7 +314,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // If update failed because email is taken or not allowed, fallback to regular signUp
       }
 
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error } = await sb.auth.signUp({
         email: cleanEmail,
         password,
         options: {
@@ -315,7 +345,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setAuthError(null);
       const redirectUrl = typeof window !== 'undefined' ? window.location.origin : undefined;
-      const { error } = await supabase.auth.signInWithOAuth({
+      const sb = await getClient();
+      const { error } = await sb.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: redirectUrl,
@@ -334,12 +365,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign out (and immediately establish a new anonymous session for seamless play)
   const signOut = useCallback(async (): Promise<void> => {
     try {
-      await supabase.auth.signOut();
+      const sb = await getClient();
+      await sb.auth.signOut();
       setUser(null);
       setSession(null);
 
       // Re-sign in anonymously so game rooms continue working smoothly
-      const { data: anonData } = await supabase.auth.signInAnonymously();
+      const { data: anonData } = await sb.auth.signInAnonymously();
       if (anonData?.user) {
         setUser(anonData.user);
         setSession(anonData.session);
