@@ -369,3 +369,35 @@ export function startBotRematchRoom(currentRoom: ChessRoom, userAvatar?: string)
     updated_at: new Date().toISOString(),
   };
 }
+
+export function createLocalChessRoom(
+  player1Name: string = 'Kỳ thủ Trắng',
+  player2Name: string = 'Kỳ thủ Đen',
+  timeControl: number = 0
+): ChessRoom {
+  const initialGameState: ChessGameState = {
+    ...INITIAL_GAME_STATE,
+    timeControl,
+    whiteTime: timeControl,
+    blackTime: timeControl,
+    lastMoveTimestamp: Date.now(),
+    hostAvatar: '♔',
+    guestAvatar: '♚',
+  };
+
+  return {
+    id: `local_chess_${Date.now()}`,
+    code: 'LOCAL1',
+    game_id: 'chess',
+    status: 'in_progress',
+    host_id: 'local_p1',
+    host_name: player1Name,
+    guest_id: 'local_p2',
+    guest_name: player2Name,
+    game_state: initialGameState,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    is_bot_game: false,
+    is_local_game: true,
+  };
+}

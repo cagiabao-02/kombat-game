@@ -88,12 +88,14 @@ export function LeaderboardModal({
   const getGameRoute = (game: LeaderboardGame) => {
     if (game === 'chess') return '/games/chess';
     if (game === 'caro') return '/games/caro';
+    if (game === 'xiangqi') return '/games/xiangqi';
     return '/games/sudoku';
   };
 
   const getGameTitle = (game: LeaderboardGame) => {
     if (game === 'chess') return language === 'vi' ? 'Cờ vua' : 'Chess';
     if (game === 'caro') return language === 'vi' ? 'Cờ Caro' : 'Caro';
+    if (game === 'xiangqi') return language === 'vi' ? 'Cờ Tướng' : 'Xiangqi';
     return 'Sudoku';
   };
 
@@ -135,7 +137,7 @@ export function LeaderboardModal({
           </div>
 
           {/* Game Switcher Tabs */}
-          <div className="mt-4 grid grid-cols-3 gap-1.5 p-1 bg-gray-200/60 rounded-2xl">
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-1 bg-gray-200/60 rounded-2xl">
             <button
               type="button"
               onClick={() => setSelectedGame('chess')}
@@ -160,6 +162,19 @@ export function LeaderboardModal({
             >
               <span className="text-rose-600 font-black">✕</span>
               <span>{language === 'vi' ? 'Cờ Caro' : 'Caro'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedGame('xiangqi')}
+              className={`flex items-center justify-center gap-1.5 min-h-[40px] rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                selectedGame === 'xiangqi'
+                  ? 'bg-white text-gray-950 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <span className="text-rose-600 font-bold">帥</span>
+              <span>{language === 'vi' ? 'Cờ Tướng' : 'Xiangqi'}</span>
             </button>
 
             <button

@@ -16,6 +16,7 @@ export function GameCard({ game }: GameCardProps) {
   const isSudoku = game.id === 'sudoku';
   const isChess = game.id === 'chess';
   const isCaro = game.id === 'caro';
+  const isXiangqi = game.id === 'xiangqi';
 
   const statusLabel = t.status[game.status];
 
@@ -129,6 +130,29 @@ export function GameCard({ game }: GameCardProps) {
               <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500">
                 <Users className="h-3.5 w-3.5 text-indigo-600" />
                 <span>{language === 'vi' ? 'Chơi đôi & Online' : 'Local & Online'}</span>
+              </div>
+            </div>
+          )}
+
+          {isXiangqi && (
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-3">
+                {/* Quân Đỏ Soái */}
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-b from-[#fefcf8] via-[#f7ecd9] to-[#ebd4b7] shadow-md border-2 border-rose-600 text-rose-700 font-black text-2xl group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-200">
+                  <span style={{ fontFamily: '"KaiTi", "SimSun", serif' }}>帥</span>
+                </div>
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-r from-rose-600 to-amber-600 text-[10px] font-black text-white shadow-xs">
+                  VS
+                </div>
+                {/* Quân Đen Tướng */}
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-b from-[#fefcf8] via-[#f7ecd9] to-[#ebd4b7] shadow-md border-2 border-gray-900 text-gray-900 font-black text-2xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200">
+                  <span style={{ fontFamily: '"KaiTi", "SimSun", serif' }}>將</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500">
+                <span className="text-rose-700 font-bold">Sở Hà Hán Giới</span>
+                <span>•</span>
+                <span>{language === 'vi' ? 'Chơi đôi & Bot AI' : '2 Players & AI'}</span>
               </div>
             </div>
           )}

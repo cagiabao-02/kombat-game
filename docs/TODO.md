@@ -118,3 +118,16 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [x] Triển khai bộ đếm người chơi trực tuyến tại sảnh (Realtime Presence) và lời mời thách đấu 1 chạm.
 - [ ] Tích hợp máy phát nhạc nền Lo-fi/Chiptune thư giãn bằng Web Audio API.
 
+## Chặng 12 — Trò chơi thứ 4: Cờ Tướng (Xiangqi / Chinese Chess)
+
+- [x] Thiết kế động cơ luật Cờ Tướng (`src/features/games/xiangqi/xiangqiLogic.ts`): Bàn cờ $9 \times 10$ giao điểm, biểu diễn 7 loại quân (Tướng, Sĩ, Tượng, Xe, Pháo, Mã, Tốt) và sinh nước đi hợp lệ.
+- [x] Xây dựng thuật toán kiểm tra Chiếu tướng (Check), Chiếu bí (Checkmate), Lộ mặt Tướng (Flying General) và luật cản chân Mã / cản mắt Tượng.
+- [x] Thiết kế giao diện bàn cờ Cờ Tướng (`XiangqiBoard.tsx`) chuẩn mỹ thuật gỗ/ngà truyền thống, chữ Hán sắc nét, responsive mượt mà trên mobile và PC.
+- [x] Tạo module giao diện đầy đủ (`XiangqiLobbyView.tsx`, `XiangqiGameView.tsx`, `XiangqiControls.tsx`).
+- [x] Tích hợp chế độ chơi 2 người cùng máy (Pass & Play) với tính năng xoay bàn cờ theo lượt.
+- [x] Đăng ký Cờ Tướng vào `GAME_REGISTRY` (`src/features/games/registry.ts`) và route `/games/xiangqi`.
+- [x] Xây dựng Bot Cờ Tướng AI offline 3 cấp độ Dễ / Vừa / Khó (`ai/xiangqiBot.ts`) với cây tìm kiếm Minimax + Alpha-Beta và ma trận điểm giá trị thế cờ.
+- [x] Tích hợp chế độ Đấu với Máy (Bot AI).
+- [x] Tích hợp chế độ Phòng riêng PvP Realtime và Ghép trận nhanh qua Supabase.
+- [x] Tích hợp lưu trữ thành tích và hiển thị tab Cờ Tướng trên Bảng xếp hạng Leaderboard.
+

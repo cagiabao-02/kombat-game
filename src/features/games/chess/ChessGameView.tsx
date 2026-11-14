@@ -35,19 +35,26 @@ export function ChessGameView({
 
   const isHost = room.host_id === currentUserId;
   const isBotGame = Boolean(room.is_bot_game || room.game_state.isBotGame);
+  const isLocalGame = Boolean(room.is_local_game || room.host_id === 'local_p1' || room.code === 'LOCAL1');
+  const isOnlineGame = !isBotGame && !isLocalGame;
+
   const botColor: PlayerColor =
     room.game_state.botColor || (room.host_id === 'bot_kombat' ? 'white' : 'black');
-  const myColor: PlayerColor = isBotGame
+  const myColor: PlayerColor = isLocalGame
+    ? (room.game_state.turn === 'w' ? 'white' : 'black')
+    : isBotGame
     ? (botColor === 'white' ? 'black' : 'white')
     : (isHost ? 'white' : 'black');
   const myTurnChar = myColor === 'white' ? 'w' : 'b';
-  const isMyTurn = room.status === 'in_progress' && room.game_state.turn === myTurnChar;
+  const isMyTurn = room.status === 'in_progress' && (isLocalGame ? true : room.game_state.turn === myTurnChar);
   const botTurnChar = botColor === 'white' ? 'w' : 'b';
   const isBotTurn = isBotGame && room.status === 'in_progress' && room.game_state.turn === botTurnChar;
   const [isBotThinking, setIsBotThinking] = useState(false);
 
   const opponentAvatar = isBotGame
     ? '🤖'
+    : isLocalGame
+    ? (myColor === 'white' ? '♚' : '♔')
     : isHost
     ? room.game_state.guestAvatar || (myColor === 'white' ? '♚' : '♔')
     : room.game_state.hostAvatar || (myColor === 'white' ? '♚' : '♔');
@@ -236,6 +243,33 @@ export function ChessGameView({
 
   // Offer rematch to opponent
   const handleOfferRematch = useCallback(() => {
+    if (isLocalGame) {
+      const initialGameState: ChessGameState = {
+        fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        history: [],
+        turn: 'w',
+        isCheck: false,
+        isCheckmate: false,
+        isDraw: false,
+        winner: null,
+        lastMove: null,
+        timeControl,
+        whiteTime: timeControl,
+        blackTime: timeControl,
+        lastMoveTimestamp: Date.now(),
+        hostAvatar: '♔',
+        guestAvatar: '♚',
+      };
+      setRoom({
+        ...room,
+        game_state: initialGameState,
+        status: 'in_progress',
+      });
+      setShowGameOverModal(false);
+      sounds.playMatchFound();
+      return;
+    }
+
     if (isBotGame) {
       const newRoom = startBotRematchRoom(room, myAvatar);
       setRoom(newRoom);
@@ -254,7 +288,7 @@ export function ChessGameView({
         payload: { from: currentUserId },
       });
     }
-  }, [currentUserId, isBotGame, room, myAvatar]);
+  }, [currentUserId, isBotGame, isLocalGame, room, myAvatar, timeControl]);
 
   // Accept rematch from opponent
   const handleAcceptRematch = useCallback(async () => {
@@ -448,7 +482,7 @@ export function ChessGameView({
 
   // Supabase Realtime: Postgres Changes + Broadcast + Presence tracking
   useEffect(() => {
-    if (isBotGame) return;
+    if (isBotGame || isLocalGame) return;
     const channelName = `chess_room_${room.id}`;
 
     // Safely remove any existing channel with the same topic to avoid duplicate callback errors
@@ -576,11 +610,11 @@ export function ChessGameView({
       }
       channelRef.current = null;
     };
-  }, [room.id, currentUserId, isBotGame]);
+  }, [room.id, currentUserId, isBotGame, isLocalGame]);
 
   // Fallback Polling (mỗi 1.5s khi đang chờ đối thủ, và 3s trong trận) để đảm bảo không bị lỡ sự kiện
   useEffect(() => {
-    if (isBotGame || room.status === 'completed' || room.status === 'abandoned') return;
+    if (isBotGame || isLocalGame || room.status === 'completed' || room.status === 'abandoned') return;
 
     const intervalTime = room.status === 'waiting' ? 1500 : 3000;
 
@@ -686,7 +720,7 @@ export function ChessGameView({
         setRoom(updatedRoom);
 
         // Broadcast to opponent via Realtime
-        if (!isBotGame && channelRef.current) {
+        if (isOnlineGame && channelRef.current) {
           channelRef.current.send({
             type: 'broadcast',
             event: 'room_state',
@@ -695,7 +729,7 @@ export function ChessGameView({
         }
 
         // Persist to Supabase Database
-        if (!isBotGame) {
+        if (isOnlineGame) {
           await updateChessGameState(room.id, newGameState, newStatus);
         }
       } catch (err) {
@@ -704,7 +738,7 @@ export function ChessGameView({
         setIsSubmittingMove(false);
       }
     },
-    [isMyTurn, isSubmittingMove, room, myColor, timeControl, whiteSeconds, blackSeconds, isBotGame]
+    [isMyTurn, isSubmittingMove, room, myColor, timeControl, whiteSeconds, blackSeconds, isOnlineGame]
   );
 
   // Copy room link
@@ -730,10 +764,12 @@ export function ChessGameView({
       status: 'completed',
     };
     setRoom(updatedRoom);
-    recordChessGameResult('loss', isBotGame);
+    if (!isLocalGame) {
+      recordChessGameResult('loss', isBotGame);
+    }
     sounds.playDefeat();
 
-    if (!isBotGame && channelRef.current) {
+    if (isOnlineGame && channelRef.current) {
       channelRef.current.send({
         type: 'broadcast',
         event: 'room_state',
@@ -741,7 +777,7 @@ export function ChessGameView({
       });
     }
 
-    if (!isBotGame) {
+    if (isOnlineGame) {
       await updateChessGameState(room.id, newGameState, 'completed');
     }
   };
@@ -761,18 +797,20 @@ export function ChessGameView({
         game_state: newGameState,
         status: 'completed',
       };
-      recordChessGameResult('loss', isBotGame);
-      if (!isBotGame && channelRef.current) {
+      if (!isLocalGame) {
+        recordChessGameResult('loss', isBotGame);
+      }
+      if (isOnlineGame && channelRef.current) {
         channelRef.current.send({
           type: 'broadcast',
           event: 'room_state',
           payload: updatedRoom,
         });
       }
-      if (!isBotGame) {
+      if (isOnlineGame) {
         await updateChessGameState(room.id, newGameState, 'completed');
       }
-    } else if (!isBotGame) {
+    } else if (isOnlineGame) {
       await leaveChessRoom(room.id, currentUserId, isHost);
     }
     onExitRoom();
@@ -788,10 +826,17 @@ export function ChessGameView({
     }
   };
 
-  const opponentName = isHost
+  const opponentName = isLocalGame
+    ? (myColor === 'white' ? room.guest_name : room.host_name)
+    : isHost
     ? room.guest_name || t.chess.waitingOpponent
     : room.host_name;
   const opponentColor = myColor === 'white' ? 'black' : 'white';
+  const myDisplayName = isLocalGame
+    ? (myColor === 'white' ? room.host_name : room.guest_name)
+    : isHost
+    ? room.host_name
+    : room.guest_name;
 
   return (
     <div className="mx-auto max-w-xl pb-10">
@@ -1002,7 +1047,7 @@ export function ChessGameView({
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <p className="text-xs sm:text-sm font-bold text-indigo-700 truncate max-w-[85px] sm:max-w-[160px]">
-                {isHost ? room.host_name : room.guest_name}
+                {myDisplayName}
               </p>
               {room.status === 'in_progress' && isMyTurn && (
                 <span className="sm:hidden rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold text-emerald-800 animate-pulse shrink-0">

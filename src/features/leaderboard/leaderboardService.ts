@@ -3,6 +3,7 @@ import { LeaderboardGame, LeaderboardEntry, UserRankSummary } from './types';
 import { getChessStats } from '@/features/games/chess/statsService';
 import { getCaroStats } from '@/features/games/caro/caroStatsService';
 import { getSudokuStats } from '@/features/games/sudoku/sudokuStatsService';
+import { getXiangqiStats } from '@/features/games/xiangqi/xiangqiStatsService';
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -74,6 +75,23 @@ export function getLocalLeaderboardData(
         scoreLabel: formatTime(bestSec),
         secondaryInfo: `Tổng giải ${stats.totalSolved} bảng`,
         isCurrentUser: true,
+      };
+    }
+  } else if (game === 'xiangqi') {
+    const stats = getXiangqiStats();
+    if (stats.totalGames > 0) {
+      const elo = Math.max(800, 1200 + stats.pvp.wins * 25 - stats.pvp.losses * 15);
+      userEntry = {
+        id: currentUserId || 'current_user',
+        userId: currentUserId,
+        name: currentUserName,
+        avatar: currentUserAvatar,
+        rank: 1,
+        scoreValue: elo,
+        scoreLabel: `${elo} Elo`,
+        secondaryInfo: `${stats.pvp.wins} Thắng • ${stats.totalGames} Trận`,
+        isCurrentUser: true,
+        tierBadge: elo >= 1600 ? 'Đại sư' : elo >= 1400 ? 'Kỳ thủ' : 'Tập sự',
       };
     }
   }
