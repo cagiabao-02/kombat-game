@@ -102,6 +102,22 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 - Truy cập thuận tiện từ Header và nút mở tại Sảnh chính (Lobby).
 - Hỗ trợ lưu trữ cục bộ kèm đồng bộ Supabase Cloud.
 
+### FR-8 — Cờ Tướng (Xiangqi / Chinese Chess)
+
+- Bàn cờ 9 cột × 10 hàng với đường ranh Sông (Sở Hà Hán Giới) và Cung Tướng (Nine Palaces).
+- Bộ quân cờ 16 quân mỗi bên (Đỏ và Đen): Tướng (Soái/Tướng), Sĩ, Tượng, Xe, Pháo, Mã, Tốt/Binh với quy tắc di chuyển và ăn quân chuẩn quốc tế:
+  - Cản chân Mã (bị chặn hướng đi), cản mắt Tượng (không nhảy qua đầu quân khác, không qua sông).
+  - Pháo đi như Xe nhưng phải có 1 quân làm ngòi mới được ăn quân.
+  - Tướng và Sĩ chỉ di chuyển trong Cung; quy tắc cấm lộ mặt Tướng (hai Tướng không nhìn thẳng mặt nhau không có quân chắn).
+  - Tốt/Binh đi thẳng 1 bước; sau khi qua sông được đi ngang hoặc đi thẳng 1 bước (không đi lùi).
+  - Chiếu tướng, chiếu bí, hết nước đi (bị vây chặt), hòa cờ.
+- Chế độ chơi đa dạng:
+  - Đấu với Bot AI thông minh (3 cấp độ Dễ / Vừa / Khó).
+  - Chơi đôi cùng máy (Pass & Play) với nút xoay bàn cờ theo lượt.
+  - Phòng riêng PvP Realtime mời bạn bè và Ghép trận ngẫu nhiên (Quick Match).
+  - Đồng hồ thi đấu tùy chọn (Không giới hạn, 5p, 10p, 15p).
+- Âm thanh và hiệu ứng: Đặt cờ gỗ truyền thống, ăn quân, chiếu tướng, dải highlight nước đi hợp lệ.
+
 ## 5. Yêu cầu phi chức năng
 
 - Mobile-first, phù hợp màn hình nhỏ và lớn; hỗ trợ xoay/ngang nếu bàn cờ cần.

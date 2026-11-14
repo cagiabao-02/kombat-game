@@ -15,6 +15,7 @@ import {
   findOrCreateQuickMatchRoom,
   cancelQuickMatch,
   createBotChessRoom,
+  createLocalChessRoom,
 } from '@/features/games/chess/roomService';
 import { ChessLobbyView } from '@/features/games/chess/ChessLobbyView';
 import { ChessGameView } from '@/features/games/chess/ChessGameView';
@@ -412,14 +413,24 @@ function ChessGameContainer() {
     [user, guestName, avatar, handleCancelQuickMatch]
   );
 
+  const handleStartLocalMatch = useCallback(
+    (p1Name: string, p2Name: string, timeControl: number) => {
+      handleCancelQuickMatch();
+      const localRoom = createLocalChessRoom(p1Name, p2Name, timeControl);
+      sounds.playMatchFound();
+      setCurrentRoom(localRoom);
+    },
+    [handleCancelQuickMatch]
+  );
+
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 sm:py-8">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-50/30 via-white to-gray-50/50 py-6 px-3 sm:px-6">
       {/* Top back navigation (only visible when in lobby) */}
       {!currentRoom && (
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mx-auto max-w-5xl mb-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl bg-white px-3.5 py-2 text-xs font-bold text-gray-700 shadow-2xs border border-gray-200/90 transition-all hover:bg-gray-50 active:scale-95"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>{t.common.backToLobby}</span>
@@ -435,6 +446,7 @@ function ChessGameContainer() {
           onStartQuickMatch={handleStartQuickMatch}
           onCancelQuickMatch={handleCancelQuickMatch}
           onStartBotMatch={handleStartBotMatch}
+          onStartLocalMatch={handleStartLocalMatch}
           isCreating={isCreating}
           isJoining={isJoining}
           isSearchingMatch={isSearchingMatch}

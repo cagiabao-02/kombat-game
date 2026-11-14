@@ -53,15 +53,28 @@
   - Tối ưu thẻ ảnh đại diện tự tải lên trong `ProfileAuthModal.tsx`: Bỏ nhãn "Đang chọn" bị vỡ dòng trên màn hình điện thoại hẹp, làm nổi bật viền tím và dòng mô tả tinh tế.
   - **Đồng bộ đám mây đa thiết bị (Laptop & Mobile Sync):** Thiết lập Supabase Auth Server (`supabase.auth.getUser()`) làm nguồn chân lý duy nhất (Single Source of Truth) thay vì phụ thuộc `localStorage` hay cache JWT cũ. Tự động đồng bộ ảnh đại diện, tên người chơi và thành tích thi đấu tức thì giữa các thiết bị ngay khi vào trang, khi chuyển tab (`focus`) và kết nối trực tiếp với thanh Header bên ngoài.
   - **Khắc phục triệt để lỗi lưu hồ sơ và đổi Avatar:** Loại bỏ race-condition khi cập nhật song song tên và avatar; chuyển đổi thành phương thức cập nhật nguyên khối `updateProfile({ displayName, avatar })` với phản hồi tức thì và `wasOpenRef` chống ghi đè dữ liệu đang nhập khi mở modal.
+- **Hoàn thành toàn diện Chặng 12 — Trò chơi thứ 4: Cờ Tướng (Xiangqi / Chinese Chess):**
+  - Hoàn thành Bước 1: Xây dựng động cơ luật Cờ Tướng độc lập (`src/features/games/xiangqi/xiangqiLogic.ts`) bằng TypeScript thuần.
+  - Hoàn thành Bước 2: Thiết kế giao diện bàn cờ Cờ Tướng (`XiangqiBoard.tsx`) và quân cờ mỹ thuật truyền thống (`XiangqiPiece.tsx`).
+  - Hoàn thành Bước 3: Xây dựng Sảnh Cờ Tướng, Bộ điều khiển ván đấu và Chế độ Chơi Đôi (Pass & Play).
+  - Hoàn thành Bước 4: Xây dựng Trí tuệ nhân tạo Bot Cờ Tướng AI 3 cấp độ (`src/features/games/xiangqi/ai/xiangqiBot.ts`).
+  - Hoàn thành Bước 5: Tích hợp Đấu Online PvP Realtime, Ghép trận nhanh và Bảng xếp hạng Leaderboard.
+- **Đồng bộ hóa giao diện Sảnh chờ Cờ vua (Chess Lobby Redesign):**
+  - Tái thiết kế toàn diện [`ChessLobbyView.tsx`](file:///d:/personal-prj/game/togame/src/features/games/chess/ChessLobbyView.tsx) theo hệ thống chuẩn mực trực quan đồng nhất với Cờ Caro và Cờ Tướng:
+    - Thanh điều hướng 3 chế độ chuẩn hóa: **Chơi Đôi (Pass & Play)**, **Đấu Máy (Bot AI)** và **Đấu Online (Online PvP)**.
+    - Bổ sung chế độ Chơi Đôi (Pass & Play) cho Cờ vua trên cùng 1 thiết bị (`createLocalChessRoom`) hỗ trợ tùy chọn thời gian và tên 2 kỳ thủ.
+    - Di chuyển khối thẻ thành tích cá nhân vào accordion thu gọn tinh tế "Bảng thành tích thi đấu cờ vua của bạn" giúp giao diện gọn gàng, tập trung vào việc bắt đầu trận đấu.
+    - Bổ sung Accordion tóm tắt quy tắc di chuyển quân Cờ Vua (Xe, Tượng, Mã, Hậu, Vua, Tốt, Nhập thành, En Passant, Phong cấp).
+    - Chuẩn hóa nút "Về sảnh chính" và màu nền chuyển sắc (`bg-gradient-to-b from-indigo-50/30 via-white to-gray-50/50`) tương đồng với toàn bộ sảnh game.
 
 ## Đang làm
 
-- Bước 3.3: Máy phát nhạc nền Lo-fi thư giãn (BGM) bằng Web Audio API procedural synthesis.
+- Toàn bộ 5 bước của Chặng 12 (Cờ Tướng) đã hoàn thành xuất sắc, sẵn sàng bàn giao cho người dùng nghiệm thu.
 
 ## Việc kế tiếp
 
-1. Tích hợp máy phát nhạc nền Lo-fi thư giãn bằng Web Audio API.
-2. Kiểm tra thực tế bằng 2 tab/cửa sổ để trải nghiệm luồng Thách đấu 1 chạm.
+1. Chạy nghiệm thu tương tác thực tế toàn bộ các chế độ Cờ Tướng.
+2. Hướng dẫn commit và tạo Pull Request (PR) theo chuẩn Rule 8 trong `AGENTS.md` khi người dùng yêu cầu.
 
 ## Quyết định còn mở
 

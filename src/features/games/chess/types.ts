@@ -40,5 +40,6 @@ export interface ChessRoom {
   updated_at: string;
   is_bot_game?: boolean;
   bot_difficulty?: BotDifficulty;
+  is_local_game?: boolean;
 }
 

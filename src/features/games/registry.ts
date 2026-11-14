@@ -73,6 +73,30 @@ export const GAME_REGISTRY: GameMetadata[] = [
       en: 'Bot & 1v1 Online',
     },
   },
+  {
+    id: 'xiangqi',
+    name: {
+      vi: 'Cờ Tướng',
+      en: 'Xiangqi',
+    },
+    shortDescription: {
+      vi: 'Chiến thuật phương Đông - Sở Hà Hán Giới',
+      en: 'Eastern tactical chess - Chu-Han river showdown',
+    },
+    description: {
+      vi: 'Trò chơi cờ tướng truyền thống đỉnh cao trí tuệ. Đấu trí 2 người trên cùng máy, luyện tập với Bot AI hoặc so tài trực tuyến.',
+      en: 'Traditional Xiangqi (Chinese Chess). Battle 1v1 locally, practice against smart Bot AI, or compete online.',
+    },
+    route: '/games/xiangqi',
+    status: 'available',
+    modes: ['single_player', 'multiplayer_room'],
+    minPlayers: 1,
+    maxPlayers: 2,
+    badge: {
+      vi: 'Mới ra mắt',
+      en: 'New Release',
+    },
+  },
 ];
 
 export function getGameById(id: string): GameMetadata | undefined {

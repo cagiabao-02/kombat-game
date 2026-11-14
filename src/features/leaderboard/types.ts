@@ -1,4 +1,4 @@
-export type LeaderboardGame = 'chess' | 'caro' | 'sudoku';
+export type LeaderboardGame = 'chess' | 'caro' | 'sudoku' | 'xiangqi';
 export type LeaderboardTimeframe = 'all' | 'weekly';
 
 export interface LeaderboardEntry {
