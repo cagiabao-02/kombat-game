@@ -14,6 +14,7 @@ export interface AuthContextType {
   authError: string | null;
   updateGuestName: (name: string) => Promise<void>;
   updateAvatar: (avatar: string) => Promise<void>;
+  updateProfile: (updates: { displayName?: string; avatar?: string }) => Promise<{ error?: string }>;
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signUpWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signInWithGoogle: () => Promise<{ error?: string }>;
@@ -211,7 +212,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Listen for auth state changes
-        const { data: { subscription } } = sb.auth.onAuthStateChange(async (_event, currentSession) => {
+        const { data: { subscription } } = sb.auth.onAuthStateChange(async (event, currentSession) => {
           if (!isMounted) return;
           setSession(currentSession);
           if (!currentSession?.user) {
@@ -219,7 +220,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return;
           }
 
-          // Luôn đồng bộ dữ liệu người dùng mới nhất từ Supabase Cloud Server
+          // Khi user được cập nhật, dữ liệu mới đã có sẵn trong session, tránh gọi lại server gây race condition
+          if (event === 'USER_UPDATED') {
+            setUser(currentSession.user);
+            const m = currentSession.user.user_metadata || {};
+            if (m.display_name) {
+              setGuestName(m.display_name);
+              if (typeof window !== 'undefined') localStorage.setItem(GUEST_NAME_KEY, m.display_name);
+            }
+            if (m.avatar) {
+              const validAv = getValidAvatar(m.avatar, true);
+              setAvatar(validAv);
+              if (typeof window !== 'undefined') localStorage.setItem(AVATAR_KEY, validAv);
+            }
+            syncAllCloudStats(m);
+            return;
+          }
+
+          // Luôn đồng bộ dữ liệu người dùng mới nhất từ Supabase Cloud Server cho các sự kiện khác
           await syncFreshUserData(sb);
         });
         unsubscribe = () => subscription.unsubscribe();
@@ -254,51 +272,73 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [syncFreshUserData]);
 
+  // Cập nhật thông tin hồ sơ nguyên khối (Atomic profile update: display_name and/or avatar)
+  const updateProfile = useCallback(
+    async (updates: { displayName?: string; avatar?: string }): Promise<{ error?: string }> => {
+      try {
+        const nextName = updates.displayName !== undefined ? updates.displayName.trim() : guestName;
+        const isCloudUser = Boolean(user && !user.is_anonymous && user.app_metadata?.provider !== 'anonymous');
+        const nextAvatar =
+          updates.avatar !== undefined ? getValidAvatar(updates.avatar, isCloudUser) : avatar;
+
+        if (nextName) {
+          setGuestName(nextName);
+          if (typeof window !== 'undefined') localStorage.setItem(GUEST_NAME_KEY, nextName);
+        }
+        if (nextAvatar) {
+          setAvatar(nextAvatar);
+          if (typeof window !== 'undefined') localStorage.setItem(AVATAR_KEY, nextAvatar);
+        }
+
+        const sb = await getClient();
+        const {
+          data: { session: curSession },
+        } = await sb.auth.getSession();
+        const activeUser = curSession?.user || user;
+
+        if (activeUser) {
+          const updateData: Record<string, any> = {};
+          if (nextName) updateData.display_name = nextName;
+          if (nextAvatar) updateData.avatar = nextAvatar;
+
+          const { data, error } = await sb.auth.updateUser({
+            data: updateData,
+          });
+
+          if (error) {
+            console.error('Lỗi updateUser Supabase:', error);
+            return { error: error.message };
+          }
+
+          if (data?.user) {
+            setUser(data.user);
+            syncAllCloudStats(data.user.user_metadata);
+          }
+        }
+        return {};
+      } catch (err: any) {
+        console.error('Failed to update profile:', err);
+        return { error: err?.message || 'Không thể cập nhật hồ sơ' };
+      }
+    },
+    [user, guestName, avatar]
+  );
+
   // Update display name
-  const updateGuestName = useCallback(async (newName: string) => {
-    const trimmed = newName.trim();
-    if (!trimmed) return;
-
-    setGuestName(trimmed);
-    try {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(GUEST_NAME_KEY, trimmed);
-      }
-
-      if (user) {
-        // Đồng bộ lên Supabase Cloud trong nền (không làm nghẽn UI)
-        getClient().then((sb) => {
-          sb.auth.updateUser({
-            data: { display_name: trimmed },
-          }).catch((err) => console.error('Failed to sync display name to cloud:', err));
-        });
-      }
-    } catch (err) {
-      console.error('Failed to update display name:', err);
-    }
-  }, [user]);
+  const updateGuestName = useCallback(
+    async (newName: string) => {
+      await updateProfile({ displayName: newName });
+    },
+    [updateProfile]
+  );
 
   // Update avatar
-  const updateAvatar = useCallback(async (newAvatar: string) => {
-    const validAvatar = getValidAvatar(newAvatar, !isAnonymous);
-    setAvatar(validAvatar);
-    try {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(AVATAR_KEY, validAvatar);
-      }
-
-      if (user) {
-        // Đồng bộ lên Supabase Cloud trong nền (không làm nghẽn UI)
-        getClient().then((sb) => {
-          sb.auth.updateUser({
-            data: { avatar: validAvatar },
-          }).catch((err) => console.error('Failed to sync avatar to cloud:', err));
-        });
-      }
-    } catch (err) {
-      console.error('Failed to update avatar:', err);
-    }
-  }, [user, isAnonymous]);
+  const updateAvatar = useCallback(
+    async (newAvatar: string) => {
+      await updateProfile({ avatar: newAvatar });
+    },
+    [updateProfile]
+  );
 
   // Sign in with email & password
   const signInWithEmail = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
@@ -444,6 +484,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         authError,
         updateGuestName,
         updateAvatar,
+        updateProfile,
         signInWithEmail,
         signUpWithEmail,
         signInWithGoogle,
