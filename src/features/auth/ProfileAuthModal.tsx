@@ -93,8 +93,7 @@ export function ProfileAuthModal({
     guestName,
     avatar,
     isAnonymous,
-    updateGuestName,
-    updateAvatar,
+    updateProfile,
     signInWithEmail,
     signUpWithEmail,
     signInWithGoogle,
@@ -185,10 +184,11 @@ export function ProfileAuthModal({
   const [chessStats, setChessStats] = useState<ChessStats | null>(null);
   const [caroStats, setCaroStats] = useState<CaroStats | null>(null);
   const [statsGameTab, setStatsGameTab] = useState<'chess' | 'caro' | 'all'>('all');
+  const wasOpenRef = useRef(false);
 
   useEffect(() => {
-    if (isOpen) {
-      // 1. Ưu tiên tuyệt đối dữ liệu từ Supabase Cloud
+    // Chỉ khởi tạo giá trị form một lần duy nhất khi Modal vừa mở ra (tránh ghi đè khi đang sửa)
+    if (isOpen && !wasOpenRef.current) {
       const meta = user?.user_metadata || {};
       const cloudName = meta.display_name || guestName;
       const cloudAvatar = meta.avatar ? getValidAvatar(meta.avatar) : avatar;
@@ -205,25 +205,18 @@ export function ProfileAuthModal({
       setChessStats(meta.chess_stats || getChessStats());
       setCaroStats(meta.caro_stats || getCaroStats());
 
-      // 2. Kéo dữ liệu mới nhất từ Supabase Cloud Server (đồng bộ cả Modal lẫn Header bên ngoài)
-      if (user) {
+      // Kéo dữ liệu mới nhất nếu là tài khoản đám mây (chỉ cập nhật stats nền, không ghi đè form nhập của người dùng)
+      if (user && !isAnonymous) {
         refreshUser().then((freshUser) => {
           if (freshUser?.user_metadata) {
             const m = freshUser.user_metadata;
-            if (m.display_name) setTempName(m.display_name);
-            if (m.avatar) {
-              const freshAv = getValidAvatar(m.avatar);
-              setTempAvatar(freshAv);
-              if (isCustomImageAvatar(freshAv)) {
-                setCustomPhoto(freshAv);
-              }
-            }
             if (m.caro_stats) setCaroStats(m.caro_stats);
             if (m.chess_stats) setChessStats(m.chess_stats);
           }
         }).catch(() => {});
       }
     }
+    wasOpenRef.current = isOpen;
   }, [isOpen, guestName, avatar, user, isAnonymous, refreshUser]);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -232,19 +225,25 @@ export function ProfileAuthModal({
     if (!trimmed) return;
 
     setIsSavingProfile(true);
+    setProfileSuccessMsg(null);
+    setAuthError(null);
     try {
-      if (trimmed !== guestName) {
-        await updateGuestName(trimmed);
+      const res = await updateProfile({
+        displayName: trimmed,
+        avatar: tempAvatar,
+      });
+
+      if (res?.error) {
+        setAuthError(formatAuthError(res.error, language));
+        return;
       }
-      if (tempAvatar !== avatar) {
-        await updateAvatar(tempAvatar);
-      }
+
       setProfileSuccessMsg(
         language === 'vi' ? 'Đã lưu hồ sơ thành công!' : 'Profile saved successfully!'
       );
       setTimeout(() => setProfileSuccessMsg(null), 3000);
-    } catch {
-      // Error handled in context
+    } catch (err: any) {
+      setAuthError(err?.message || (language === 'vi' ? 'Lỗi lưu hồ sơ' : 'Failed to save profile'));
     } finally {
       setIsSavingProfile(false);
     }
