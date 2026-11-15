@@ -221,7 +221,7 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [x] Động cơ vật lý nảy bóng Canvas 2D (`brickBreakerLogic.ts`):
   - [x] Tỉ lệ khung hình $3:4$ (Canvas $480 \times 640$), tốc độ tăng dần theo combo và màn chơi.
   - [x] Thuật toán nảy bóng linh hoạt trên thanh trượt (góc nảy phụ thuộc điểm chạm).
-  - [x] Hệ thống vật phẩm rơi (Powerups): Kéo dài thanh (↔️), Nhân thêm 2 bóng (⚡), Bắn đạn Laser (🔫), Thêm mạng (💖).
+  - [x] Hệ thống vật phẩm rơi (Powerups): Kéo dài thanh (↔️), Nhân đôi bóng (⚡), Cộng 2 cho mỗi bóng hiện có (+2), Thêm mạng (💖). Bỏ súng Laser để cân bằng gameplay.
   - [x] Đa dạng loại gạch: Gạch thường 5 tầng màu tính điểm, gạch thép 2 lần đập và gạch bom phát nổ lân cận.
   - [x] Hệ thống qua màn liên hoàn (Stages), hồi sinh bóng và hiệu ứng nổ hạt pixel (Particles).
 - [x] Dịch vụ lưu trữ thành tích (`brickBreakerStatsService.ts`):
@@ -235,6 +235,7 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Vẽ icon pixel thanh trượt, bóng và các hàng gạch nhiều màu cho `GameTile.tsx`.
   - [x] Tích hợp tab Phá Gạch vào Bảng xếp hạng toàn cầu (`LeaderboardModal.tsx`), Hồ sơ cá nhân (`ProfileAuthModal.tsx`) và tự động gộp đám mây (`statsMergeService.ts`).
   - [x] Tạo migration `20261116000000_add_brick_breaker_to_leaderboard.sql`.
+  - [x] Tinh gọn Bảng xếp hạng Leaderboard: Bỏ các thông tin chi tiết phụ (số ván chơi, số bàn), chỉ ghi Điểm số và Thời gian theo từng loại game.
 - [x] Kiểm thử kiểu `npx tsc --noEmit` và `npm run build`.
 
 ## Chặng tiếp theo (Đề xuất định hướng mở rộng)

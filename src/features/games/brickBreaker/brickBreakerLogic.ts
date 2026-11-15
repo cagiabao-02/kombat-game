@@ -10,7 +10,7 @@ export const BALL_RADIUS = 6;
 export const BALL_BASE_SPEED = 340;
 export const BALL_MAX_SPEED = 540;
 
-export type PowerupType = 'expand' | 'multi' | 'laser' | 'life';
+export type PowerupType = 'expand' | 'multi' | 'plus2' | 'life';
 
 export interface Powerup {
   id: string;
@@ -19,15 +19,6 @@ export interface Powerup {
   width: number;
   height: number;
   type: PowerupType;
-  vy: number;
-}
-
-export interface Laser {
-  id: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
   vy: number;
 }
 
@@ -192,12 +183,12 @@ export function maybeSpawnPowerup(brick: Brick): Powerup | null {
 
   const rand = Math.random();
   let type: PowerupType = 'expand';
-  if (rand < 0.35) {
+  if (rand < 0.32) {
     type = 'expand';
-  } else if (rand < 0.65) {
+  } else if (rand < 0.62) {
     type = 'multi';
   } else if (rand < 0.88) {
-    type = 'laser';
+    type = 'plus2';
   } else {
     type = 'life';
   }

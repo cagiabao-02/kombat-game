@@ -308,11 +308,6 @@ export function LeaderboardModal({
                     <span className="font-mono text-[11px] font-bold text-slate-700">
                       {top2.scoreLabel}
                     </span>
-                    {top2.secondaryInfo && (
-                      <span className="text-[10px] font-mono text-zinc-500 truncate max-w-[100px] text-center">
-                        {top2.secondaryInfo}
-                      </span>
-                    )}
                     <div className="mt-2 h-14 w-full bg-slate-200 border-2 border-zinc-900 shadow-pixel-xs flex items-center justify-center font-pixel text-zinc-800 text-xs font-bold">
                       🥈 2ND
                     </div>
@@ -337,11 +332,6 @@ export function LeaderboardModal({
                     <span className="font-mono text-xs font-bold text-amber-700">
                       {top1.scoreLabel}
                     </span>
-                    {top1.secondaryInfo && (
-                      <span className="text-[10px] font-mono text-zinc-600 truncate max-w-[110px] text-center">
-                        {top1.secondaryInfo}
-                      </span>
-                    )}
                     <div className="mt-2 h-20 w-full bg-amber-300 border-2 border-zinc-900 shadow-pixel-sm flex items-center justify-center font-pixel text-zinc-950 text-xs font-bold">
                       🥇 1ST CHAMP
                     </div>
@@ -365,11 +355,6 @@ export function LeaderboardModal({
                     <span className="font-mono text-[11px] font-bold text-amber-800">
                       {top3.scoreLabel}
                     </span>
-                    {top3.secondaryInfo && (
-                      <span className="text-[10px] font-mono text-zinc-500 truncate max-w-[100px] text-center">
-                        {top3.secondaryInfo}
-                      </span>
-                    )}
                     <div className="mt-2 h-10 w-full bg-orange-200 border-2 border-zinc-900 shadow-pixel-xs flex items-center justify-center font-pixel text-zinc-900 text-xs font-bold">
                       🥉 3RD
                     </div>
@@ -419,11 +404,6 @@ export function LeaderboardModal({
                               </span>
                             )}
                           </div>
-                          {entry.secondaryInfo && (
-                            <span className="text-[11px] font-mono text-zinc-600 font-semibold">
-                              {entry.secondaryInfo}
-                            </span>
-                          )}
                         </div>
                       </div>
 

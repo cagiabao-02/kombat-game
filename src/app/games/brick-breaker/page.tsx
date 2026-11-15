@@ -50,14 +50,14 @@ export default function BrickBreakerPage() {
             <li>
               🕹️ <strong>{language === 'vi' ? 'Điều khiển' : 'Controls'}</strong>:{' '}
               {language === 'vi'
-                ? 'Trên PC: Di chuột hoặc bấm phím A/D (Mũi tên Trái/Phải). Bấm Phím Space để phóng bóng hoặc bắn đạn. Trên Mobile: Kéo vuốt ngón tay trực tiếp trên khung game.'
-                : 'On PC: Move mouse or use A/D (Left/Right arrows). Press Spacebar to launch/fire. On Mobile: Drag finger on screen.'}
+                ? 'Trên PC: Di chuột hoặc bấm phím A/D (Mũi tên Trái/Phải). Bấm Phím Space để phóng bóng. Trên Mobile: Kéo vuốt ngón tay trực tiếp trên khung game.'
+                : 'On PC: Move mouse or use A/D (Left/Right arrows). Press Spacebar to launch. On Mobile: Drag finger on screen.'}
             </li>
             <li>
               🎁 <strong>{language === 'vi' ? 'Vật phẩm trợ giúp' : 'Power-ups'}</strong>:{' '}
               {language === 'vi'
-                ? 'Gạch vỡ có thể rơi ra: ↔️ (Kéo dài thanh trượt), ⚡ (Nhân thêm 2 bóng), 🔫 (Súng bắn Laser), 💖 (Thêm 1 mạng).'
-                : 'Broken bricks may drop: ↔️ (Expand Paddle), ⚡ (Multi-Ball), 🔫 (Laser Gun), 💖 (Extra Life).'}
+                ? 'Gạch vỡ có thể rơi ra: ↔️ (Kéo dài thanh trượt), ⚡ (Nhân đôi số bóng), +2 (Cộng 2 cho mỗi quả bóng hiện có), 💖 (Thêm 1 mạng).'
+                : 'Broken bricks may drop: ↔️ (Expand Paddle), ⚡ (Duplicate Balls), +2 (+2 For Each Active Ball), 💖 (Extra Life).'}
             </li>
             <li>
               💣 <strong>{language === 'vi' ? 'Gạch đặc biệt' : 'Special Bricks'}</strong>:{' '}

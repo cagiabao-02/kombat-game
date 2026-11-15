@@ -39,7 +39,7 @@ export function getLocalLeaderboardData(
         rank: 1,
         scoreValue: elo,
         scoreLabel: `${elo} Elo`,
-        secondaryInfo: `${stats.pvp.wins} Thắng • ${stats.totalGames} Trận`,
+        secondaryInfo: undefined,
         isCurrentUser: true,
         tierBadge: elo >= 1600 ? 'Cao thủ' : elo >= 1400 ? 'Tiến bộ' : 'Tập sự',
       };
@@ -54,8 +54,8 @@ export function getLocalLeaderboardData(
         avatar: currentUserAvatar,
         rank: 1,
         scoreValue: stats.wins,
-        scoreLabel: `${stats.wins} Ván thắng`,
-        secondaryInfo: `Chuỗi ${stats.currentStreak} trận • Kỷ lục ${stats.bestStreak}`,
+        scoreLabel: `${stats.wins} Điểm`,
+        secondaryInfo: undefined,
         isCurrentUser: true,
         tierBadge: stats.bestStreak >= 5 ? 'Thợ săn chuỗi' : undefined,
       };
@@ -77,7 +77,7 @@ export function getLocalLeaderboardData(
         rank: 1,
         scoreValue: bestSec,
         scoreLabel: formatTime(bestSec),
-        secondaryInfo: `Tổng giải ${stats.totalSolved} bảng`,
+        secondaryInfo: undefined,
         isCurrentUser: true,
       };
     }
@@ -93,7 +93,7 @@ export function getLocalLeaderboardData(
         rank: 1,
         scoreValue: elo,
         scoreLabel: `${elo} Elo`,
-        secondaryInfo: `${stats.pvp.wins} Thắng • ${stats.totalGames} Trận`,
+        secondaryInfo: undefined,
         isCurrentUser: true,
         tierBadge: elo >= 1600 ? 'Đại sư' : elo >= 1400 ? 'Kỳ thủ' : 'Tập sự',
       };
@@ -125,7 +125,7 @@ export function getLocalLeaderboardData(
         rank: 1,
         scoreValue: stats.highScore,
         scoreLabel: `${stats.highScore.toLocaleString()} Điểm`,
-        secondaryInfo: `Ô cao nhất: ${stats.maxTile} • ${stats.totalGames} ván`,
+        secondaryInfo: undefined,
         isCurrentUser: true,
         tierBadge:
           stats.maxTile >= 2048
@@ -153,8 +153,8 @@ export function getLocalLeaderboardData(
         avatar: currentUserAvatar,
         rank: 1,
         scoreValue: bestSec,
-        scoreLabel: formatTime(bestSec),
-        secondaryInfo: `Phá đảo ${stats.totalWins} ván`,
+        scoreLabel: bestSec < 60 ? `${bestSec}s` : formatTime(bestSec),
+        secondaryInfo: undefined,
         isCurrentUser: true,
         tierBadge: bestSec <= 30 ? 'Thần tốc' : bestSec <= 60 ? 'Chuyên gia' : 'Kỳ cựu',
       };
@@ -170,7 +170,7 @@ export function getLocalLeaderboardData(
         rank: 1,
         scoreValue: stats.highScore,
         scoreLabel: `${stats.highScore.toLocaleString()} Điểm`,
-        secondaryInfo: `Màn ${stats.highestLevel} • ${stats.totalBricksBroken} gạch vỡ`,
+        secondaryInfo: undefined,
         isCurrentUser: true,
         tierBadge: stats.highScore >= 5000 ? 'Phá Đảo' : stats.highScore >= 2000 ? 'Cao Thủ' : 'Tập Sự',
       };
@@ -244,20 +244,15 @@ export async function getRealLeaderboardData(
 
         let finalScoreValue = Number(row.score_value);
         let finalScoreLabel = row.score_label;
-        let finalSecondary: string | undefined = game === 'snake' ? undefined : (row.secondary_info || undefined);
 
         // Nếu là tài khoản hiện tại và local có điểm cao hơn cloud (vừa đạt kỷ lục mới)
         if (isCurrent && existingLocal) {
           if (isHigherBetter && existingLocal.scoreValue > finalScoreValue) {
             finalScoreValue = existingLocal.scoreValue;
             finalScoreLabel = existingLocal.scoreLabel;
-            if (game !== 'snake') {
-              finalSecondary = existingLocal.secondaryInfo;
-            }
           } else if (!isHigherBetter && existingLocal.scoreValue < finalScoreValue) {
             finalScoreValue = existingLocal.scoreValue;
             finalScoreLabel = existingLocal.scoreLabel;
-            finalSecondary = existingLocal.secondaryInfo;
           }
         }
 
@@ -268,7 +263,7 @@ export async function getRealLeaderboardData(
           avatar: row.user_avatar,
           scoreValue: finalScoreValue,
           scoreLabel: finalScoreLabel,
-          secondaryInfo: finalSecondary,
+          secondaryInfo: undefined,
           isCurrentUser: isCurrent,
           tierBadge: isCurrent ? existingLocal?.tierBadge : undefined,
         });
@@ -350,7 +345,6 @@ export async function syncLeaderboardScoreForGame(
 
     let scoreValue = 0;
     let scoreLabel = '';
-    let secondaryInfo: string | undefined = undefined;
 
     if (game === 'chess') {
       const stats = getChessStats();
@@ -358,13 +352,11 @@ export async function syncLeaderboardScoreForGame(
       const elo = Math.max(800, 1200 + stats.pvp.wins * 25 - stats.pvp.losses * 15);
       scoreValue = elo;
       scoreLabel = `${elo} Elo`;
-      secondaryInfo = `${stats.pvp.wins} Thắng • ${stats.totalGames} Trận`;
     } else if (game === 'caro') {
       const stats = getCaroStats();
       if (stats.totalGames === 0) return;
       scoreValue = stats.wins;
-      scoreLabel = `${stats.wins} Ván thắng`;
-      secondaryInfo = `Chuỗi ${stats.currentStreak} trận • Kỷ lục ${stats.bestStreak}`;
+      scoreLabel = `${stats.wins} Điểm`;
     } else if (game === 'sudoku') {
       const stats = getSudokuStats();
       const bestSec =
@@ -375,26 +367,22 @@ export async function syncLeaderboardScoreForGame(
       if (bestSec === null) return;
       scoreValue = bestSec;
       scoreLabel = formatTime(bestSec);
-      secondaryInfo = `Tổng giải ${stats.totalSolved} bảng`;
     } else if (game === 'xiangqi') {
       const stats = getXiangqiStats();
       if (stats.totalGames === 0) return;
       const elo = Math.max(800, 1200 + stats.pvp.wins * 25 - stats.pvp.losses * 15);
       scoreValue = elo;
       scoreLabel = `${elo} Elo`;
-      secondaryInfo = `${stats.pvp.wins} Thắng • ${stats.totalGames} Trận`;
     } else if (game === 'snake') {
       const stats = getSnakeStats();
       if (stats.highScore === 0) return;
       scoreValue = stats.highScore;
       scoreLabel = `${stats.highScore} Điểm`;
-      secondaryInfo = undefined;
     } else if (game === 'game2048') {
       const stats = getGame2048Stats();
       if (stats.highScore === 0) return;
       scoreValue = stats.highScore;
       scoreLabel = `${stats.highScore.toLocaleString()} Điểm`;
-      secondaryInfo = `Ô cao nhất: ${stats.maxTile} • ${stats.totalGames} ván`;
     } else if (game === 'minesweeper') {
       const stats = getMinesweeperStats();
       const bestSec =
@@ -404,14 +392,12 @@ export async function syncLeaderboardScoreForGame(
         null;
       if (bestSec === null) return;
       scoreValue = bestSec;
-      scoreLabel = formatTime(bestSec);
-      secondaryInfo = `Phá đảo ${stats.totalWins} ván`;
+      scoreLabel = bestSec < 60 ? `${bestSec}s` : formatTime(bestSec);
     } else if (game === 'brick_breaker') {
       const stats = getBrickBreakerStats();
       if (stats.highScore === 0) return;
       scoreValue = stats.highScore;
       scoreLabel = `${stats.highScore.toLocaleString()} Điểm`;
-      secondaryInfo = `Màn ${stats.highestLevel} • ${stats.totalBricksBroken} gạch vỡ`;
     }
 
     // Kiểm tra điểm số hiện tại trên đám mây để không vô tình ghi đè điểm thấp hơn lên điểm cao hơn
@@ -441,7 +427,7 @@ export async function syncLeaderboardScoreForGame(
         game_id: game,
         score_value: scoreValue,
         score_label: scoreLabel,
-        secondary_info: secondaryInfo || null,
+        secondary_info: null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'user_id,game_id' }

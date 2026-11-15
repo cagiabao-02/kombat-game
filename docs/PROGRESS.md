@@ -37,12 +37,11 @@
   - Tích hợp Realtime đồng bộ hai chiều qua Supabase Realtime Broadcast + `rooms` database (`caroRoomService.ts`).
   - Đăng ký trò chơi trong `registry.ts`, hiển thị card đồ họa tương tác tại Sảnh chính và hỗ trợ song ngữ Việt-Anh (`translations.ts`).
 - **Triển khai Bảng xếp hạng toàn sảnh Leaderboard (Chặng 11 - Bước 3.1):**
-  - Xây dựng module `src/features/leaderboard/` vinh danh cao thủ cho cả 3 tựa game (Cờ vua Elo & số trận thắng, Cờ Caro chuỗi thắng & tổng thắng, Sudoku kỷ lục thời gian giải nhanh nhất).
+  - Xây dựng module `src/features/leaderboard/` vinh danh cao thủ cho toàn bộ các tựa game.
+  - Tinh gọn Bảng xếp hạng: Bỏ toàn bộ các thông tin phụ (số ván chơi, số bàn, chuỗi trận, số gạch vỡ), chỉ hiển thị duy nhất Điểm số (với Cờ vua, Cờ tướng, Cờ caro, Rắn, 2048, Phá gạch) hoặc Thời gian hoàn thành (với Sudoku, Dò mìn) giúp giao diện sạch đẹp, trực quan và tập trung vào thành tích cốt lõi.
   - Thiết kế bục vinh danh Top 3 Podium (1st Quán quân Vàng 🥇, 2nd Bạc 🥈, 3rd Đồng 🥉) và danh sách thứ hạng chi tiết kèm avatar người chơi.
   - Thanh ghim cố định vị trí xếp hạng của người dùng hiện tại (Your Rank) giúp theo dõi thứ hạng cá nhân tức thì.
-  - Tích hợp dịch vụ lưu trữ thành tích tự động cho Cờ Caro (`caroStatsService.ts`) và Sudoku (`sudokuStatsService.ts`).
-  - Nút bấm mở Bảng xếp hạng trực quan trên thanh Header và khu vực Hero tại Sảnh chính.
-  - Migration database `20261109000000_leaderboard_schema.sql` với RLS an toàn.
+  - Tích hợp dịch vụ lưu trữ thành tích tự động cho các tựa game và migration database `20261109000000_leaderboard_schema.sql` với RLS an toàn.
 - **Triển khai Người chơi trực tuyến & Thách đấu 1 chạm (Chặng 11 - Bước 3.2):**
   - Xây dựng module `src/features/presence/` dùng Supabase Realtime Presence channel (`kombat_lobby_presence`) theo dõi danh sách người chơi online tại sảnh.
   - Widget trạng thái trực tuyến hiển thị trực quan ở Hero sảnh chính (`🟢 X người online • ⚔️`) với danh sách đối thủ sẵn sàng. Render tĩnh SSR đảm bảo luôn hiển thị ngay từ frame đầu tiên (kể cả khi chỉ có 1 người online).
@@ -118,7 +117,7 @@
   - **Đăng ký Sảnh chính:** Bổ sung icon pixel quả mìn gai và lá cờ đỏ vào [`GameTile.tsx`](file:///d:/personal-prj/game/togame/src/components/GameTile.tsx) và cập nhật ô Sắp có của Giải đố thành `Nonogram, Trượt số`.
 
 - **Hoàn thành Chặng 19 — Trò chơi thứ 8: Phá Gạch Pixel (Brick Breaker / Arkanoid Arcade):**
-  - **Động cơ vật lý nảy bóng Canvas 2D:** Xây dựng [`src/features/games/brickBreaker/brickBreakerLogic.ts`](file:///d:/personal-prj/game/togame/src/features/games/brickBreaker/brickBreakerLogic.ts) với tỷ lệ máy thùng $3:4$ ($480 \times 640$), thuật toán góc nảy linh hoạt trên thanh trượt, hệ thống vật phẩm rơi (Kéo dài thanh ↔️, Nhân bóng ⚡, Súng Laser 🔫, Thêm mạng 💖), gạch thép 2 lần đập và gạch bom phát nổ.
+  - **Động cơ vật lý nảy bóng Canvas 2D:** Xây dựng [`src/features/games/brickBreaker/brickBreakerLogic.ts`](file:///d:/personal-prj/game/togame/src/features/games/brickBreaker/brickBreakerLogic.ts) với tỷ lệ máy thùng $3:4$ ($480 \times 640$), thuật toán góc nảy linh hoạt trên thanh trượt, hệ thống vật phẩm cân bằng (Kéo dài thanh ↔️, Nhân đôi bóng ⚡, Cộng 2 mỗi bóng +2 thay thế súng Laser, Thêm mạng 💖), gạch thép 2 lần đập và gạch bom phát nổ.
   - **Giao diện Neo-Arcade:** Xây dựng [`BrickBreakerGame.tsx`](file:///d:/personal-prj/game/togame/src/features/games/brickBreaker/BrickBreakerGame.tsx) và [`src/app/games/brick-breaker/page.tsx`](file:///d:/personal-prj/game/togame/src/app/games/brick-breaker/page.tsx) với đầy đủ điều khiển đa nền tảng (chuột/phím PC, vuốt chạm và phím ảo mobile), hiệu ứng vỡ hạt pixel, vinh danh kỷ lục mới và modal Game Over.
   - **Âm thanh & Tích hợp:** Bổ sung âm thanh Web Audio `playBrickHit`, `playPaddleBounce`, `playPowerupCatch`, `playLifeLost`, `playLaserShot`, `playLevelUp`; dịch vụ lưu trữ [`brickBreakerStatsService.ts`](file:///d:/personal-prj/game/togame/src/features/games/brickBreaker/brickBreakerStatsService.ts), migration `20261116000000_add_brick_breaker_to_leaderboard.sql`, tích hợp vào Bảng xếp hạng toàn cầu (`LeaderboardModal.tsx`), Hồ sơ cá nhân (`ProfileAuthModal.tsx`) và gộp đám mây (`statsMergeService.ts`).
   - **Đăng ký Sảnh chính:** Bổ sung icon pixel thanh trượt, quả bóng và các hàng gạch rực rỡ vào [`GameTile.tsx`](file:///d:/personal-prj/game/togame/src/components/GameTile.tsx) và đăng ký vào nhóm Arcade (`categories.ts`).

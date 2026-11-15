@@ -14,7 +14,6 @@ import {
   Ball,
   Brick,
   Powerup,
-  Laser,
   Particle,
   createLevelBricks,
   createInitialBall,
@@ -45,7 +44,6 @@ export function BrickBreakerGame() {
   const [status, setStatus] = useState<'ready' | 'playing' | 'paused' | 'over' | 'victory'>('ready');
   const [stats, setStats] = useState<BrickBreakerStats>(() => getBrickBreakerStats());
   const [combo, setCombo] = useState<number>(0);
-  const [laserAmmo, setLaserAmmo] = useState<number>(0);
   const [isNewRecord, setIsNewRecord] = useState<boolean>(false);
 
   // Modal Game Over / Victory
@@ -59,7 +57,6 @@ export function BrickBreakerGame() {
     balls: [createInitialBall(CANVAS_WIDTH / 2 - PADDLE_DEFAULT_WIDTH / 2, PADDLE_DEFAULT_WIDTH)],
     bricks: createLevelBricks(1),
     powerups: [] as Powerup[],
-    lasers: [] as Laser[],
     particles: [] as Particle[],
     lives: 3,
     score: 0,
@@ -67,7 +64,6 @@ export function BrickBreakerGame() {
     combo: 0,
     status: 'ready' as 'ready' | 'playing' | 'paused' | 'over' | 'victory',
     expandTimer: 0,
-    laserTimer: 0,
     keys: { left: false, right: false },
     bricksBrokenTotal: 0,
     lastTime: 0,
@@ -82,7 +78,6 @@ export function BrickBreakerGame() {
     s.balls = [createInitialBall(s.paddleX, s.paddleWidth)];
     s.bricks = createLevelBricks(1);
     s.powerups = [];
-    s.lasers = [];
     s.particles = [];
     s.lives = 3;
     s.score = 0;
@@ -90,7 +85,6 @@ export function BrickBreakerGame() {
     s.combo = 0;
     s.status = 'ready';
     s.expandTimer = 0;
-    s.laserTimer = 0;
     s.bricksBrokenTotal = 0;
 
     setScore(0);
@@ -98,7 +92,6 @@ export function BrickBreakerGame() {
     setLevel(1);
     setStatus('ready');
     setCombo(0);
-    setLaserAmmo(0);
     setIsNewRecord(false);
     setOverModalOpen(false);
     setStats(getBrickBreakerStats());
@@ -115,29 +108,6 @@ export function BrickBreakerGame() {
     } else if (s.status === 'playing') {
       // Nếu có bóng đang dính, phóng nó
       s.balls = s.balls.map((b) => (b.stuckToPaddle ? launchBall(b) : b));
-
-      // Nếu đang có buff Laser, bắn 2 tia đạn
-      if (s.laserTimer > 0) {
-        s.lasers.push(
-          {
-            id: `lz-${Date.now()}-1`,
-            x: s.paddleX + 8,
-            y: PADDLE_Y - 4,
-            width: 4,
-            height: 12,
-            vy: -600,
-          },
-          {
-            id: `lz-${Date.now()}-2`,
-            x: s.paddleX + s.paddleWidth - 12,
-            y: PADDLE_Y - 4,
-            width: 4,
-            height: 12,
-            vy: -600,
-          }
-        );
-        sounds.playLaserShot();
-      }
     }
   }, []);
 
@@ -248,51 +218,6 @@ export function BrickBreakerGame() {
           }
         }
 
-        // Đếm ngược buff Laser
-        if (s.laserTimer > 0) {
-          s.laserTimer -= dt;
-          setLaserAmmo(Math.ceil(s.laserTimer));
-        } else {
-          setLaserAmmo(0);
-        }
-
-        // Cập nhật đạn Laser
-        for (let i = s.lasers.length - 1; i >= 0; i--) {
-          const lz = s.lasers[i];
-          lz.y += lz.vy * dt;
-
-          // Kiểm tra va chạm laser với gạch
-          let laserHit = false;
-          for (let j = s.bricks.length - 1; j >= 0; j--) {
-            const br = s.bricks[j];
-            if (
-              lz.x >= br.x &&
-              lz.x <= br.x + br.width &&
-              lz.y >= br.y &&
-              lz.y <= br.y + br.height
-            ) {
-              laserHit = true;
-              br.hitsLeft--;
-              s.particles.push(...createBrickParticles(br));
-              sounds.playBrickHit(1);
-
-              if (br.hitsLeft <= 0) {
-                s.score += br.points;
-                s.bricksBrokenTotal++;
-                setScore(s.score);
-                const pw = maybeSpawnPowerup(br);
-                if (pw) s.powerups.push(pw);
-                s.bricks.splice(j, 1);
-              }
-              break;
-            }
-          }
-
-          if (laserHit || lz.y < 0) {
-            s.lasers.splice(i, 1);
-          }
-        }
-
         // Cập nhật vật phẩm rơi Powerups
         for (let i = s.powerups.length - 1; i >= 0; i--) {
           const pw = s.powerups[i];
@@ -311,34 +236,69 @@ export function BrickBreakerGame() {
               s.paddleWidth = PADDLE_EXPANDED_WIDTH;
               s.expandTimer = 14;
             } else if (pw.type === 'multi') {
-              // Tách thêm 2 quả bóng
-              if (s.balls.length > 0) {
-                const b0 = s.balls[0];
-                s.balls.push(
-                  {
-                    id: `b-${Date.now()}-1`,
-                    x: b0.x,
-                    y: b0.y,
-                    vx: -b0.vx * 0.9,
-                    vy: b0.vy,
-                    speed: b0.speed,
+              // Nhân đôi số bóng (x2): Mỗi bóng sinh thêm 1 bóng (1 -> 2, 2 -> 4, 3 -> 6, tối đa 24 bóng)
+              const MAX_BALLS = 24;
+              if (s.balls.length > 0 && s.balls.length < MAX_BALLS) {
+                const currentBalls = [...s.balls];
+                const newBalls: Ball[] = [];
+
+                for (let k = 0; k < currentBalls.length; k++) {
+                  if (s.balls.length + newBalls.length >= MAX_BALLS) break;
+                  const src = currentBalls[k];
+                  const baseSpeed = src.speed || BALL_BASE_SPEED;
+                  const currentAngle = src.stuckToPaddle
+                    ? -Math.PI / 2
+                    : Math.atan2(src.vy, src.vx);
+
+                  const angleOffset = (k % 2 === 0 ? 1 : -1) * 0.35;
+                  const newAngle = currentAngle + angleOffset;
+
+                  newBalls.push({
+                    id: `b-m-${Date.now()}-${k}-${Math.random()}`,
+                    x: src.x,
+                    y: src.y,
+                    vx: Math.cos(newAngle) * baseSpeed,
+                    vy: Math.sin(newAngle) * baseSpeed,
+                    speed: baseSpeed,
                     stuckToPaddle: false,
                     stuckOffset: 0,
-                  },
-                  {
-                    id: `b-${Date.now()}-2`,
-                    x: b0.x,
-                    y: b0.y,
-                    vx: b0.vx * 0.6 + 120,
-                    vy: -Math.abs(b0.vy),
-                    speed: b0.speed,
-                    stuckToPaddle: false,
-                    stuckOffset: 0,
-                  }
-                );
+                  });
+                }
+                s.balls.push(...newBalls);
               }
-            } else if (pw.type === 'laser') {
-              s.laserTimer = 12;
+            } else if (pw.type === 'plus2') {
+              // Vật phẩm +2: Mỗi bóng hiện có sinh thêm đúng 2 bóng mới (1 -> 3, 2 -> 6, 3 -> 9, tối đa 24 bóng)
+              const MAX_BALLS = 24;
+              if (s.balls.length > 0 && s.balls.length < MAX_BALLS) {
+                const currentBalls = [...s.balls];
+                const newBalls: Ball[] = [];
+
+                for (let b = 0; b < currentBalls.length; b++) {
+                  const src = currentBalls[b];
+                  const baseSpeed = src.speed || BALL_BASE_SPEED;
+                  const currentAngle = src.stuckToPaddle
+                    ? -Math.PI / 2
+                    : Math.atan2(src.vy, src.vx);
+
+                  for (let k = 0; k < 2; k++) {
+                    if (s.balls.length + newBalls.length >= MAX_BALLS) break;
+                    const angleOffset = (k === 0 ? 1 : -1) * 0.42;
+                    const newAngle = currentAngle + angleOffset;
+
+                    newBalls.push({
+                      id: `b-p2-${Date.now()}-${b}-${k}-${Math.random()}`,
+                      x: src.x,
+                      y: src.y,
+                      vx: Math.cos(newAngle) * baseSpeed,
+                      vy: Math.sin(newAngle) * baseSpeed,
+                      speed: baseSpeed,
+                      stuckToPaddle: false,
+                      stuckOffset: 0,
+                    });
+                  }
+                }
+                s.balls.push(...newBalls);
+              }
             } else if (pw.type === 'life') {
               s.lives = Math.min(5, s.lives + 1);
               setLives(s.lives);
@@ -572,9 +532,9 @@ export function BrickBreakerGame() {
         if (pw.type === 'multi') {
           pwColor = '#F59E0B';
           pwLabel = '⚡';
-        } else if (pw.type === 'laser') {
-          pwColor = '#EF4444';
-          pwLabel = '🔫';
+        } else if (pw.type === 'plus2') {
+          pwColor = '#8B5CF6';
+          pwLabel = '+2';
         } else if (pw.type === 'life') {
           pwColor = '#EC4899';
           pwLabel = '💖';
@@ -586,18 +546,11 @@ export function BrickBreakerGame() {
         ctx.lineWidth = 1.5;
         ctx.strokeRect(pw.x, pw.y, pw.width, pw.height);
 
-        ctx.font = '10px monospace';
+        ctx.font = 'bold 9px monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(pwLabel, pw.x + pw.width / 2, pw.y + pw.height / 2);
-      }
-
-      // Vẽ tia đạn Laser
-      ctx.fillStyle = '#F43F5E';
-      for (const lz of s.lasers) {
-        ctx.fillRect(lz.x, lz.y, lz.width, lz.height);
-        ctx.fillStyle = '#FDA4AF';
-        ctx.fillRect(lz.x + 1, lz.y, 2, lz.height);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(pwLabel, pw.x + pw.width / 2, pw.y + pw.height / 2 + 0.5);
       }
 
       // Vẽ Paddle (Thanh trượt)
@@ -607,7 +560,7 @@ export function BrickBreakerGame() {
       const ph = PADDLE_HEIGHT;
 
       // Thân thanh trượt màu Cyan Neo-Arcade
-      ctx.fillStyle = s.laserTimer > 0 ? '#E11D48' : '#06B6D4';
+      ctx.fillStyle = '#06B6D4';
       ctx.fillRect(px, py, pw, ph);
 
       // Điểm nhấn viền pixel nổi
@@ -620,13 +573,6 @@ export function BrickBreakerGame() {
       ctx.fillStyle = '#E2E8F0';
       ctx.fillRect(px, py, 4, ph);
       ctx.fillRect(px + pw - 4, py, 4, ph);
-
-      // Nếu đang có buff Laser, vẽ thêm 2 nòng súng
-      if (s.laserTimer > 0) {
-        ctx.fillStyle = '#FDA4AF';
-        ctx.fillRect(px + 6, py - 6, 6, 6);
-        ctx.fillRect(px + pw - 12, py - 6, 6, 6);
-      }
 
       // Vẽ các quả bóng
       for (const ball of s.balls) {
@@ -717,13 +663,6 @@ export function BrickBreakerGame() {
           </div>
         )}
 
-        {/* Laser Ammo Counter */}
-        {laserAmmo > 0 && (
-          <div className="pointer-events-none absolute top-3 left-3 bg-rose-500 border-2 border-zinc-950 px-2 py-0.5 text-white font-pixel text-[10px] font-bold shadow-pixel-xs animate-pulse">
-            🔫 LASER: {laserAmmo}s
-          </div>
-        )}
-
         {/* Màn che khi Tạm dừng */}
         {status === 'paused' && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/75 z-20">
@@ -770,14 +709,18 @@ export function BrickBreakerGame() {
           </button>
         </div>
 
-        {/* Nút Phóng bóng / Bắn đạn to */}
+        {/* Nút Phóng bóng */}
         <button
           type="button"
           onClick={handleLaunch}
           className="pixel-btn flex-1 h-12 inline-flex items-center justify-center gap-1.5 bg-amber-400 hover:bg-amber-300 text-zinc-950 font-pixel text-xs font-bold border-2 border-zinc-950 shadow-pixel-xs active:translate-y-0.5"
         >
           <span>🚀</span>
-          <span>{laserAmmo > 0 ? (language === 'vi' ? 'BẮN LASER!' : 'FIRE LASER!') : (language === 'vi' ? 'PHÓNG BÓNG' : 'LAUNCH')}</span>
+          <span>
+            {status === 'ready'
+              ? (language === 'vi' ? 'BẮT ĐẦU' : 'START')
+              : (language === 'vi' ? 'PHÓNG BÓNG' : 'LAUNCH')}
+          </span>
         </button>
 
         {/* Tạm dừng & Reset */}
