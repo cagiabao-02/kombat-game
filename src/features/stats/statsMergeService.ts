@@ -4,6 +4,7 @@ import { XiangqiStats } from '@/features/games/xiangqi/xiangqiStatsService';
 import { SudokuStats } from '@/features/games/sudoku/sudokuStatsService';
 import { SnakeStats } from '@/features/games/snake/snakeStatsService';
 import { Game2048Stats } from '@/features/games/game2048/game2048StatsService';
+import { MinesweeperStats } from '@/features/games/minesweeper/minesweeperStatsService';
 
 export const STORAGE_KEYS = {
   CHESS: 'kombat_chess_stats',
@@ -12,6 +13,7 @@ export const STORAGE_KEYS = {
   SUDOKU: 'kombat_sudoku_stats',
   SNAKE: 'kombat_snake_stats',
   GAME2048: 'kombat_2048_stats',
+  MINESWEEPER: 'kombat_minesweeper_stats',
   GUEST_NAME: 'togame_guest_display_name',
   AVATAR: 'kombat_user_avatar',
 } as const;
@@ -128,6 +130,39 @@ export function mergeGame2048Stats(
   };
 }
 
+export function mergeMinesweeperStats(
+  local: MinesweeperStats | null,
+  cloud: MinesweeperStats | null
+): MinesweeperStats | null {
+  if (!local && !cloud) return null;
+  if (!local) return cloud;
+  if (!cloud) return local;
+
+  const mergeDiff = (ld: any = {}, cd: any = {}) => {
+    let bestTime: number | null = null;
+    if (ld.bestTimeSeconds !== null && ld.bestTimeSeconds !== undefined && cd.bestTimeSeconds !== null && cd.bestTimeSeconds !== undefined) {
+      bestTime = Math.min(ld.bestTimeSeconds, cd.bestTimeSeconds);
+    } else if (ld.bestTimeSeconds !== null && ld.bestTimeSeconds !== undefined) {
+      bestTime = ld.bestTimeSeconds;
+    } else if (cd.bestTimeSeconds !== null && cd.bestTimeSeconds !== undefined) {
+      bestTime = cd.bestTimeSeconds;
+    }
+
+    return {
+      bestTimeSeconds: bestTime,
+      completed: Math.max(ld.completed || 0, cd.completed || 0),
+    };
+  };
+
+  return {
+    totalGames: Math.max(local.totalGames || 0, cloud.totalGames || 0),
+    totalWins: Math.max(local.totalWins || 0, cloud.totalWins || 0),
+    beginner: mergeDiff(local.beginner, cloud.beginner),
+    intermediate: mergeDiff(local.intermediate, cloud.intermediate),
+    expert: mergeDiff(local.expert, cloud.expert),
+  };
+}
+
 /**
  * Gộp toàn bộ thành tích từ LocalStorage của máy vào tài khoản Đám mây (Google/Email).
  * Được kích hoạt tự động khi người dùng đăng nhập tài khoản.
@@ -146,6 +181,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const localSudoku = safeParse<SudokuStats>(STORAGE_KEYS.SUDOKU);
   const localSnake = safeParse<SnakeStats>(STORAGE_KEYS.SNAKE);
   const local2048 = safeParse<Game2048Stats>(STORAGE_KEYS.GAME2048);
+  const localMinesweeper = safeParse<MinesweeperStats>(STORAGE_KEYS.MINESWEEPER);
 
   // 2. Gộp thông minh với cloud
   const mergedChess = mergeBoardGameStats(localChess, meta.chess_stats);
@@ -154,6 +190,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const mergedSudoku = mergeSudokuStats(localSudoku, meta.sudoku_stats);
   const mergedSnake = mergeSnakeStats(localSnake, meta.snake_stats);
   const merged2048 = mergeGame2048Stats(local2048, meta.game2048_stats);
+  const mergedMinesweeper = mergeMinesweeperStats(localMinesweeper, meta.minesweeper_stats);
 
   // 3. Lưu lại vào LocalStorage
   if (mergedChess) safeSet(STORAGE_KEYS.CHESS, mergedChess);
@@ -162,6 +199,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   if (mergedSudoku) safeSet(STORAGE_KEYS.SUDOKU, mergedSudoku);
   if (mergedSnake) safeSet(STORAGE_KEYS.SNAKE, mergedSnake);
   if (merged2048) safeSet(STORAGE_KEYS.GAME2048, merged2048);
+  if (mergedMinesweeper) safeSet(STORAGE_KEYS.MINESWEEPER, mergedMinesweeper);
 
   // 4. Đẩy bản gộp lên Supabase User Metadata để bảo lưu vĩnh viễn
   const updateData: Record<string, any> = {};
@@ -191,6 +229,10 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
     updateData.game2048_stats = merged2048;
     hasUpdates = true;
   }
+  if (mergedMinesweeper && JSON.stringify(mergedMinesweeper) !== JSON.stringify(meta.minesweeper_stats)) {
+    updateData.minesweeper_stats = mergedMinesweeper;
+    hasUpdates = true;
+  }
 
   if (hasUpdates) {
     try {
@@ -207,5 +249,6 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
     sudoku: mergedSudoku,
     snake: mergedSnake,
     game2048: merged2048,
+    minesweeper: mergedMinesweeper,
   };
 }

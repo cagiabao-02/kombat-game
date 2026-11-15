@@ -110,13 +110,20 @@
   - **Lưu trữ & Bảng xếp hạng:** Xây dựng [`game2048StatsService.ts`](file:///d:/personal-prj/game/togame/src/features/games/game2048/game2048StatsService.ts), migration `20261115120000_add_game2048_to_leaderboard.sql`, tích hợp tab 2048 vào Bảng xếp hạng Leaderboard, Hồ sơ cá nhân (`ProfileAuthModal.tsx`) và gộp tự động đám mây khi đăng nhập (`statsMergeService.ts`, `AuthContext.tsx`).
   - **Đăng ký Sảnh chính:** Bổ sung icon pixel 2048 vào [`GameTile.tsx`](file:///d:/personal-prj/game/togame/src/components/GameTile.tsx) và đăng ký trò chơi vào thể loại Giải đố (Puzzle) trong [`registry.ts`](file:///d:/personal-prj/game/togame/src/features/games/registry.ts).
 
+- **Hoàn thành Chặng 18 — Trò chơi thứ 7: Dò Mìn Pixel (Minesweeper Classic):**
+  - **Động cơ logic Dò Mìn:** Xây dựng [`src/features/games/minesweeper/minesweeperLogic.ts`](file:///d:/personal-prj/game/togame/src/features/games/minesweeper/minesweeperLogic.ts) với 3 cấp độ (Dễ 9×9 10 mìn, Vừa 16×16 40 mìn, Khó 16×30 99 mìn), thuật toán mở an toàn lượt đầu tiên (First Click Never Boom), mở loang tự động (Flood Fill BFS), cắm cờ và mở nhanh (Chord).
+  - **Giao diện Retro Arcade:** Xây dựng [`MinesweeperBoard.tsx`](file:///d:/personal-prj/game/togame/src/features/games/minesweeper/MinesweeperBoard.tsx) và [`MinesweeperControls.tsx`](file:///d:/personal-prj/game/togame/src/features/games/minesweeper/MinesweeperControls.tsx) với nút Mặt cười tương tác (🙂, 😮, 😎, 😵), đồng hồ LED đỏ đếm giây và đếm mìn, phím chuyển đổi đào/cắm cờ và hỗ trợ chạm giữ (long-press) trên mobile.
+  - **Âm thanh & Modal:** Tích hợp âm thanh Web Audio API `playMinesweeperClick`, `playMinesweeperFlag`, `playMinesweeperBoom`, `playMinesweeperWin`; modal chiến thắng [`MinesweeperWinModal.tsx`](file:///d:/personal-prj/game/togame/src/features/games/minesweeper/MinesweeperWinModal.tsx) và thua cuộc [`MinesweeperOverModal.tsx`](file:///d:/personal-prj/game/togame/src/features/games/minesweeper/MinesweeperOverModal.tsx).
+  - **Lưu trữ & Bảng xếp hạng:** Xây dựng [`minesweeperStatsService.ts`](file:///d:/personal-prj/game/togame/src/features/games/minesweeper/minesweeperStatsService.ts), migration `20261115200000_add_minesweeper_to_leaderboard.sql`, tích hợp tab Dò Mìn vào Bảng xếp hạng toàn cầu, Hồ sơ cá nhân (`ProfileAuthModal.tsx`) và gộp đám mây khi đăng nhập (`statsMergeService.ts`).
+  - **Đăng ký Sảnh chính:** Bổ sung icon pixel quả mìn gai và lá cờ đỏ vào [`GameTile.tsx`](file:///d:/personal-prj/game/togame/src/components/GameTile.tsx) và cập nhật ô Sắp có của Giải đố thành `Nonogram, Trượt số`.
+
 ## Đang làm
 
-- Chặng 17 (Game 2048 Pixel Arcade) đã hoàn thành xuất sắc và vượt qua kiểm thử `npm run build` (11/11 trang tĩnh).
+- Toàn bộ 7 trò chơi (Cờ Vua, Cờ Tướng, Cờ Caro, Sudoku, Rắn Săn Mồi, 2048, Dò Mìn) đã hoàn thành và vượt qua kiểm thử `npm run build` (12/12 trang tĩnh).
 
 ## Việc kế tiếp
 
-1. Trải nghiệm trực tiếp trò chơi 2048 tại sảnh chính (`/games/game2048`), thử thách trượt gộp ô số và cày kỷ lục.
+1. Trải nghiệm trực tiếp trò chơi Dò Mìn tại sảnh chính (`/games/minesweeper`), thử thách gỡ mìn và cày kỷ lục thời gian.
 2. Hướng dẫn commit và tạo Pull Request (PR) theo chuẩn Rule 8 trong `AGENTS.md` khi người dùng yêu cầu.
 
 ## Quyết định còn mở

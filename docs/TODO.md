@@ -181,17 +181,53 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [x] Tích hợp Bảng xếp hạng Leaderboard và Hồ sơ người chơi (`ProfileAuthModal.tsx`).
 - [x] Kiểm thử `npx tsc --noEmit` và `npm run build`.
 
-## Chặng 17 — Trò chơi thứ 6: 2048 Pixel Arcade (Puzzle Logic)
+## Chặng 17 — Trò chơi thứ 6: 2048 (Puzzle Logic)
 
 - [x] Thiết kế động cơ logic 2048 (`game2048Logic.ts`): Ma trận $4 \times 4$, thuật toán trượt và gộp ô số, tính điểm, 1-step Undo, nhận diện chiến thắng 2048 và kiểm tra Game Over.
 - [x] Dịch vụ lưu trữ thành tích (`game2048StatsService.ts`): Điểm cao kỷ lục (High score), ô số lớn nhất (Max tile), số ván đã chơi, tự động đồng bộ đám mây và Supabase `leaderboard_scores`.
 - [x] Thiết kế giao diện 16-bit Neo-Arcade (`Game2048Board.tsx`, `Game2048Controls.tsx`, `Game2048VictoryModal.tsx`, `Game2048OverModal.tsx`, `src/app/games/game2048/page.tsx`):
   - [x] Hiển thị ô số với màu sắc pixel tương phản cao và hiệu ứng đổ bóng pixel retro.
+  - [x] Hiệu ứng chuyển động trượt mượt mà (Smooth sliding animation `translate3d`).
   - [x] Điều khiển đa nền tảng: Phím mũi tên / WASD / phím Z (Undo) trên PC, vuốt màn hình cảm ứng (Touch swipe) và cụm D-pad ảo trên điện thoại.
   - [x] Tích hợp âm thanh chiptune trượt ô, gộp số và chúc mừng chiến thắng trong `soundService.ts`.
 - [x] Đăng ký 2048 vào `GAME_REGISTRY` (thể loại Puzzle), vẽ icon pixel 2048 cho `GameTile.tsx`.
 - [x] Tích hợp vào Bảng xếp hạng toàn cầu (`LeaderboardModal.tsx`), Hồ sơ người chơi (`ProfileAuthModal.tsx`) và gộp dữ liệu đám mây (`statsMergeService.ts`, `AuthContext.tsx`).
+- [x] Tối ưu an toàn đăng xuất: Dọn sạch cache kỷ lục local để tránh lây nhiễm điểm sang tài khoản khách.
 - [x] Kiểm thử kiểu TypeScript `npx tsc --noEmit` và bản build `npm run build`.
+
+## Chặng 18 — Trò chơi thứ 7: Dò Mìn Pixel (Minesweeper Classic)
+
+- [x] Thiết kế động cơ logic Dò Mìn (`minesweeperLogic.ts`):
+  - [x] Hỗ trợ 3 cấp độ: Dễ ($9 \times 9$, 10 mìn), Vừa ($16 \times 16$, 40 mìn), Khó ($16 \times 30$, 99 mìn).
+  - [x] Nước click đầu tiên an toàn tuyệt đối (First Click Never Boom) đảm bảo không bao giờ trúng mìn và mở ra vùng trống.
+  - [x] Thuật toán mở loang tự động (Flood Fill BFS) khi click vào ô 0 mìn.
+  - [x] Cơ chế cắm/gỡ cờ 🚩 và mở nhanh (Chord) khi đủ cờ quanh ô số.
+- [x] Dịch vụ thành tích Dò Mìn (`minesweeperStatsService.ts`):
+  - [x] Lưu thời gian phá đảo nhanh nhất (giây) theo từng cấp độ, số ván thắng, tự động đồng bộ đám mây và Supabase.
+- [x] Giao diện Neo-Arcade 16-bit (`MinesweeperBoard.tsx`, `MinesweeperControls.tsx`, `MinesweeperWinModal.tsx`, `MinesweeperOverModal.tsx`, `src/app/games/minesweeper/page.tsx`):
+  - [x] Mặt cười tương tác (🙂 bình thường, 😮 khi đang ấn, 😎 khi thắng, 😵 khi trúng mìn), bấm để chơi lại.
+  - [x] Màn hình LED kỹ thuật số đếm số mìn còn lại và đếm giây từ 000 đến 999.
+  - [x] Phím chuyển đổi Đào ô / Cắm cờ và hỗ trợ chạm giữ (long-press) tiện lợi trên điện thoại.
+  - [x] Khung cuộn ngang linh hoạt cho các màn chơi kích thước lớn trên di động.
+  - [x] Âm thanh Web Audio chiptune (click, cắm cờ, bom nổ, chiến thắng).
+- [x] Đăng ký Sảnh chính và Bảng xếp hạng:
+  - [x] Đăng ký `minesweeper` vào `GAME_REGISTRY` và vẽ icon pixel quả mìn gai + cờ đỏ cho `GameTile.tsx`.
+  - [x] Tích hợp tab Dò Mìn vào Bảng xếp hạng Leaderboard toàn cầu, Hồ sơ cá nhân `ProfileAuthModal.tsx` và cơ chế gộp đám mây `statsMergeService.ts`.
+  - [x] Tạo migration `20261115200000_add_minesweeper_to_leaderboard.sql`.
+- [x] Kiểm thử kiểu `npx tsc --noEmit` và `npm run build`.
+
+## Chặng tiếp theo (Đề xuất định hướng mở rộng)
+
+- [ ] **Hướng 1 — Trò chơi thứ 7 (Bổ sung game kinh điển mới)**:
+  - *Lựa chọn 1A (Arcade/Phản xạ)*: **Phá Gạch Pixel (Brick Breaker / Arkanoid)** — Thể loại Arcade hiện mới có 1 game (Rắn săn mồi). Thêm trò phá gạch với thanh trượt hứng bóng, đập vỡ khối gạch pixel, bóng nảy vật lý 2D, rơi vật phẩm (dài thanh, x2 bóng, đạn laze).
+  - *Lựa chọn 1B (Giải đố / Puzzle)*: **Dò Mìn Pixel (Minesweeper)** — Bảng ô số 9x9 / 16x16, cắm cờ mìn, tính thời gian phá đảo kỷ lục, bảng xếp hạng thời gian nhanh nhất.
+  - *Lựa chọn 1C (Chiến thuật / Strategy)*: **Cờ Lật (Othello / Reversi)** — Bàn cờ $8 \times 8$, lật quân đen/trắng, đấu Bot AI hoặc tạo phòng mời bạn bè.
+- [ ] **Hướng 2 — Tương tác Xã hội trong phòng chơi (Social & Emotes)**:
+  - Chat nhanh bằng câu thoại pixel và icon biểu cảm (Quick Chat & Emotes) cho các phòng Cờ Vua, Cờ Tướng, Cờ Caro.
+  - Chế độ Khán giả (Spectator Mode): Cho phép bạn bè vào xem trực tiếp ván cờ qua link phòng.
+- [ ] **Hướng 3 — Hệ thống Thành tựu & Huy hiệu Pixel (Achievements & Badges)**:
+  - Bổ sung bộ danh hiệu mở khóa khi đạt các cột mốc thú vị (VD: "Phá kỷ lục 500 điểm Rắn", "Tạo ra ô 2048", "Thắng 10 ván Caro", "Giải Sudoku dưới 3 phút").
+  - Hiển thị huy hiệu đã đạt được trong Hồ sơ cá nhân (Profile Modal).
 
 
 

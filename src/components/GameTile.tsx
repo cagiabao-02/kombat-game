@@ -123,6 +123,28 @@ export function GameIcon({ id }: { id: GameId }) {
         </div>
       );
 
+    case 'minesweeper':
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-[#C0C0C0] p-1.5">
+          <div className="flex h-full w-full items-center justify-center border-2 border-t-white border-l-white border-r-zinc-700 border-b-zinc-700 bg-[#C0C0C0] shadow-[2px_2px_0_0_#18181b]">
+            <svg viewBox="0 0 16 16" className="h-[75%] w-[75%] pixelated" shapeRendering="crispEdges">
+              {/* Thân quả mìn gai kinh điển */}
+              <path d="M5 3h6v1H5z M4 4h8v1H4z M3 5h10v6H3z M4 11h8v1H4z M5 12h6v1H5z" fill="#18181B" />
+              {/* Các gai mìn 4 hướng chính */}
+              <path d="M7 1h2v2H7z M7 13h2v2H7z M1 7h2v2H1z M13 7h2v2H13z" fill="#18181B" />
+              {/* Các gai mìn 4 góc chéo */}
+              <path d="M2 2h2v2H2z M12 2h2v2H12z M2 12h2v2H2z M12 12h2v2H12z" fill="#18181B" />
+              {/* Điểm phản quang pixel màu trắng */}
+              <path d="M5 5h2v2H5z" fill="#FFFFFF" />
+              <path d="M7 5h1v1H7z M5 7h1v1H5z" fill="#A1A1AA" />
+              {/* Cột và cờ đỏ 🚩 */}
+              <path d="M10 2h4v3h-4z" fill="#EF4444" />
+              <path d="M11 2h1v6h-1z" fill="#B91C1C" />
+            </svg>
+          </div>
+        </div>
+      );
+
     default:
       return null;
   }

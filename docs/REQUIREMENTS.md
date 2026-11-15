@@ -131,6 +131,23 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 - Chống tự quay đầu $180^\circ$ (input buffering), tốc độ tăng dần theo điểm số tạo độ kịch tính.
 - Lưu kỷ lục điểm cao (High Score), tự động đồng bộ đám mây và đưa lên Bảng xếp hạng toàn cầu (`leaderboard_scores`).
 
+### FR-13 — 2048 (Puzzle Logic)
+
+- Lưới số $4 \times 4$ với hiệu ứng trượt mượt mà (smooth sliding transition).
+- Cơ chế sinh số ngẫu nhiên (90% ô 2, 10% ô 4), trượt gộp các ô có cùng giá trị theo 4 hướng.
+- Hỗ trợ hoàn tác 1 nước đi (1-step Undo) giúp người chơi sửa sai.
+- Nhận diện Game Over khi kín bảng và không còn nước đi hợp lệ; vinh danh mốc chiến thắng 2048 và cho phép tiếp tục cày điểm chinh phục 4096+.
+- Lưu kỷ lục điểm cao (Best Score) và ô số lớn nhất (Max Tile), tự động đồng bộ đám mây và Bảng xếp hạng toàn cầu.
+
+### FR-14 — Dò Mìn Pixel (Minesweeper)
+
+- Bàn cờ 3 cấp độ chuẩn cổ điển: Dễ ($9 \times 9$, 10 mìn), Vừa ($16 \times 16$, 40 mìn), Khó ($16 \times 30$, 99 mìn).
+- Nước đi đầu tiên an toàn tuyệt đối (First Click Never Boom): Không bao giờ trúng mìn và tự động mở loang một vùng an toàn.
+- Thuật toán mở loang thông minh (Flood Fill) tự động mở các ô trống liền kề khi mở trúng ô 0 mìn.
+- Cơ chế cắm cờ (Flag) và mở nhanh (Chord) khi một ô số đã có đủ số cờ tương ứng quanh nó.
+- Đầy đủ nút Mặt cười cảm xúc (Smiley Face), đồng hồ LED đếm thời gian (giây) và bộ đếm số mìn còn lại.
+- Bảng xếp hạng kỷ lục thời gian phá đảo nhanh nhất (giây) và tự động đồng bộ đám mây.
+
 ## 5. Yêu cầu phi chức năng
 
 - Mobile-first, phù hợp màn hình nhỏ và lớn; hỗ trợ xoay/ngang nếu bàn cờ cần.
