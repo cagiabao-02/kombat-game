@@ -90,24 +90,11 @@ export async function syncGame2048CloudAndLeaderboard(stats: Game2048Stats): Pro
       });
     }
 
-    // 2. Đồng bộ lên Leaderboard Table (hỗ trợ cả authenticated và anon)
+    // 2. Đồng bộ lên Leaderboard Table (hỗ trợ cả authenticated và anon qua hàm tập trung)
     if (stats.highScore > 0) {
-      const name = user.user_metadata?.display_name || 'Người chơi';
-      const avatar = user.user_metadata?.avatar || '👑';
-
-      await supabase.from('leaderboard_scores').upsert(
-        {
-          user_id: user.id,
-          user_name: name,
-          user_avatar: avatar,
-          game_id: 'game2048',
-          score_value: stats.highScore,
-          score_label: `${stats.highScore.toLocaleString()} Điểm`,
-          secondary_info: `Ô cao nhất: ${stats.maxTile} • ${stats.totalGames} ván`,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'user_id,game_id' }
-      );
+      import('@/features/leaderboard/leaderboardService')
+        .then((mod) => mod.syncLeaderboardScoreForGame('game2048'))
+        .catch(() => {});
     }
   } catch (err) {
     console.warn('Lỗi sync 2048 stats:', err);
