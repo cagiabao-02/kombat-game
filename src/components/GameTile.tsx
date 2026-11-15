@@ -145,6 +145,25 @@ export function GameIcon({ id }: { id: GameId }) {
         </div>
       );
 
+    case 'brick_breaker':
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-[#090D16]">
+          <svg viewBox="0 0 16 16" className="h-[78%] w-[78%] pixelated" shapeRendering="crispEdges">
+            {/* Hàng gạch đỏ */}
+            <path d="M1 2h4v2H1z M6 2h4v2H6z M11 2h4v2h-4z" fill="#EF4444" />
+            {/* Hàng gạch cam */}
+            <path d="M1 5h4v2H1z M6 5h4v2H6z M11 5h4v2h-4z" fill="#F97316" />
+            {/* Hàng gạch xanh lá */}
+            <path d="M1 8h4v2H1z M6 8h4v2H6z M11 8h4v2h-4z" fill="#10B981" />
+            {/* Quả bóng pixel */}
+            <path d="M7 11h2v2H7z" fill="#FFFFFF" />
+            {/* Thanh trượt Paddle */}
+            <path d="M3 14h10v2H3z" fill="#06B6D4" />
+            <path d="M4 14h8v1H4z" fill="#E0F2FE" />
+          </svg>
+        </div>
+      );
+
     default:
       return null;
   }

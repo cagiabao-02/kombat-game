@@ -148,6 +148,14 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 - Đầy đủ nút Mặt cười cảm xúc (Smiley Face), đồng hồ LED đếm thời gian (giây) và bộ đếm số mìn còn lại.
 - Bảng xếp hạng kỷ lục thời gian phá đảo nhanh nhất (giây) và tự động đồng bộ đám mây.
 
+### FR-15 — Phá Gạch Pixel (Brick Breaker)
+
+- Động cơ vật lý nảy bóng 2D Retro Arcade trên HTML5 Canvas: Tỉ lệ khung hình chuẩn máy thùng $3:4$.
+- Điều khiển đa nền tảng: Di chuột / phím A-D / phím mũi tên trên PC; vuốt ngón tay trực tiếp hoặc nút cảm ứng ảo trên di động.
+- Hệ thống vật phẩm rơi (Power-ups): Kéo dài thanh trượt (↔️), Nhân đôi/nhân ba bóng (⚡), Súng Laser bắn gạch (🔫), Thêm mạng (💖).
+- Đa dạng loại gạch: Gạch thường nhiều tầng màu tính điểm, gạch thép cần 2 lần va chạm và gạch bom phát nổ lan truyền.
+- Hệ thống màn chơi nối tiếp (Stages), bộ đếm chuỗi Combo và đồng bộ điểm kỷ lục lên Bảng xếp hạng toàn cầu (`leaderboard_scores`).
+
 ## 5. Yêu cầu phi chức năng
 
 - Mobile-first, phù hợp màn hình nhỏ và lớn; hỗ trợ xoay/ngang nếu bàn cờ cần.
