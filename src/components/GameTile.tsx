@@ -79,6 +79,30 @@ export function GameIcon({ id }: { id: GameId }) {
         </div>
       );
 
+    case 'snake':
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-[#DCFCE7]">
+          <svg viewBox="0 0 16 16" className="h-[78%] w-[78%] pixelated" shapeRendering="crispEdges">
+            {/* Táo đỏ */}
+            <path d="M12 3h1v1h-1z" fill="#15803D" />
+            <path d="M11 4h3v3h-3z" fill="#E11D48" />
+            <path d="M12 4h1v1h-1z" fill="#FDA4AF" />
+
+            {/* Thân rắn */}
+            <path d="M2 7h3v2H2z M2 9h2v4H2z M4 11h4v2H4z M6 8h2v3H6z" fill="#16A34A" />
+            <path d="M3 7h1v1H3z M5 11h2v1H5z" fill="#86EFAC" />
+
+            {/* Đầu rắn */}
+            <path d="M7 6h3v3H7z" fill="#15803D" />
+            {/* Mắt rắn */}
+            <path d="M8 7h2v1H8z" fill="#FEF08A" />
+            <path d="M9 7h1v1H9z" fill="#0F172A" />
+            {/* Lưỡi rắn thò ra */}
+            <path d="M10 8h1v1h-1z" fill="#E11D48" />
+          </svg>
+        </div>
+      );
+
     default:
       return null;
   }

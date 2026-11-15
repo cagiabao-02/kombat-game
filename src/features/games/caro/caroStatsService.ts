@@ -112,6 +112,9 @@ export function recordCaroGameResult(
 
   saveCaroStatsLocally(updatedStats);
   syncCaroStatsToCloud(updatedStats).catch(() => {});
+  import('@/features/leaderboard/leaderboardService')
+    .then((mod) => mod.syncLeaderboardScoreForGame('caro'))
+    .catch(() => {});
 
   return updatedStats;
 }

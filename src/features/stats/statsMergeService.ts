@@ -1,0 +1,185 @@
+import { ChessStats } from '@/features/games/chess/statsService';
+import { CaroStats } from '@/features/games/caro/caroStatsService';
+import { XiangqiStats } from '@/features/games/xiangqi/xiangqiStatsService';
+import { SudokuStats } from '@/features/games/sudoku/sudokuStatsService';
+import { SnakeStats } from '@/features/games/snake/snakeStatsService';
+
+export const STORAGE_KEYS = {
+  CHESS: 'kombat_chess_stats',
+  CARO: 'kombat_caro_stats',
+  XIANGQI: 'kombat_xiangqi_stats',
+  SUDOKU: 'kombat_sudoku_stats',
+  SNAKE: 'kombat_snake_stats',
+  GUEST_NAME: 'togame_guest_display_name',
+  AVATAR: 'kombat_user_avatar',
+} as const;
+
+function safeParse<T>(key: string): T | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function safeSet(key: string, data: any) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch {}
+}
+
+export function mergeBoardGameStats<T extends ChessStats | CaroStats | XiangqiStats>(
+  local: T | null,
+  cloud: T | null
+): T | null {
+  if (!local && !cloud) return null;
+  if (!local) return cloud;
+  if (!cloud) return local;
+
+  const mergeMode = (lm: any = {}, cm: any = {}) => ({
+    total: Math.max(lm.total || 0, cm.total || 0),
+    wins: Math.max(lm.wins || 0, cm.wins || 0),
+    losses: Math.max(lm.losses || 0, cm.losses || 0),
+    draws: Math.max(lm.draws || 0, cm.draws || 0),
+  });
+
+  return {
+    ...cloud,
+    ...local,
+    totalGames: Math.max(local.totalGames || 0, cloud.totalGames || 0),
+    wins: Math.max(local.wins || 0, cloud.wins || 0),
+    losses: Math.max(local.losses || 0, cloud.losses || 0),
+    draws: Math.max(local.draws || 0, cloud.draws || 0),
+    currentStreak: Math.max(local.currentStreak || 0, cloud.currentStreak || 0),
+    bestStreak: Math.max(local.bestStreak || 0, cloud.bestStreak || 0),
+    pvp: mergeMode(local.pvp, cloud.pvp),
+    bot: mergeMode(local.bot, cloud.bot),
+    lastUpdated: Math.max(local.lastUpdated || 0, cloud.lastUpdated || 0, Date.now()),
+  } as T;
+}
+
+export function mergeSudokuStats(
+  local: SudokuStats | null,
+  cloud: SudokuStats | null
+): SudokuStats | null {
+  if (!local && !cloud) return null;
+  if (!local) return cloud;
+  if (!cloud) return local;
+
+  const mergeDiff = (ld: any = {}, cd: any = {}) => {
+    let bestTime: number | null = null;
+    if (ld.bestTimeSeconds !== null && ld.bestTimeSeconds !== undefined && cd.bestTimeSeconds !== null && cd.bestTimeSeconds !== undefined) {
+      bestTime = Math.min(ld.bestTimeSeconds, cd.bestTimeSeconds);
+    } else if (ld.bestTimeSeconds !== null && ld.bestTimeSeconds !== undefined) {
+      bestTime = ld.bestTimeSeconds;
+    } else if (cd.bestTimeSeconds !== null && cd.bestTimeSeconds !== undefined) {
+      bestTime = cd.bestTimeSeconds;
+    }
+
+    return {
+      bestTimeSeconds: bestTime,
+      completedCount: Math.max(ld.completedCount || 0, cd.completedCount || 0),
+    };
+  };
+
+  return {
+    totalSolved: Math.max(local.totalSolved || 0, cloud.totalSolved || 0),
+    easy: mergeDiff(local.easy, cloud.easy),
+    medium: mergeDiff(local.medium, cloud.medium),
+    hard: mergeDiff(local.hard, cloud.hard),
+    lastUpdated: Math.max(local.lastUpdated || 0, cloud.lastUpdated || 0, Date.now()),
+  };
+}
+
+export function mergeSnakeStats(
+  local: SnakeStats | null,
+  cloud: SnakeStats | null
+): SnakeStats | null {
+  if (!local && !cloud) return null;
+  if (!local) return cloud;
+  if (!cloud) return local;
+
+  return {
+    highScore: Math.max(local.highScore || 0, cloud.highScore || 0),
+    totalApples: Math.max(local.totalApples || 0, cloud.totalApples || 0),
+    totalGames: Math.max(local.totalGames || 0, cloud.totalGames || 0),
+    lastUpdated: Math.max(local.lastUpdated || 0, cloud.lastUpdated || 0, Date.now()),
+  };
+}
+
+/**
+ * Gộp toàn bộ thành tích từ LocalStorage của máy vào tài khoản Đám mây (Google/Email).
+ * Được kích hoạt tự động khi người dùng đăng nhập tài khoản.
+ */
+export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
+  if (!user || user.is_anonymous || user.app_metadata?.provider === 'anonymous') {
+    return;
+  }
+
+  const meta = user.user_metadata || {};
+
+  // 1. Đọc dữ liệu local
+  const localChess = safeParse<ChessStats>(STORAGE_KEYS.CHESS);
+  const localCaro = safeParse<CaroStats>(STORAGE_KEYS.CARO);
+  const localXiangqi = safeParse<XiangqiStats>(STORAGE_KEYS.XIANGQI);
+  const localSudoku = safeParse<SudokuStats>(STORAGE_KEYS.SUDOKU);
+  const localSnake = safeParse<SnakeStats>(STORAGE_KEYS.SNAKE);
+
+  // 2. Gộp thông minh với cloud
+  const mergedChess = mergeBoardGameStats(localChess, meta.chess_stats);
+  const mergedCaro = mergeBoardGameStats(localCaro, meta.caro_stats);
+  const mergedXiangqi = mergeBoardGameStats(localXiangqi, meta.xiangqi_stats);
+  const mergedSudoku = mergeSudokuStats(localSudoku, meta.sudoku_stats);
+  const mergedSnake = mergeSnakeStats(localSnake, meta.snake_stats);
+
+  // 3. Lưu lại vào LocalStorage
+  if (mergedChess) safeSet(STORAGE_KEYS.CHESS, mergedChess);
+  if (mergedCaro) safeSet(STORAGE_KEYS.CARO, mergedCaro);
+  if (mergedXiangqi) safeSet(STORAGE_KEYS.XIANGQI, mergedXiangqi);
+  if (mergedSudoku) safeSet(STORAGE_KEYS.SUDOKU, mergedSudoku);
+  if (mergedSnake) safeSet(STORAGE_KEYS.SNAKE, mergedSnake);
+
+  // 4. Đẩy bản gộp lên Supabase User Metadata để bảo lưu vĩnh viễn
+  const updateData: Record<string, any> = {};
+  let hasUpdates = false;
+
+  if (mergedChess && JSON.stringify(mergedChess) !== JSON.stringify(meta.chess_stats)) {
+    updateData.chess_stats = mergedChess;
+    hasUpdates = true;
+  }
+  if (mergedCaro && JSON.stringify(mergedCaro) !== JSON.stringify(meta.caro_stats)) {
+    updateData.caro_stats = mergedCaro;
+    hasUpdates = true;
+  }
+  if (mergedXiangqi && JSON.stringify(mergedXiangqi) !== JSON.stringify(meta.xiangqi_stats)) {
+    updateData.xiangqi_stats = mergedXiangqi;
+    hasUpdates = true;
+  }
+  if (mergedSudoku && JSON.stringify(mergedSudoku) !== JSON.stringify(meta.sudoku_stats)) {
+    updateData.sudoku_stats = mergedSudoku;
+    hasUpdates = true;
+  }
+  if (mergedSnake && JSON.stringify(mergedSnake) !== JSON.stringify(meta.snake_stats)) {
+    updateData.snake_stats = mergedSnake;
+    hasUpdates = true;
+  }
+
+  if (hasUpdates) {
+    try {
+      await sbClient.auth.updateUser({ data: updateData });
+    } catch (e) {
+      console.warn('Lỗi cập nhật user_metadata khi gộp stats:', e);
+    }
+  }
+
+  return {
+    chess: mergedChess,
+    caro: mergedCaro,
+    xiangqi: mergedXiangqi,
+    sudoku: mergedSudoku,
+    snake: mergedSnake,
+  };
+}

@@ -151,11 +151,34 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Kiểm tra vùng chạm di động $\ge 44\text{px}$ và độ tương phản màu sắc.
   - [x] Chạy kiểm thử toàn diện `npm run build` không lỗi.
 
-## Chặng 14 — Sảnh chia theo thể loại game & Ô biểu tượng (Game Tiles)
+## Chặng 15 — Bảo toàn vĩnh viễn Thành tích Đám mây (Cloud Sync) & Chi tiết Kỷ lục Sudoku
 
-- [x] Thêm trường `category` vào `GameMetadata` và file cấu hình `src/features/games/categories.ts` (Giải đố, Cờ chiến thuật, Phản xạ / Arcade).
-- [x] Gắn thể loại cho 4 game hiện có trong `registry.ts`.
-- [x] Tạo component `GameTile.tsx` biểu tượng pixel đại diện từng game (Ngựa cờ vua, Tướng cờ tướng, X/O cờ caro, ma trận LCD Sudoku) kèm tooltip tên game khi rê chuột trên desktop và tên ngắn dưới icon trên mobile.
-- [x] Sảnh hiển thị từng khu vực theo thể loại, có thanh lọc nhanh và ô “Sắp có” (`UpcomingTile`) cho từng thể loại.
-- [ ] Chốt danh sách thể loại và tựa game mới cuối cùng với chủ dự án khi mở rộng.
+- [x] **Bước 1: Gộp & Bảo toàn vĩnh viễn Elo / Thành tích khi đăng nhập Google / Email**:
+  - [x] Tạo dịch vụ gộp thông minh `statsMergeService.ts` kết hợp thành tích cục bộ (Guest) và đám mây (Cloud) khi đăng nhập Google/Email.
+  - [x] Bảo toàn cả 4 tựa game: Cờ vua, Cờ tướng, Cờ caro và Sudoku lên `user_metadata` của Supabase Auth.
+  - [x] Thêm khóa `kombat_xiangqi_stats` vào chu trình đồng bộ đám mây `syncAllCloudStats` trong `AuthContext.tsx`.
+- [x] **Bước 2: Quản lý & Hiển thị chi tiết Kỷ lục Sudoku (Thời gian từng chế độ)**:
+  - [x] Lưu trữ kỷ lục giải nhanh nhất (`bestTimeSeconds`) và số ván hoàn thành cho 3 cấp độ: Dễ, Vừa, Khó trong `sudokuStatsService.ts`.
+  - [x] Hiển thị huy hiệu kỷ lục tốt nhất của chế độ đang chơi ngay trên thanh điều khiển `SudokuControls.tsx`.
+  - [x] Vinh danh `KỶ LỤC MỚI! (NEW PERSONAL BEST)` kèm thông báo vượt kỷ lục cũ trong `VictoryModal.tsx`.
+  - [x] Bổ sung tab Sudoku và Cờ tướng vào Modal Hồ sơ cá nhân `ProfileAuthModal.tsx` với bảng thống kê chi tiết từng cấp độ.
+- [x] **Bước 3: Đồng bộ Bảng xếp hạng toàn cầu (`leaderboard_scores`)**:
+  - [x] Tạo migration `20261115000000_add_xiangqi_to_leaderboard.sql` hỗ trợ Cờ tướng.
+  - [x] Bổ sung hàm tự động upsert điểm vào `leaderboard_scores` sau mỗi ván thắng và khi đăng nhập tài khoản.
+- [x] **Bước 4: Tối ưu PWA cho Android**:
+  - [x] Tạo bộ icon PNG kích thước chuẩn 192x192 và 512x512 trong `public/`.
+  - [x] Cập nhật `src/app/manifest.ts` đầy đủ tiêu chuẩn WebAPK Android (id, categories, icons maskable/any, lang).
+
+## Chặng 16 — Trò chơi thứ 5: Rắn Săn Mồi Pixel (8-Bit Retro Snake)
+
+- [x] Thiết kế động cơ logic Rắn săn mồi (`snakeLogic.ts`): Lưới $20 \times 20$, input buffering chống tự quay đầu $180^\circ$, táo đỏ (+10đ), táo vàng bonus xuất hiện ngẫu nhiên (+50đ), tốc độ tăng dần theo điểm số.
+- [x] Dịch vụ lưu trữ thành tích (`snakeStatsService.ts`): Điểm cao kỷ lục (High score), tổng số táo ăn, số ván đã chơi, tự động đồng bộ đám mây và bảng xếp hạng.
+- [x] Thiết kế giao diện chơi game retro (`SnakeBoard.tsx`, `SnakeControls.tsx`, `GameOverModal.tsx`, `src/app/games/snake/page.tsx`):
+  - [x] Hỗ trợ phím mũi tên / WASD trên PC, phím Space/P tạm dừng.
+  - [x] Hỗ trợ cụm D-pad ảo 4 chiều và cử chỉ vuốt (swipe) mượt mà trên điện thoại.
+  - [x] Hiệu ứng ăn mừng kỷ lục mới pháo hoa `PixelFxOverlay` và âm thanh chiptune `playSnakeEat`, `playSnakeGolden`, `playSnakeDie`.
+- [x] Đăng ký Snake vào `GAME_REGISTRY`, danh mục thể loại Arcade (`categories.ts`) và vẽ icon pixel Snake cho `GameTile.tsx`.
+- [x] Tích hợp Bảng xếp hạng Leaderboard và Hồ sơ người chơi (`ProfileAuthModal.tsx`).
+- [x] Kiểm thử `npx tsc --noEmit` và `npm run build`.
+
 

@@ -4,6 +4,7 @@ import { getChessStats } from '@/features/games/chess/statsService';
 import { getCaroStats } from '@/features/games/caro/caroStatsService';
 import { getSudokuStats } from '@/features/games/sudoku/sudokuStatsService';
 import { getXiangqiStats } from '@/features/games/xiangqi/xiangqiStatsService';
+import { getSnakeStats } from '@/features/games/snake/snakeStatsService';
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -94,6 +95,22 @@ export function getLocalLeaderboardData(
         tierBadge: elo >= 1600 ? 'Đại sư' : elo >= 1400 ? 'Kỳ thủ' : 'Tập sự',
       };
     }
+  } else if (game === 'snake') {
+    const stats = getSnakeStats();
+    if (stats.highScore > 0) {
+      userEntry = {
+        id: currentUserId || 'current_user',
+        userId: currentUserId,
+        name: currentUserName,
+        avatar: currentUserAvatar,
+        rank: 1,
+        scoreValue: stats.highScore,
+        scoreLabel: `${stats.highScore} Điểm`,
+        secondaryInfo: `Đã ăn ${stats.totalApples} táo • ${stats.totalGames} ván`,
+        isCurrentUser: true,
+        tierBadge: stats.highScore >= 300 ? 'Chuyên gia' : stats.highScore >= 150 ? 'Tay lái lụa' : undefined,
+      };
+    }
   }
 
   const list = userEntry ? [userEntry] : [];
@@ -131,7 +148,12 @@ export async function getRealLeaderboardData(
     entriesMap.set(u.userId || u.id, u);
   }
 
-  // 2. Truy vấn Supabase với timeout an toàn tránh treo nếu chưa tạo bảng
+  // 2. Tự động đồng bộ điểm mới nhất của người dùng lên Supabase trước khi truy vấn
+  if (currentUserId) {
+    await syncLeaderboardScoreForGame(game, currentUserId, currentUserName, currentUserAvatar).catch(() => {});
+  }
+
+  // 3. Truy vấn Supabase với timeout an toàn tránh treo nếu chưa tạo bảng
   try {
     const cloudPromise = supabase
       .from('leaderboard_scores')
@@ -208,4 +230,95 @@ export async function getRealLeaderboardData(
   }
 
   return { list: rankedList, userSummary };
+}
+
+/**
+ * Tự động đồng bộ và upsert thành tích của người chơi vào bảng `leaderboard_scores` trên Supabase.
+ */
+export async function syncLeaderboardScoreForGame(
+  game: LeaderboardGame,
+  customUserId?: string,
+  customUserName?: string,
+  customUserAvatar?: string
+): Promise<void> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    const effectiveUserId = customUserId || user?.id;
+    if (!effectiveUserId) return;
+
+    const name = customUserName || user?.user_metadata?.display_name || 'Người chơi';
+    const avatar = customUserAvatar || user?.user_metadata?.avatar || '👑';
+
+    let scoreValue = 0;
+    let scoreLabel = '';
+    let secondaryInfo = '';
+
+    if (game === 'chess') {
+      const stats = getChessStats();
+      if (stats.totalGames === 0) return;
+      const elo = Math.max(800, 1200 + stats.pvp.wins * 25 - stats.pvp.losses * 15);
+      scoreValue = elo;
+      scoreLabel = `${elo} Elo`;
+      secondaryInfo = `${stats.pvp.wins} Thắng • ${stats.totalGames} Trận`;
+    } else if (game === 'caro') {
+      const stats = getCaroStats();
+      if (stats.totalGames === 0) return;
+      scoreValue = stats.wins;
+      scoreLabel = `${stats.wins} Ván thắng`;
+      secondaryInfo = `Chuỗi ${stats.currentStreak} trận • Kỷ lục ${stats.bestStreak}`;
+    } else if (game === 'sudoku') {
+      const stats = getSudokuStats();
+      const bestSec =
+        stats.hard.bestTimeSeconds ||
+        stats.medium.bestTimeSeconds ||
+        stats.easy.bestTimeSeconds ||
+        null;
+      if (bestSec === null) return;
+      scoreValue = bestSec;
+      scoreLabel = formatTime(bestSec);
+      secondaryInfo = `Tổng giải ${stats.totalSolved} bảng`;
+    } else if (game === 'xiangqi') {
+      const stats = getXiangqiStats();
+      if (stats.totalGames === 0) return;
+      const elo = Math.max(800, 1200 + stats.pvp.wins * 25 - stats.pvp.losses * 15);
+      scoreValue = elo;
+      scoreLabel = `${elo} Elo`;
+      secondaryInfo = `${stats.pvp.wins} Thắng • ${stats.totalGames} Trận`;
+    } else if (game === 'snake') {
+      const stats = getSnakeStats();
+      if (stats.highScore === 0) return;
+      scoreValue = stats.highScore;
+      scoreLabel = `${stats.highScore} Điểm`;
+      secondaryInfo = `Đã ăn ${stats.totalApples} táo • ${stats.totalGames} ván`;
+    }
+
+    await supabase.from('leaderboard_scores').upsert(
+      {
+        user_id: effectiveUserId,
+        user_name: name,
+        user_avatar: avatar,
+        game_id: game,
+        score_value: scoreValue,
+        score_label: scoreLabel,
+        secondary_info: secondaryInfo,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'user_id,game_id' }
+    );
+  } catch (err) {
+    console.warn(`Lỗi sync leaderboard ${game}:`, err);
+  }
+}
+
+/**
+ * Đồng bộ tất cả 5 game lên bảng xếp hạng Supabase
+ */
+export async function syncAllLeaderboardScores() {
+  await Promise.allSettled([
+    syncLeaderboardScoreForGame('chess'),
+    syncLeaderboardScoreForGame('caro'),
+    syncLeaderboardScoreForGame('sudoku'),
+    syncLeaderboardScoreForGame('xiangqi'),
+    syncLeaderboardScoreForGame('snake'),
+  ]);
 }

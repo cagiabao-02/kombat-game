@@ -88,13 +88,25 @@
   - **Tương tác trực quan:** Hỗ trợ tooltip pixel hiển thị tên game và huy hiệu khi rê chuột/focus bàn phím trên desktop; tự động hiển thị tên ngắn bên dưới ô icon trên thiết bị di động (mobile).
   - **Ô Sắp có (`UpcomingTile`):** Hiển thị ô dự kiến cho các tựa game tiếp theo thuộc từng thể loại (ví dụ: Go/Reversi cho chiến thuật, 2048/Nonogram cho giải đố, Flappy/Phá gạch cho phản xạ).
 
+- **Hoàn thành Chặng 15 — Bảo toàn vĩnh viễn Thành tích Đám mây (Cloud Sync) & Quản lý chi tiết Kỷ lục Sudoku:**
+  - **Cơ chế Gộp & Bảo toàn vĩnh viễn (Smart Merge on Sign-in):** Xây dựng [`src/features/stats/statsMergeService.ts`](file:///d:/personal-prj/game/togame/src/features/stats/statsMergeService.ts) tự động đối chiếu, gộp thông minh và đẩy thành tích từ máy cục bộ (Guest) lên đám mây Supabase (`user_metadata`) ngay khi đăng nhập Google hoặc Email. Bổ sung khóa `kombat_xiangqi_stats` vào chu trình đồng bộ hai chiều.
+  - **Quản lý & Hiển thị Kỷ lục Sudoku từng chế độ:** Nâng cấp [`sudokuStatsService.ts`](file:///d:/personal-prj/game/togame/src/features/games/sudoku/sudokuStatsService.ts), hiển thị huy hiệu kỷ lục tốt nhất trực tiếp trên thanh điều khiển [`SudokuControls.tsx`](file:///d:/personal-prj/game/togame/src/features/games/sudoku/SudokuControls.tsx), vinh danh `KỶ LỤC MỚI!` trên [`VictoryModal.tsx`](file:///d:/personal-prj/game/togame/src/features/games/sudoku/VictoryModal.tsx) và tích hợp tab Sudoku đầy đủ vào [`ProfileAuthModal.tsx`](file:///d:/personal-prj/game/togame/src/features/auth/ProfileAuthModal.tsx) với bảng thống kê 3 mức Dễ / Vừa / Khó.
+  - **Tự động cập nhật Bảng xếp hạng toàn cầu:** Bổ sung hàm upsert điểm vào `leaderboard_scores` cho cả 4 game và tạo migration `20261115000000_add_xiangqi_to_leaderboard.sql`.
+  - **Tối ưu PWA chuẩn Android:** Tạo bộ icon PNG 192x192 và 512x512 trong `public/` và chuẩn hóa [`src/app/manifest.ts`](file:///d:/personal-prj/game/togame/src/app/manifest.ts) đáp ứng tiêu chuẩn WebAPK Android (Install App prompt).
+
+- **Hoàn thành Chặng 16 — Trò chơi thứ 5: Rắn Săn Mồi Pixel (8-Bit Retro Snake):**
+  - **Động cơ logic game:** Xây dựng [`snakeLogic.ts`](file:///d:/personal-prj/game/togame/src/features/games/snake/snakeLogic.ts) với lưới pixel $20 \times 20$, cơ chế ăn táo đỏ (+10đ, tăng độ dài) và táo vàng bonus xuất hiện chớp nhoáng 8 giây (+50đ), chống tự quay đầu $180^\circ$ và tốc độ tăng dần theo điểm số (từ 140ms xuống 65ms).
+  - **Giao diện Neo-Arcade:** Màn hình LCD retro Game Boy [`SnakeBoard.tsx`](file:///d:/personal-prj/game/togame/src/features/games/snake/SnakeBoard.tsx) với đầu rắn xoay theo 4 hướng và thò lưỡi ngộ nghĩnh, cụm D-pad điều hướng cảm ứng và hỗ trợ vuốt swipe trên mobile [`SnakeControls.tsx`](file:///d:/personal-prj/game/togame/src/features/games/snake/SnakeControls.tsx).
+  - **Hiệu ứng & Âm thanh Chiptune:** Bổ sung âm thanh 8-bit `playSnakeEat`, `playSnakeGolden`, `playSnakeDie` trong [`soundService.ts`](file:///d:/personal-prj/game/togame/src/lib/sound/soundService.ts) và hiệu ứng pháo hoa ăn mừng kỷ lục điểm cao [`GameOverModal.tsx`](file:///d:/personal-prj/game/togame/src/features/games/snake/GameOverModal.tsx).
+  - **Tích hợp toàn diện:** Đăng ký vào sảnh chính với icon tile pixel chú rắn [`GameTile.tsx`](file:///d:/personal-prj/game/togame/src/components/GameTile.tsx), bổ sung tab Rắn săn mồi vào Bảng xếp hạng Leaderboard và Hồ sơ người chơi, tự động đồng bộ đám mây và bảng `leaderboard_scores`.
+
 ## Đang làm
 
-- Chặng 14 (Phân loại sảnh game & Ô biểu tượng game compact) đã hoàn thành và vượt qua kiểm thử `npm run build`.
+- Chặng 16 (Game Rắn săn mồi Pixel) đã hoàn thành xuất sắc và vượt qua kiểm thử `npm run build`.
 
 ## Việc kế tiếp
 
-1. Trải nghiệm thử sảnh game mới với các ô icon gọn gàng và bộ lọc thể loại.
+1. Trải nghiệm trực tiếp game Rắn săn mồi tại sảnh chính (`/games/snake`), thử thách phản xạ và cày điểm cao kỷ lục.
 2. Hướng dẫn commit và tạo Pull Request (PR) theo chuẩn Rule 8 trong `AGENTS.md` khi người dùng yêu cầu.
 
 ## Quyết định còn mở

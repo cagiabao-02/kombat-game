@@ -124,6 +124,13 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
   - Đồng hồ thi đấu tùy chọn (Không giới hạn, 5p, 10p, 15p).
 - Âm thanh và hiệu ứng: Đặt cờ gỗ truyền thống, ăn quân, chiếu tướng, dải highlight nước đi hợp lệ.
 
+### FR-12 — Rắn Săn Mồi Pixel (8-Bit Retro Snake)
+
+- Lưới pixel $20 \times 20$ chuẩn retro arcade, hỗ trợ bàn phím PC (mũi tên, WASD) và cụm D-pad cảm ứng / vuốt cử chỉ trên di động.
+- Cơ chế ăn táo thường (+10đ, dài thân) và táo vàng bonus xuất hiện chớp nhoáng (+50đ).
+- Chống tự quay đầu $180^\circ$ (input buffering), tốc độ tăng dần theo điểm số tạo độ kịch tính.
+- Lưu kỷ lục điểm cao (High Score), tự động đồng bộ đám mây và đưa lên Bảng xếp hạng toàn cầu (`leaderboard_scores`).
+
 ## 5. Yêu cầu phi chức năng
 
 - Mobile-first, phù hợp màn hình nhỏ và lớn; hỗ trợ xoay/ngang nếu bàn cờ cần.

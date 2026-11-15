@@ -112,6 +112,9 @@ export function recordXiangqiGameResult(
 
   saveXiangqiStatsLocally(updatedStats);
   syncXiangqiStatsToCloud(updatedStats).catch(() => {});
+  import('@/features/leaderboard/leaderboardService')
+    .then((mod) => mod.syncLeaderboardScoreForGame('xiangqi'))
+    .catch(() => {});
 
   return updatedStats;
 }

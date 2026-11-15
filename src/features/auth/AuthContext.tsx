@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import type { User, Session, SupabaseClient } from '@supabase/supabase-js';
 import { DEFAULT_AVATAR, getValidAvatar } from './avatarConstants';
+import { syncAndMergeAllStatsOnLogin } from '@/features/stats/statsMergeService';
+import { syncAllLeaderboardScores } from '@/features/leaderboard/leaderboardService';
 
 export interface AuthContextType {
   user: User | null;
@@ -30,6 +32,8 @@ const AVATAR_KEY = 'kombat_user_avatar';
 const CHESS_STATS_KEY = 'kombat_chess_stats';
 const CARO_STATS_KEY = 'kombat_caro_stats';
 const SUDOKU_STATS_KEY = 'kombat_sudoku_stats';
+const XIANGQI_STATS_KEY = 'kombat_xiangqi_stats';
+const SNAKE_STATS_KEY = 'kombat_snake_stats';
 
 let supabasePromise: Promise<SupabaseClient<any, 'public', any>> | null = null;
 async function getClient(): Promise<SupabaseClient<any, 'public', any>> {
@@ -51,6 +55,8 @@ function syncAllCloudStats(userMetadata: any) {
   if (userMetadata.chess_stats) syncKey(CHESS_STATS_KEY, userMetadata.chess_stats);
   if (userMetadata.caro_stats) syncKey(CARO_STATS_KEY, userMetadata.caro_stats);
   if (userMetadata.sudoku_stats) syncKey(SUDOKU_STATS_KEY, userMetadata.sudoku_stats);
+  if (userMetadata.xiangqi_stats) syncKey(XIANGQI_STATS_KEY, userMetadata.xiangqi_stats);
+  if (userMetadata.snake_stats) syncKey(SNAKE_STATS_KEY, userMetadata.snake_stats);
 }
 
 function generateDefaultGuestName(userId?: string): string {
@@ -99,6 +105,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (typeof window !== 'undefined') localStorage.setItem(AVATAR_KEY, finalAvatar);
 
         syncAllCloudStats(freshUser.user_metadata);
+
+        // Nếu là tài khoản đám mây (Google/Email), tự động gộp stats từ local lên cloud và đồng bộ bảng xếp hạng
+        if (isUserCloudAccount) {
+          syncAndMergeAllStatsOnLogin(freshUser, sb)
+            .then(() => syncAllLeaderboardScores())
+            .catch(() => {});
+        }
+
         return freshUser;
       }
     } catch (e) {

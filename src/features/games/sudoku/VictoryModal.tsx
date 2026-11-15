@@ -10,6 +10,8 @@ interface VictoryModalProps {
   isOpen: boolean;
   difficulty: SudokuDifficulty;
   elapsedSeconds: number;
+  isNewRecord?: boolean;
+  previousBest?: number | null;
   onPlayAgain: () => void;
   onClose: () => void;
 }
@@ -18,10 +20,12 @@ export function VictoryModal({
   isOpen,
   difficulty,
   elapsedSeconds,
+  isNewRecord,
+  previousBest,
   onPlayAgain,
   onClose,
 }: VictoryModalProps) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
 
   if (!isOpen) return null;
 
@@ -39,6 +43,13 @@ export function VictoryModal({
           <Trophy className="h-8 w-8" />
         </div>
 
+        {isNewRecord && (
+          <div className="mb-2 inline-flex items-center gap-1.5 bg-amber-400 px-3 py-1 font-pixel text-xs font-bold text-zinc-950 border-2 border-zinc-900 shadow-pixel-xs animate-pulse">
+            <Sparkles className="h-3.5 w-3.5 text-zinc-950" />
+            <span>{language === 'vi' ? 'KỶ LỤC MỚI!' : 'NEW PERSONAL BEST!'}</span>
+          </div>
+        )}
+
         <h3 className="font-pixel text-2xl font-bold text-zinc-950 uppercase">
           STAGE CLEAR! {t.sudoku.victoryTitle}
         </h3>
@@ -48,6 +59,14 @@ export function VictoryModal({
             .replace('{difficulty}', t.sudoku.difficulty[difficulty])
             .replace('{time}', timeFormatted)}
         </p>
+
+        {isNewRecord && previousBest !== null && previousBest !== undefined && (
+          <p className="mt-1 font-mono text-[11px] text-emerald-700 font-bold">
+            {language === 'vi'
+              ? `⚡ Nhanh hơn kỷ lục cũ ${previousBest - elapsedSeconds} giây!`
+              : `⚡ Faster than previous record by ${previousBest - elapsedSeconds}s!`}
+          </p>
+        )}
 
         <div className="mt-6 flex flex-col gap-2.5">
           <button

@@ -7,6 +7,9 @@ import { PixelAvatarSprite } from '@/components/UserAvatar';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { getChessStats, ChessStats } from '@/features/games/chess/statsService';
 import { getCaroStats, CaroStats } from '@/features/games/caro/caroStatsService';
+import { getSudokuStats, SudokuStats, formatSudokuTime } from '@/features/games/sudoku/sudokuStatsService';
+import { getXiangqiStats, XiangqiStats } from '@/features/games/xiangqi/xiangqiStatsService';
+import { getSnakeStats, SnakeStats } from '@/features/games/snake/snakeStatsService';
 import {
   X,
   User,
@@ -184,7 +187,10 @@ export function ProfileAuthModal({
   // Stats
   const [chessStats, setChessStats] = useState<ChessStats | null>(null);
   const [caroStats, setCaroStats] = useState<CaroStats | null>(null);
-  const [statsGameTab, setStatsGameTab] = useState<'chess' | 'caro' | 'all'>('all');
+  const [xiangqiStats, setXiangqiStats] = useState<XiangqiStats | null>(null);
+  const [sudokuStats, setSudokuStats] = useState<SudokuStats | null>(null);
+  const [snakeStats, setSnakeStats] = useState<SnakeStats | null>(null);
+  const [statsGameTab, setStatsGameTab] = useState<'all' | 'chess' | 'caro' | 'xiangqi' | 'sudoku' | 'snake'>('all');
   const wasOpenRef = useRef(false);
 
   useEffect(() => {
@@ -202,9 +208,12 @@ export function ProfileAuthModal({
       setAuthError(null);
       setAuthSuccess(null);
 
-      // Thống kê thi đấu lấy trực tiếp từ Supabase
+      // Thống kê thi đấu lấy trực tiếp từ Supabase / Local
       setChessStats(meta.chess_stats || getChessStats());
       setCaroStats(meta.caro_stats || getCaroStats());
+      setXiangqiStats(meta.xiangqi_stats || getXiangqiStats());
+      setSudokuStats(meta.sudoku_stats || getSudokuStats());
+      setSnakeStats(meta.snake_stats || getSnakeStats());
 
       // Kéo dữ liệu mới nhất nếu là tài khoản đám mây (chỉ cập nhật stats nền, không ghi đè form nhập của người dùng)
       if (user && !isAnonymous) {
@@ -213,6 +222,9 @@ export function ProfileAuthModal({
             const m = freshUser.user_metadata;
             if (m.caro_stats) setCaroStats(m.caro_stats);
             if (m.chess_stats) setChessStats(m.chess_stats);
+            if (m.xiangqi_stats) setXiangqiStats(m.xiangqi_stats);
+            if (m.sudoku_stats) setSudokuStats(m.sudoku_stats);
+            if (m.snake_stats) setSnakeStats(m.snake_stats);
           }
         }).catch(() => {});
       }
@@ -332,7 +344,8 @@ export function ProfileAuthModal({
       const draws = chessStats?.draws || 0;
       const total = wins + losses + draws;
       const rate = total > 0 ? Math.round((wins / total) * 100) : 0;
-      return { wins, losses, draws, total, rate, streak: chessStats?.streak || chessStats?.currentStreak || 0 };
+      const elo = Math.max(800, 1200 + (chessStats?.pvp?.wins || 0) * 25 - (chessStats?.pvp?.losses || 0) * 15);
+      return { wins, losses, draws, total, rate, streak: chessStats?.streak || chessStats?.currentStreak || 0, elo };
     }
     if (statsGameTab === 'caro') {
       const wins = caroStats?.wins || 0;
@@ -342,15 +355,28 @@ export function ProfileAuthModal({
       const rate = total > 0 ? Math.round((wins / total) * 100) : 0;
       return { wins, losses, draws, total, rate, streak: caroStats?.currentStreak || 0 };
     }
-    // all (tổng hợp)
-    const wins = (chessStats?.wins || 0) + (caroStats?.wins || 0);
-    const losses = (chessStats?.losses || 0) + (caroStats?.losses || 0);
-    const draws = (chessStats?.draws || 0) + (caroStats?.draws || 0);
+    if (statsGameTab === 'xiangqi') {
+      const wins = xiangqiStats?.wins || 0;
+      const losses = xiangqiStats?.losses || 0;
+      const draws = xiangqiStats?.draws || 0;
+      const total = wins + losses + draws;
+      const rate = total > 0 ? Math.round((wins / total) * 100) : 0;
+      const elo = Math.max(800, 1200 + (xiangqiStats?.pvp?.wins || 0) * 25 - (xiangqiStats?.pvp?.losses || 0) * 15);
+      return { wins, losses, draws, total, rate, streak: xiangqiStats?.currentStreak || 0, elo };
+    }
+    // all (tổng hợp cả 3 game cờ)
+    const wins = (chessStats?.wins || 0) + (caroStats?.wins || 0) + (xiangqiStats?.wins || 0);
+    const losses = (chessStats?.losses || 0) + (caroStats?.losses || 0) + (xiangqiStats?.losses || 0);
+    const draws = (chessStats?.draws || 0) + (caroStats?.draws || 0) + (xiangqiStats?.draws || 0);
     const total = wins + losses + draws;
     const rate = total > 0 ? Math.round((wins / total) * 100) : 0;
-    const streak = Math.max(chessStats?.streak || 0, caroStats?.currentStreak || 0);
+    const streak = Math.max(
+      chessStats?.streak || 0,
+      caroStats?.currentStreak || 0,
+      xiangqiStats?.currentStreak || 0
+    );
     return { wins, losses, draws, total, rate, streak };
-  }, [statsGameTab, chessStats, caroStats]);
+  }, [statsGameTab, chessStats, caroStats, xiangqiStats]);
 
   if (!isOpen) return null;
 
@@ -576,11 +602,11 @@ export function ProfileAuthModal({
                     <Trophy className="h-3.5 w-3.5 text-amber-600" />
                     <span>{language === 'vi' ? 'THÀNH TÍCH' : 'STATS'}</span>
                   </span>
-                  <div className="flex items-center gap-1 bg-zinc-900 p-0.5 text-[10px]">
+                  <div className="flex flex-wrap items-center gap-1 bg-zinc-900 p-0.5 text-[10px]">
                     <button
                       type="button"
                       onClick={() => setStatsGameTab('all')}
-                      className={`px-2 py-0.5 font-pixel font-bold ${
+                      className={`px-1.5 py-0.5 font-pixel font-bold ${
                         statsGameTab === 'all' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
                       }`}
                     >
@@ -589,7 +615,7 @@ export function ProfileAuthModal({
                     <button
                       type="button"
                       onClick={() => setStatsGameTab('chess')}
-                      className={`px-2 py-0.5 font-pixel font-bold ${
+                      className={`px-1.5 py-0.5 font-pixel font-bold ${
                         statsGameTab === 'chess' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
                       }`}
                     >
@@ -598,44 +624,175 @@ export function ProfileAuthModal({
                     <button
                       type="button"
                       onClick={() => setStatsGameTab('caro')}
-                      className={`px-2 py-0.5 font-pixel font-bold ${
+                      className={`px-1.5 py-0.5 font-pixel font-bold ${
                         statsGameTab === 'caro' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
                       }`}
                     >
                       {language === 'vi' ? 'Caro' : 'Caro'}
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setStatsGameTab('xiangqi')}
+                      className={`px-1.5 py-0.5 font-pixel font-bold ${
+                        statsGameTab === 'xiangqi' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
+                      }`}
+                    >
+                      {language === 'vi' ? 'Cờ tướng' : 'Xiangqi'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStatsGameTab('sudoku')}
+                      className={`px-1.5 py-0.5 font-pixel font-bold ${
+                        statsGameTab === 'sudoku' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
+                      }`}
+                    >
+                      {language === 'vi' ? 'Sudoku' : 'Sudoku'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStatsGameTab('snake')}
+                      className={`px-1.5 py-0.5 font-pixel font-bold ${
+                        statsGameTab === 'snake' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
+                      }`}
+                    >
+                      {language === 'vi' ? 'Rắn' : 'Snake'}
+                    </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-4 gap-1.5 text-center">
-                  <div className="bg-white p-2 border-2 border-zinc-900">
-                    <p className="font-pixel text-sm sm:text-base font-bold text-indigo-700">{currentStatData.wins}</p>
-                    <p className="text-[10px] font-mono text-zinc-600 font-bold">
-                      {language === 'vi' ? 'Thắng' : 'Wins'}
-                    </p>
+                {statsGameTab === 'snake' ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between bg-white px-3 py-1.5 border-2 border-zinc-900 text-xs font-mono">
+                      <span className="font-bold text-zinc-700">
+                        {language === 'vi' ? 'Kỷ lục điểm cao:' : 'All-time High Score:'}
+                      </span>
+                      <span className="font-pixel text-xl font-bold text-amber-600">
+                        🏆 {snakeStats?.highScore || 0}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-1.5 text-center">
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-emerald-700">
+                          🍎 {snakeStats?.totalApples || 0}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Tổng số táo đã ăn' : 'Apples Eaten'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-indigo-700">
+                          {snakeStats?.totalGames || 0}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Số ván đã chơi' : 'Games Played'}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="bg-white p-2 border-2 border-zinc-900">
-                    <p className="font-pixel text-sm sm:text-base font-bold text-rose-600">{currentStatData.losses}</p>
-                    <p className="text-[10px] font-mono text-zinc-600 font-bold">
-                      {language === 'vi' ? 'Thua' : 'Losses'}
-                    </p>
+                ) : statsGameTab === 'sudoku' ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between bg-white px-3 py-1.5 border-2 border-zinc-900 text-xs font-mono">
+                      <span className="font-bold text-zinc-700">
+                        {language === 'vi' ? 'Tổng số bảng đã giải:' : 'Total Boards Solved:'}
+                      </span>
+                      <span className="font-pixel text-base font-bold text-indigo-700">
+                        {sudokuStats?.totalSolved || 0}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-1.5 text-center">
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <span className="pixel-badge bg-emerald-100 text-emerald-800 text-[9px] px-1 font-bold">
+                          {language === 'vi' ? 'DỄ' : 'EASY'}
+                        </span>
+                        <p className="mt-1 font-mono text-xs font-bold text-zinc-900">
+                          {formatSudokuTime(sudokuStats?.easy?.bestTimeSeconds)}
+                        </p>
+                        <p className="text-[9px] font-mono text-zinc-500">
+                          {sudokuStats?.easy?.completedCount || 0} {language === 'vi' ? 'ván' : 'wins'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <span className="pixel-badge bg-amber-100 text-amber-800 text-[9px] px-1 font-bold">
+                          {language === 'vi' ? 'VỪA' : 'MED'}
+                        </span>
+                        <p className="mt-1 font-mono text-xs font-bold text-zinc-900">
+                          {formatSudokuTime(sudokuStats?.medium?.bestTimeSeconds)}
+                        </p>
+                        <p className="text-[9px] font-mono text-zinc-500">
+                          {sudokuStats?.medium?.completedCount || 0} {language === 'vi' ? 'ván' : 'wins'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <span className="pixel-badge bg-rose-100 text-rose-800 text-[9px] px-1 font-bold">
+                          {language === 'vi' ? 'KHÓ' : 'HARD'}
+                        </span>
+                        <p className="mt-1 font-mono text-xs font-bold text-zinc-900">
+                          {formatSudokuTime(sudokuStats?.hard?.bestTimeSeconds)}
+                        </p>
+                        <p className="text-[9px] font-mono text-zinc-500">
+                          {sudokuStats?.hard?.completedCount || 0} {language === 'vi' ? 'ván' : 'wins'}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="bg-white p-2 border-2 border-zinc-900">
-                    <p className="font-pixel text-sm sm:text-base font-bold text-emerald-700">{currentStatData.rate}%</p>
-                    <p className="text-[10px] font-mono text-zinc-600 font-bold">
-                      {language === 'vi' ? 'Tỉ lệ' : 'Win%'}
-                    </p>
-                  </div>
-                  <div className="bg-white p-2 border-2 border-zinc-900">
-                    <p className="font-pixel text-sm sm:text-base font-bold text-amber-600 flex items-center justify-center gap-0.5">
-                      <Flame className="h-3 w-3 fill-amber-500 text-amber-500" />
-                      {currentStatData.streak}
-                    </p>
-                    <p className="text-[10px] font-mono text-zinc-600 font-bold">
-                      {language === 'vi' ? 'Chuỗi' : 'Streak'}
-                    </p>
-                  </div>
-                </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-4 gap-1.5 text-center">
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-sm sm:text-base font-bold text-indigo-700">{currentStatData.wins}</p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Thắng' : 'Wins'}
+                        </p>
+                      </div>
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-sm sm:text-base font-bold text-rose-600">{currentStatData.losses}</p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Thua' : 'Losses'}
+                        </p>
+                      </div>
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-sm sm:text-base font-bold text-emerald-700">{currentStatData.rate}%</p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Tỉ lệ' : 'Win%'}
+                        </p>
+                      </div>
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-sm sm:text-base font-bold text-amber-600 flex items-center justify-center gap-0.5">
+                          <Flame className="h-3 w-3 fill-amber-500 text-amber-500" />
+                          {currentStatData.streak}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Chuỗi' : 'Streak'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {(statsGameTab === 'chess' || statsGameTab === 'xiangqi') && currentStatData.elo && (
+                      <div className="mt-2 flex items-center justify-between bg-white px-3 py-1 border-2 border-zinc-900 text-xs font-mono">
+                        <span className="font-bold text-zinc-600">Elo Online:</span>
+                        <span className="font-pixel text-sm font-bold text-amber-600">{currentStatData.elo} Elo</span>
+                      </div>
+                    )}
+
+                    {statsGameTab === 'all' && (
+                      <div className="mt-2 grid grid-cols-2 gap-1.5 text-xs font-mono">
+                        <div className="flex items-center justify-between bg-white px-2.5 py-1 border-2 border-zinc-900">
+                          <span className="text-zinc-600 font-bold">Sudoku:</span>
+                          <span className="font-pixel font-bold text-indigo-700">{sudokuStats?.totalSolved || 0} bảng</span>
+                        </div>
+                        <div className="flex items-center justify-between bg-white px-2.5 py-1 border-2 border-zinc-900">
+                          <span className="text-zinc-600 font-bold">Snake:</span>
+                          <span className="font-pixel font-bold text-amber-600">{snakeStats?.highScore || 0} đ</span>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
 
               {/* Feedback Message */}
