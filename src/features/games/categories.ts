@@ -32,7 +32,7 @@ export const GAME_CATEGORIES: GameCategory[] = [
       vi: 'Chơi một mình, rèn tư duy logic, không áp lực',
       en: 'Solo brain teasers, no pressure',
     },
-    upcoming: { vi: '2048, Dò mìn, Nonogram', en: '2048, Minesweeper, Nonogram' },
+    upcoming: { vi: 'Dò mìn, Nonogram', en: 'Minesweeper, Nonogram' },
     accentClass: 'bg-emerald-500 text-zinc-950',
   },
   {
