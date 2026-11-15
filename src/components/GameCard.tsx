@@ -4,7 +4,15 @@ import React from 'react';
 import Link from 'next/link';
 import { GameMetadata } from '@/types/game';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Play, Users, Sparkles, Zap, Bot, Brain } from 'lucide-react';
+import { ChessPiece } from '@/features/games/chess/ChessPieces';
+import {
+  PixelPlay,
+  PixelUsers,
+  PixelSparkles,
+  PixelBolt,
+  PixelBot,
+  PixelBrain,
+} from '@/components/PixelIcons';
 
 interface GameCardProps {
   game: GameMetadata;
@@ -36,7 +44,7 @@ export function GameCard({ game }: GameCardProps) {
         {/* Top bar: Badge & Status */}
         <div className="flex items-center justify-between gap-2 mb-4">
           <span className="pixel-badge inline-flex items-center gap-1.5 bg-indigo-100 px-2.5 py-1 text-xs font-bold text-indigo-950">
-            <Sparkles className="h-3 w-3 text-indigo-700" />
+            <PixelSparkles className="h-3 w-3 text-indigo-700" />
             {game.badge ? game.badge[language] : game.name[language]}
           </span>
 
@@ -64,18 +72,18 @@ export function GameCard({ game }: GameCardProps) {
           {isSudoku && (
             <div className="flex flex-col items-center gap-2">
               <div className="grid grid-cols-3 gap-1 p-1.5 bg-[#9BBC0F] border-2 border-zinc-900 shadow-pixel-sm">
-                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#0F380F] bg-[#8BAC0F] border border-[#0F380F]/40">5</span>
-                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#306230]">3</span>
-                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#0F380F] bg-[#8BAC0F] border border-[#0F380F]/40">8</span>
-                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#306230]">6</span>
-                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-amber-950 bg-amber-300 border border-zinc-900">7</span>
-                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#306230]">1</span>
-                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#306230]">2</span>
-                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#306230]">9</span>
-                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#0F380F] bg-[#8BAC0F] border border-[#0F380F]/40">4</span>
+                <span className="h-6 w-6 flex items-center justify-center font-mono text-xs font-black text-[#0F380F] bg-[#8BAC0F] border border-[#0F380F]/40">5</span>
+                <span className="h-6 w-6 flex items-center justify-center font-mono text-xs font-black text-[#306230]">3</span>
+                <span className="h-6 w-6 flex items-center justify-center font-mono text-xs font-black text-[#0F380F] bg-[#8BAC0F] border border-[#0F380F]/40">8</span>
+                <span className="h-6 w-6 flex items-center justify-center font-mono text-xs font-black text-[#306230]">6</span>
+                <span className="h-6 w-6 flex items-center justify-center font-mono text-xs font-black text-amber-950 bg-amber-300 border border-zinc-900">7</span>
+                <span className="h-6 w-6 flex items-center justify-center font-mono text-xs font-black text-[#306230]">1</span>
+                <span className="h-6 w-6 flex items-center justify-center font-mono text-xs font-black text-[#306230]">2</span>
+                <span className="h-6 w-6 flex items-center justify-center font-mono text-xs font-black text-[#306230]">9</span>
+                <span className="h-6 w-6 flex items-center justify-center font-mono text-xs font-black text-[#0F380F] bg-[#8BAC0F] border border-[#0F380F]/40">4</span>
               </div>
               <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-zinc-700">
-                <Brain className="h-3 w-3 text-indigo-700" />
+                <PixelBrain className="h-3.5 w-3.5 text-indigo-700" />
                 <span>{language === 'vi' ? '3 CẤP ĐỘ • 3 MẠNG' : '3 LEVELS • 3 HEARTS'}</span>
               </div>
             </div>
@@ -84,24 +92,24 @@ export function GameCard({ game }: GameCardProps) {
           {isChess && (
             <div className="flex flex-col items-center gap-2">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center bg-[#FFFDF8] border-2 border-zinc-900 shadow-pixel-sm text-3xl">
-                  ♔
+                <div className="flex h-12 w-12 items-center justify-center bg-[#F3E5AB] border-2 border-zinc-900 shadow-pixel-sm p-1">
+                  <ChessPiece type="k" color="w" />
                 </div>
                 <div className="flex h-7 w-7 items-center justify-center bg-indigo-600 border-2 border-zinc-900 font-pixel text-[10px] font-bold text-amber-300">
                   VS
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center bg-zinc-900 border-2 border-zinc-900 shadow-pixel-sm text-3xl text-amber-300">
-                  ♚
+                <div className="flex h-12 w-12 items-center justify-center bg-[#B58863] border-2 border-zinc-900 shadow-pixel-sm p-1">
+                  <ChessPiece type="q" color="b" />
                 </div>
               </div>
               <div className="flex items-center gap-2 text-[11px] font-mono font-bold text-zinc-700">
                 <span className="inline-flex items-center gap-1 text-emerald-800">
-                  <Zap className="h-3 w-3" />
+                  <PixelBolt className="h-3.5 w-3.5" />
                   <span>1V1 ONLINE</span>
                 </span>
                 <span>•</span>
                 <span className="inline-flex items-center gap-1 text-indigo-800">
-                  <Bot className="h-3 w-3" />
+                  <PixelBot className="h-3.5 w-3.5" />
                   <span>BOT 3 LVL</span>
                 </span>
               </div>
@@ -111,18 +119,28 @@ export function GameCard({ game }: GameCardProps) {
           {isCaro && (
             <div className="flex flex-col items-center gap-2">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 aspect-square items-center justify-center bg-rose-100 border-2 border-zinc-900 shadow-pixel-sm font-pixel text-2xl font-bold text-rose-600">
-                  X
+                <div className="flex h-12 w-12 aspect-square items-center justify-center bg-rose-100 border-2 border-zinc-900 shadow-pixel-sm p-2">
+                  <svg viewBox="0 0 8 8" className="h-full w-full pixelated" shapeRendering="crispEdges">
+                    <path
+                      fill="#E11D48"
+                      d="M0 0h2v1h1v1h2V1h1V0h2v2H7v1H6v2h1v1h1v2H6V7H5V6H3v1H2v1H0V6h1V5h1V3H1V2H0V0z"
+                    />
+                  </svg>
                 </div>
                 <div className="flex h-7 w-7 items-center justify-center bg-rose-600 border-2 border-zinc-900 font-pixel text-[10px] font-bold text-white">
                   VS
                 </div>
-                <div className="flex h-12 w-12 aspect-square items-center justify-center bg-indigo-100 border-2 border-zinc-900 shadow-pixel-sm font-pixel text-2xl font-bold text-indigo-700">
-                  O
+                <div className="flex h-12 w-12 aspect-square items-center justify-center bg-indigo-100 border-2 border-zinc-900 shadow-pixel-sm p-2">
+                  <svg viewBox="0 0 8 8" className="h-full w-full pixelated" shapeRendering="crispEdges">
+                    <path
+                      fill="#4338CA"
+                      d="M2 0h4v1h1v1h1v4H7v1H6v1H2V7H1V6H0V2h1V1h1V0zm0 2v4h4V2H2z"
+                    />
+                  </svg>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-zinc-700">
-                <Users className="h-3.5 w-3.5 text-indigo-700" />
+                <PixelUsers className="h-3.5 w-3.5 text-indigo-700" />
                 <span>{language === 'vi' ? 'CHƠI ĐÔI & ONLINE' : 'LOCAL & ONLINE'}</span>
               </div>
             </div>
@@ -164,7 +182,7 @@ export function GameCard({ game }: GameCardProps) {
       {/* Footer & Action Button (Min 44px Touch Target) */}
       <div className="pt-4 border-t-2 border-zinc-900 flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-zinc-600">
-          <Users className="h-3.5 w-3.5 text-zinc-800" />
+          <PixelUsers className="h-3.5 w-3.5 text-zinc-800" />
           <span>
             {game.minPlayers === game.maxPlayers
               ? `${game.minPlayers}P`
@@ -173,7 +191,7 @@ export function GameCard({ game }: GameCardProps) {
         </div>
 
         <div className="pixel-btn inline-flex items-center justify-center gap-2 min-h-[44px] bg-indigo-600 group-hover:bg-indigo-500 px-5 py-2 text-sm font-bold text-amber-300">
-          <Play className="h-4 w-4 fill-amber-300" />
+          <PixelPlay className="h-4 w-4" />
           <span>{isSudoku ? t.lobby.playNow : t.lobby.createRoom}</span>
         </div>
       </div>

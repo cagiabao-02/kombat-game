@@ -10,12 +10,14 @@ export function ChessPiece({ type, color, className = 'w-full h-full' }: ChessPi
   const isWhite = color === 'w';
   const pieceType = type.toLowerCase();
 
-  // 16-bit Palette for White (Ivory + Gold Trim) vs Black (Obsidian + Indigo/Crimson Trim)
+  // High-contrast 16-bit Pixel Art Palette
+  // Black pieces get a crisp light rim/highlight so they pop clearly on dark wood squares
   const outline = '#18181B';
-  const bodyFill = isWhite ? '#FFFDF5' : '#27272A';
-  const shadeFill = isWhite ? '#E2D9C5' : '#18181B';
-  const highlightFill = isWhite ? '#FBBF24' : '#818CF8';
-  const gemFill = isWhite ? '#EF4444' : '#F59E0B';
+  const bodyFill = isWhite ? '#FFFFFF' : '#27272A';
+  const shadeFill = isWhite ? '#CBD5E1' : '#18181B';
+  const specFill = isWhite ? '#FEF08A' : '#94A3B8';
+  const crownGold = '#FACC15';
+  const gemColor = isWhite ? '#EF4444' : '#F97316';
 
   return (
     <span
@@ -23,127 +25,168 @@ export function ChessPiece({ type, color, className = 'w-full h-full' }: ChessPi
       aria-label={`${isWhite ? 'White' : 'Black'} ${pieceType.toUpperCase()}`}
     >
       <svg
-        viewBox="0 0 16 16"
-        className="w-[82%] h-[82%] pixelated drop-shadow-[1px_2px_0px_rgba(24,24,27,0.65)]"
+        viewBox="0 0 24 24"
+        className={`w-[88%] h-[88%] pixelated ${
+          isWhite
+            ? 'drop-shadow-[0_2px_0_rgba(24,24,27,0.85)]'
+            : 'drop-shadow-[0_1px_0_rgba(255,253,245,0.9)]'
+        }`}
         shapeRendering="crispEdges"
       >
-        {/* PAWN (TỐT) */}
+        {/* ================= PAWN (TỐT) — Nhỏ gọn, đầu tròn ================= */}
         {pieceType === 'p' && (
           <>
-            {/* Outline */}
+            {/* Outer Outline */}
             <path
               fill={outline}
-              d="M6 3h4v1h1v3h-1v1h1v2h1v2h1v3H3v-3h1v-2h1V8H4V7h1V4h1V3z"
+              d="M9 5h6v1h2v5h-2v2h2v3h2v2h1v4H4v-4h1v-2h2v-3h2v-2H7V6h2V5z"
             />
-            {/* Body */}
+            {/* Main Body */}
             <path
               fill={bodyFill}
-              d="M6 4h4v3H6V4zm0 4h4v2H6V8zm-1 2h6v2H5v-2zm-1 3h8v1H4v-1z"
+              d="M9 6h6v5H9V6zm1 6h4v2h-4v-2zm-2 2h8v2H8v-2zm-2 3h12v1H6v-1zm-1 2h14v2H5v-2z"
             />
-            {/* Highlight & Shade */}
-            <path fill={highlightFill} d="M6 4h2v1H6V4zm-1 9h8v1H4v-1z" />
-            <path fill={shadeFill} d="M9 5h1v2H9V5zm0 3h1v2H9V8zm1 2h1v2h-1v-2z" />
+            {/* Shading & Highlights */}
+            <path fill={specFill} d="M9 6h2v3H9V6zm-3 11h12v1H6v-1z" />
+            <path
+              fill={shadeFill}
+              d="M13 7h2v4h-2V7zm0 5h1v2h-1v-2zm1 2h2v2h-2v-2zm2 5h3v2h-3v-2z"
+            />
           </>
         )}
 
-        {/* ROOK (XE) */}
+        {/* ================= ROOK (XE) — Tháp pháo đài 3 зуб vuông vức ================= */}
         {pieceType === 'r' && (
           <>
-            {/* Outline */}
+            {/* Outer Outline */}
             <path
               fill={outline}
-              d="M3 2h2v1h2V2h2v1h2V2h2v4h-1v4h1v2h1v3H2v-3h1v-2h1V6H3V2z"
+              d="M4 3h4v2h2V3h4v2h2V3h4v6h-2v6h2v2h1v5H3v-5h1v-2h2V9H4V3z"
             />
-            {/* Body */}
+            {/* Main Body */}
             <path
               fill={bodyFill}
-              d="M4 3h1v2h2V3h2v2h2V3h1v2H4V3zm1 3h6v4H5V6zm-1 4h8v2H4v-2zm-1 3h10v1H3v-1z"
+              d="M5 4h2v3h3V4h4v3h3V4h2v4H5V4zm2 5h10v6H7V9zm-2 7h14v1H5v-1zm-1 2h16v3H4v-3z"
             />
-            {/* Highlight & Shade */}
-            <path fill={highlightFill} d="M4 5h8v1H4V5zm-1 8h10v1H3v-1z" />
-            <path fill={shadeFill} d="M9 6h2v4H9V6zm1 4h2v2h-2v-2z" />
+            {/* Castle Slit Window */}
+            <rect x="11" y="10" width="2" height="3" fill={outline} />
+            {/* Highlights & Shading */}
+            <path fill={specFill} d="M5 7h14v1H5V7zm0 9h14v1H5v-1z" />
+            <path
+              fill={shadeFill}
+              d="M14 9h3v6h-3V9zm2 9h4v3h-4v-3z"
+            />
           </>
         )}
 
-        {/* KNIGHT (MÃ) */}
+        {/* ================= KNIGHT (MÃ) — Đầu chiến mã nhìn nghiêng rõ nét ================= */}
         {pieceType === 'n' && (
           <>
-            {/* Outline */}
+            {/* Outer Outline */}
             <path
               fill={outline}
-              d="M6 1h4v1h2v3h1v3h-2v2h1v2h1v3H3v-3h1V9h1V7H3V4h2V2h1V1z"
+              d="M11 2h4v1h2v2h2v4h1v6h-1v2h2v5H3v-5h2v-2h2v-3H3V8h2V6h2V4h4V2z"
             />
-            {/* Body */}
+            {/* Horse Head & Neck Body */}
             <path
               fill={bodyFill}
-              d="M6 2h4v1h1v4H4V5h2V2zm0 5h5v3H5V8h1V7zm-1 3h7v2H5v-2zm-1 3h8v1H4v-1z"
+              d="M11 3h3v1h2v2h2v8H8v-3h2V9H4V8h2V7h2V5h3V3zm-5 12h12v2H6v-2zm-2 3h16v3H4v-3z"
             />
-            {/* Eye & Mane */}
-            <rect x="5" y="4" width="1" height="1" fill={outline} />
-            <path fill={highlightFill} d="M9 2h2v5H9V2zm-5 11h8v1H4v-1z" />
-            <path fill={shadeFill} d="M8 7h3v3H8V7z" />
+            {/* Horse Eye & Nostril */}
+            <rect x="8" y="6" width="2" height="2" fill={outline} />
+            <rect x="8" y="6" width="1" height="1" fill="#FACC15" />
+            <rect x="5" y="8" width="1" height="1" fill={outline} />
+            {/* Flowing Golden/Silver Mane */}
+            <path
+              fill={crownGold}
+              d="M14 4h2v2h-2V4zm2 2h2v4h-2V6zm0 4h3v4h-3v-4z"
+            />
+            {/* Base Highlight & Shade */}
+            <path fill={specFill} d="M6 16h12v1H6v-1z" />
+            <path fill={shadeFill} d="M14 18h6v3h-6v-3z" />
           </>
         )}
 
-        {/* BISHOP (TƯỢNG) */}
+        {/* ================= BISHOP (TƯỢNG) — Mũ giáo chủ chóp nhọn & Chữ thập sáng ================= */}
         {pieceType === 'b' && (
           <>
-            {/* Outline */}
+            {/* Outer Outline */}
             <path
               fill={outline}
-              d="M7 1h2v2h2v2h1v3h-1v2h1v2h1v3H3v-3h1v-2h1V8H4V5h1V3h2V1z"
+              d="M10 1h4v3h2v2h2v3h1v4h-2v2h2v2h2v5H3v-5h2v-2h2v-2H5V9h1V6h2V4h2V1z"
             />
-            {/* Body */}
+            {/* Top Orb */}
+            <rect x="11" y="2" width="2" height="2" fill={crownGold} />
+            {/* Mitre Hat & Body */}
             <path
               fill={bodyFill}
-              d="M7 2h2v1H7V2zM6 4h4v1h1v3H5V5h1V4zm0 4h4v2H6V8zm-1 2h6v2H5v-2zm-1 3h8v1H4v-1z"
+              d="M9 5h6v2h2v2h1v3H6V9h1V7h2V5zm-1 8h8v2H8v-2zm-2 3h12v1H6v-1zm-2 2h16v3H4v-3z"
             />
-            {/* Cross / Gem & Shade */}
-            <path fill={gemFill} d="M7 5h2v2H7V5z" />
-            <path fill={highlightFill} d="M7 2h2v1H7V2zm-3 11h8v1H4v-1z" />
-            <path fill={shadeFill} d="M9 8h1v2H9V8zm1 2h1v2h-1v-2z" />
+            {/* Prominent Diagonal / Cross Emblem on Hat */}
+            <path
+              fill={gemColor}
+              d="M11 6h2v5h-2V6zM9 8h6v2H9V8z"
+            />
+            {/* Collar & Base Highlights */}
+            <path fill={crownGold} d="M8 13h8v1H8v-1z" />
+            <path fill={specFill} d="M6 16h12v1H6v-1z" />
+            <path fill={shadeFill} d="M15 18h5v3h-5v-3z" />
           </>
         )}
 
-        {/* QUEEN (HẬU) */}
+        {/* ================= QUEEN (HẬU) — Vương miện 5 nhánh xòe rộng đính ngọc ================= */}
         {pieceType === 'q' && (
           <>
-            {/* Outline */}
+            {/* Outer Outline */}
             <path
               fill={outline}
-              d="M2 3h2v2h1V2h2v3h2V2h2v3h1V3h2v5h-1v2h1v2h1v3H2v-3h1v-2h1V8H3V3H2z"
+              d="M2 4h3v3h2V3h3v4h1V2h2v5h1V3h3v4h2V4h3v7h-1v3h-1v2h2v2h1v4H3v-4h1v-2h2v-2H5v-3H4V4H2z"
             />
-            {/* Body */}
+            {/* Crown Spikes & Body */}
             <path
               fill={bodyFill}
-              d="M3 4h1v3h2V3h1v4h2V3h1v4h2V4h1v4H3V4zm2 4h6v2H5V8zm-1 2h8v2H4v-2zm-1 3h10v1H3v-1z"
+              d="M3 5h1v5h2V4h2v6h3V3h2v7h3V4h2v6h2V5h1v5H3V5zm3 6h12v3H6v-3zm0 4h12v1H6v-1zm-2 3h16v3H4v-3z"
             />
-            {/* Crown Gems & Trim */}
-            <path fill={gemFill} d="M3 4h1v1H3V4zm3-1h1v1H6V3zm3 0h1v1H9V3zm3 1h1v1h-1V4z" />
-            <path fill={highlightFill} d="M4 9h8v1H4V9zm-1 4h10v1H3v-1z" />
-            <path fill={shadeFill} d="M9 10h3v2H9v-2z" />
+            {/* 5 Crown Tip Pearls */}
+            <rect x="3" y="5" width="1" height="2" fill={crownGold} />
+            <rect x="6" y="4" width="2" height="2" fill={crownGold} />
+            <rect x="11" y="3" width="2" height="2" fill={gemColor} />
+            <rect x="16" y="4" width="2" height="2" fill={crownGold} />
+            <rect x="20" y="5" width="1" height="2" fill={crownGold} />
+            {/* Royal Gold Band & Jewels */}
+            <rect x="6" y="11" width="12" height="2" fill={crownGold} />
+            <rect x="8" y="11" width="2" height="1" fill={gemColor} />
+            <rect x="14" y="11" width="2" height="1" fill={gemColor} />
+            <path fill={specFill} d="M6 15h12v1H6v-1z" />
+            <path fill={shadeFill} d="M15 18h5v3h-5v-3z" />
           </>
         )}
 
-        {/* KING (VUA) */}
+        {/* ================= KING (VUA) — Chữ thập vàng lớn trên đỉnh vương miện ================= */}
         {pieceType === 'k' && (
           <>
-            {/* Outline */}
+            {/* Outer Outline */}
             <path
               fill={outline}
-              d="M7 0h2v1h1v1H9v1h3v2h1v3h-1v2h1v2h1v3H2v-3h1v-2h1V8H3V5h1V3h3V2H6V1h1V0z"
+              d="M10 0h4v2h2v2h-2v2h5v2h2v5h-2v2h2v2h1v5H2v-5h1v-2h2v-2H3V8h2V6h5V4H8V2h2V0z"
             />
-            {/* Royal Cross */}
-            <path fill={gemFill} d="M7 1h2v2H7V1z" />
-            {/* Body */}
+            {/* Large Bold Golden Cross on Top */}
+            <path
+              fill={crownGold}
+              d="M11 1h2v5h-2V1zM9 2h6v2H9V2z"
+            />
+            {/* Royal Crown Cushion & Body */}
             <path
               fill={bodyFill}
-              d="M5 4h6v1h1v3H4V5h1V4zm0 4h6v2H5V8zm-1 2h8v2H4v-2zm-1 3h10v1H3v-1z"
+              d="M6 7h12v1h2v4H4V8h2V7zm1 6h10v2H7v-2zm-2 3h14v1H5v-1zm-2 2h18v3H3v-3z"
             />
-            {/* Crown Jewels & Highlight */}
-            <path fill={highlightFill} d="M5 4h6v1H5V4zm-1 5h8v1H4V9zm-1 4h10v1H3v-1z" />
-            <path fill={gemFill} d="M6 6h1v1H6V6zm3 0h1v1H9V6z" />
-            <path fill={shadeFill} d="M9 10h3v2H9v-2z" />
+            {/* Royal Gold Belt & Center Ruby */}
+            <rect x="6" y="11" width="12" height="2" fill={crownGold} />
+            <rect x="10" y="8" width="4" height="3" fill={gemColor} />
+            <rect x="6" y="9" width="2" height="2" fill={crownGold} />
+            <rect x="16" y="9" width="2" height="2" fill={crownGold} />
+            <path fill={specFill} d="M5 16h14v1H5v-1z" />
+            <path fill={shadeFill} d="M15 18h6v3h-6v-3z" />
           </>
         )}
       </svg>

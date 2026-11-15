@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from './AuthContext';
 import { AVATAR_OPTIONS, isCustomImageAvatar, getValidAvatar } from './avatarConstants';
+import { PixelAvatarSprite } from '@/components/UserAvatar';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { getChessStats, ChessStats } from '@/features/games/chess/statsService';
 import { getCaroStats, CaroStats } from '@/features/games/caro/caroStatsService';
@@ -372,7 +373,7 @@ export function ProfileAuthModal({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={tempAvatar} alt="Avatar" className="h-full w-full object-cover pixelated" />
               ) : (
-                <span>{tempAvatar}</span>
+                <PixelAvatarSprite symbol={tempAvatar} />
               )}
             </div>
             <div className="flex-1 min-w-0">
@@ -525,13 +526,15 @@ export function ProfileAuthModal({
                         key={item.id}
                         type="button"
                         onClick={() => setTempAvatar(item.emoji)}
-                        className={`pixel-btn group relative flex flex-col items-center justify-center p-2 text-2xl ${isSelected
+                        className={`pixel-btn group relative flex flex-col items-center justify-center p-2 ${isSelected
                             ? 'bg-amber-300 border-zinc-900'
                             : 'bg-white hover:bg-zinc-100'
                           }`}
                         title={language === 'vi' ? item.nameVi : item.nameEn}
                       >
-                        <span>{item.emoji}</span>
+                        <div className="h-9 w-9 border border-zinc-900 overflow-hidden">
+                          <PixelAvatarSprite symbol={item.emoji} />
+                        </div>
                         <span className="mt-1 font-pixel text-[9px] font-bold text-zinc-700 truncate max-w-full">
                           {language === 'vi' ? item.nameVi : item.nameEn}
                         </span>

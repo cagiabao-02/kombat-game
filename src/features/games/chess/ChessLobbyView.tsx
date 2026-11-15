@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { BotDifficulty } from './types';
 import { ChessStatsCard } from './ChessStatsCard';
+import { ChessPiece } from './ChessPieces';
+import { PixelSparkles, PixelUsers, PixelBot, PixelBolt, PixelPlay } from '@/components/PixelIcons';
 
 interface ChessLobbyViewProps {
   onCreateRoom: (timeControl: number) => void;
@@ -109,7 +111,7 @@ export function ChessLobbyView({
       {/* Header Info */}
       <div className="text-center mb-6">
         <div className="pixel-badge inline-flex items-center gap-1.5 bg-indigo-200 px-3.5 py-1 text-xs font-bold text-zinc-950 mb-2.5">
-          <Sparkles className="h-3.5 w-3.5 text-indigo-700" />
+          <PixelSparkles className="h-3.5 w-3.5 text-indigo-700" />
           <span>{language === 'vi' ? 'ĐẤU TRÍ 1V1 HOÀNG GIA' : 'ROYAL 1V1 STRATEGY'}</span>
         </div>
         <h1 className="font-pixel text-3xl sm:text-4xl font-bold tracking-wide text-zinc-950 uppercase">
@@ -182,11 +184,11 @@ export function ChessLobbyView({
           <form onSubmit={handleStartLocal} className="space-y-4">
             <div>
               <label className="block font-pixel text-xs font-bold text-zinc-800 mb-1.5 uppercase">
-                {language === 'vi' ? 'Bên Trắng (Đi trước - ♔):' : 'White Player (Moves First - ♔):'}
+                {language === 'vi' ? 'Bên Trắng (Đi trước):' : 'White Player (Moves First):'}
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-800 font-black">
-                  ♔
+                <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center">
+                  <ChessPiece type="k" color="w" className="h-5 w-5" />
                 </span>
                 <input
                   type="text"
@@ -200,11 +202,11 @@ export function ChessLobbyView({
 
             <div>
               <label className="block font-pixel text-xs font-bold text-zinc-800 mb-1.5 uppercase">
-                {language === 'vi' ? 'Bên Đen (Đi sau - ♚):' : 'Black Player (Moves Second - ♚):'}
+                {language === 'vi' ? 'Bên Đen (Đi sau):' : 'Black Player (Moves Second):'}
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-800 font-black">
-                  ♚
+                <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center">
+                  <ChessPiece type="k" color="b" className="h-5 w-5" />
                 </span>
                 <input
                   type="text"
@@ -312,7 +314,10 @@ export function ChessLobbyView({
                     : 'bg-white hover:bg-zinc-100 text-zinc-700'
                 }`}
               >
-                <span className="font-pixel text-sm font-bold">♔ {t.chess.colorWhite}</span>
+                <div className="flex items-center gap-1.5">
+                  <ChessPiece type="k" color="w" className="h-5 w-5" />
+                  <span className="font-pixel text-sm font-bold">{t.chess.colorWhite}</span>
+                </div>
                 <span className="text-[10px] font-mono mt-0.5">
                   {language === 'vi' ? 'Đi trước' : 'Moves first'}
                 </span>
@@ -327,7 +332,10 @@ export function ChessLobbyView({
                     : 'bg-white hover:bg-zinc-100 text-zinc-700'
                 }`}
               >
-                <span className="font-pixel text-sm font-bold">♚ {t.chess.colorBlack}</span>
+                <div className="flex items-center gap-1.5">
+                  <ChessPiece type="k" color="b" className="h-5 w-5" />
+                  <span className="font-pixel text-sm font-bold">{t.chess.colorBlack}</span>
+                </div>
                 <span className="text-[10px] font-mono mt-0.5">
                   {language === 'vi' ? 'Đi sau' : 'Moves second'}
                 </span>

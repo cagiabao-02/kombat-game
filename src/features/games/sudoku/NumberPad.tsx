@@ -89,7 +89,7 @@ export function NumberPad({
                   : 'bg-[#FFFDF8] text-zinc-950 hover:bg-amber-200'
               }`}
             >
-              <span className="font-pixel text-lg sm:text-xl font-bold leading-none">{num}</span>
+              <span className="font-mono text-lg sm:text-xl font-black leading-none">{num}</span>
               <span className="font-mono text-[10px] text-zinc-500 font-bold leading-none mt-1">
                 {isComplete ? '✓' : 9 - count}
               </span>
