@@ -481,6 +481,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (typeof window !== 'undefined') {
           localStorage.setItem(GUEST_NAME_KEY, defaultName);
           localStorage.setItem(AVATAR_KEY, DEFAULT_AVATAR);
+          // Xóa các key stats để tránh lây nhiễm dữ liệu sang tài khoản khác đăng nhập sau trên cùng trình duyệt
+          localStorage.removeItem(CHESS_STATS_KEY);
+          localStorage.removeItem(CARO_STATS_KEY);
+          localStorage.removeItem(SUDOKU_STATS_KEY);
+          localStorage.removeItem(XIANGQI_STATS_KEY);
+          localStorage.removeItem(SNAKE_STATS_KEY);
+          localStorage.removeItem(GAME2048_STATS_KEY);
         }
       }
     } catch (err) {

@@ -263,7 +263,7 @@ export function LeaderboardModal({
               >
                 {/* Rank 2 (Silver) */}
                 {top2 && (
-                  <div className="flex flex-col items-center order-1 sm:order-1">
+                  <div className={`flex flex-col items-center ${list.length === 2 ? 'order-2' : 'order-1'}`}>
                     <div className="relative mb-2 flex flex-col items-center">
                       <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center bg-white border-2 border-zinc-900 shadow-pixel-sm">
                         <UserAvatar avatar={top2.avatar} className="h-10 w-10 sm:h-12 sm:w-12 text-2xl border-0 shadow-none bg-transparent" />
@@ -278,6 +278,11 @@ export function LeaderboardModal({
                     <span className="font-mono text-[11px] font-bold text-slate-700">
                       {top2.scoreLabel}
                     </span>
+                    {top2.secondaryInfo && (
+                      <span className="text-[10px] font-mono text-zinc-500 truncate max-w-[100px] text-center">
+                        {top2.secondaryInfo}
+                      </span>
+                    )}
                     <div className="mt-2 h-14 w-full bg-slate-200 border-2 border-zinc-900 shadow-pixel-xs flex items-center justify-center font-pixel text-zinc-800 text-xs font-bold">
                       🥈 2ND
                     </div>
@@ -286,7 +291,7 @@ export function LeaderboardModal({
 
                 {/* Rank 1 (Gold) */}
                 {top1 && (
-                  <div className={`flex flex-col items-center -mt-3 ${list.length >= 3 ? 'order-2' : list.length === 2 ? 'order-1' : 'order-1'}`}>
+                  <div className={`flex flex-col items-center -mt-3 ${list.length >= 3 ? 'order-2' : 'order-1'}`}>
                     <div className="relative mb-2 flex flex-col items-center">
                       <Crown className="h-6 w-6 text-amber-500 animate-bounce -mb-1" />
                       <div className="relative flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center bg-amber-100 border-2 border-zinc-900 shadow-pixel">
@@ -302,6 +307,11 @@ export function LeaderboardModal({
                     <span className="font-mono text-xs font-bold text-amber-700">
                       {top1.scoreLabel}
                     </span>
+                    {top1.secondaryInfo && (
+                      <span className="text-[10px] font-mono text-zinc-600 truncate max-w-[110px] text-center">
+                        {top1.secondaryInfo}
+                      </span>
+                    )}
                     <div className="mt-2 h-20 w-full bg-amber-300 border-2 border-zinc-900 shadow-pixel-sm flex items-center justify-center font-pixel text-zinc-950 text-xs font-bold">
                       🥇 1ST CHAMP
                     </div>
@@ -325,6 +335,11 @@ export function LeaderboardModal({
                     <span className="font-mono text-[11px] font-bold text-amber-800">
                       {top3.scoreLabel}
                     </span>
+                    {top3.secondaryInfo && (
+                      <span className="text-[10px] font-mono text-zinc-500 truncate max-w-[100px] text-center">
+                        {top3.secondaryInfo}
+                      </span>
+                    )}
                     <div className="mt-2 h-10 w-full bg-orange-200 border-2 border-zinc-900 shadow-pixel-xs flex items-center justify-center font-pixel text-zinc-900 text-xs font-bold">
                       🥉 3RD
                     </div>

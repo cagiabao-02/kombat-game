@@ -193,16 +193,42 @@ export async function getRealLeaderboardData(
     const res: any = await Promise.race([cloudPromise, timeoutPromise]);
 
     if (!res.error && res.data && Array.isArray(res.data) && res.data.length > 0) {
+      // Xóa fallback id tạm nếu đã có currentUserId
+      if (currentUserId) {
+        entriesMap.delete('current_user');
+      }
+
       for (const row of res.data) {
+        const isCurrent = row.user_id === currentUserId;
+        const existingLocal = currentUserId ? entriesMap.get(currentUserId) : undefined;
+
+        let finalScoreValue = Number(row.score_value);
+        let finalScoreLabel = row.score_label;
+        let finalSecondary = row.secondary_info || undefined;
+
+        // Nếu là tài khoản hiện tại và local có điểm cao hơn cloud (vừa đạt kỷ lục mới)
+        if (isCurrent && existingLocal) {
+          if (isHigherBetter && existingLocal.scoreValue > finalScoreValue) {
+            finalScoreValue = existingLocal.scoreValue;
+            finalScoreLabel = existingLocal.scoreLabel;
+            finalSecondary = existingLocal.secondaryInfo;
+          } else if (!isHigherBetter && existingLocal.scoreValue < finalScoreValue) {
+            finalScoreValue = existingLocal.scoreValue;
+            finalScoreLabel = existingLocal.scoreLabel;
+            finalSecondary = existingLocal.secondaryInfo;
+          }
+        }
+
         entriesMap.set(row.user_id, {
           id: row.id,
           userId: row.user_id,
           name: row.user_name,
           avatar: row.user_avatar,
-          scoreValue: Number(row.score_value),
-          scoreLabel: row.score_label,
-          secondaryInfo: row.secondary_info || undefined,
-          isCurrentUser: row.user_id === currentUserId,
+          scoreValue: finalScoreValue,
+          scoreLabel: finalScoreLabel,
+          secondaryInfo: finalSecondary,
+          isCurrentUser: isCurrent,
+          tierBadge: isCurrent ? existingLocal?.tierBadge : undefined,
         });
       }
     }
@@ -270,7 +296,14 @@ export async function syncLeaderboardScoreForGame(
     const effectiveUserId = customUserId || user?.id;
     if (!effectiveUserId) return;
 
-    const name = customUserName || user?.user_metadata?.display_name || 'Người chơi';
+    // Đảm bảo tên người chơi không bị lưu thành "Bạn" hoặc "You" trên cơ sở dữ liệu chung
+    let cleanName = customUserName;
+    if (!cleanName || cleanName === 'Bạn' || cleanName === 'You') {
+      cleanName =
+        user?.user_metadata?.display_name ||
+        (effectiveUserId ? `Khách #${effectiveUserId.slice(-4).toUpperCase()}` : 'Người chơi');
+    }
+
     const avatar = customUserAvatar || user?.user_metadata?.avatar || '👑';
 
     let scoreValue = 0;
@@ -322,10 +355,29 @@ export async function syncLeaderboardScoreForGame(
       secondaryInfo = `Ô cao nhất: ${stats.maxTile} • ${stats.totalGames} ván`;
     }
 
-    await supabase.from('leaderboard_scores').upsert(
+    // Kiểm tra điểm số hiện tại trên đám mây để không vô tình ghi đè điểm thấp hơn lên điểm cao hơn
+    const isHigherBetter = game !== 'sudoku';
+    const { data: existingRow } = await supabase
+      .from('leaderboard_scores')
+      .select('score_value')
+      .eq('user_id', effectiveUserId)
+      .eq('game_id', game)
+      .maybeSingle();
+
+    if (existingRow) {
+      const remoteVal = Number(existingRow.score_value);
+      if (isHigherBetter && remoteVal > scoreValue) {
+        return; // Đám mây đã lưu điểm cao hơn điểm local hiện tại -> giữ nguyên kỷ lục cao nhất
+      }
+      if (!isHigherBetter && remoteVal < scoreValue) {
+        return; // Sudoku: Đám mây đã lưu thời gian giải nhanh hơn
+      }
+    }
+
+    const { error: upsertErr } = await supabase.from('leaderboard_scores').upsert(
       {
         user_id: effectiveUserId,
-        user_name: name,
+        user_name: cleanName,
         user_avatar: avatar,
         game_id: game,
         score_value: scoreValue,
@@ -335,6 +387,10 @@ export async function syncLeaderboardScoreForGame(
       },
       { onConflict: 'user_id,game_id' }
     );
+
+    if (upsertErr) {
+      console.warn(`Lỗi upsert leaderboard ${game}:`, upsertErr);
+    }
   } catch (err) {
     console.warn(`Lỗi sync leaderboard ${game}:`, err);
   }
