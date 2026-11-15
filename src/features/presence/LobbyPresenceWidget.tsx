@@ -174,37 +174,36 @@ export function LobbyPresenceWidget() {
       <button
         type="button"
         onClick={() => setIsListOpen(true)}
-        className="group inline-flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200/90 hover:bg-emerald-100 text-emerald-800 px-3 py-1.5 text-xs font-bold shadow-2xs hover:scale-102 active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+        className="pixel-btn group inline-flex items-center gap-2 bg-emerald-200 hover:bg-emerald-300 text-zinc-900 px-3 py-1.5 text-xs font-bold outline-none"
         title={language === 'vi' ? 'Nhấn để xem danh sách & thách đấu' : 'Click to view online players & challenge'}
       >
-        <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        <span className="relative flex h-2.5 w-2.5 border border-zinc-900 bg-emerald-500">
+          <span className="animate-ping absolute inline-flex h-full w-full bg-emerald-400 opacity-75"></span>
         </span>
         <span>
-          {language === 'vi' ? `${totalCount} người online` : `${totalCount} Online`}
+          {language === 'vi' ? `${totalCount} ONLINE` : `${totalCount} ONLINE`}
         </span>
-        <Swords className="h-3 w-3 text-emerald-600 transition-transform group-hover:rotate-12" />
+        <Swords className="h-3.5 w-3.5 text-zinc-900 transition-transform group-hover:rotate-12" />
       </button>
 
       {/* Modal / Sheet Danh sách Người chơi Trực tuyến */}
       {isListOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="relative flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-3xl bg-white shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-150">
+          <div className="pixel-box-lg relative flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden bg-[#FFFDF8] animate-in zoom-in-95 duration-150">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-gray-100 bg-gradient-to-r from-emerald-50 via-teal-50 to-indigo-50 px-5 py-4">
+            <div className="flex items-center justify-between border-b-2 border-zinc-900 bg-emerald-300 px-5 py-4">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-md shadow-emerald-200">
+                <div className="flex h-10 w-10 items-center justify-center bg-zinc-900 text-emerald-400 border-2 border-zinc-900">
                   <Users className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-gray-900 tracking-tight">
-                    {language === 'vi' ? 'Người Chơi Trực Tuyến' : 'Online Players'}
+                  <h3 className="font-pixel text-base font-bold text-zinc-950 uppercase tracking-wide">
+                    {language === 'vi' ? 'SẢNH TRỰC TUYẾN' : 'ONLINE ARCADE'}
                   </h3>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs font-mono text-zinc-800">
                     {language === 'vi'
-                      ? 'Thách đấu trực tiếp 1 chạm không cần mã phòng'
-                      : '1-click instant challenge without room codes'}
+                      ? 'Thách đấu 1 chạm không cần mã phòng'
+                      : '1-click instant challenge'}
                   </p>
                 </div>
               </div>
@@ -215,7 +214,7 @@ export function LobbyPresenceWidget() {
                   setIsListOpen(false);
                   handleCancelSending();
                 }}
-                className="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                className="pixel-btn flex h-9 w-9 items-center justify-center bg-white text-zinc-900 hover:bg-rose-100"
                 aria-label="Đóng"
               >
                 <X className="h-5 w-5" />
@@ -225,10 +224,10 @@ export function LobbyPresenceWidget() {
             {/* Thông báo Feedback (nếu có) */}
             {feedbackMessage && (
               <div
-                className={`mx-4 mt-3 flex items-center gap-2 rounded-xl p-2.5 text-xs font-semibold ${
+                className={`mx-4 mt-3 flex items-center gap-2 border-2 border-zinc-900 p-2.5 text-xs font-mono font-bold ${
                   feedbackMessage.type === 'success'
-                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                    : 'bg-rose-50 text-rose-800 border border-rose-200'
+                    ? 'bg-emerald-100 text-emerald-950'
+                    : 'bg-rose-100 text-rose-950'
                 }`}
               >
                 {feedbackMessage.type === 'success' ? (
@@ -243,18 +242,18 @@ export function LobbyPresenceWidget() {
             {/* Nội dung danh sách */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {/* Thẻ bản thân */}
-              <div className="flex items-center justify-between rounded-2xl bg-indigo-50/60 border border-indigo-100 p-3">
+              <div className="flex items-center justify-between border-2 border-zinc-900 bg-indigo-50 p-3 shadow-pixel-sm">
                 <div className="flex items-center gap-2.5">
                   <UserAvatar avatar={avatar} className="h-10 w-10 text-base" />
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-black text-gray-900">{guestName}</span>
-                      <span className="rounded-md bg-indigo-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                        {language === 'vi' ? 'Bạn' : 'You'}
+                      <span className="font-pixel text-xs font-bold text-zinc-900">{guestName}</span>
+                      <span className="bg-indigo-600 border border-zinc-900 px-1.5 py-0.5 font-pixel text-[10px] font-bold text-amber-300">
+                        {language === 'vi' ? 'BẠN (P1)' : 'YOU (P1)'}
                       </span>
                     </div>
-                    <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    <span className="text-[11px] font-mono font-bold text-emerald-700 flex items-center gap-1">
+                      <span className="h-2 w-2 bg-emerald-500 border border-zinc-900"></span>
                       <span>{language === 'vi' ? 'Đang ở sảnh' : 'In Lobby'}</span>
                     </span>
                   </div>
@@ -262,22 +261,22 @@ export function LobbyPresenceWidget() {
               </div>
 
               {/* Phân cách */}
-              <div className="flex items-center gap-2 pt-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                <span>{language === 'vi' ? 'Đối thủ tiềm năng' : 'Available Opponents'}</span>
-                <span className="h-px flex-1 bg-gray-100"></span>
-                <span>{otherPlayers.length}</span>
+              <div className="flex items-center gap-2 pt-1 font-pixel text-xs font-bold text-zinc-600 uppercase tracking-wider">
+                <span>{language === 'vi' ? 'ĐỐI THỦ TIỀM NĂNG' : 'CHALLENGERS'}</span>
+                <span className="h-0.5 flex-1 bg-zinc-300"></span>
+                <span>[{otherPlayers.length}]</span>
               </div>
 
               {/* Danh sách người khác */}
               {otherPlayers.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-gray-200 p-6 text-center">
-                  <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-50 text-gray-400">
+                <div className="border-2 border-dashed border-zinc-400 bg-white p-6 text-center">
+                  <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center border-2 border-zinc-900 bg-amber-100 text-zinc-900">
                     <Sparkles className="h-6 w-6" />
                   </div>
-                  <p className="text-xs font-bold text-gray-700">
-                    {language === 'vi' ? 'Chưa có đối thủ nào khác ở sảnh' : 'No other players in lobby yet'}
+                  <p className="font-pixel text-sm font-bold text-zinc-900">
+                    {language === 'vi' ? 'CHƯA CÓ ĐỐI THỦ NÀO KHÁC Ở SẢNH' : 'NO OTHER PLAYERS YET'}
                   </p>
-                  <p className="mt-1 text-[11px] text-gray-500 leading-relaxed max-w-xs mx-auto">
+                  <p className="mt-1 text-[11px] font-mono text-zinc-600 leading-relaxed max-w-xs mx-auto">
                     {language === 'vi'
                       ? 'Gửi đường link sảnh cho bạn bè hoặc mở thêm một tab ẩn danh để thử thách đấu ngay nhé!'
                       : 'Share lobby link with friends or open an incognito tab to test challenge!'}
@@ -287,17 +286,17 @@ export function LobbyPresenceWidget() {
                 otherPlayers.map((player) => (
                   <div
                     key={player.userId}
-                    className="flex items-center justify-between rounded-2xl border border-gray-100 bg-white p-3 shadow-2xs hover:border-gray-200 transition-all"
+                    className="flex items-center justify-between border-2 border-zinc-900 bg-white p-3 shadow-pixel-sm"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <UserAvatar avatar={player.avatar} className="h-10 w-10 text-base shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-xs font-black text-gray-900 truncate">
+                        <p className="font-pixel text-xs font-bold text-zinc-900 truncate">
                           {player.name}
                         </p>
-                        <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-1">
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                          <span>{language === 'vi' ? 'Sẵn sàng' : 'Ready'}</span>
+                        <span className="text-[11px] font-mono font-bold text-emerald-700 flex items-center gap-1">
+                          <span className="h-2 w-2 bg-emerald-500 border border-zinc-900"></span>
+                          <span>{language === 'vi' ? 'SẴN SÀNG' : 'READY'}</span>
                         </span>
                       </div>
                     </div>
@@ -306,10 +305,10 @@ export function LobbyPresenceWidget() {
                       type="button"
                       onClick={() => handleStartChallenge(player)}
                       disabled={isWaitingResponse}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-3 py-1.5 text-xs font-bold shadow-xs active:scale-95 transition-all shrink-0"
+                      className="pixel-btn inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-amber-300 px-3 py-1.5 text-xs font-bold shrink-0"
                     >
                       <Swords className="h-3.5 w-3.5" />
-                      <span>{language === 'vi' ? 'Thách đấu' : 'Challenge'}</span>
+                      <span>{language === 'vi' ? 'THÁCH ĐẤU' : 'FIGHT'}</span>
                     </button>
                   </div>
                 ))
@@ -318,21 +317,21 @@ export function LobbyPresenceWidget() {
 
             {/* Modal Chọn Game & Đang chờ gửi lời thách đấu */}
             {sendingToPlayer && (
-              <div className="border-t border-gray-100 bg-gray-50 p-4 animate-in slide-in-from-bottom-2 duration-150">
+              <div className="border-t-2 border-zinc-900 bg-[#ECE8DD] p-4 animate-in slide-in-from-bottom-2 duration-150">
                 {!isWaitingResponse ? (
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <p className="text-xs font-bold text-gray-800">
+                      <p className="font-pixel text-xs font-bold text-zinc-900">
                         {language === 'vi'
-                          ? `Chọn trò chơi thách đấu ${sendingToPlayer.name}:`
-                          : `Choose game to challenge ${sendingToPlayer.name}:`}
+                          ? `CHỌN BỘ MÔN THÁCH ĐẤU ${sendingToPlayer.name}:`
+                          : `SELECT GAME VS ${sendingToPlayer.name}:`}
                       </p>
                       <button
                         type="button"
                         onClick={() => setSendingToPlayer(null)}
-                        className="text-xs text-gray-400 hover:text-gray-600 font-bold"
+                        className="font-pixel text-xs text-rose-700 hover:underline font-bold"
                       >
-                        {language === 'vi' ? 'Hủy' : 'Cancel'}
+                        {language === 'vi' ? '[HỦY]' : '[CANCEL]'}
                       </button>
                     </div>
 
@@ -340,43 +339,43 @@ export function LobbyPresenceWidget() {
                       <button
                         type="button"
                         onClick={() => handleConfirmSendChallenge('chess')}
-                        className="flex flex-col items-center gap-1.5 rounded-2xl border border-gray-200 bg-white p-3 text-center shadow-xs hover:border-indigo-500 hover:bg-indigo-50/40 active:scale-95 transition-all"
+                        className="pixel-btn flex flex-col items-center gap-1.5 bg-white hover:bg-indigo-50 p-3 text-center"
                       >
                         <span className="text-2xl">♟️</span>
-                        <span className="text-xs font-black text-gray-900">
-                          {language === 'vi' ? 'Cờ Vua 1v1' : 'Chess 1v1'}
+                        <span className="font-pixel text-xs font-bold text-zinc-900">
+                          {language === 'vi' ? 'CỜ VUA 1V1' : 'CHESS 1V1'}
                         </span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => handleConfirmSendChallenge('caro')}
-                        className="flex flex-col items-center gap-1.5 rounded-2xl border border-gray-200 bg-white p-3 text-center shadow-xs hover:border-indigo-500 hover:bg-indigo-50/40 active:scale-95 transition-all"
+                        className="pixel-btn flex flex-col items-center gap-1.5 bg-white hover:bg-indigo-50 p-3 text-center"
                       >
                         <span className="text-2xl">❌⭕</span>
-                        <span className="text-xs font-black text-gray-900">
-                          {language === 'vi' ? 'Cờ Caro 15x15' : 'Gomoku 15x15'}
+                        <span className="font-pixel text-xs font-bold text-zinc-900">
+                          {language === 'vi' ? 'CỜ CARO 15X15' : 'GOMOKU 15X15'}
                         </span>
                       </button>
                     </div>
                   </div>
                 ) : (
                   <div className="text-center py-2">
-                    <div className="inline-flex items-center gap-2 text-xs font-bold text-indigo-700 mb-2">
+                    <div className="inline-flex items-center gap-2 font-pixel text-xs font-bold text-indigo-800 mb-2">
                       <Loader2 className="h-4 w-4 animate-spin text-indigo-600" />
                       <span>
                         {language === 'vi'
-                          ? `Đang chờ ${sendingToPlayer.name} chấp nhận... (15s)`
-                          : `Waiting for ${sendingToPlayer.name} to accept... (15s)`}
+                          ? `ĐANG CHỜ ${sendingToPlayer.name} CHẤP NHẬN... (15S)`
+                          : `WAITING FOR ${sendingToPlayer.name}... (15S)`}
                       </span>
                     </div>
                     <div>
                       <button
                         type="button"
                         onClick={handleCancelSending}
-                        className="rounded-xl border border-gray-200 bg-white px-3 py-1 text-xs font-bold text-gray-600 hover:bg-gray-100"
+                        className="pixel-btn bg-white px-3 py-1 text-xs font-bold text-zinc-900 hover:bg-rose-50"
                       >
-                        {language === 'vi' ? 'Hủy lời mời' : 'Cancel request'}
+                        {language === 'vi' ? 'HỦY LỜI MỜI' : 'CANCEL'}
                       </button>
                     </div>
                   </div>

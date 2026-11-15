@@ -326,13 +326,13 @@ function CaroGameContainer() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gray-50/50 pb-16">
+    <main className="min-h-screen pb-16">
       <div className="mx-auto max-w-4xl px-4 py-4 sm:py-6">
         {/* Navigation bar */}
         <div className="mb-4 flex items-center justify-between">
           <Link
             href="/"
-            className="inline-flex min-h-[40px] items-center gap-2 rounded-xl bg-white px-3.5 py-2 text-xs sm:text-sm font-bold text-gray-700 shadow-2xs border border-gray-200/80 hover:bg-gray-50 hover:text-gray-900 active:scale-95 transition-all"
+            className="pixel-btn inline-flex min-h-[40px] items-center gap-2 bg-white px-3.5 py-2 font-pixel text-xs sm:text-sm font-bold uppercase tracking-wider text-zinc-900 hover:bg-amber-50"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>{t.common.backToLobby}</span>

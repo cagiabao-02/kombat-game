@@ -23,47 +23,60 @@ export function GameCard({ game }: GameCardProps) {
   return (
     <Link
       href={game.route}
-      className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-gray-200/90 bg-white p-6 shadow-xs transition-all duration-200 hover:shadow-xl hover:border-indigo-300 hover:-translate-y-1 active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 outline-none"
+      className="pixel-card group relative flex flex-col justify-between overflow-hidden bg-[#FFFDF8] p-5 sm:p-6 outline-none"
     >
+      {/* Top Cartridge Grooves Decoration */}
+      <div className="absolute top-0 right-6 flex gap-1">
+        <span className="h-2 w-1.5 bg-zinc-900" />
+        <span className="h-2 w-1.5 bg-zinc-900" />
+        <span className="h-2 w-1.5 bg-zinc-900" />
+      </div>
+
       <div>
         {/* Top bar: Badge & Status */}
         <div className="flex items-center justify-between gap-2 mb-4">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-100/80 px-3 py-1 text-xs font-bold text-indigo-700 shadow-2xs">
-            <Sparkles className="h-3 w-3 text-indigo-600" />
+          <span className="pixel-badge inline-flex items-center gap-1.5 bg-indigo-100 px-2.5 py-1 text-xs font-bold text-indigo-950">
+            <Sparkles className="h-3 w-3 text-indigo-700" />
             {game.badge ? game.badge[language] : game.name[language]}
           </span>
 
           <span
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
+            className={`pixel-badge inline-flex items-center px-2.5 py-0.5 text-xs font-bold ${
               game.status === 'available'
-                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+                ? 'bg-emerald-300 text-zinc-900'
                 : game.status === 'beta'
-                ? 'bg-amber-50 text-amber-700 border border-amber-200/60'
-                : 'bg-gray-100 text-gray-600 border border-gray-200/60'
+                ? 'bg-amber-300 text-zinc-900'
+                : 'bg-zinc-200 text-zinc-700'
             }`}
           >
             {statusLabel}
           </span>
         </div>
 
-        {/* Visual Game Emblem Showcase */}
-        <div className="mb-5 flex h-36 w-full items-center justify-center rounded-2xl bg-gradient-to-br from-gray-50 via-indigo-50/30 to-purple-50/40 border border-gray-100 p-4 transition-colors group-hover:from-indigo-50/50 group-hover:to-purple-50/60">
+        {/* Visual Game Cartridge Label Showcase */}
+        <div className="mb-5 flex h-36 w-full items-center justify-center border-2 border-zinc-900 bg-[#ECE8DD] p-4 shadow-pixel-inset relative overflow-hidden">
+          {/* Corner pixel rivets */}
+          <span className="absolute top-1.5 left-1.5 h-1.5 w-1.5 bg-zinc-900" />
+          <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 bg-zinc-900" />
+          <span className="absolute bottom-1.5 left-1.5 h-1.5 w-1.5 bg-zinc-900" />
+          <span className="absolute bottom-1.5 right-1.5 h-1.5 w-1.5 bg-zinc-900" />
+
           {isSudoku && (
             <div className="flex flex-col items-center gap-2">
-              <div className="grid grid-cols-3 gap-1.5 p-2.5 rounded-xl bg-white shadow-sm border border-indigo-100/80 group-hover:scale-105 transition-transform duration-200">
-                <span className="h-6 w-6 flex items-center justify-center text-xs font-black text-indigo-600 bg-indigo-50/60 rounded-md">5</span>
-                <span className="h-6 w-6 flex items-center justify-center text-xs font-semibold text-gray-400">3</span>
-                <span className="h-6 w-6 flex items-center justify-center text-xs font-black text-indigo-600 bg-indigo-50/60 rounded-md">8</span>
-                <span className="h-6 w-6 flex items-center justify-center text-xs font-semibold text-gray-400">6</span>
-                <span className="h-6 w-6 flex items-center justify-center text-xs font-black text-amber-500 bg-amber-50/60 rounded-md">7</span>
-                <span className="h-6 w-6 flex items-center justify-center text-xs font-semibold text-gray-400">1</span>
-                <span className="h-6 w-6 flex items-center justify-center text-xs font-semibold text-gray-400">2</span>
-                <span className="h-6 w-6 flex items-center justify-center text-xs font-semibold text-gray-400">9</span>
-                <span className="h-6 w-6 flex items-center justify-center text-xs font-black text-indigo-600 bg-indigo-50/60 rounded-md">4</span>
+              <div className="grid grid-cols-3 gap-1 p-1.5 bg-[#9BBC0F] border-2 border-zinc-900 shadow-pixel-sm">
+                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#0F380F] bg-[#8BAC0F] border border-[#0F380F]/40">5</span>
+                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#306230]">3</span>
+                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#0F380F] bg-[#8BAC0F] border border-[#0F380F]/40">8</span>
+                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#306230]">6</span>
+                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-amber-950 bg-amber-300 border border-zinc-900">7</span>
+                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#306230]">1</span>
+                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#306230]">2</span>
+                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#306230]">9</span>
+                <span className="h-6 w-6 flex items-center justify-center font-pixel text-xs font-bold text-[#0F380F] bg-[#8BAC0F] border border-[#0F380F]/40">4</span>
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500">
-                <Brain className="h-3 w-3 text-indigo-500" />
-                <span>{language === 'vi' ? '3 Cấp độ • Giới hạn 3 lỗi' : '3 Difficulties • 3 Lives'}</span>
+              <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-zinc-700">
+                <Brain className="h-3 w-3 text-indigo-700" />
+                <span>{language === 'vi' ? '3 CẤP ĐỘ • 3 MẠNG' : '3 LEVELS • 3 HEARTS'}</span>
               </div>
             </div>
           )}
@@ -71,25 +84,25 @@ export function GameCard({ game }: GameCardProps) {
           {isChess && (
             <div className="flex flex-col items-center gap-2">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-md border border-gray-200/80 text-3xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-200">
+                <div className="flex h-12 w-12 items-center justify-center bg-[#FFFDF8] border-2 border-zinc-900 shadow-pixel-sm text-3xl">
                   ♔
                 </div>
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-black text-white shadow-xs">
+                <div className="flex h-7 w-7 items-center justify-center bg-indigo-600 border-2 border-zinc-900 font-pixel text-[10px] font-bold text-amber-300">
                   VS
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-900 shadow-md border border-gray-700 text-3xl text-white group-hover:scale-110 group-hover:rotate-3 transition-transform duration-200">
+                <div className="flex h-12 w-12 items-center justify-center bg-zinc-900 border-2 border-zinc-900 shadow-pixel-sm text-3xl text-amber-300">
                   ♚
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-[11px] font-semibold text-gray-500">
-                <span className="inline-flex items-center gap-1 text-emerald-600">
+              <div className="flex items-center gap-2 text-[11px] font-mono font-bold text-zinc-700">
+                <span className="inline-flex items-center gap-1 text-emerald-800">
                   <Zap className="h-3 w-3" />
-                  <span>Realtime PvP</span>
+                  <span>1V1 ONLINE</span>
                 </span>
                 <span>•</span>
-                <span className="inline-flex items-center gap-1 text-purple-600">
+                <span className="inline-flex items-center gap-1 text-indigo-800">
                   <Bot className="h-3 w-3" />
-                  <span>Bot 3 Cấp</span>
+                  <span>BOT 3 LVL</span>
                 </span>
               </div>
             </div>
@@ -98,38 +111,19 @@ export function GameCard({ game }: GameCardProps) {
           {isCaro && (
             <div className="flex flex-col items-center gap-2">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 aspect-square items-center justify-center rounded-2xl bg-rose-50 shadow-md border border-rose-200/80 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-200">
-                  <svg
-                    className="h-6 w-6 text-rose-600"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
+                <div className="flex h-12 w-12 aspect-square items-center justify-center bg-rose-100 border-2 border-zinc-900 shadow-pixel-sm font-pixel text-2xl font-bold text-rose-600">
+                  X
                 </div>
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-rose-600 text-[10px] font-black text-white shadow-xs">
+                <div className="flex h-7 w-7 items-center justify-center bg-rose-600 border-2 border-zinc-900 font-pixel text-[10px] font-bold text-white">
                   VS
                 </div>
-                <div className="flex h-12 w-12 aspect-square items-center justify-center rounded-2xl bg-indigo-50 shadow-md border border-indigo-200/80 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200">
-                  <svg
-                    className="h-6 w-6 text-indigo-600"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3.5"
-                  >
-                    <circle cx="12" cy="12" r="7.5" />
-                  </svg>
+                <div className="flex h-12 w-12 aspect-square items-center justify-center bg-indigo-100 border-2 border-zinc-900 shadow-pixel-sm font-pixel text-2xl font-bold text-indigo-700">
+                  O
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500">
-                <Users className="h-3.5 w-3.5 text-indigo-600" />
-                <span>{language === 'vi' ? 'Chơi đôi & Online' : 'Local & Online'}</span>
+              <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-zinc-700">
+                <Users className="h-3.5 w-3.5 text-indigo-700" />
+                <span>{language === 'vi' ? 'CHƠI ĐÔI & ONLINE' : 'LOCAL & ONLINE'}</span>
               </div>
             </div>
           )}
@@ -137,53 +131,52 @@ export function GameCard({ game }: GameCardProps) {
           {isXiangqi && (
             <div className="flex flex-col items-center gap-2">
               <div className="flex items-center gap-3">
-                {/* Quân Đỏ Soái */}
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-b from-[#fefcf8] via-[#f7ecd9] to-[#ebd4b7] shadow-md border-2 border-rose-600 text-rose-700 font-black text-2xl group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-200">
+                {/* Quân Đỏ Soái Pixel Token */}
+                <div className="flex h-12 w-12 items-center justify-center bg-[#F7ECD9] border-2 border-rose-700 shadow-pixel-sm text-rose-700 font-black text-2xl">
                   <span style={{ fontFamily: '"KaiTi", "SimSun", serif' }}>帥</span>
                 </div>
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-r from-rose-600 to-amber-600 text-[10px] font-black text-white shadow-xs">
+                <div className="flex h-7 w-7 items-center justify-center bg-amber-500 border-2 border-zinc-900 font-pixel text-[10px] font-bold text-zinc-950">
                   VS
                 </div>
-                {/* Quân Đen Tướng */}
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-b from-[#fefcf8] via-[#f7ecd9] to-[#ebd4b7] shadow-md border-2 border-gray-900 text-gray-900 font-black text-2xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200">
+                {/* Quân Đen Tướng Pixel Token */}
+                <div className="flex h-12 w-12 items-center justify-center bg-[#F7ECD9] border-2 border-zinc-900 shadow-pixel-sm text-zinc-900 font-black text-2xl">
                   <span style={{ fontFamily: '"KaiTi", "SimSun", serif' }}>將</span>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500">
-                <span className="text-rose-700 font-bold">Sở Hà Hán Giới</span>
+              <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-zinc-700">
+                <span className="text-rose-700">SỞ HÀ HÁN GIỚI</span>
                 <span>•</span>
-                <span>{language === 'vi' ? 'Chơi đôi & Bot AI' : '2 Players & AI'}</span>
+                <span>{language === 'vi' ? 'AI & PVP' : 'AI & PVP'}</span>
               </div>
             </div>
           )}
         </div>
 
         {/* Game Title & Description */}
-        <h3 className="text-xl font-black tracking-tight text-gray-950 mb-2 group-hover:text-indigo-600 transition-colors">
+        <h3 className="font-pixel text-xl font-bold tracking-wide text-zinc-900 mb-2 group-hover:text-indigo-700 transition-colors">
           {game.name[language]}
         </h3>
-        <p className="text-sm text-gray-600 leading-relaxed line-clamp-2 mb-6">
+        <p className="text-xs sm:text-sm font-mono text-zinc-600 leading-relaxed line-clamp-2 mb-6">
           {game.shortDescription[language]}
         </p>
       </div>
 
       {/* Footer & Action Button (Min 44px Touch Target) */}
-      <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500">
-          <Users className="h-3.5 w-3.5 text-gray-400" />
+      <div className="pt-4 border-t-2 border-zinc-900 flex items-center justify-between">
+        <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-zinc-600">
+          <Users className="h-3.5 w-3.5 text-zinc-800" />
           <span>
             {game.minPlayers === game.maxPlayers
-              ? `${game.minPlayers} ${language === 'vi' ? 'người' : 'player'}`
-              : `${game.minPlayers}-${game.maxPlayers} ${language === 'vi' ? 'người' : 'players'}`}
+              ? `${game.minPlayers}P`
+              : `${game.minPlayers}-${game.maxPlayers}P`}
           </span>
         </div>
 
-        <div className="inline-flex items-center justify-center gap-2 min-h-[44px] rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all group-hover:bg-indigo-700 group-hover:shadow-md active:scale-95">
-          <Play className="h-4 w-4 fill-white" />
+        <div className="pixel-btn inline-flex items-center justify-center gap-2 min-h-[44px] bg-indigo-600 group-hover:bg-indigo-500 px-5 py-2 text-sm font-bold text-amber-300">
+          <Play className="h-4 w-4 fill-amber-300" />
           <span>{isSudoku ? t.lobby.playNow : t.lobby.createRoom}</span>
         </div>
       </div>
     </Link>
   );
 }
-

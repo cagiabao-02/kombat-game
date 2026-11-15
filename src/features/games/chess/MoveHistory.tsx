@@ -29,34 +29,34 @@ export function MoveHistory({ history }: MoveHistoryProps) {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
-      <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-2">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-gray-700">
-          <History className="h-3.5 w-3.5 text-indigo-600" />
+    <div className="pixel-box bg-[#FFFDF8] p-3">
+      <div className="flex items-center justify-between border-b-2 border-zinc-900 pb-2 mb-2">
+        <div className="flex items-center gap-1.5 font-pixel text-xs font-bold text-zinc-950 uppercase">
+          <History className="h-3.5 w-3.5 text-indigo-700" />
           <span>{t.chess.moveHistory}</span>
         </div>
-        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-          {history.length} {language === 'vi' ? 'nước' : 'moves'}
+        <span className="pixel-badge bg-amber-200 px-2 py-0.5 text-[10px] font-bold text-zinc-900">
+          {history.length} {language === 'vi' ? 'NƯỚC' : 'MOVES'}
         </span>
       </div>
 
       {history.length === 0 ? (
-        <div className="py-4 text-center text-xs text-gray-400 italic">
+        <div className="py-4 text-center font-mono text-xs text-zinc-500">
           {t.chess.noMovesYet}
         </div>
       ) : (
         <div
           ref={scrollRef}
-          className="max-h-32 overflow-y-auto pr-1 space-y-1 font-mono text-xs"
+          className="max-h-32 overflow-y-auto pr-1 space-y-1 font-mono text-xs bg-[#ECE8DD] border-2 border-zinc-900 p-2 shadow-pixel-inset"
         >
           {pairs.map((p) => (
             <div
               key={p.round}
-              className="flex items-center rounded px-2 py-1 hover:bg-gray-50 transition-colors"
+              className="flex items-center px-2 py-0.5 hover:bg-amber-100 transition-colors"
             >
-              <span className="w-8 font-semibold text-gray-400">{p.round}.</span>
-              <span className="w-16 font-medium text-gray-900 font-bold">{p.white}</span>
-              <span className="w-16 font-medium text-gray-700">
+              <span className="w-8 font-bold text-zinc-500">{p.round}.</span>
+              <span className="w-16 font-bold text-zinc-950">{p.white}</span>
+              <span className="w-16 font-bold text-indigo-800">
                 {p.black ? p.black : '...'}
               </span>
             </div>
@@ -66,4 +66,3 @@ export function MoveHistory({ history }: MoveHistoryProps) {
     </div>
   );
 }
-

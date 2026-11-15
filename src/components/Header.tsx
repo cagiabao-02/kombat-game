@@ -50,26 +50,23 @@ export function Header() {
 
   return (
     <>
-      <header suppressHydrationWarning className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white/90 backdrop-blur-md">
+      <header suppressHydrationWarning className="sticky top-0 z-40 w-full border-b-[3px] border-zinc-900 bg-[#FFFDF8]">
         <div suppressHydrationWarning className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 font-bold text-white shadow-sm transition-transform group-hover:scale-105">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="flex h-10 w-10 items-center justify-center bg-indigo-600 font-pixel text-base font-bold text-amber-300 border-2 border-zinc-900 shadow-pixel-sm transition-transform group-hover:-translate-y-0.5">
               KB
             </div>
-            <div>
-              <span className="text-lg font-black tracking-tight text-gray-900">KOMBAT</span>
-              <span className="hidden sm:inline-block ml-2 text-xs font-medium text-gray-400">
-                Indie Lobby
-              </span>
-            </div>
+            <span className="font-pixel text-xl font-bold tracking-wider text-zinc-900">
+              KOMBAT
+            </span>
           </Link>
 
-          <div suppressHydrationWarning className="flex items-center gap-2 sm:gap-3 relative z-10 pointer-events-auto">
-            {/* User Profile Pill & Modal Trigger (Always visible) */}
+          <div suppressHydrationWarning className="flex items-center gap-2 sm:gap-2.5 relative z-10 pointer-events-auto">
+            {/* User Profile Coin Token Pill (Always visible) */}
             <button
               type="button"
               onClick={openProfile}
-              className="flex items-center gap-1.5 min-h-[40px] rounded-full bg-gray-100 hover:bg-gray-200/90 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-gray-800 transition-all border border-gray-200/80 shadow-2xs hover:scale-102 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 outline-none"
+              className="pixel-btn flex items-center gap-2 min-h-[40px] bg-amber-100 hover:bg-amber-200 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-zinc-900 outline-none"
               title={
                 language === 'vi'
                   ? 'Hồ sơ, Avatar & Tài khoản / Profile & Account'
@@ -78,23 +75,23 @@ export function Header() {
             >
               <UserAvatar
                 avatar={avatar}
-                className="h-5 w-5 text-xs rounded-full border-0 shadow-none bg-transparent"
+                className="h-5 w-5 text-xs border border-zinc-900 shadow-none bg-white"
               />
-              <span className="max-w-[75px] sm:max-w-[130px] truncate font-semibold">
+              <span className="max-w-[80px] sm:max-w-[130px] truncate font-pixel text-xs font-bold tracking-wide">
                 {guestName}
               </span>
               {!isAnonymous && (
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
               )}
             </button>
 
             {/* Desktop Buttons Row (Hidden on mobile < sm) */}
-            <div className="hidden sm:flex items-center gap-2 sm:gap-3">
+            <div className="hidden sm:flex items-center gap-2.5">
               {/* Leaderboard Button */}
               <button
                 type="button"
                 onClick={openLeaderboard}
-                className="flex h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center rounded-xl border border-amber-200/90 bg-amber-50 text-amber-600 shadow-2xs transition-all hover:bg-amber-100 hover:border-amber-300 active:scale-95 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 outline-none"
+                className="pixel-btn flex h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center bg-amber-400 hover:bg-amber-300 text-zinc-900 outline-none"
                 title={language === 'vi' ? 'Bảng xếp hạng / Leaderboard' : 'Leaderboard'}
                 aria-label="Leaderboard"
               >
@@ -105,14 +102,16 @@ export function Header() {
               <button
                 type="button"
                 onClick={toggleSound}
-                className="flex h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center rounded-xl border border-gray-200 bg-white text-xs text-gray-700 shadow-2xs transition-all hover:bg-gray-50 hover:border-gray-300 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 outline-none"
+                className={`pixel-btn flex h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center text-xs outline-none ${
+                  isMuted ? 'bg-zinc-100 text-zinc-400' : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-900'
+                }`}
                 title={isMuted ? 'Bật âm thanh / Unmute' : 'Tắt âm thanh / Mute'}
                 aria-label="Toggle Sound"
               >
                 {isMuted ? (
-                  <VolumeX className="h-4 w-4 text-gray-400" />
+                  <VolumeX className="h-4 w-4 text-zinc-500" />
                 ) : (
-                  <Volume2 className="h-4 w-4 text-indigo-600" />
+                  <Volume2 className="h-4 w-4 text-emerald-800" />
                 )}
               </button>
 
@@ -120,12 +119,12 @@ export function Header() {
               <button
                 type="button"
                 onClick={toggleLanguage}
-                className="flex h-10 min-h-[40px] items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 text-xs font-bold text-gray-700 shadow-2xs transition-all hover:bg-gray-50 hover:border-gray-300 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 outline-none"
+                className="pixel-btn flex h-10 min-h-[40px] items-center gap-1.5 bg-white hover:bg-indigo-50 px-3 text-xs font-bold text-zinc-900 outline-none"
                 title="Chuyển đổi ngôn ngữ / Switch language"
                 aria-label="Switch Language"
               >
                 <Globe className="h-4 w-4 text-indigo-600" />
-                <span>{language.toUpperCase()}</span>
+                <span className="font-pixel">{language.toUpperCase()}</span>
               </button>
             </div>
 
@@ -133,14 +132,14 @@ export function Header() {
             <button
               type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex sm:hidden h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 shadow-2xs hover:bg-gray-50 active:scale-95 transition-all outline-none"
+              className="pixel-btn flex sm:hidden h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center bg-white text-zinc-900 outline-none"
               title="Menu"
               aria-label="Menu"
             >
               {isMenuOpen ? (
-                <X className="h-5 w-5 text-gray-800" />
+                <X className="h-5 w-5 text-zinc-900" />
               ) : (
-                <Menu className="h-5 w-5 text-gray-800" />
+                <Menu className="h-5 w-5 text-zinc-900" />
               )}
             </button>
           </div>
@@ -152,25 +151,25 @@ export function Header() {
         <div className="fixed inset-0 z-50 sm:hidden">
           {/* Backdrop overlay */}
           <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150"
+            className="fixed inset-0 bg-black/50 animate-in fade-in duration-150"
             onClick={() => setIsMenuOpen(false)}
           />
 
           {/* Menu Dropdown Sheet */}
-          <div className="absolute top-18 right-4 left-4 rounded-3xl border border-gray-100 bg-white p-4 shadow-2xl animate-in slide-in-from-top-3 zoom-in-95 duration-150">
+          <div className="absolute top-18 right-4 left-4 pixel-box-lg bg-[#FFFDF8] p-4 animate-in slide-in-from-top-3 duration-150">
             {/* Header info in menu */}
-            <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-2">
+            <div className="flex items-center justify-between border-b-2 border-zinc-900 pb-3 mb-3">
               <div className="flex items-center gap-2.5">
                 <UserAvatar avatar={avatar} className="h-10 w-10 text-base" />
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-black text-gray-900">{guestName}</span>
+                    <span className="font-pixel text-sm font-bold text-zinc-900">{guestName}</span>
                     {!isAnonymous && <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />}
                   </div>
-                  <span className="text-[11px] text-gray-400 font-medium">
+                  <span className="text-[11px] text-zinc-500 font-mono">
                     {isAnonymous
-                      ? (language === 'vi' ? 'Tài khoản khách tạm thời' : 'Temporary Guest')
-                      : (language === 'vi' ? 'Đã liên kết tài khoản' : 'Linked Account')}
+                      ? (language === 'vi' ? 'PLAYER: KHÁCH TẠM THỜI' : 'PLAYER: GUEST MODE')
+                      : (language === 'vi' ? 'PLAYER: ĐÃ LIÊN KẾT' : 'PLAYER: LINKED')}
                   </span>
                 </div>
               </div>
@@ -180,14 +179,14 @@ export function Header() {
                   setIsMenuOpen(false);
                   openProfile();
                 }}
-                className="rounded-xl bg-indigo-50 border border-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-700 hover:bg-indigo-100 transition-colors"
+                className="pixel-btn bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white"
               >
-                {language === 'vi' ? 'Hồ sơ' : 'Profile'}
+                {language === 'vi' ? 'HỒ SƠ' : 'PROFILE'}
               </button>
             </div>
 
             {/* Menu List Items */}
-            <div className="space-y-1.5">
+            <div className="space-y-2.5">
               {/* Leaderboard Item */}
               <button
                 type="button"
@@ -195,22 +194,22 @@ export function Header() {
                   setIsMenuOpen(false);
                   openLeaderboard();
                 }}
-                className="flex w-full items-center justify-between rounded-2xl p-3 hover:bg-amber-50/60 active:bg-amber-100/60 transition-colors text-left"
+                className="pixel-btn flex w-full items-center justify-between bg-amber-50 hover:bg-amber-100 p-3 text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-200/90 shadow-2xs">
+                  <div className="flex h-10 w-10 items-center justify-center bg-amber-400 text-zinc-900 border-2 border-zinc-900">
                     <Trophy className="h-5 w-5 fill-current" />
                   </div>
                   <div>
-                    <p className="text-sm font-black text-gray-900">
-                      {language === 'vi' ? 'Bảng Xếp Hạng' : 'Leaderboard'}
+                    <p className="font-pixel text-sm font-bold text-zinc-900">
+                      {language === 'vi' ? 'BẢNG XẾP HẠNG' : 'HIGH SCORES'}
                     </p>
-                    <p className="text-xs text-gray-500">
-                      {language === 'vi' ? 'Top cao thủ Cờ vua, Caro & Sudoku' : 'Rankings & Top Players'}
+                    <p className="text-xs font-mono text-zinc-600">
+                      {language === 'vi' ? 'Top cao thủ 4 bộ môn' : 'Hall of Fame & Rankings'}
                     </p>
                   </div>
                 </div>
-                <span className="rounded-xl bg-amber-100 px-2.5 py-1 text-xs font-black text-amber-800">
+                <span className="pixel-badge bg-amber-300 px-2.5 py-1 text-xs font-bold text-zinc-900">
                   TOP 🏆
                 </span>
               </button>
@@ -219,35 +218,35 @@ export function Header() {
               <button
                 type="button"
                 onClick={toggleSound}
-                className="flex w-full items-center justify-between rounded-2xl p-3 hover:bg-gray-50 active:bg-gray-100 transition-colors text-left"
+                className="pixel-btn flex w-full items-center justify-between bg-white hover:bg-zinc-50 p-3 text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-2xs">
+                  <div className="flex h-10 w-10 items-center justify-center bg-indigo-100 text-indigo-700 border-2 border-zinc-900">
                     {isMuted ? (
-                      <VolumeX className="h-5 w-5 text-gray-400" />
+                      <VolumeX className="h-5 w-5 text-zinc-500" />
                     ) : (
-                      <Volume2 className="h-5 w-5 text-indigo-600" />
+                      <Volume2 className="h-5 w-5 text-indigo-700" />
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-black text-gray-900">
-                      {language === 'vi' ? 'Âm Thanh Trò Chơi' : 'Sound Effects'}
+                    <p className="font-pixel text-sm font-bold text-zinc-900">
+                      {language === 'vi' ? 'ÂM THANH 8-BIT' : '8-BIT AUDIO'}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs font-mono text-zinc-600">
                       {isMuted
-                        ? (language === 'vi' ? 'Đang tắt hiệu ứng âm thanh' : 'Sound muted')
-                        : (language === 'vi' ? 'Đang bật hiệu ứng âm thanh' : 'Sound active')}
+                        ? (language === 'vi' ? 'Đang tắt âm thanh' : 'Sound muted')
+                        : (language === 'vi' ? 'Đang bật âm thanh' : 'Sound active')}
                     </p>
                   </div>
                 </div>
                 <span
-                  className={`rounded-xl px-3 py-1 text-xs font-bold transition-colors ${
+                  className={`pixel-badge px-2.5 py-1 text-xs font-bold ${
                     isMuted
-                      ? 'bg-gray-100 text-gray-500'
-                      : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      ? 'bg-zinc-200 text-zinc-600'
+                      : 'bg-emerald-300 text-zinc-900'
                   }`}
                 >
-                  {isMuted ? (language === 'vi' ? 'ĐANG TẮT' : 'OFF') : (language === 'vi' ? 'ĐANG BẬT' : 'ON')}
+                  {isMuted ? 'OFF' : 'ON'}
                 </span>
               </button>
 
@@ -255,22 +254,22 @@ export function Header() {
               <button
                 type="button"
                 onClick={toggleLanguage}
-                className="flex w-full items-center justify-between rounded-2xl p-3 hover:bg-gray-50 active:bg-gray-100 transition-colors text-left"
+                className="pixel-btn flex w-full items-center justify-between bg-white hover:bg-zinc-50 p-3 text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100 shadow-2xs">
+                  <div className="flex h-10 w-10 items-center justify-center bg-sky-100 text-sky-800 border-2 border-zinc-900">
                     <Globe className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-black text-gray-900">
-                      {language === 'vi' ? 'Ngôn Ngữ Hiển Thị' : 'Interface Language'}
+                    <p className="font-pixel text-sm font-bold text-zinc-900">
+                      {language === 'vi' ? 'NGÔN NGỮ / LANG' : 'INTERFACE LANG'}
                     </p>
-                    <p className="text-xs text-gray-500">
-                      {language === 'vi' ? 'Đang chọn Tiếng Việt' : 'English selected'}
+                    <p className="text-xs font-mono text-zinc-600">
+                      {language === 'vi' ? 'Tiếng Việt (VI)' : 'English (EN)'}
                     </p>
                   </div>
                 </div>
-                <span className="rounded-xl bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-black text-blue-700">
+                <span className="pixel-badge bg-sky-200 px-2.5 py-1 text-xs font-bold text-zinc-900">
                   {language === 'vi' ? 'VI 🇻🇳' : 'EN 🇬🇧'}
                 </span>
               </button>

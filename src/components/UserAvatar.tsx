@@ -29,13 +29,13 @@ export function UserAvatar({
   if (isImage && avatar) {
     return (
       <div
-        className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xs ${className}`}
+        className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-[2px] border-2 border-zinc-900 bg-white shadow-pixel-xs ${className}`}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={avatar}
           alt={alt}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover pixelated"
           loading="lazy"
         />
       </div>
@@ -44,10 +44,9 @@ export function UserAvatar({
 
   return (
     <div
-      className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200/80 bg-white shadow-2xs select-none ${className}`}
+      className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-[2px] border-2 border-zinc-900 bg-amber-50 shadow-pixel-xs select-none ${className}`}
     >
       <span className="leading-none">{avatar || fallback}</span>
     </div>
   );
 }
-

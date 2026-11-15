@@ -100,25 +100,25 @@ export function LeaderboardModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/70 backdrop-blur-xs p-2 sm:p-4 animate-in fade-in duration-150">
-      <div className="relative flex max-h-[92vh] w-full max-w-xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4 animate-in fade-in duration-150">
+      <div className="pixel-box-lg relative flex max-h-[92vh] w-full max-w-xl flex-col overflow-hidden bg-[#FFFDF8] animate-in zoom-in-95 duration-150">
         {/* Modal Header */}
-        <div className="relative border-b border-gray-100 bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-purple-500/10 px-5 py-4">
+        <div className="relative border-b-2 border-zinc-900 bg-amber-300 px-5 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow-md shadow-amber-200">
+              <div className="flex h-11 w-11 items-center justify-center bg-zinc-900 text-amber-400 border-2 border-zinc-900 shadow-pixel-xs">
                 <Trophy className="h-6 w-6 fill-current" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg sm:text-xl font-black text-gray-950 tracking-tight">
-                    {language === 'vi' ? 'Bảng Xếp Hạng Thực Tế' : 'Live Leaderboard'}
+                  <h2 className="font-pixel text-lg sm:text-xl font-bold text-zinc-950 uppercase tracking-wide">
+                    {language === 'vi' ? 'BẢNG VÀNG CAO THỦ' : 'ARCADE HIGH SCORES'}
                   </h2>
                   {isFetchingCloud && (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-500" />
+                    <Loader2 className="h-4 w-4 animate-spin text-zinc-900" />
                   )}
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs font-mono text-zinc-800">
                   {language === 'vi'
                     ? 'Thành tích thi đấu thực của người chơi'
                     : 'Authentic player competitive records'}
@@ -129,7 +129,7 @@ export function LeaderboardModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none"
+              className="pixel-btn flex h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center bg-white text-zinc-900 hover:bg-rose-100 outline-none"
               aria-label="Đóng"
             >
               <X className="h-5 w-5" />
@@ -137,14 +137,14 @@ export function LeaderboardModal({
           </div>
 
           {/* Game Switcher Tabs */}
-          <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-1 bg-gray-200/60 rounded-2xl">
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
             <button
               type="button"
               onClick={() => setSelectedGame('chess')}
-              className={`flex items-center justify-center gap-1.5 min-h-[40px] rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              className={`pixel-btn flex items-center justify-center gap-1.5 min-h-[40px] text-xs sm:text-sm font-bold ${
                 selectedGame === 'chess'
-                  ? 'bg-white text-gray-950 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-indigo-600 text-amber-300'
+                  : 'bg-white text-zinc-800 hover:bg-zinc-100'
               }`}
             >
               <span>♔</span>
@@ -154,36 +154,36 @@ export function LeaderboardModal({
             <button
               type="button"
               onClick={() => setSelectedGame('caro')}
-              className={`flex items-center justify-center gap-1.5 min-h-[40px] rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              className={`pixel-btn flex items-center justify-center gap-1.5 min-h-[40px] text-xs sm:text-sm font-bold ${
                 selectedGame === 'caro'
-                  ? 'bg-white text-gray-950 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-indigo-600 text-amber-300'
+                  : 'bg-white text-zinc-800 hover:bg-zinc-100'
               }`}
             >
-              <span className="text-rose-600 font-black">✕</span>
+              <span className={selectedGame === 'caro' ? 'text-amber-300 font-black' : 'text-rose-600 font-black'}>✕</span>
               <span>{language === 'vi' ? 'Cờ Caro' : 'Caro'}</span>
             </button>
 
             <button
               type="button"
               onClick={() => setSelectedGame('xiangqi')}
-              className={`flex items-center justify-center gap-1.5 min-h-[40px] rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              className={`pixel-btn flex items-center justify-center gap-1.5 min-h-[40px] text-xs sm:text-sm font-bold ${
                 selectedGame === 'xiangqi'
-                  ? 'bg-white text-gray-950 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-indigo-600 text-amber-300'
+                  : 'bg-white text-zinc-800 hover:bg-zinc-100'
               }`}
             >
-              <span className="text-rose-600 font-bold">帥</span>
+              <span className={selectedGame === 'xiangqi' ? 'text-amber-300 font-bold' : 'text-rose-600 font-bold'}>帥</span>
               <span>{language === 'vi' ? 'Cờ Tướng' : 'Xiangqi'}</span>
             </button>
 
             <button
               type="button"
               onClick={() => setSelectedGame('sudoku')}
-              className={`flex items-center justify-center gap-1.5 min-h-[40px] rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              className={`pixel-btn flex items-center justify-center gap-1.5 min-h-[40px] text-xs sm:text-sm font-bold ${
                 selectedGame === 'sudoku'
-                  ? 'bg-white text-gray-950 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-indigo-600 text-amber-300'
+                  : 'bg-white text-zinc-800 hover:bg-zinc-100'
               }`}
             >
               <span>🧩</span>
@@ -197,15 +197,15 @@ export function LeaderboardModal({
           {list.length === 0 ? (
             /* Empty State: 100% genuine message */
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-amber-50 text-amber-500 mb-4 border border-amber-200/80 shadow-xs">
+              <div className="flex h-16 w-16 items-center justify-center bg-amber-100 text-amber-700 mb-4 border-2 border-zinc-900 shadow-pixel-sm">
                 <Sparkles className="h-8 w-8 animate-pulse" />
               </div>
-              <h3 className="text-base sm:text-lg font-black text-gray-900 mb-1">
+              <h3 className="font-pixel text-base sm:text-lg font-bold text-zinc-900 mb-1">
                 {language === 'vi'
                   ? `Chưa có thành tích cho ${getGameTitle(selectedGame)}`
                   : `No recorded scores for ${getGameTitle(selectedGame)} yet`}
               </h3>
-              <p className="text-xs sm:text-sm text-gray-500 max-w-xs mb-6 leading-relaxed">
+              <p className="text-xs sm:text-sm font-mono text-zinc-600 max-w-xs mb-6 leading-relaxed">
                 {language === 'vi'
                   ? 'Hãy tham gia ván đấu đầu tiên để trở thành quán quân đầu tiên trên bảng vàng!'
                   : 'Play your first match to claim the inaugural #1 champion spot!'}
@@ -213,10 +213,10 @@ export function LeaderboardModal({
               <Link
                 href={getGameRoute(selectedGame)}
                 onClick={onClose}
-                className="inline-flex items-center gap-2 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-200 transition-all"
+                className="pixel-btn inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 px-5 py-2.5 text-sm font-bold text-amber-300"
               >
                 <Play className="h-4 w-4 fill-current" />
-                <span>{language === 'vi' ? 'Chơi ngay' : 'Play Now'}</span>
+                <span>{language === 'vi' ? 'CHƠI NGAY' : 'PLAY NOW'}</span>
               </Link>
             </div>
           ) : (
@@ -235,21 +235,21 @@ export function LeaderboardModal({
                 {top2 && (
                   <div className="flex flex-col items-center order-1 sm:order-1">
                     <div className="relative mb-2 flex flex-col items-center">
-                      <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-white shadow-md border-2 border-slate-300">
+                      <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center bg-white border-2 border-zinc-900 shadow-pixel-sm">
                         <UserAvatar avatar={top2.avatar} className="h-10 w-10 sm:h-12 sm:w-12 text-2xl border-0 shadow-none bg-transparent" />
-                        <span className="absolute -bottom-2 flex h-6 w-6 items-center justify-center rounded-full bg-slate-300 text-xs font-black text-slate-800 shadow-sm">
+                        <span className="absolute -bottom-2 flex h-6 w-6 items-center justify-center bg-slate-300 border-2 border-zinc-900 font-pixel text-xs font-bold text-zinc-900">
                           2
                         </span>
                       </div>
                     </div>
-                    <span className="max-w-[90px] truncate text-center text-xs font-bold text-gray-900">
+                    <span className="max-w-[90px] truncate text-center font-pixel text-xs font-bold text-zinc-900">
                       {top2.name}
                     </span>
-                    <span className="text-[11px] font-black text-slate-600">
+                    <span className="font-mono text-[11px] font-bold text-slate-700">
                       {top2.scoreLabel}
                     </span>
-                    <div className="mt-2 h-14 w-full rounded-t-xl bg-gradient-to-t from-slate-200 to-slate-100 border-t border-slate-300 flex items-center justify-center text-slate-500 text-xs font-bold">
-                      🥈 Hạng 2
+                    <div className="mt-2 h-14 w-full bg-slate-200 border-2 border-zinc-900 shadow-pixel-xs flex items-center justify-center font-pixel text-zinc-800 text-xs font-bold">
+                      🥈 2ND
                     </div>
                   </div>
                 )}
@@ -259,21 +259,21 @@ export function LeaderboardModal({
                   <div className={`flex flex-col items-center -mt-3 ${list.length >= 3 ? 'order-2' : list.length === 2 ? 'order-1' : 'order-1'}`}>
                     <div className="relative mb-2 flex flex-col items-center">
                       <Crown className="h-6 w-6 text-amber-500 animate-bounce -mb-1" />
-                      <div className="relative flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-gradient-to-b from-amber-50 to-white shadow-lg border-2 border-amber-400 ring-4 ring-amber-400/20">
+                      <div className="relative flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center bg-amber-100 border-2 border-zinc-900 shadow-pixel">
                         <UserAvatar avatar={top1.avatar} className="h-12 w-12 sm:h-14 sm:w-14 text-3xl border-0 shadow-none bg-transparent" />
-                        <span className="absolute -bottom-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-xs font-black text-white shadow-md">
+                        <span className="absolute -bottom-2.5 flex h-7 w-7 items-center justify-center bg-amber-400 border-2 border-zinc-900 font-pixel text-xs font-bold text-zinc-950">
                           1
                         </span>
                       </div>
                     </div>
-                    <span className="max-w-[100px] truncate text-center text-xs sm:text-sm font-black text-gray-950">
+                    <span className="max-w-[100px] truncate text-center font-pixel text-xs sm:text-sm font-bold text-zinc-950">
                       {top1.name}
                     </span>
-                    <span className="text-xs font-black text-amber-600">
+                    <span className="font-mono text-xs font-bold text-amber-700">
                       {top1.scoreLabel}
                     </span>
-                    <div className="mt-2 h-20 w-full rounded-t-xl bg-gradient-to-t from-amber-300/60 to-amber-200/80 border-t-2 border-amber-400 flex items-center justify-center text-amber-800 text-xs font-black shadow-inner">
-                      🥇 Quán quân
+                    <div className="mt-2 h-20 w-full bg-amber-300 border-2 border-zinc-900 shadow-pixel-sm flex items-center justify-center font-pixel text-zinc-950 text-xs font-bold">
+                      🥇 1ST CHAMP
                     </div>
                   </div>
                 )}
@@ -282,21 +282,21 @@ export function LeaderboardModal({
                 {top3 && (
                   <div className="flex flex-col items-center order-3">
                     <div className="relative mb-2 flex flex-col items-center">
-                      <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-white shadow-md border-2 border-amber-600/40">
+                      <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center bg-white border-2 border-zinc-900 shadow-pixel-sm">
                         <UserAvatar avatar={top3.avatar} className="h-10 w-10 sm:h-12 sm:w-12 text-2xl border-0 shadow-none bg-transparent" />
-                        <span className="absolute -bottom-2 flex h-6 w-6 items-center justify-center rounded-full bg-amber-700/80 text-xs font-black text-white shadow-sm">
+                        <span className="absolute -bottom-2 flex h-6 w-6 items-center justify-center bg-orange-300 border-2 border-zinc-900 font-pixel text-xs font-bold text-zinc-950">
                           3
                         </span>
                       </div>
                     </div>
-                    <span className="max-w-[90px] truncate text-center text-xs font-bold text-gray-900">
+                    <span className="max-w-[90px] truncate text-center font-pixel text-xs font-bold text-zinc-900">
                       {top3.name}
                     </span>
-                    <span className="text-[11px] font-black text-amber-800">
+                    <span className="font-mono text-[11px] font-bold text-amber-800">
                       {top3.scoreLabel}
                     </span>
-                    <div className="mt-2 h-10 w-full rounded-t-xl bg-gradient-to-t from-amber-100 to-orange-50 border-t border-amber-300 flex items-center justify-center text-amber-700 text-xs font-bold">
-                      🥉 Hạng 3
+                    <div className="mt-2 h-10 w-full bg-orange-200 border-2 border-zinc-900 shadow-pixel-xs flex items-center justify-center font-pixel text-zinc-900 text-xs font-bold">
+                      🥉 3RD
                     </div>
                   </div>
                 )}
@@ -304,48 +304,48 @@ export function LeaderboardModal({
 
               {/* Rank List #4+ */}
               {restList.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 px-1">
-                    {language === 'vi' ? 'Bảng xếp hạng chi tiết' : 'Ranked Players'}
+                <div className="space-y-2.5">
+                  <h3 className="font-pixel text-xs font-bold uppercase tracking-wider text-zinc-600 px-1">
+                    {language === 'vi' ? 'BẢNG XẾP HẠNG CHI TIẾT' : 'RANKED PLAYERS'}
                   </h3>
 
                   {restList.map((entry) => (
                     <div
                       key={entry.id}
-                      className={`flex items-center justify-between p-3 rounded-2xl transition-all ${
+                      className={`flex items-center justify-between p-3 border-2 border-zinc-900 shadow-pixel-xs ${
                         entry.isCurrentUser
-                          ? 'bg-indigo-50/90 border-2 border-indigo-400 ring-2 ring-indigo-400/20 shadow-xs'
-                          : 'bg-gray-50/80 border border-gray-100 hover:bg-gray-100/70'
+                          ? 'bg-indigo-100'
+                          : 'bg-white'
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="w-6 text-center text-xs sm:text-sm font-black text-gray-400">
+                        <span className="w-6 text-center font-pixel text-xs sm:text-sm font-bold text-zinc-700">
                           #{entry.rank}
                         </span>
 
                         <UserAvatar
                           avatar={entry.avatar}
-                          className="h-10 w-10 text-xl rounded-xl shadow-2xs border border-gray-200"
+                          className="h-10 w-10 text-xl"
                         />
 
                         <div className="flex flex-col">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs sm:text-sm font-bold text-gray-900 max-w-[120px] sm:max-w-[180px] truncate">
+                            <span className="font-pixel text-xs sm:text-sm font-bold text-zinc-900 max-w-[120px] sm:max-w-[180px] truncate">
                               {entry.name}
                             </span>
                             {entry.isCurrentUser && (
-                              <span className="rounded-md bg-indigo-600 px-1.5 py-0.2 text-[9px] font-black text-white uppercase tracking-wider">
-                                {language === 'vi' ? 'Bạn' : 'You'}
+                              <span className="bg-indigo-600 border border-zinc-900 px-1.5 py-0.5 font-pixel text-[9px] font-bold text-amber-300 uppercase">
+                                {language === 'vi' ? 'BẠN' : 'YOU'}
                               </span>
                             )}
                             {entry.tierBadge && (
-                              <span className="hidden sm:inline-block rounded-md bg-amber-100 px-1.5 py-0.2 text-[9px] font-bold text-amber-800">
+                              <span className="hidden sm:inline-block bg-amber-200 border border-zinc-900 px-1.5 py-0.5 font-pixel text-[9px] font-bold text-zinc-900">
                                 {entry.tierBadge}
                               </span>
                             )}
                           </div>
                           {entry.secondaryInfo && (
-                            <span className="text-[11px] text-gray-500 font-semibold">
+                            <span className="text-[11px] font-mono text-zinc-600 font-semibold">
                               {entry.secondaryInfo}
                             </span>
                           )}
@@ -353,7 +353,7 @@ export function LeaderboardModal({
                       </div>
 
                       <div className="text-right">
-                        <div className="text-xs sm:text-sm font-black text-indigo-600">
+                        <div className="font-pixel text-xs sm:text-sm font-bold text-indigo-700">
                           {entry.scoreLabel}
                         </div>
                       </div>
@@ -367,42 +367,42 @@ export function LeaderboardModal({
 
         {/* Sticky Bottom Bar: Your Rank */}
         {userSummary ? (
-          <div className="border-t border-gray-200 bg-gray-50 px-4 py-3 sm:px-6">
+          <div className="border-t-2 border-zinc-900 bg-[#ECE8DD] px-4 py-3 sm:px-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white font-black text-sm shadow-xs">
+                <div className="flex h-9 w-9 items-center justify-center bg-indigo-600 text-amber-300 border-2 border-zinc-900 font-pixel font-bold text-sm">
                   #{userSummary.rank}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-gray-900">
-                    {language === 'vi' ? 'Vị trí của bạn' : 'Your Position'}
+                  <span className="font-pixel text-xs font-bold text-zinc-900 uppercase">
+                    {language === 'vi' ? 'VỊ TRÍ CỦA BẠN' : 'YOUR RANK'}
                   </span>
-                  <span className="text-[11px] text-gray-500 font-semibold">
+                  <span className="text-[11px] font-mono text-zinc-600 font-semibold">
                     {userSummary.aheadDiff || userSummary.scoreLabel}
                   </span>
                 </div>
               </div>
 
               <div className="text-right">
-                <span className="text-xs sm:text-sm font-black text-indigo-700">
+                <span className="font-pixel text-xs sm:text-sm font-bold text-indigo-800">
                   {userSummary.scoreLabel}
                 </span>
               </div>
             </div>
           </div>
         ) : (
-          <div className="border-t border-gray-200 bg-gray-50 px-4 py-3 sm:px-6 flex items-center justify-between">
-            <span className="text-xs text-gray-500 font-medium">
+          <div className="border-t-2 border-zinc-900 bg-[#ECE8DD] px-4 py-3 sm:px-6 flex items-center justify-between">
+            <span className="text-xs font-mono text-zinc-700 font-bold">
               {language === 'vi'
-                ? 'Bạn chưa có thành tích ở trò chơi này'
+                ? 'Chưa có thành tích ở bộ môn này'
                 : 'No match records for this game yet'}
             </span>
             <Link
               href={getGameRoute(selectedGame)}
               onClick={onClose}
-              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
+              className="font-pixel text-xs font-bold text-indigo-700 hover:underline uppercase"
             >
-              {language === 'vi' ? 'Chơi ngay →' : 'Play now →'}
+              {language === 'vi' ? 'CHƠI NGAY →' : 'PLAY NOW →'}
             </Link>
           </div>
         )}

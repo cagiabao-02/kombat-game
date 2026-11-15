@@ -109,9 +109,9 @@ export function XiangqiBoard({
   };
 
   return (
-    <div className="relative mx-auto w-full max-w-[min(92vw,480px)] select-none rounded-3xl border-4 sm:border-[6px] border-[#6b3c1b] bg-[#e6b97e] p-2 sm:p-3 shadow-2xl ring-1 ring-black/25">
-      {/* Khối bàn cờ gỗ vân sắc nét */}
-      <div className="relative aspect-[9/10] w-full overflow-hidden rounded-2xl bg-[#ecd2a9] shadow-[inset_0_2px_10px_rgba(0,0,0,0.25)] border border-[#a26838]">
+    <div className="relative mx-auto w-full max-w-[min(92vw,480px)] select-none border-4 border-zinc-900 bg-[#8B5A2B] p-2 sm:p-3 shadow-pixel-lg">
+      {/* Khối bàn cờ gỗ Pixel 16-bit */}
+      <div className="relative aspect-[9/10] w-full overflow-hidden border-2 border-zinc-900 bg-[#EAD2A8]">
         {/* Lớp SVG vẽ lưới bàn cờ, sông và cung tướng */}
         <svg
           viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
@@ -123,9 +123,18 @@ export function XiangqiBoard({
             y={PAD_Y}
             width={(GRID_COLS - 1) * CELL_SIZE}
             height={(GRID_ROWS - 1) * CELL_SIZE}
-            fill="#f7e1b5"
-            stroke="#5c3417"
-            strokeWidth="2.5"
+            fill="#F7E1B5"
+            stroke="#3B2314"
+            strokeWidth="3"
+          />
+
+          {/* Khu vực Sông Sở Hà Hán Giới */}
+          <rect
+            x={PAD_X + 1.5}
+            y={PAD_Y + 4 * CELL_SIZE}
+            width={(GRID_COLS - 1) * CELL_SIZE - 3}
+            height={CELL_SIZE}
+            fill="#EFE0BE"
           />
 
           {/* 10 Đường ngang */}
@@ -138,8 +147,8 @@ export function XiangqiBoard({
                 y1={y}
                 x2={PAD_X + (GRID_COLS - 1) * CELL_SIZE}
                 y2={y}
-                stroke="#693c1b"
-                strokeWidth={r === 0 || r === 9 ? '2.5' : '1.5'}
+                stroke="#3B2314"
+                strokeWidth={r === 0 || r === 9 || r === 4 || r === 5 ? '2.5' : '1.5'}
               />
             );
           })}
@@ -156,7 +165,7 @@ export function XiangqiBoard({
                   y1={PAD_Y}
                   x2={x}
                   y2={PAD_Y + (GRID_ROWS - 1) * CELL_SIZE}
-                  stroke="#693c1b"
+                  stroke="#3B2314"
                   strokeWidth="2.5"
                 />
               );
@@ -173,7 +182,7 @@ export function XiangqiBoard({
                   y1={PAD_Y}
                   x2={x}
                   y2={riverTop}
-                  stroke="#693c1b"
+                  stroke="#3B2314"
                   strokeWidth="1.5"
                 />
                 {/* Nửa dưới sông */}
@@ -182,7 +191,7 @@ export function XiangqiBoard({
                   y1={riverBottom}
                   x2={x}
                   y2={PAD_Y + (GRID_ROWS - 1) * CELL_SIZE}
-                  stroke="#693c1b"
+                  stroke="#3B2314"
                   strokeWidth="1.5"
                 />
               </React.Fragment>
@@ -195,7 +204,7 @@ export function XiangqiBoard({
             y1={PAD_Y + 0 * CELL_SIZE}
             x2={PAD_X + 5 * CELL_SIZE}
             y2={PAD_Y + 2 * CELL_SIZE}
-            stroke="#693c1b"
+            stroke="#3B2314"
             strokeWidth="1.5"
           />
           <line
@@ -203,7 +212,7 @@ export function XiangqiBoard({
             y1={PAD_Y + 0 * CELL_SIZE}
             x2={PAD_X + 3 * CELL_SIZE}
             y2={PAD_Y + 2 * CELL_SIZE}
-            stroke="#693c1b"
+            stroke="#3B2314"
             strokeWidth="1.5"
           />
 
@@ -213,7 +222,7 @@ export function XiangqiBoard({
             y1={PAD_Y + 7 * CELL_SIZE}
             x2={PAD_X + 5 * CELL_SIZE}
             y2={PAD_Y + 9 * CELL_SIZE}
-            stroke="#693c1b"
+            stroke="#3B2314"
             strokeWidth="1.5"
           />
           <line
@@ -221,12 +230,12 @@ export function XiangqiBoard({
             y1={PAD_Y + 7 * CELL_SIZE}
             x2={PAD_X + 3 * CELL_SIZE}
             y2={PAD_Y + 9 * CELL_SIZE}
-            stroke="#693c1b"
+            stroke="#3B2314"
             strokeWidth="1.5"
           />
 
           {/* Chữ Sông: Sở Hà • Hán Giới (楚河 • 漢界) */}
-          <g className="fill-[#7a4823]/80 font-black tracking-widest select-none">
+          <g className="fill-[#5C3417] font-black tracking-widest select-none">
             <text
               x={PAD_X + 1.8 * CELL_SIZE}
               y={PAD_Y + 4.65 * CELL_SIZE}
@@ -257,7 +266,7 @@ export function XiangqiBoard({
             const len = 7;
 
             return (
-              <g key={`tick-${idx}`} stroke="#693c1b" strokeWidth="1.2">
+              <g key={`tick-${idx}`} stroke="#3B2314" strokeWidth="1.5">
                 {pt.edges.includes('tl') && (
                   <path
                     d={`M ${cx - gap - len} ${cy - gap} L ${cx - gap} ${cy - gap} L ${cx - gap} ${cy - gap - len}`}
@@ -326,11 +335,11 @@ export function XiangqiBoard({
                         onClick={() => handleIntersectionClick(r, c)}
                       />
 
-                      {/* Vòng tròn mục tiêu đỏ nhấp nháy khi quân địch có thể bị ăn */}
+                      {/* Khung mục tiêu đỏ nhấp nháy khi quân địch có thể bị ăn */}
                       {isLegalDest && piece.side !== turn && (
                         <div
                           onClick={() => handleIntersectionClick(r, c)}
-                          className="absolute inset-[-4px] rounded-full border-2 border-dashed border-rose-500 bg-rose-500/25 animate-pulse cursor-pointer z-40"
+                          className="absolute inset-[-4px] border-2 border-dashed border-rose-600 bg-rose-500/25 animate-pulse cursor-pointer z-40"
                           title="Bấm để ăn quân"
                         />
                       )}
@@ -341,24 +350,24 @@ export function XiangqiBoard({
                       type="button"
                       disabled={disabled || !isLegalDest}
                       onClick={() => handleIntersectionClick(r, c)}
-                      className={`group relative flex h-full w-full items-center justify-center rounded-full outline-none focus:outline-none transition-all ${
+                      className={`group relative flex h-full w-full items-center justify-center outline-none focus:outline-none transition-all ${
                         isLegalDest
                           ? 'cursor-pointer'
                           : 'cursor-default pointer-events-none'
                       }`}
                       aria-label={`Giao điểm ${r + 1}, ${c + 1}`}
                     >
-                      {/* Dấu chấm gợi ý nước đi hợp lệ trên giao điểm trống */}
+                      {/* Ô vuông gợi ý nước đi hợp lệ trên giao điểm trống */}
                       {isLegalDest && (
                         <span className="relative flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center">
-                          <span className="absolute inline-flex h-full w-full rounded-full bg-indigo-500/40 animate-ping" />
-                          <span className="relative inline-flex h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-indigo-600 shadow-md group-hover:scale-125 transition-transform" />
+                          <span className="absolute inline-flex h-full w-full bg-indigo-500/40 animate-ping" />
+                          <span className="relative inline-flex h-2.5 w-2.5 sm:h-3 sm:w-3 border border-zinc-900 bg-indigo-600 group-hover:scale-125 transition-transform" />
                         </span>
                       )}
 
                       {/* Đánh dấu vị trí quân vừa đi từ đâu đến (Nước đi trước) */}
                       {isLastFrom && (
-                        <span className="h-2 w-2 rounded-full bg-amber-500/60 ring-2 ring-amber-400" />
+                        <span className="h-2.5 w-2.5 border border-zinc-900 bg-amber-400" />
                       )}
                     </button>
                   )}
@@ -371,4 +380,3 @@ export function XiangqiBoard({
     </div>
   );
 }
-

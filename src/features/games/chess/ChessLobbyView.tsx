@@ -108,84 +108,84 @@ export function ChessLobbyView({
     <div className="mx-auto max-w-lg select-none">
       {/* Header Info */}
       <div className="text-center mb-6">
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-200/80 px-3.5 py-1 text-xs font-bold text-indigo-700 mb-2.5 shadow-2xs">
-          <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
-          <span>{language === 'vi' ? 'Đấu trí 1v1 Hoàng gia' : 'Royal 1v1 Strategy'}</span>
+        <div className="pixel-badge inline-flex items-center gap-1.5 bg-indigo-200 px-3.5 py-1 text-xs font-bold text-zinc-950 mb-2.5">
+          <Sparkles className="h-3.5 w-3.5 text-indigo-700" />
+          <span>{language === 'vi' ? 'ĐẤU TRÍ 1V1 HOÀNG GIA' : 'ROYAL 1V1 STRATEGY'}</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900">
+        <h1 className="font-pixel text-3xl sm:text-4xl font-bold tracking-wide text-zinc-950 uppercase">
           {language === 'vi' ? 'Cờ Vua (Chess)' : 'Chess'}
         </h1>
-        <p className="mt-2 text-xs sm:text-sm text-gray-600 leading-relaxed max-w-md mx-auto">
+        <p className="mt-2 text-xs sm:text-sm font-mono text-zinc-600 leading-relaxed max-w-md mx-auto">
           {language === 'vi'
-            ? 'Đấu trí đỉnh cao trên bàn cờ 64 ô quốc tế. Chọn chế độ chơi để bắt đầu!'
-            : 'Master the royal 64-square battlefield. Choose your game mode to begin!'}
+            ? 'Đấu trí đỉnh cao trên bàn cờ 64 ô quốc tế 16-bit. Chọn chế độ chơi để bắt đầu!'
+            : 'Master the 16-bit royal 64-square battlefield. Choose your game mode to begin!'}
         </p>
       </div>
 
       {/* Mode Navigation Tabs */}
-      <div className="flex gap-1.5 rounded-2xl bg-gray-100 p-1.5 mb-5 shadow-inner">
+      <div className="grid grid-cols-3 gap-2 mb-5">
         <button
           type="button"
           onClick={() => setActiveTab('local')}
-          className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-black transition-all ${
+          className={`pixel-btn flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold min-h-[44px] ${
             activeTab === 'local'
-              ? 'bg-white text-indigo-700 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-indigo-600 text-amber-300'
+              : 'bg-white text-zinc-800 hover:bg-zinc-100'
           }`}
         >
           <Users className="h-4 w-4" />
-          <span>{language === 'vi' ? 'Chơi Đôi' : 'Pass & Play'}</span>
+          <span>{language === 'vi' ? 'CHƠI ĐÔI' : 'PASS & PLAY'}</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('bot')}
-          className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-black transition-all ${
+          className={`pixel-btn flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold min-h-[44px] ${
             activeTab === 'bot'
-              ? 'bg-white text-purple-700 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-indigo-600 text-amber-300'
+              : 'bg-white text-zinc-800 hover:bg-zinc-100'
           }`}
         >
           <Bot className="h-4 w-4" />
-          <span>{language === 'vi' ? 'Đấu Máy' : 'Bot AI'}</span>
+          <span>{language === 'vi' ? 'ĐẤU MÁY' : 'BOT AI'}</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('online')}
-          className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-black transition-all ${
+          className={`pixel-btn flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold min-h-[44px] ${
             activeTab === 'online'
-              ? 'bg-white text-emerald-700 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-indigo-600 text-amber-300'
+              : 'bg-white text-zinc-800 hover:bg-zinc-100'
           }`}
         >
           <Wifi className="h-4 w-4" />
-          <span>{language === 'vi' ? 'Đấu Online' : 'Online PvP'}</span>
+          <span>{language === 'vi' ? 'ĐẤU ONLINE' : 'ONLINE PVP'}</span>
         </button>
       </div>
 
       {/* Error Message */}
       {errorMessage && (
-        <div className="mb-4 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs font-semibold text-rose-700 animate-fade-in">
+        <div className="mb-4 bg-rose-100 border-2 border-zinc-900 p-3 text-xs font-mono font-bold text-rose-900 shadow-pixel-sm animate-fade-in">
           {errorMessage}
         </div>
       )}
 
       {/* TAB 1: CHƠI ĐÔI (Pass & Play) */}
       {activeTab === 'local' && (
-        <div className="rounded-3xl border border-gray-200/90 bg-white p-5 sm:p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4 text-xs font-bold uppercase tracking-wider text-indigo-700">
+        <div className="pixel-box-lg bg-[#FFFDF8] p-5 sm:p-6">
+          <div className="flex items-center gap-2 mb-4 font-pixel text-xs font-bold uppercase tracking-wider text-indigo-800">
             <Users className="h-4 w-4" />
-            <span>{language === 'vi' ? '2 người chơi trên cùng thiết bị' : '2 players on same device'}</span>
+            <span>{language === 'vi' ? '2 NGƯỜI CHƠI TRÊN CÙNG THIẾT BỊ' : '2 PLAYERS ON SAME DEVICE'}</span>
           </div>
 
           <form onSubmit={handleStartLocal} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                {language === 'vi' ? 'Tên bên Trắng (Đi trước - ♔):' : 'White Player (Moves First - ♔):'}
+              <label className="block font-pixel text-xs font-bold text-zinc-800 mb-1.5 uppercase">
+                {language === 'vi' ? 'Bên Trắng (Đi trước - ♔):' : 'White Player (Moves First - ♔):'}
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-800 font-black">
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-800 font-black">
                   ♔
                 </span>
                 <input
@@ -193,17 +193,17 @@ export function ChessLobbyView({
                   maxLength={18}
                   value={pWhiteName}
                   onChange={(e) => setPWhiteName(e.target.value)}
-                  className="w-full rounded-xl border border-gray-300 pl-9 pr-3.5 py-2.5 text-sm font-semibold text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                  className="pixel-input w-full bg-white pl-9 pr-3.5 py-2.5 text-sm font-bold text-zinc-900"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                {language === 'vi' ? 'Tên bên Đen (Đi sau - ♚):' : 'Black Player (Moves Second - ♚):'}
+              <label className="block font-pixel text-xs font-bold text-zinc-800 mb-1.5 uppercase">
+                {language === 'vi' ? 'Bên Đen (Đi sau - ♚):' : 'Black Player (Moves Second - ♚):'}
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-800 font-black">
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-800 font-black">
                   ♚
                 </span>
                 <input
@@ -211,15 +211,15 @@ export function ChessLobbyView({
                   maxLength={18}
                   value={pBlackName}
                   onChange={(e) => setPBlackName(e.target.value)}
-                  className="w-full rounded-xl border border-gray-300 pl-9 pr-3.5 py-2.5 text-sm font-semibold text-gray-900 focus:border-gray-800 focus:ring-1 focus:ring-gray-800"
+                  className="pixel-input w-full bg-white pl-9 pr-3.5 py-2.5 text-sm font-bold text-zinc-900"
                 />
               </div>
             </div>
 
             {/* Chọn thời gian */}
             <div>
-              <label className="mb-2 flex items-center gap-1.5 text-xs font-bold text-gray-700">
-                <Clock className="h-3.5 w-3.5 text-indigo-600" />
+              <label className="mb-2 flex items-center gap-1.5 font-pixel text-xs font-bold text-zinc-800 uppercase">
+                <Clock className="h-3.5 w-3.5 text-indigo-700" />
                 <span>{t.chess.timeControl}:</span>
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -228,10 +228,10 @@ export function ChessLobbyView({
                     key={opt.value}
                     type="button"
                     onClick={() => setSelectedTime(opt.value)}
-                    className={`rounded-xl border py-2 px-2 text-center text-xs font-bold transition-all ${
+                    className={`pixel-btn py-2 px-2 text-center text-xs font-bold ${
                       selectedTime === opt.value
-                        ? 'border-indigo-600 bg-indigo-50 text-indigo-900 ring-2 ring-indigo-400/30 shadow-xs'
-                        : 'border-gray-200 bg-gray-50/60 text-gray-600 hover:bg-gray-100'
+                        ? 'bg-amber-300 text-zinc-950'
+                        : 'bg-white text-zinc-700 hover:bg-zinc-100'
                     }`}
                   >
                     {opt.label}
@@ -240,7 +240,7 @@ export function ChessLobbyView({
               </div>
             </div>
 
-            <p className="text-[11px] text-gray-500 leading-relaxed bg-amber-50/70 border border-amber-200/60 p-3 rounded-xl">
+            <p className="text-[11px] font-mono text-zinc-700 leading-relaxed bg-[#ECE8DD] border-2 border-zinc-900 p-3">
               💡 {language === 'vi'
                 ? 'Hai bạn chuyền tay nhau đánh lần lượt từng nước trên cùng màn hình điện thoại hoặc máy tính.'
                 : 'Pass & play locally on the same device. Take turns moving pieces.'}
@@ -248,10 +248,10 @@ export function ChessLobbyView({
 
             <button
               type="submit"
-              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 py-3 text-sm font-black text-white shadow-md hover:from-indigo-700 hover:to-blue-700 active:scale-98 transition-all"
+              className="pixel-btn w-full inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 py-3 text-sm font-bold text-amber-300"
             >
               <Play className="h-4 w-4 fill-current" />
-              <span>{language === 'vi' ? 'Bắt Đầu Ván Đấu' : 'Start Match'}</span>
+              <span>{language === 'vi' ? 'BẮT ĐẦU VÁN ĐẤU' : 'START MATCH'}</span>
             </button>
           </form>
         </div>
@@ -259,37 +259,37 @@ export function ChessLobbyView({
 
       {/* TAB 2: ĐẤU MÁY (Bot AI) */}
       {activeTab === 'bot' && (
-        <div className="rounded-3xl border border-gray-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-5">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-700">
+        <div className="pixel-box-lg bg-[#FFFDF8] p-5 sm:p-6 space-y-5">
+          <div className="flex items-center gap-2 font-pixel text-xs font-bold uppercase tracking-wider text-indigo-800">
             <Bot className="h-4 w-4" />
-            <span>{language === 'vi' ? 'Tập luyện với Trí tuệ nhân tạo' : 'Practice with AI'}</span>
+            <span>{language === 'vi' ? 'TẬP LUYỆN VỚI TRÍ TUỆ NHÂN TẠO' : 'PRACTICE WITH AI'}</span>
           </div>
 
           {/* Chọn độ khó */}
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-2">
+            <label className="block font-pixel text-xs font-bold text-zinc-800 mb-2 uppercase">
               {t.chess.difficulty}:
             </label>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { id: 'easy', label: t.chess.botEasy, desc: language === 'vi' ? 'Dễ' : 'Easy' },
-                { id: 'medium', label: t.chess.botMedium, desc: language === 'vi' ? 'Vừa' : 'Medium' },
-                { id: 'hard', label: t.chess.botHard, desc: language === 'vi' ? 'Khó' : 'Hard' },
+                { id: 'easy', label: t.chess.botEasy, desc: language === 'vi' ? 'Dễ' : 'Easy', activeBg: 'bg-emerald-300 text-zinc-950' },
+                { id: 'medium', label: t.chess.botMedium, desc: language === 'vi' ? 'Vừa' : 'Medium', activeBg: 'bg-amber-300 text-zinc-950' },
+                { id: 'hard', label: t.chess.botHard, desc: language === 'vi' ? 'Khó' : 'Hard', activeBg: 'bg-rose-300 text-zinc-950' },
               ].map((lvl) => (
                 <button
                   key={lvl.id}
                   type="button"
                   onClick={() => setBotDifficulty(lvl.id as BotDifficulty)}
-                  className={`flex flex-col items-center justify-center rounded-xl p-3 border transition-all ${
+                  className={`pixel-btn flex flex-col items-center justify-center p-3 ${
                     botDifficulty === lvl.id
-                      ? 'border-purple-600 bg-purple-50/80 shadow-xs ring-2 ring-purple-400/30'
-                      : 'border-gray-200 bg-gray-50/60 hover:bg-gray-100 text-gray-600'
+                      ? lvl.activeBg
+                      : 'bg-white hover:bg-zinc-100 text-zinc-700'
                   }`}
                 >
-                  <span className={`text-xs font-black ${botDifficulty === lvl.id ? 'text-purple-900' : 'text-gray-800'}`}>
+                  <span className="font-pixel text-xs font-bold">
                     {lvl.label}
                   </span>
-                  <span className="text-[10px] text-gray-500 font-medium mt-0.5">
+                  <span className="text-[10px] font-mono mt-0.5">
                     {lvl.desc}
                   </span>
                 </button>
@@ -299,21 +299,21 @@ export function ChessLobbyView({
 
           {/* Chọn quân (Màu cờ) */}
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-2">
+            <label className="block font-pixel text-xs font-bold text-zinc-800 mb-2 uppercase">
               {t.chess.chooseColor}:
             </label>
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => setBotColor('white')}
-                className={`flex flex-col items-center justify-center rounded-xl p-3 border transition-all ${
+                className={`pixel-btn flex flex-col items-center justify-center p-3 ${
                   botColor === 'white'
-                    ? 'border-indigo-600 bg-indigo-50 shadow-xs ring-2 ring-indigo-400/30'
-                    : 'border-gray-200 bg-gray-50/60 hover:bg-gray-100 text-gray-600'
+                    ? 'bg-amber-200 text-zinc-950'
+                    : 'bg-white hover:bg-zinc-100 text-zinc-700'
                 }`}
               >
-                <span className="text-sm font-black text-indigo-900">♔ {t.chess.colorWhite}</span>
-                <span className="text-[10px] text-gray-500 mt-0.5">
+                <span className="font-pixel text-sm font-bold">♔ {t.chess.colorWhite}</span>
+                <span className="text-[10px] font-mono mt-0.5">
                   {language === 'vi' ? 'Đi trước' : 'Moves first'}
                 </span>
               </button>
@@ -321,14 +321,14 @@ export function ChessLobbyView({
               <button
                 type="button"
                 onClick={() => setBotColor('black')}
-                className={`flex flex-col items-center justify-center rounded-xl p-3 border transition-all ${
+                className={`pixel-btn flex flex-col items-center justify-center p-3 ${
                   botColor === 'black'
-                    ? 'border-gray-900 bg-gray-100 shadow-xs ring-2 ring-gray-400/30'
-                    : 'border-gray-200 bg-gray-50/60 hover:bg-gray-100 text-gray-600'
+                    ? 'bg-zinc-900 text-amber-300'
+                    : 'bg-white hover:bg-zinc-100 text-zinc-700'
                 }`}
               >
-                <span className="text-sm font-black text-gray-900">♚ {t.chess.colorBlack}</span>
-                <span className="text-[10px] text-gray-500 mt-0.5">
+                <span className="font-pixel text-sm font-bold">♚ {t.chess.colorBlack}</span>
+                <span className="text-[10px] font-mono mt-0.5">
                   {language === 'vi' ? 'Đi sau' : 'Moves second'}
                 </span>
               </button>
@@ -336,22 +336,22 @@ export function ChessLobbyView({
               <button
                 type="button"
                 onClick={() => setBotColor('random')}
-                className={`flex flex-col items-center justify-center rounded-xl p-3 border transition-all ${
+                className={`pixel-btn flex flex-col items-center justify-center p-3 ${
                   botColor === 'random'
-                    ? 'border-purple-600 bg-purple-50 shadow-xs ring-2 ring-purple-400/30'
-                    : 'border-gray-200 bg-gray-50/60 hover:bg-gray-100 text-gray-600'
+                    ? 'bg-indigo-200 text-zinc-950'
+                    : 'bg-white hover:bg-zinc-100 text-zinc-700'
                 }`}
               >
-                <span className="text-sm font-black text-purple-700">🎲 {t.chess.colorRandom}</span>
-                <span className="text-[10px] text-gray-500 mt-0.5">50/50</span>
+                <span className="font-pixel text-sm font-bold">🎲 {t.chess.colorRandom}</span>
+                <span className="text-[10px] font-mono mt-0.5">50/50</span>
               </button>
             </div>
           </div>
 
           {/* Chọn thời gian */}
           <div>
-            <label className="mb-2 flex items-center gap-1.5 text-xs font-bold text-gray-700">
-              <Clock className="h-3.5 w-3.5 text-purple-600" />
+            <label className="mb-2 flex items-center gap-1.5 font-pixel text-xs font-bold text-zinc-800 uppercase">
+              <Clock className="h-3.5 w-3.5 text-indigo-700" />
               <span>{t.chess.timeControl}:</span>
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -360,10 +360,10 @@ export function ChessLobbyView({
                   key={opt.value}
                   type="button"
                   onClick={() => setSelectedTime(opt.value)}
-                  className={`rounded-xl border py-2 px-2 text-center text-xs font-bold transition-all ${
+                  className={`pixel-btn py-2 px-2 text-center text-xs font-bold ${
                     selectedTime === opt.value
-                      ? 'border-purple-600 bg-purple-50 text-purple-900 ring-2 ring-purple-400/30 shadow-xs'
-                      : 'border-gray-200 bg-gray-50/60 text-gray-600 hover:bg-gray-100'
+                      ? 'bg-amber-300 text-zinc-950'
+                      : 'bg-white text-zinc-700 hover:bg-zinc-100'
                   }`}
                 >
                   {opt.label}
@@ -375,7 +375,7 @@ export function ChessLobbyView({
           <button
             type="button"
             onClick={() => onStartBotMatch(botDifficulty, botColor, selectedTime)}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-purple-600 py-3 text-sm font-black text-white shadow-md hover:bg-purple-700 active:scale-98 transition-all"
+            className="pixel-btn w-full inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 py-3 text-sm font-bold text-amber-300"
           >
             <Play className="h-4 w-4 fill-current" />
             <span>{t.chess.startBotMatch}</span>
@@ -385,16 +385,16 @@ export function ChessLobbyView({
 
       {/* TAB 3: ĐẤU ONLINE */}
       {activeTab === 'online' && (
-        <div className="rounded-3xl border border-gray-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-5">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-700">
+        <div className="pixel-box-lg bg-[#FFFDF8] p-5 sm:p-6 space-y-5">
+          <div className="flex items-center gap-2 font-pixel text-xs font-bold uppercase tracking-wider text-emerald-800">
             <Wifi className="h-4 w-4" />
-            <span>{language === 'vi' ? 'Chiến thuật thời gian thực' : 'Realtime PvP Online'}</span>
+            <span>{language === 'vi' ? 'CHIẾN THUẬT THỜI GIAN THỰC' : 'REALTIME PVP ONLINE'}</span>
           </div>
 
           {/* Chọn thời gian thi đấu */}
           <div>
-            <label className="mb-2 flex items-center gap-1.5 text-xs font-bold text-gray-700">
-              <Clock className="h-3.5 w-3.5 text-emerald-600" />
+            <label className="mb-2 flex items-center gap-1.5 font-pixel text-xs font-bold text-zinc-800 uppercase">
+              <Clock className="h-3.5 w-3.5 text-emerald-700" />
               <span>{t.chess.timeControl}:</span>
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -403,10 +403,10 @@ export function ChessLobbyView({
                   key={opt.value}
                   type="button"
                   onClick={() => setSelectedTime(opt.value)}
-                  className={`rounded-xl border py-2 px-2 text-center text-xs font-bold transition-all ${
+                  className={`pixel-btn py-2 px-2 text-center text-xs font-bold ${
                     selectedTime === opt.value
-                      ? 'border-emerald-600 bg-emerald-50 text-emerald-900 ring-2 ring-emerald-400/30 shadow-xs'
-                      : 'border-gray-200 bg-gray-50/60 text-gray-600 hover:bg-gray-100'
+                      ? 'bg-emerald-300 text-zinc-950'
+                      : 'bg-white text-zinc-700 hover:bg-zinc-100'
                   }`}
                 >
                   {opt.label}
@@ -416,34 +416,34 @@ export function ChessLobbyView({
           </div>
 
           {/* Ghép trận nhanh */}
-          <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4">
-            <h4 className="text-sm font-black text-emerald-950 mb-1 flex items-center gap-1.5">
-              <Zap className="h-4 w-4 text-emerald-600 fill-current" />
+          <div className="border-2 border-zinc-900 bg-emerald-100 p-4 shadow-pixel-sm">
+            <h4 className="font-pixel text-sm font-bold text-zinc-950 mb-1 flex items-center gap-1.5 uppercase">
+              <Zap className="h-4 w-4 text-emerald-700 fill-current" />
               <span>{t.chess.quickMatch}</span>
-              <span className="rounded-full bg-emerald-200/80 px-2 py-0.5 text-[9px] font-bold text-emerald-900 uppercase">
-                {language === 'vi' ? 'Khuyên dùng' : 'Recommended'}
+              <span className="bg-amber-300 border border-zinc-900 px-2 py-0.5 text-[9px] font-bold text-zinc-950 uppercase">
+                {language === 'vi' ? 'KHUYÊN DÙNG' : 'RECOMMENDED'}
               </span>
             </h4>
-            <p className="text-xs text-emerald-800/80 mb-3 leading-relaxed">
+            <p className="text-xs font-mono text-zinc-700 mb-3 leading-relaxed">
               {t.chess.quickMatchDesc}
             </p>
             <button
               type="button"
               onClick={() => onStartQuickMatch(selectedTime)}
               disabled={isSearchingMatch}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 text-xs font-black text-white shadow-sm hover:bg-emerald-700 active:scale-98 transition-all disabled:opacity-50"
+              className="pixel-btn w-full inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 py-2.5 text-xs font-bold text-zinc-950 disabled:opacity-50"
             >
-              <span>{isSearchingMatch ? (language === 'vi' ? 'Đang tìm...' : 'Searching...') : t.chess.findMatch}</span>
+              <span>{isSearchingMatch ? (language === 'vi' ? 'ĐANG TÌM...' : 'SEARCHING...') : t.chess.findMatch}</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </button>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="h-px flex-1 bg-gray-200" />
-            <span className="text-[11px] font-bold text-gray-400 uppercase">
-              {language === 'vi' ? 'Hoặc tạo phòng riêng' : 'Or Private Room'}
+            <div className="h-0.5 flex-1 bg-zinc-300" />
+            <span className="font-pixel text-[11px] font-bold text-zinc-500 uppercase">
+              {language === 'vi' ? 'HOẶC TẠO PHÒNG RIÊNG' : 'OR PRIVATE ROOM'}
             </span>
-            <div className="h-px flex-1 bg-gray-200" />
+            <div className="h-0.5 flex-1 bg-zinc-300" />
           </div>
 
           {/* Tạo phòng & Nhập mã phòng */}
@@ -452,26 +452,26 @@ export function ChessLobbyView({
               type="button"
               onClick={() => onCreateRoom(selectedTime)}
               disabled={isCreating}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50/80 py-2.5 text-xs font-bold text-gray-800 hover:bg-gray-100 active:scale-98 transition-all"
+              className="pixel-btn w-full inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 py-2.5 text-xs font-bold text-amber-300"
             >
-              <span>{isCreating ? (language === 'vi' ? 'Đang tạo phòng...' : 'Creating...') : (language === 'vi' ? 'Tạo Phòng Riêng & Lấy Mã Mời' : 'Create Room & Get Code')}</span>
+              <span>{isCreating ? (language === 'vi' ? 'ĐANG TẠO PHÒNG...' : 'CREATING...') : (language === 'vi' ? 'TẠO PHÒNG RIÊNG & LẤY MÃ MỜI' : 'CREATE ROOM & GET CODE')}</span>
             </button>
 
             <form onSubmit={handleJoinSubmit} className="flex gap-2">
               <input
                 type="text"
                 maxLength={8}
-                placeholder={language === 'vi' ? 'Nhập mã phòng 6 ký tự...' : 'Enter 6-char code...'}
+                placeholder={language === 'vi' ? 'Nhập mã 6 ký tự...' : 'Enter 6-char code...'}
                 value={inputCode}
                 onChange={(e) => setInputCode(e.target.value.toUpperCase())}
-                className="flex-1 rounded-xl border border-gray-300 px-3.5 py-2 text-xs font-mono font-bold tracking-wider uppercase focus:border-emerald-600 focus:outline-none"
+                className="pixel-input flex-1 bg-white px-3.5 py-2 font-pixel text-xs font-bold tracking-wider uppercase"
               />
               <button
                 type="submit"
                 disabled={isJoining || inputCode.trim().length < 4}
-                className="rounded-xl bg-gray-900 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-gray-800 active:scale-95 disabled:opacity-40"
+                className="pixel-btn bg-zinc-900 px-4 py-2 text-xs font-bold text-amber-300 hover:bg-zinc-800 disabled:opacity-40"
               >
-                {language === 'vi' ? 'Vào phòng' : 'Join'}
+                {language === 'vi' ? 'VÀO PHÒNG' : 'JOIN'}
               </button>
             </form>
           </div>
@@ -479,54 +479,54 @@ export function ChessLobbyView({
       )}
 
       {/* Accordion Thành tích cá nhân */}
-      <div className="mt-5 rounded-2xl border border-gray-200/80 bg-white overflow-hidden shadow-2xs">
+      <div className="pixel-box mt-5 bg-[#FFFDF8] overflow-hidden">
         <button
           type="button"
           onClick={() => setShowStats(!showStats)}
-          className="w-full flex items-center justify-between p-3.5 hover:bg-gray-50 text-left transition-colors"
+          className="w-full flex items-center justify-between p-3.5 hover:bg-amber-50 text-left transition-colors"
         >
           <div className="flex items-center gap-2">
             <Trophy className="h-4 w-4 text-amber-600" />
-            <span className="text-xs font-black text-gray-800">
-              {language === 'vi' ? 'Bảng thành tích thi đấu cờ vua của bạn' : 'Your Chess Performance Stats'}
+            <span className="font-pixel text-xs font-bold text-zinc-900 uppercase">
+              {language === 'vi' ? 'BẢNG THÀNH TÍCH CỜ VUA CỦA BẠN' : 'YOUR CHESS PERFORMANCE STATS'}
             </span>
           </div>
           {showStats ? (
-            <ChevronUp className="h-4 w-4 text-gray-400" />
+            <ChevronUp className="h-4 w-4 text-zinc-700" />
           ) : (
-            <ChevronDown className="h-4 w-4 text-gray-400" />
+            <ChevronDown className="h-4 w-4 text-zinc-700" />
           )}
         </button>
 
         {showStats && (
-          <div className="border-t border-gray-100 p-4 bg-gray-50/50">
+          <div className="border-t-2 border-zinc-900 p-4 bg-[#ECE8DD]">
             <ChessStatsCard />
           </div>
         )}
       </div>
 
       {/* Accordion Hướng dẫn luật chơi Cờ Vua */}
-      <div className="mt-3 rounded-2xl border border-gray-200/80 bg-white overflow-hidden shadow-2xs">
+      <div className="pixel-box mt-3 bg-[#FFFDF8] overflow-hidden">
         <button
           type="button"
           onClick={() => setShowRules(!showRules)}
-          className="w-full flex items-center justify-between p-3.5 hover:bg-gray-50 text-left transition-colors"
+          className="w-full flex items-center justify-between p-3.5 hover:bg-indigo-50 text-left transition-colors"
         >
           <div className="flex items-center gap-2">
-            <HelpCircle className="h-4 w-4 text-indigo-600" />
-            <span className="text-xs font-black text-gray-800">
-              {language === 'vi' ? 'Quy tắc di chuyển quân Cờ Vua tóm tắt' : 'Quick Chess Rules Summary'}
+            <HelpCircle className="h-4 w-4 text-indigo-700" />
+            <span className="font-pixel text-xs font-bold text-zinc-900 uppercase">
+              {language === 'vi' ? 'QUY TẮC DI CHUYỂN QUÂN CỜ VUA' : 'QUICK CHESS RULES SUMMARY'}
             </span>
           </div>
           {showRules ? (
-            <ChevronUp className="h-4 w-4 text-gray-400" />
+            <ChevronUp className="h-4 w-4 text-zinc-700" />
           ) : (
-            <ChevronDown className="h-4 w-4 text-gray-400" />
+            <ChevronDown className="h-4 w-4 text-zinc-700" />
           )}
         </button>
 
         {showRules && (
-          <div className="border-t border-gray-100 p-4 bg-gray-50/50 text-xs text-gray-600 space-y-2 leading-relaxed">
+          <div className="border-t-2 border-zinc-900 p-4 bg-[#ECE8DD] text-xs font-mono text-zinc-800 space-y-2 leading-relaxed">
             <p>• <strong>Xe (Rook):</strong> Đi ngang dọc tự do không giới hạn số ô nếu không có quân cản.</p>
             <p>• <strong>Tượng (Bishop):</strong> Đi chéo tự do theo các ô cùng màu không giới hạn khoảng cách.</p>
             <p>• <strong>Mã (Knight):</strong> Đi hình chữ L (2 ô một hướng và 1 ô vuông góc). Mã có thể nhảy qua các quân khác mà không bị cản.</p>
@@ -539,48 +539,38 @@ export function ChessLobbyView({
 
       {/* MATCHMAKING SEARCHING OVERLAY */}
       {isSearchingMatch && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 sm:p-8 text-center shadow-2xl border border-indigo-100 animate-scale-up">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 animate-fade-in">
+          <div className="pixel-box-lg w-full max-w-sm bg-[#FFFDF8] p-6 sm:p-8 text-center animate-scale-up">
             {matchFoundOpponentName ? (
-              // Match Found View
               <div>
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 mb-4 animate-bounce">
-                  <CheckCircle2 className="h-10 w-10" />
+                <div className="mx-auto flex h-16 w-16 items-center justify-center bg-emerald-300 border-2 border-zinc-900 text-zinc-950 mb-4 animate-bounce">
+                  <CheckCircle2 className="h-9 w-9" />
                 </div>
-                <h3 className="text-2xl font-black text-gray-900 tracking-tight">
+                <h3 className="font-pixel text-2xl font-bold text-zinc-950 uppercase">
                   {t.chess.matchFound}
                 </h3>
-                <p className="mt-2 text-sm text-gray-600 font-medium">
+                <p className="mt-2 font-pixel text-sm text-indigo-700 font-bold">
                   {language === 'vi'
-                    ? `Đang kết nối cùng đối thủ ${matchFoundOpponentName}...`
+                    ? `Đang kết nối cùng ${matchFoundOpponentName}...`
                     : `Connecting with ${matchFoundOpponentName}...`}
                 </p>
-                <div className="mt-6 flex items-center justify-center">
-                  <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
-                </div>
               </div>
             ) : (
-              // Radar Searching View
               <div>
-                {/* Radar Animation */}
-                <div className="relative mx-auto flex h-24 w-24 items-center justify-center mb-5">
-                  <div className="absolute h-full w-full rounded-full bg-indigo-500/20 animate-ping" />
-                  <div className="absolute h-16 w-16 rounded-full bg-indigo-500/30 animate-pulse" />
-                  <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg">
-                    <Zap className="h-6 w-6 animate-pulse" />
-                  </div>
+                <div className="relative mx-auto flex h-16 w-16 items-center justify-center bg-indigo-600 text-amber-300 border-2 border-zinc-900 shadow-pixel-sm mb-5">
+                  <Zap className="h-8 w-8 animate-pulse" />
                 </div>
 
-                <h3 className="text-xl font-black text-gray-900 tracking-tight">
+                <h3 className="font-pixel text-xl font-bold text-zinc-950 uppercase">
                   {t.chess.searchingOpponent}
                 </h3>
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs font-mono text-zinc-600">
                   {t.chess.searchingDesc}
                 </p>
 
                 {/* Queue Timer */}
-                <div className="my-5 inline-flex items-center gap-2 rounded-full bg-gray-100 px-4 py-1.5 font-mono text-xs font-bold text-gray-700">
-                  <Clock className="h-3.5 w-3.5 text-indigo-600" />
+                <div className="my-5 inline-flex items-center gap-2 bg-[#ECE8DD] border-2 border-zinc-900 px-4 py-1.5 font-pixel text-sm font-bold text-zinc-900">
+                  <Clock className="h-3.5 w-3.5 text-indigo-700" />
                   <span>
                     {t.chess.queueTime.replace('{time}', formatQueueTime(searchElapsedSeconds))}
                   </span>
@@ -588,11 +578,8 @@ export function ChessLobbyView({
 
                 {/* 1-minute Timeout Suggestion to Play with Bot */}
                 {searchElapsedSeconds >= 60 && (
-                  <div className="mb-4 rounded-2xl border border-purple-200 bg-purple-50 p-4 text-center animate-fade-in shadow-sm">
-                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-purple-600 text-white mb-2 shadow-sm">
-                      <Bot className="h-5 w-5" />
-                    </div>
-                    <p className="text-xs font-semibold text-purple-950 mb-3 leading-relaxed">
+                  <div className="mb-4 border-2 border-zinc-900 bg-indigo-50 p-4 text-center shadow-pixel-xs">
+                    <p className="text-xs font-mono font-bold text-indigo-950 mb-3 leading-relaxed">
                       {t.chess.quickMatchTimeoutOffer}
                     </p>
                     <button
@@ -601,7 +588,7 @@ export function ChessLobbyView({
                         onCancelQuickMatch();
                         onStartBotMatch('medium', 'random', selectedTime);
                       }}
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-purple-600 py-2.5 text-xs font-bold text-white shadow-md hover:bg-purple-700 active:scale-95 transition-all"
+                      className="pixel-btn w-full inline-flex items-center justify-center gap-2 bg-indigo-600 py-2.5 text-xs font-bold text-amber-300"
                     >
                       <Bot className="h-4 w-4" />
                       <span>{t.chess.switchPlayBot}</span>
@@ -613,9 +600,9 @@ export function ChessLobbyView({
                 <button
                   type="button"
                   onClick={onCancelQuickMatch}
-                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white py-2.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 active:scale-95 transition-all"
+                  className="pixel-btn inline-flex w-full items-center justify-center gap-1.5 bg-white py-2.5 text-xs font-bold text-zinc-900 hover:bg-rose-50"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4 text-rose-600" />
                   <span>{t.chess.cancelSearch}</span>
                 </button>
               </div>

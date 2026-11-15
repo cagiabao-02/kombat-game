@@ -22,6 +22,7 @@ import {
 import { recordCaroGameResult } from './caroStatsService';
 import { soundService } from '@/lib/sound/soundService';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { PixelFxOverlay } from '@/components/fx/PixelFxOverlay';
 import {
   Copy,
   Check,
@@ -77,6 +78,11 @@ export function CaroGameView({
       : isBotGame
       ? gameState.turn === myPiece
       : gameState.turn === myPiece);
+
+  const isHumanWinner =
+    isLocalGame
+      ? gameState.winner !== 'draw'
+      : gameState.winner === myPiece;
 
   // Sync state when game ends
   useEffect(() => {
@@ -448,47 +454,47 @@ export function CaroGameView({
   // WAITING ROOM VIEW (Online room waiting for guest)
   if (isOnline && room.status === 'waiting') {
     return (
-      <div className="mx-auto max-w-md px-4 py-8 text-center animate-in fade-in duration-200">
-        <div className="rounded-3xl bg-white p-6 sm:p-8 shadow-sm border border-gray-200/90">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 mb-4 animate-pulse">
+      <div className="mx-auto max-w-md px-4 py-8 text-center animate-in fade-in duration-150">
+        <div className="pixel-box-lg bg-[#FFFDF8] p-6 sm:p-8">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center bg-indigo-600 text-amber-300 border-2 border-zinc-900 shadow-pixel-sm mb-4 animate-pulse">
             <Users className="h-8 w-8" />
           </div>
 
-          <h2 className="text-xl sm:text-2xl font-black text-gray-900 mb-1">
-            {language === 'vi' ? 'Đang chờ đối thủ...' : 'Waiting for Opponent...'}
+          <h2 className="font-pixel text-xl sm:text-2xl font-bold text-zinc-950 uppercase mb-1">
+            {language === 'vi' ? 'ĐANG CHỜ ĐỐI THỦ...' : 'WAITING FOR CHALLENGER...'}
           </h2>
-          <p className="text-xs sm:text-sm text-gray-500 mb-6">
+          <p className="text-xs sm:text-sm font-mono text-zinc-600 mb-6">
             {language === 'vi'
               ? 'Chia sẻ mã phòng hoặc đường link này để bạn bè tham gia ván cờ.'
               : 'Share this code or link with a friend to start the match.'}
           </p>
 
-          <div className="mb-6 rounded-2xl bg-gray-50 border border-gray-200/80 p-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-400 block mb-1">
-              {language === 'vi' ? 'Mã phòng thi đấu' : 'Room Code'}
+          <div className="mb-6 bg-[#ECE8DD] border-2 border-zinc-900 p-4 shadow-pixel-inset">
+            <span className="font-pixel text-xs font-bold uppercase tracking-wider text-zinc-600 block mb-1">
+              {language === 'vi' ? 'MÃ PHÒNG THI ĐẤU' : 'ROOM CODE'}
             </span>
-            <div className="font-mono text-3xl sm:text-4xl font-black tracking-widest text-indigo-600">
+            <div className="font-pixel text-3xl sm:text-4xl font-bold tracking-widest text-indigo-700">
               {room.code}
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2.5">
             <button
               type="button"
               onClick={handleCopyLink}
-              className="min-h-[46px] w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 active:scale-98 transition-all"
+              className="pixel-btn min-h-[46px] w-full flex items-center justify-center gap-2 bg-indigo-600 px-4 py-2 text-sm font-bold text-amber-300 hover:bg-indigo-500"
             >
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              <span>{copied ? (language === 'vi' ? 'Đã sao chép liên kết!' : 'Copied link!') : (language === 'vi' ? 'Sao chép liên kết mời' : 'Copy invite link')}</span>
+              <span>{copied ? (language === 'vi' ? 'ĐÃ SAO CHÉP LIÊN KẾT!' : 'COPIED LINK!') : (language === 'vi' ? 'SAO CHÉP LIÊN KẾT MỜI' : 'COPY INVITE LINK')}</span>
             </button>
 
             <button
               type="button"
               onClick={handleLeave}
-              className="min-h-[44px] w-full flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 active:scale-98 transition-all"
+              className="pixel-btn min-h-[44px] w-full flex items-center justify-center gap-1.5 bg-white px-4 py-2 text-sm font-bold text-zinc-900 hover:bg-zinc-100"
             >
-              <Home className="h-4 w-4 text-gray-500" />
-              <span>{language === 'vi' ? 'Hủy phòng & Về sảnh' : 'Cancel & Exit'}</span>
+              <Home className="h-4 w-4 text-zinc-700" />
+              <span>{language === 'vi' ? 'HỦY PHÒNG & VỀ SẢNH' : 'CANCEL & EXIT'}</span>
             </button>
           </div>
         </div>
@@ -498,37 +504,37 @@ export function CaroGameView({
 
   // ACTIVE MATCH GAMEPLAY
   return (
-    <div className="mx-auto flex flex-col items-center gap-4 sm:gap-6 py-2 sm:py-4 px-2 w-full max-w-2xl">
+    <div className="mx-auto flex flex-col items-center gap-4 sm:gap-5 py-2 sm:py-4 px-2 w-full max-w-2xl">
       {/* Player Header Card */}
-      <div className="w-full max-w-lg flex items-center justify-between px-2">
-        <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-50 text-rose-600 font-black text-sm border border-rose-200 shadow-2xs">
-            ✕
+      <div className="pixel-box w-full max-w-lg flex items-center justify-between bg-[#FFFDF8] px-3 py-2.5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center bg-rose-100 text-rose-600 font-pixel font-bold text-sm border-2 border-zinc-900 shadow-pixel-xs">
+            X
           </div>
           <div className="flex flex-col">
-            <span className="text-xs sm:text-sm font-black text-gray-900 leading-tight">
+            <span className="font-pixel text-xs sm:text-sm font-bold text-zinc-950 leading-tight">
               {room.host_name}
             </span>
-            <span className="text-[10px] text-gray-500 font-semibold">
-              {isHost && isOnline ? 'Bạn' : 'Người chơi 1'}
+            <span className="text-[10px] font-mono text-zinc-500 font-bold uppercase">
+              {isHost && isOnline ? 'BẠN (P1)' : 'P1'}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 border border-gray-200 text-[11px] font-black text-gray-600 shadow-2xs">
+        <div className="pixel-badge bg-amber-300 px-2.5 py-0.5 text-[11px] font-bold text-zinc-950">
           <span>VS</span>
         </div>
 
-        <div className="flex items-center gap-2 flex-row-reverse text-right">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 font-black text-sm border border-indigo-200 shadow-2xs">
-            ◯
+        <div className="flex items-center gap-2.5 flex-row-reverse text-right">
+          <div className="flex h-9 w-9 items-center justify-center bg-indigo-100 text-indigo-700 font-pixel font-bold text-sm border-2 border-zinc-900 shadow-pixel-xs">
+            O
           </div>
           <div className="flex flex-col">
-            <span className="text-xs sm:text-sm font-black text-gray-900 leading-tight">
+            <span className="font-pixel text-xs sm:text-sm font-bold text-zinc-950 leading-tight">
               {room.guest_name || (isBotGame ? 'Bot AI' : 'Người chơi 2')}
             </span>
-            <span className="text-[10px] text-gray-500 font-semibold">
-              {!isHost && isOnline ? 'Bạn' : isBotGame ? 'Bot' : 'Người chơi 2'}
+            <span className="text-[10px] font-mono text-zinc-500 font-bold uppercase">
+              {!isHost && isOnline ? 'BẠN (P2)' : isBotGame ? 'CPU' : 'P2'}
             </span>
           </div>
         </div>
@@ -563,50 +569,63 @@ export function CaroGameView({
 
       {/* GAME OVER MODAL */}
       {showGameOverModal && gameState.isGameOver && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/70 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl text-center border border-gray-100 animate-in zoom-in-95 duration-150">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-500 mb-3 animate-bounce">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 animate-in fade-in duration-150 overflow-hidden">
+          {/* Pixel Art Confetti Burst on Victory - CHỈ BẮN KHI THẮNG */}
+          {isHumanWinner && gameState.winner !== 'draw' && (
+            <PixelFxOverlay active={true} />
+          )}
+
+          <div className="pixel-box-lg relative w-full max-w-sm bg-[#FFFDF8] p-6 text-center animate-in zoom-in-95 duration-150 z-10">
+            <div
+              className={`mx-auto flex h-16 w-16 items-center justify-center border-2 border-zinc-900 shadow-pixel-sm mb-3 ${
+                isHumanWinner && gameState.winner !== 'draw'
+                  ? 'bg-amber-300 text-zinc-950 animate-bounce'
+                  : 'bg-zinc-200 text-zinc-700'
+              }`}
+            >
               <Trophy className="h-8 w-8" />
             </div>
 
-            <h3 className="text-xl sm:text-2xl font-black text-gray-900 mb-1">
+            <h3 className="font-pixel text-xl sm:text-2xl font-bold text-zinc-950 uppercase mb-1">
               {gameState.winner === 'draw'
-                ? 'Hòa cờ!'
-                : gameState.isResigned
-                ? `Thắng cờ! (Đối thủ xin thua)`
-                : `Người chơi ${gameState.winner} Thắng!`}
+                ? 'HÒA CỜ! (DRAW)'
+                : isLocalGame
+                ? (gameState.isResigned ? `P.${gameState.winner} THẮNG! (ĐỐI THỦ XIN THUA)` : `NGƯỜI CHƠI ${gameState.winner} THẮNG!`)
+                : isHumanWinner
+                ? (gameState.isResigned ? 'YOU WIN! (ĐỐI THỦ XIN THUA)' : 'STAGE CLEAR! BẠN THẮNG! 👑')
+                : 'GAME OVER! BẠN ĐÃ THUA!'}
             </h3>
 
-            <p className="text-xs sm:text-sm text-gray-500 mb-6">
+            <p className="text-xs sm:text-sm font-mono text-zinc-600 mb-6">
               {gameState.winner === 'draw'
                 ? 'Bàn cờ đã kín ô mà không có bên nào tạo được 5 quân liên tiếp.'
-                : `Hoàn tất với 5 quân thẳng hàng sau ${gameState.history.length} nước đi.`}
+                : `Hoàn tất ván đấu sau ${gameState.history.length} nước đi.`}
             </p>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2.5">
               <button
                 type="button"
                 onClick={handleRematch}
                 disabled={rematchRequestedByMe}
-                className="min-h-[46px] w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-200 hover:from-indigo-700 hover:to-purple-700 active:scale-98 transition-all disabled:opacity-60"
+                className="pixel-btn min-h-[46px] w-full flex items-center justify-center gap-2 bg-indigo-600 px-4 py-2.5 text-sm font-bold text-amber-300 hover:bg-indigo-500 disabled:opacity-60"
               >
                 <RotateCcw className="h-4 w-4" />
                 <span>
                   {rematchRequestedByMe
-                    ? 'Đang chờ đối thủ đồng ý...'
+                    ? 'ĐANG CHỜ ĐỐI THỦ ĐỒNG Ý...'
                     : rematchOfferedByOpponent
-                    ? 'Đồng ý đấu ván mới!'
-                    : 'Đấu lại ván mới'}
+                    ? 'ĐỒNG Ý ĐẤU VÁN MỚI!'
+                    : 'ĐẤU LẠI VÁN MỚI'}
                 </span>
               </button>
 
               <button
                 type="button"
                 onClick={handleLeave}
-                className="min-h-[44px] w-full flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 active:scale-98 transition-all"
+                className="pixel-btn min-h-[44px] w-full flex items-center justify-center gap-1.5 bg-white px-4 py-2 text-sm font-bold text-zinc-900 hover:bg-zinc-100"
               >
-                <Home className="h-4 w-4 text-gray-500" />
-                <span>Về sảnh trò chơi</span>
+                <Home className="h-4 w-4 text-zinc-700" />
+                <span>VỀ SẢNH TRÒ CHƠI</span>
               </button>
             </div>
           </div>

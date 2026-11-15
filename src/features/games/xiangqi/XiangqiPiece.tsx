@@ -27,9 +27,8 @@ export function XiangqiPiece({
   const isRed = piece.side === 'red';
   const info = PIECE_INFO[piece.type][piece.side];
 
-  // Màu sắc truyền thống theo chuẩn cờ tướng kinh điển
-  const borderColor = isRed ? 'border-[#b91c1c]' : 'border-[#18181b]';
-  const innerRingColor = isRed ? 'border-[#dc2626]/40' : 'border-[#27272a]/30';
+  // Màu sắc truyền thống Cờ Tướng theo phong cách 16-bit Pixel Token
+  const innerRingColor = isRed ? 'border-[#dc2626]' : 'border-[#27272a]';
   const textColor = isRed ? 'text-[#b91c1c]' : 'text-[#18181b]';
   const subLabelColor = isRed ? 'text-[#dc2626]' : 'text-[#3f3f46]';
 
@@ -38,32 +37,32 @@ export function XiangqiPiece({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={`group relative flex h-full w-full items-center justify-center rounded-full transition-all duration-150 select-none outline-none focus:outline-none ${
-        disabled ? 'cursor-default' : 'cursor-pointer active:scale-95'
+      className={`group relative flex h-full w-full items-center justify-center rounded-full transition-transform duration-100 select-none outline-none focus:outline-none ${
+        disabled ? 'cursor-default' : 'cursor-pointer active:translate-y-0.5'
       } ${
         isSelected
-          ? 'scale-110 z-30 shadow-2xl ring-4 ring-indigo-500 ring-offset-2 ring-offset-amber-100'
+          ? '-translate-y-1 scale-110 z-30 ring-4 ring-indigo-500 ring-offset-1 ring-offset-amber-200'
           : isInCheck
-          ? 'scale-105 z-20 shadow-xl ring-4 ring-rose-500 animate-pulse'
+          ? 'scale-105 z-20 ring-4 ring-rose-500 animate-pulse'
           : isLastMoveTo
-          ? 'scale-105 z-10 shadow-lg ring-2 ring-amber-500 ring-offset-1'
+          ? 'scale-105 z-10 ring-2 ring-amber-500 ring-offset-1'
           : isLastMoveFrom
-          ? 'opacity-90 ring-2 ring-amber-400/80 ring-dashed'
-          : 'shadow-md hover:scale-105 hover:shadow-lg'
+          ? 'opacity-90 ring-2 ring-amber-500/80 ring-dashed'
+          : 'hover:-translate-y-0.5'
       }`}
       aria-label={`${isRed ? 'Đỏ' : 'Đen'} ${info.nameVi}`}
     >
-      {/* Thân quân cờ tròn hiệu ứng vân gỗ / ngà 3D sang trọng */}
+      {/* Thân quân cờ 16-bit Pixel Token với bóng cứng đổ khối */}
       <div
-        className={`relative flex h-full w-full items-center justify-center rounded-full border-2 ${borderColor} bg-gradient-to-b from-[#fefcf8] via-[#f7ecd9] to-[#ebd4b7] shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),inset_0_-3px_5px_rgba(0,0,0,0.18)] p-0.5`}
+        className="relative flex h-full w-full items-center justify-center rounded-full border-2 border-zinc-900 bg-[#F7ECD9] shadow-[0_3px_0_0_#18181b,inset_0_2px_0_0_#ffffff] p-0.5"
       >
         {/* Vòng chỉ đồng tâm bên trong */}
         <div
-          className={`flex h-full w-full flex-col items-center justify-center rounded-full border ${innerRingColor} bg-gradient-to-b from-[#fdfbf6]/60 to-[#edd9bd]/40 p-0.5`}
+          className={`flex h-full w-full flex-col items-center justify-center rounded-full border-2 ${innerRingColor} bg-[#FDFBF7] p-0.5`}
         >
           {/* Chữ Hán thư pháp sắc nét */}
           <span
-            className={`font-black tracking-tight leading-none ${textColor} text-base sm:text-lg md:text-xl drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]`}
+            className={`font-black tracking-tight leading-none ${textColor} text-base sm:text-lg md:text-xl`}
             style={{
               fontFamily:
                 '"Songti SC", "SimSun", "STSong", "KaiTi", "Noto Serif SC", serif',
@@ -72,10 +71,10 @@ export function XiangqiPiece({
             {info.hanzi}
           </span>
 
-          {/* Nhãn phụ tiếng Việt tinh tế giúp người mới dễ chơi */}
+          {/* Nhãn phụ tiếng Việt Pixel */}
           {showSubLabel && (
             <span
-              className={`text-[7px] sm:text-[8px] font-black uppercase tracking-tighter leading-none mt-0.5 ${subLabelColor} opacity-90`}
+              className={`font-pixel text-[7px] sm:text-[8px] font-bold uppercase tracking-tighter leading-none mt-0.5 ${subLabelColor}`}
             >
               {piece.type === 'general'
                 ? 'Tướng'
@@ -99,4 +98,3 @@ export function XiangqiPiece({
     </button>
   );
 }
-

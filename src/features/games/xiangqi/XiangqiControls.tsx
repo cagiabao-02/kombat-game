@@ -65,9 +65,9 @@ export function XiangqiControls({
     <div className="w-full max-w-lg mx-auto flex flex-col gap-3 select-none">
       {/* Cảnh báo Chiếu Tướng (Check Banner) */}
       {isCheck && !isGameOver && (
-        <div className="flex items-center justify-center gap-2 rounded-2xl bg-rose-50 border-2 border-rose-400 p-2.5 text-rose-700 shadow-md animate-bounce">
-          <ShieldAlert className="h-5 w-5 text-rose-600 shrink-0" />
-          <span className="text-sm font-black tracking-wide uppercase">
+        <div className="flex items-center justify-center gap-2 border-2 border-zinc-900 bg-rose-500 p-2.5 text-white shadow-pixel-sm animate-bounce">
+          <ShieldAlert className="h-5 w-5 text-white shrink-0" />
+          <span className="font-pixel text-xs sm:text-sm font-bold tracking-wider uppercase">
             {language === 'vi'
               ? `CHIẾU TƯỚNG! (${turn === 'red' ? playerRedName : playerBlackName} ĐANG BỊ CHIẾU)`
               : `CHECK! (${turn === 'red' ? 'RED' : 'BLACK'} IS UNDER ATTACK)`}
@@ -76,14 +76,14 @@ export function XiangqiControls({
       )}
 
       {/* Thông tin lượt đi & Quân cờ đang thi đấu */}
-      <div className="flex items-center justify-between rounded-2xl border border-gray-200/90 bg-white p-3 sm:p-4 shadow-xs">
+      <div className="flex items-center justify-between pixel-box-sm bg-white p-3 sm:p-4">
         <div className="flex items-center gap-3">
           {/* Huy hiệu quân cờ lượt hiện tại */}
           <div
-            className={`flex h-11 w-11 items-center justify-center rounded-2xl border-2 font-black text-xl shadow-md transition-transform ${
+            className={`flex h-11 w-11 items-center justify-center border-2 border-zinc-900 font-black text-xl shadow-pixel-xs ${
               turn === 'red'
-                ? 'border-rose-600 bg-rose-50 text-rose-600 ring-2 ring-rose-400/30'
-                : 'border-gray-900 bg-gray-100 text-gray-900 ring-2 ring-gray-400/30'
+                ? 'bg-rose-100 text-rose-700'
+                : 'bg-zinc-900 text-white'
             }`}
           >
             {turn === 'red' ? '帥' : '將'}
@@ -91,7 +91,7 @@ export function XiangqiControls({
 
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-black text-gray-900">
+              <span className="font-pixel text-sm font-bold uppercase text-zinc-900">
                 {isGameOver
                   ? language === 'vi'
                     ? 'Ván đấu kết thúc'
@@ -101,10 +101,10 @@ export function XiangqiControls({
                   : `${playerBlackName} (Đen)`}
               </span>
               <span
-                className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${
+                className={`inline-flex items-center border border-zinc-900 px-2 py-0.5 font-pixel text-[10px] font-bold uppercase tracking-wider ${
                   turn === 'red'
-                    ? 'bg-rose-100 text-rose-700'
-                    : 'bg-gray-200 text-gray-800'
+                    ? 'bg-rose-200 text-rose-900'
+                    : 'bg-zinc-200 text-zinc-900'
                 }`}
               >
                 {isBotThinking
@@ -114,7 +114,7 @@ export function XiangqiControls({
                   : (language === 'vi' ? 'Đi sau' : 'Black')}
               </span>
             </div>
-            <p className="text-xs text-gray-500 font-medium">
+            <p className="text-xs text-zinc-600 font-bold mt-0.5">
               {isGameOver
                 ? winner
                   ? language === 'vi'
@@ -128,7 +128,7 @@ export function XiangqiControls({
                   ? 'Trí tuệ nhân tạo đang phân tích thế cờ...'
                   : 'Bot AI is analyzing the position...'
                 : language === 'vi'
-                ? `Đang ở nước thứ ${moveCount + 1}`
+                ? `Nước thứ #${moveCount + 1}`
                 : `Move #${moveCount + 1}`}
             </p>
           </div>
@@ -140,8 +140,8 @@ export function XiangqiControls({
           <button
             type="button"
             onClick={onFlip}
-            className={`flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-gray-50 text-gray-600 transition-colors hover:bg-gray-100 active:scale-95 ${
-              flipped ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : ''
+            className={`pixel-btn flex h-9 w-9 items-center justify-center ${
+              flipped ? 'bg-indigo-600 text-white' : 'bg-white text-zinc-700 hover:bg-zinc-100'
             }`}
             title={language === 'vi' ? 'Xoay bàn cờ 180°' : 'Flip board 180°'}
           >
@@ -152,8 +152,8 @@ export function XiangqiControls({
           <button
             type="button"
             onClick={onToggleSubLabel}
-            className={`flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-gray-50 text-gray-600 transition-colors hover:bg-gray-100 active:scale-95 ${
-              showSubLabel ? 'bg-amber-50 border-amber-200 text-amber-700' : ''
+            className={`pixel-btn flex h-9 w-9 items-center justify-center ${
+              showSubLabel ? 'bg-amber-300 text-zinc-900' : 'bg-white text-zinc-700 hover:bg-zinc-100'
             }`}
             title={
               language === 'vi'
@@ -170,16 +170,16 @@ export function XiangqiControls({
 
       {/* Khay hiển thị quân cờ đã ăn (Captured pieces tray) */}
       {(capturedRedPieces.length > 0 || capturedBlackPieces.length > 0) && (
-        <div className="flex items-center justify-between rounded-2xl border border-amber-100 bg-amber-50/60 px-3 py-2 text-xs">
+        <div className="flex items-center justify-between pixel-box-sm bg-amber-50 px-3 py-2 text-xs">
           {/* Quân Đỏ bị ăn */}
           <div className="flex items-center gap-1 overflow-x-auto max-w-[48%] py-0.5">
-            <span className="text-[10px] font-bold text-rose-800 shrink-0 mr-1">
+            <span className="font-pixel text-[10px] font-bold uppercase text-rose-800 shrink-0 mr-1">
               {language === 'vi' ? 'Đỏ mất:' : 'Lost:'}
             </span>
             {capturedRedPieces.map((p, idx) => (
               <span
                 key={`cap-red-${idx}`}
-                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white border border-rose-400 text-rose-700 text-[10px] font-black shadow-2xs"
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white border-2 border-rose-700 text-rose-700 text-[10px] font-black"
                 title={PIECE_INFO[p.type].red.nameVi}
               >
                 {PIECE_INFO[p.type].red.hanzi}
@@ -187,17 +187,17 @@ export function XiangqiControls({
             ))}
           </div>
 
-          <div className="h-4 w-px bg-amber-200" />
+          <div className="h-4 w-0.5 bg-zinc-900" />
 
           {/* Quân Đen bị ăn */}
           <div className="flex items-center gap-1 overflow-x-auto max-w-[48%] justify-end py-0.5">
-            <span className="text-[10px] font-bold text-gray-800 shrink-0 mr-1">
+            <span className="font-pixel text-[10px] font-bold uppercase text-zinc-800 shrink-0 mr-1">
               {language === 'vi' ? 'Đen mất:' : 'Lost:'}
             </span>
             {capturedBlackPieces.map((p, idx) => (
               <span
                 key={`cap-black-${idx}`}
-                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white border border-gray-700 text-gray-900 text-[10px] font-black shadow-2xs"
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white border-2 border-zinc-900 text-zinc-900 text-[10px] font-black"
                 title={PIECE_INFO[p.type].black.nameVi}
               >
                 {PIECE_INFO[p.type].black.hanzi}
@@ -219,9 +219,9 @@ export function XiangqiControls({
               onLeave();
             }
           }}
-          className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white py-2.5 text-xs font-bold text-gray-700 shadow-2xs transition-colors hover:bg-gray-50 active:scale-95"
+          className="pixel-btn flex-1 flex items-center justify-center gap-1.5 bg-white py-2.5 font-pixel text-xs font-bold uppercase tracking-wider text-zinc-800 hover:bg-zinc-100"
         >
-          <Home className="h-4 w-4 text-gray-500" />
+          <Home className="h-4 w-4 text-zinc-600" />
           <span>{language === 'vi' ? 'Về sảnh' : 'Lobby'}</span>
         </button>
 
@@ -230,9 +230,9 @@ export function XiangqiControls({
           <button
             type="button"
             onClick={() => setConfirmDialog('resign')}
-            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 py-2.5 text-xs font-bold text-rose-700 shadow-2xs transition-colors hover:bg-rose-100 active:scale-95"
+            className="pixel-btn flex-1 flex items-center justify-center gap-1.5 bg-rose-100 py-2.5 font-pixel text-xs font-bold uppercase tracking-wider text-rose-800 hover:bg-rose-200"
           >
-            <Flag className="h-4 w-4 text-rose-600" />
+            <Flag className="h-4 w-4 text-rose-700" />
             <span>{language === 'vi' ? 'Xin thua' : 'Resign'}</span>
           </button>
         )}
@@ -247,10 +247,10 @@ export function XiangqiControls({
               onRestart();
             }
           }}
-          className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold shadow-2xs transition-all active:scale-95 ${
+          className={`pixel-btn flex-1 flex items-center justify-center gap-1.5 py-2.5 font-pixel text-xs font-bold uppercase tracking-wider ${
             isGameOver
-              ? 'bg-indigo-600 text-white hover:bg-indigo-700 font-black shadow-md'
-              : 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+              ? 'bg-indigo-600 text-white hover:bg-indigo-500'
+              : 'bg-white text-zinc-800 hover:bg-zinc-100'
           }`}
         >
           <RotateCcw className="h-4 w-4" />
@@ -258,15 +258,15 @@ export function XiangqiControls({
         </button>
       </div>
 
-      {/* Hộp thoại xác nhận thao tác (Custom in-game popover không dùng confirm trình duyệt) */}
+      {/* Hộp thoại xác nhận thao tác (Custom in-game popover) */}
       {confirmDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-fade-in">
-          <div className="w-full max-w-xs rounded-2xl bg-white p-5 shadow-2xl border border-gray-100 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-amber-600 border border-amber-200 shadow-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 animate-fade-in">
+          <div className="w-full max-w-xs pixel-box-lg bg-white p-5 text-center">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center border-2 border-zinc-900 bg-amber-300 text-zinc-900 shadow-pixel-sm">
               <AlertCircle className="h-6 w-6" />
             </div>
 
-            <h3 className="text-base font-black text-gray-900 mb-1">
+            <h3 className="font-pixel text-base font-bold uppercase text-zinc-900 mb-1">
               {confirmDialog === 'resign'
                 ? language === 'vi' ? 'Xác nhận xin thua?' : 'Confirm Resignation?'
                 : confirmDialog === 'restart'
@@ -274,7 +274,7 @@ export function XiangqiControls({
                 : language === 'vi' ? 'Rời bàn cờ về sảnh?' : 'Leave Game to Lobby?'}
             </h3>
 
-            <p className="text-xs text-gray-500 mb-5 leading-relaxed">
+            <p className="text-xs font-medium text-zinc-600 mb-5 leading-relaxed">
               {confirmDialog === 'resign'
                 ? language === 'vi'
                   ? 'Bạn có chắc chắn muốn đầu hàng và nhường chiến thắng cho đối thủ?'
@@ -292,7 +292,7 @@ export function XiangqiControls({
               <button
                 type="button"
                 onClick={() => setConfirmDialog(null)}
-                className="flex-1 rounded-xl border border-gray-200 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-50"
+                className="pixel-btn flex-1 bg-zinc-100 py-2.5 font-pixel text-xs font-bold uppercase text-zinc-800 hover:bg-zinc-200"
               >
                 {language === 'vi' ? 'Hủy' : 'Cancel'}
               </button>
@@ -305,10 +305,10 @@ export function XiangqiControls({
                   else if (action === 'restart') onRestart();
                   else if (action === 'leave') onLeave();
                 }}
-                className={`flex-1 rounded-xl py-2.5 text-xs font-bold text-white shadow-sm ${
+                className={`pixel-btn flex-1 py-2.5 font-pixel text-xs font-bold uppercase text-white ${
                   confirmDialog === 'resign'
-                    ? 'bg-rose-600 hover:bg-rose-700'
-                    : 'bg-indigo-600 hover:bg-indigo-700'
+                    ? 'bg-rose-600 hover:bg-rose-500'
+                    : 'bg-indigo-600 hover:bg-indigo-500'
                 }`}
               >
                 {language === 'vi' ? 'Xác nhận' : 'Confirm'}
@@ -320,4 +320,3 @@ export function XiangqiControls({
     </div>
   );
 }
-

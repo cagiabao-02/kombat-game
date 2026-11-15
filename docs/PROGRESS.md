@@ -67,13 +67,28 @@
     - Bổ sung Accordion tóm tắt quy tắc di chuyển quân Cờ Vua (Xe, Tượng, Mã, Hậu, Vua, Tốt, Nhập thành, En Passant, Phong cấp).
     - Chuẩn hóa nút "Về sảnh chính" và màu nền chuyển sắc (`bg-gradient-to-b from-indigo-50/30 via-white to-gray-50/50`) tương đồng với toàn bộ sảnh game.
 
+- **Tích hợp hiệu ứng Pixel Art Confetti ăn mừng chiến thắng (Dựa trên kiến trúc `patch-gg/pixelfx`):**
+  - Xây dựng module rasterizer phần mềm siêu nhẹ [`src/features/fx/core.ts`](file:///d:/personal-prj/game/togame/src/features/fx/core.ts) quản lý pixel frame đệm low-res và composite trực tiếp vào Canvas `ImageData`.
+  - Triển khai hiệu ứng pháo hoa ăn mừng [`src/features/fx/effects/pixelConfetti.ts`](file:///d:/personal-prj/game/togame/src/features/fx/effects/pixelConfetti.ts) bắn hai loạt pháo giấy liên tiếp, mô phỏng chuyển động xoay lật 3D theo trọng lực và lực cản không khí với bảng màu arcade retro.
+  - Tạo React Component [`src/components/fx/PixelFxOverlay.tsx`](file:///d:/personal-prj/game/togame/src/components/fx/PixelFxOverlay.tsx) tự động phủ canvas trong suốt `[image-rendering:pixelated]` lên trên màn hình mà không chặn click chuột (`pointer-events-none`).
+  - Tích hợp hiệu ứng ăn mừng vào toàn bộ Modal Chiến thắng của cả 4 trò chơi: Cờ Tướng, Cờ Vua, Cờ Caro và Sudoku (chỉ kích hoạt khi người chơi thực sự giành chiến thắng).
+- **Hoàn thành toàn diện Chặng 13 — Chuyển đổi giao diện Neo-Arcade (Modern Pixel 16-bit):**
+  - **Giai đoạn 1 (Design System & Theme Tokens):** Tích hợp bộ font chữ `Pixelify Sans` (tiêu đề/số điểm, hỗ trợ đầy đủ dấu tiếng Việt) và `JetBrains Mono` trong [`src/app/layout.tsx`](file:///d:/personal-prj/game/togame/src/app/layout.tsx); định nghĩa bảng màu retro, nền chấm bi dot-matrix ấm áp (`#F4F1EA`) và các utility classes (`.pixel-box`, `.pixel-box-sm`, `.pixel-box-lg`, `.pixel-card`, `.pixel-btn`, `.pixel-badge`, `.pixel-input`) trong [`tailwind.config.ts`](file:///d:/personal-prj/game/togame/tailwind.config.ts) & [`src/app/globals.css`](file:///d:/personal-prj/game/togame/src/app/globals.css).
+  - **Giai đoạn 2 (Lobby & Khung điều hướng):** Đổi mới [`Header.tsx`](file:///d:/personal-prj/game/togame/src/components/Header.tsx) theo phong cách bảng điều khiển máy thùng Arcade Cabinet, huy hiệu người chơi dạng Coin Token, thẻ trò chơi [`GameCard.tsx`](file:///d:/personal-prj/game/togame/src/components/GameCard.tsx) dạng băng game 16-bit Cartridge, cùng toàn bộ Modals ([`LeaderboardModal.tsx`](file:///d:/personal-prj/game/togame/src/features/leaderboard/LeaderboardModal.tsx), [`ProfileAuthModal.tsx`](file:///d:/personal-prj/game/togame/src/features/auth/ProfileAuthModal.tsx), [`LobbyPresenceWidget.tsx`](file:///d:/personal-prj/game/togame/src/features/presence/LobbyPresenceWidget.tsx), [`IncomingChallengeModal.tsx`](file:///d:/personal-prj/game/togame/src/features/presence/IncomingChallengeModal.tsx)).
+  - **Giai đoạn 3 (Bàn cờ & Quân cờ 4 Game):**
+    - **Cờ Caro:** Bàn cờ gỗ khung viền pixel, điểm sao Hoshi vuông và quân cờ `X`/`O` dạng sprite SVG 8x8 chunky.
+    - **Sudoku:** Bàn cờ 9x9 mô phỏng màn hình cầm tay cổ điển, bàn phím số cơ học nảy 3D và modal `STAGE CLEAR` / `GAME OVER`.
+    - **Cờ Vua:** Bộ 12 quân cờ **Pixel Art 16x16 SVG** thiết kế riêng trong [`ChessPieces.tsx`](file:///d:/personal-prj/game/togame/src/features/games/chess/ChessPieces.tsx), bàn cờ gỗ pixel [`ChessBoard.tsx`](file:///d:/personal-prj/game/togame/src/features/games/chess/ChessBoard.tsx), biên bản nước đi 80s [`MoveHistory.tsx`](file:///d:/personal-prj/game/togame/src/features/games/chess/MoveHistory.tsx) và sảnh chờ/phòng đấu Neo-Arcade.
+    - **Cờ Tướng:** Quân cờ tròn 16-bit Pixel Token đổ bóng cứng (`shadow-[0_3px_0_0_#18181b]`) trong [`XiangqiPiece.tsx`](file:///d:/personal-prj/game/togame/src/features/games/xiangqi/XiangqiPiece.tsx), bàn cờ Sở Hà Hán Giới khung pixel [`XiangqiBoard.tsx`](file:///d:/personal-prj/game/togame/src/features/games/xiangqi/XiangqiBoard.tsx) và bảng điều khiển [`XiangqiControls.tsx`](file:///d:/personal-prj/game/togame/src/features/games/xiangqi/XiangqiControls.tsx).
+  - **Giai đoạn 4 (VFX, SFX & Kiểm thử):** Tinh chỉnh âm sắc Web Audio API sang sóng vuông (`square` / `sawtooth`) đậm chất Chiptune 8-bit/16-bit trong [`soundService.ts`](file:///d:/personal-prj/game/togame/src/lib/sound/soundService.ts) và kiểm thử `npm run build` thành công với 0 lỗi.
+
 ## Đang làm
 
-- Toàn bộ 5 bước của Chặng 12 (Cờ Tướng) đã hoàn thành xuất sắc, sẵn sàng bàn giao cho người dùng nghiệm thu.
+- Toàn bộ 4 giai đoạn của Chặng 13 (Giao diện Neo-Arcade 16-bit) đã hoàn thành và vượt qua bài kiểm tra `npm run build`.
 
 ## Việc kế tiếp
 
-1. Chạy nghiệm thu tương tác thực tế toàn bộ các chế độ Cờ Tướng.
+1. Nghiệm thu trực tiếp giao diện Neo-Arcade 16-bit trên trình duyệt máy tính và điện thoại.
 2. Hướng dẫn commit và tạo Pull Request (PR) theo chuẩn Rule 8 trong `AGENTS.md` khi người dùng yêu cầu.
 
 ## Quyết định còn mở
