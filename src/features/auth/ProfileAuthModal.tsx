@@ -12,6 +12,7 @@ import { getXiangqiStats, XiangqiStats } from '@/features/games/xiangqi/xiangqiS
 import { getSnakeStats, SnakeStats } from '@/features/games/snake/snakeStatsService';
 import { getGame2048Stats, Game2048Stats } from '@/features/games/game2048/game2048StatsService';
 import { getMinesweeperStats, MinesweeperStats } from '@/features/games/minesweeper/minesweeperStatsService';
+import { getBrickBreakerStats, BrickBreakerStats } from '@/features/games/brickBreaker/brickBreakerStatsService';
 import {
   X,
   User,
@@ -194,7 +195,8 @@ export function ProfileAuthModal({
   const [snakeStats, setSnakeStats] = useState<SnakeStats | null>(null);
   const [game2048Stats, setGame2048Stats] = useState<Game2048Stats | null>(null);
   const [minesweeperStats, setMinesweeperStats] = useState<MinesweeperStats | null>(null);
-  const [statsGameTab, setStatsGameTab] = useState<'all' | 'chess' | 'caro' | 'xiangqi' | 'sudoku' | 'snake' | 'game2048' | 'minesweeper'>('all');
+  const [brickBreakerStats, setBrickBreakerStats] = useState<BrickBreakerStats | null>(null);
+  const [statsGameTab, setStatsGameTab] = useState<'all' | 'chess' | 'caro' | 'xiangqi' | 'sudoku' | 'snake' | 'game2048' | 'minesweeper' | 'brick_breaker'>('all');
   const wasOpenRef = useRef(false);
 
   useEffect(() => {
@@ -220,6 +222,7 @@ export function ProfileAuthModal({
       setSnakeStats(meta.snake_stats || getSnakeStats());
       setGame2048Stats(meta.game2048_stats || getGame2048Stats());
       setMinesweeperStats(meta.minesweeper_stats || getMinesweeperStats());
+      setBrickBreakerStats(meta.brick_breaker_stats || getBrickBreakerStats());
 
       // Kéo dữ liệu mới nhất nếu là tài khoản đám mây (chỉ cập nhật stats nền, không ghi đè form nhập của người dùng)
       if (user && !isAnonymous) {
@@ -233,6 +236,7 @@ export function ProfileAuthModal({
             if (m.snake_stats) setSnakeStats(m.snake_stats);
             if (m.game2048_stats) setGame2048Stats(m.game2048_stats);
             if (m.minesweeper_stats) setMinesweeperStats(m.minesweeper_stats);
+            if (m.brick_breaker_stats) setBrickBreakerStats(m.brick_breaker_stats);
           }
         }).catch(() => {});
       }
@@ -683,10 +687,59 @@ export function ProfileAuthModal({
                     >
                       {language === 'vi' ? 'Dò Mìn' : 'Mines'}
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setStatsGameTab('brick_breaker')}
+                      className={`px-1.5 py-0.5 font-pixel font-bold ${
+                        statsGameTab === 'brick_breaker' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
+                      }`}
+                    >
+                      {language === 'vi' ? 'Phá Gạch' : 'Bricks'}
+                    </button>
                   </div>
                 </div>
 
-                {statsGameTab === 'minesweeper' ? (
+                {statsGameTab === 'brick_breaker' ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between bg-white px-3 py-1.5 border-2 border-zinc-900 text-xs font-mono">
+                      <span className="font-bold text-zinc-700">
+                        {language === 'vi' ? 'Kỷ lục điểm cao:' : 'All-time High Score:'}
+                      </span>
+                      <span className="font-pixel text-xl font-bold text-emerald-600">
+                        🏆 {brickBreakerStats?.highScore?.toLocaleString() || 0}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-1.5 text-center">
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-amber-600">
+                          STAGE {brickBreakerStats?.highestLevel || 1}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Màn cao nhất' : 'Highest Stage'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-rose-600">
+                          🧱 {brickBreakerStats?.totalBricksBroken || 0}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Gạch đã vỡ' : 'Bricks Broken'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-indigo-700">
+                          {brickBreakerStats?.totalGames || 0}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Số ván đã chơi' : 'Games Played'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : statsGameTab === 'minesweeper' ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between bg-white px-3 py-1.5 border-2 border-zinc-900 text-xs font-mono">
                       <span className="font-bold text-zinc-700">

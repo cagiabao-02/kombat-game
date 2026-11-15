@@ -117,13 +117,19 @@
   - **Lưu trữ & Bảng xếp hạng:** Xây dựng [`minesweeperStatsService.ts`](file:///d:/personal-prj/game/togame/src/features/games/minesweeper/minesweeperStatsService.ts), migration `20261115200000_add_minesweeper_to_leaderboard.sql`, tích hợp tab Dò Mìn vào Bảng xếp hạng toàn cầu, Hồ sơ cá nhân (`ProfileAuthModal.tsx`) và gộp đám mây khi đăng nhập (`statsMergeService.ts`).
   - **Đăng ký Sảnh chính:** Bổ sung icon pixel quả mìn gai và lá cờ đỏ vào [`GameTile.tsx`](file:///d:/personal-prj/game/togame/src/components/GameTile.tsx) và cập nhật ô Sắp có của Giải đố thành `Nonogram, Trượt số`.
 
+- **Hoàn thành Chặng 19 — Trò chơi thứ 8: Phá Gạch Pixel (Brick Breaker / Arkanoid Arcade):**
+  - **Động cơ vật lý nảy bóng Canvas 2D:** Xây dựng [`src/features/games/brickBreaker/brickBreakerLogic.ts`](file:///d:/personal-prj/game/togame/src/features/games/brickBreaker/brickBreakerLogic.ts) với tỷ lệ máy thùng $3:4$ ($480 \times 640$), thuật toán góc nảy linh hoạt trên thanh trượt, hệ thống vật phẩm rơi (Kéo dài thanh ↔️, Nhân bóng ⚡, Súng Laser 🔫, Thêm mạng 💖), gạch thép 2 lần đập và gạch bom phát nổ.
+  - **Giao diện Neo-Arcade:** Xây dựng [`BrickBreakerGame.tsx`](file:///d:/personal-prj/game/togame/src/features/games/brickBreaker/BrickBreakerGame.tsx) và [`src/app/games/brick-breaker/page.tsx`](file:///d:/personal-prj/game/togame/src/app/games/brick-breaker/page.tsx) với đầy đủ điều khiển đa nền tảng (chuột/phím PC, vuốt chạm và phím ảo mobile), hiệu ứng vỡ hạt pixel, vinh danh kỷ lục mới và modal Game Over.
+  - **Âm thanh & Tích hợp:** Bổ sung âm thanh Web Audio `playBrickHit`, `playPaddleBounce`, `playPowerupCatch`, `playLifeLost`, `playLaserShot`, `playLevelUp`; dịch vụ lưu trữ [`brickBreakerStatsService.ts`](file:///d:/personal-prj/game/togame/src/features/games/brickBreaker/brickBreakerStatsService.ts), migration `20261116000000_add_brick_breaker_to_leaderboard.sql`, tích hợp vào Bảng xếp hạng toàn cầu (`LeaderboardModal.tsx`), Hồ sơ cá nhân (`ProfileAuthModal.tsx`) và gộp đám mây (`statsMergeService.ts`).
+  - **Đăng ký Sảnh chính:** Bổ sung icon pixel thanh trượt, quả bóng và các hàng gạch rực rỡ vào [`GameTile.tsx`](file:///d:/personal-prj/game/togame/src/components/GameTile.tsx) và đăng ký vào nhóm Arcade (`categories.ts`).
+
 ## Đang làm
 
-- Toàn bộ 7 trò chơi (Cờ Vua, Cờ Tướng, Cờ Caro, Sudoku, Rắn Săn Mồi, 2048, Dò Mìn) đã hoàn thành và vượt qua kiểm thử `npm run build` (12/12 trang tĩnh).
+- Toàn bộ 8 trò chơi (Cờ Vua, Cờ Tướng, Cờ Caro, Sudoku, 2048, Dò Mìn, Rắn Săn Mồi, Phá Gạch) đã hoàn thành và sẵn sàng phục vụ người chơi trên cả điện thoại và máy tính.
 
 ## Việc kế tiếp
 
-1. Trải nghiệm trực tiếp trò chơi Dò Mìn tại sảnh chính (`/games/minesweeper`), thử thách gỡ mìn và cày kỷ lục thời gian.
+1. Trải nghiệm trực tiếp trò chơi Phá Gạch tại sảnh chính (`/games/brick-breaker`), thử thách phá gạch, nhặt vật phẩm và cày điểm kỷ lục.
 2. Hướng dẫn commit và tạo Pull Request (PR) theo chuẩn Rule 8 trong `AGENTS.md` khi người dùng yêu cầu.
 
 ## Quyết định còn mở

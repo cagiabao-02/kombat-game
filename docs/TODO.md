@@ -216,17 +216,34 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Tạo migration `20261115200000_add_minesweeper_to_leaderboard.sql`.
 - [x] Kiểm thử kiểu `npx tsc --noEmit` và `npm run build`.
 
+## Chặng 19 — Trò chơi thứ 8: Phá Gạch Pixel (Brick Breaker / Arkanoid Arcade)
+
+- [x] Động cơ vật lý nảy bóng Canvas 2D (`brickBreakerLogic.ts`):
+  - [x] Tỉ lệ khung hình $3:4$ (Canvas $480 \times 640$), tốc độ tăng dần theo combo và màn chơi.
+  - [x] Thuật toán nảy bóng linh hoạt trên thanh trượt (góc nảy phụ thuộc điểm chạm).
+  - [x] Hệ thống vật phẩm rơi (Powerups): Kéo dài thanh (↔️), Nhân thêm 2 bóng (⚡), Bắn đạn Laser (🔫), Thêm mạng (💖).
+  - [x] Đa dạng loại gạch: Gạch thường 5 tầng màu tính điểm, gạch thép 2 lần đập và gạch bom phát nổ lân cận.
+  - [x] Hệ thống qua màn liên hoàn (Stages), hồi sinh bóng và hiệu ứng nổ hạt pixel (Particles).
+- [x] Dịch vụ lưu trữ thành tích (`brickBreakerStatsService.ts`):
+  - [x] Điểm cao kỷ lục, màn chơi cao nhất đạt được, tổng số gạch phá vỡ, tự động đồng bộ đám mây và Supabase.
+- [x] Giao diện Neo-Arcade 16-bit (`BrickBreakerGame.tsx`, `src/app/games/brick-breaker/page.tsx`):
+  - [x] Đầy đủ điều khiển PC (chuột, phím A/D, phím Space) và cảm ứng Mobile (kéo vuốt trực tiếp, cụm phím ảo).
+  - [x] Âm thanh Web Audio chiptune (đập gạch, nảy paddle, nhặt buff, mất bóng, bắn laser, qua màn).
+  - [x] Modal Game Over kèm pháo hoa khi lập kỷ lục điểm mới.
+- [x] Đăng ký Sảnh chính và Bảng xếp hạng:
+  - [x] Đăng ký `brick_breaker` vào `GAME_REGISTRY` thuộc thể loại Arcade (`categories.ts`).
+  - [x] Vẽ icon pixel thanh trượt, bóng và các hàng gạch nhiều màu cho `GameTile.tsx`.
+  - [x] Tích hợp tab Phá Gạch vào Bảng xếp hạng toàn cầu (`LeaderboardModal.tsx`), Hồ sơ cá nhân (`ProfileAuthModal.tsx`) và tự động gộp đám mây (`statsMergeService.ts`).
+  - [x] Tạo migration `20261116000000_add_brick_breaker_to_leaderboard.sql`.
+- [x] Kiểm thử kiểu `npx tsc --noEmit` và `npm run build`.
+
 ## Chặng tiếp theo (Đề xuất định hướng mở rộng)
 
-- [ ] **Hướng 1 — Trò chơi thứ 7 (Bổ sung game kinh điển mới)**:
-  - *Lựa chọn 1A (Arcade/Phản xạ)*: **Phá Gạch Pixel (Brick Breaker / Arkanoid)** — Thể loại Arcade hiện mới có 1 game (Rắn săn mồi). Thêm trò phá gạch với thanh trượt hứng bóng, đập vỡ khối gạch pixel, bóng nảy vật lý 2D, rơi vật phẩm (dài thanh, x2 bóng, đạn laze).
-  - *Lựa chọn 1B (Giải đố / Puzzle)*: **Dò Mìn Pixel (Minesweeper)** — Bảng ô số 9x9 / 16x16, cắm cờ mìn, tính thời gian phá đảo kỷ lục, bảng xếp hạng thời gian nhanh nhất.
-  - *Lựa chọn 1C (Chiến thuật / Strategy)*: **Cờ Lật (Othello / Reversi)** — Bàn cờ $8 \times 8$, lật quân đen/trắng, đấu Bot AI hoặc tạo phòng mời bạn bè.
-- [ ] **Hướng 2 — Tương tác Xã hội trong phòng chơi (Social & Emotes)**:
+- [ ] **Hướng 1 — Tương tác Xã hội trong phòng chơi (Social & Emotes)**:
   - Chat nhanh bằng câu thoại pixel và icon biểu cảm (Quick Chat & Emotes) cho các phòng Cờ Vua, Cờ Tướng, Cờ Caro.
   - Chế độ Khán giả (Spectator Mode): Cho phép bạn bè vào xem trực tiếp ván cờ qua link phòng.
-- [ ] **Hướng 3 — Hệ thống Thành tựu & Huy hiệu Pixel (Achievements & Badges)**:
-  - Bổ sung bộ danh hiệu mở khóa khi đạt các cột mốc thú vị (VD: "Phá kỷ lục 500 điểm Rắn", "Tạo ra ô 2048", "Thắng 10 ván Caro", "Giải Sudoku dưới 3 phút").
+- [ ] **Hướng 2 — Hệ thống Thành tựu & Huy hiệu Pixel (Achievements & Badges)**:
+  - Bổ sung bộ danh hiệu mở khóa khi đạt các cột mốc thú vị (VD: "Phá kỷ lục 500 điểm Rắn", "Tạo ra ô 2048", "Thắng 10 ván Caro", "Giải Sudoku dưới 3 phút", "Phá 1000 khối gạch").
   - Hiển thị huy hiệu đã đạt được trong Hồ sơ cá nhân (Profile Modal).
 
 

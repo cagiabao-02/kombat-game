@@ -36,6 +36,7 @@ const XIANGQI_STATS_KEY = 'kombat_xiangqi_stats';
 const SNAKE_STATS_KEY = 'kombat_snake_stats';
 const GAME2048_STATS_KEY = 'kombat_2048_stats';
 const MINESWEEPER_STATS_KEY = 'kombat_minesweeper_stats';
+const BRICK_BREAKER_STATS_KEY = 'kombat_brick_breaker_stats';
 
 let supabasePromise: Promise<SupabaseClient<any, 'public', any>> | null = null;
 async function getClient(): Promise<SupabaseClient<any, 'public', any>> {
@@ -61,6 +62,7 @@ function syncAllCloudStats(userMetadata: any) {
   if (userMetadata.snake_stats) syncKey(SNAKE_STATS_KEY, userMetadata.snake_stats);
   if (userMetadata.game2048_stats) syncKey(GAME2048_STATS_KEY, userMetadata.game2048_stats);
   if (userMetadata.minesweeper_stats) syncKey(MINESWEEPER_STATS_KEY, userMetadata.minesweeper_stats);
+  if (userMetadata.brick_breaker_stats) syncKey(BRICK_BREAKER_STATS_KEY, userMetadata.brick_breaker_stats);
 }
 
 function generateDefaultGuestName(userId?: string): string {
@@ -491,6 +493,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.removeItem(SNAKE_STATS_KEY);
           localStorage.removeItem(GAME2048_STATS_KEY);
           localStorage.removeItem(MINESWEEPER_STATS_KEY);
+          localStorage.removeItem(BRICK_BREAKER_STATS_KEY);
         }
       }
     } catch (err) {

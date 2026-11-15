@@ -42,7 +42,7 @@ export const GAME_CATEGORIES: GameCategory[] = [
       vi: 'Nhịp nhanh, tính điểm, cày kỷ lục',
       en: 'Fast-paced, score chasing, tryhard',
     },
-    upcoming: { vi: 'Phá gạch, Đua xe pixel, Flappy', en: 'Brick Breaker, Retro Racer, Flappy' },
+    upcoming: { vi: 'Đua xe pixel, Flappy', en: 'Retro Racer, Flappy' },
     accentClass: 'bg-rose-500 text-white',
   },
 ];

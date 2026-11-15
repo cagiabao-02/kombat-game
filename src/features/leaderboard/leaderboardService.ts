@@ -7,6 +7,7 @@ import { getXiangqiStats } from '@/features/games/xiangqi/xiangqiStatsService';
 import { getSnakeStats } from '@/features/games/snake/snakeStatsService';
 import { getGame2048Stats } from '@/features/games/game2048/game2048StatsService';
 import { getMinesweeperStats } from '@/features/games/minesweeper/minesweeperStatsService';
+import { getBrickBreakerStats } from '@/features/games/brickBreaker/brickBreakerStatsService';
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -156,6 +157,22 @@ export function getLocalLeaderboardData(
         secondaryInfo: `Phá đảo ${stats.totalWins} ván`,
         isCurrentUser: true,
         tierBadge: bestSec <= 30 ? 'Thần tốc' : bestSec <= 60 ? 'Chuyên gia' : 'Kỳ cựu',
+      };
+    }
+  } else if (game === 'brick_breaker') {
+    const stats = getBrickBreakerStats();
+    if (stats.highScore > 0) {
+      userEntry = {
+        id: currentUserId || 'current_user',
+        userId: currentUserId,
+        name: currentUserName,
+        avatar: currentUserAvatar,
+        rank: 1,
+        scoreValue: stats.highScore,
+        scoreLabel: `${stats.highScore.toLocaleString()} Điểm`,
+        secondaryInfo: `Màn ${stats.highestLevel} • ${stats.totalBricksBroken} gạch vỡ`,
+        isCurrentUser: true,
+        tierBadge: stats.highScore >= 5000 ? 'Phá Đảo' : stats.highScore >= 2000 ? 'Cao Thủ' : 'Tập Sự',
       };
     }
   }
@@ -389,6 +406,12 @@ export async function syncLeaderboardScoreForGame(
       scoreValue = bestSec;
       scoreLabel = formatTime(bestSec);
       secondaryInfo = `Phá đảo ${stats.totalWins} ván`;
+    } else if (game === 'brick_breaker') {
+      const stats = getBrickBreakerStats();
+      if (stats.highScore === 0) return;
+      scoreValue = stats.highScore;
+      scoreLabel = `${stats.highScore.toLocaleString()} Điểm`;
+      secondaryInfo = `Màn ${stats.highestLevel} • ${stats.totalBricksBroken} gạch vỡ`;
     }
 
     // Kiểm tra điểm số hiện tại trên đám mây để không vô tình ghi đè điểm thấp hơn lên điểm cao hơn
@@ -444,5 +467,6 @@ export async function syncAllLeaderboardScores() {
     syncLeaderboardScoreForGame('snake'),
     syncLeaderboardScoreForGame('game2048'),
     syncLeaderboardScoreForGame('minesweeper'),
+    syncLeaderboardScoreForGame('brick_breaker'),
   ]);
 }

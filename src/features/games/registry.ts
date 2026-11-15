@@ -172,6 +172,31 @@ export const GAME_REGISTRY: GameMetadata[] = [
     minPlayers: 1,
     maxPlayers: 1,
     badge: {
+      vi: 'HOT PUZZLE',
+      en: 'HOT PUZZLE',
+    },
+  },
+  {
+    id: 'brick_breaker',
+    category: 'arcade',
+    name: {
+      vi: 'Phá Gạch',
+      en: 'Brick Breaker',
+    },
+    shortDescription: {
+      vi: 'Arcade bắn bóng nảy đập vỡ các khối gạch sắc màu',
+      en: 'Classic retro arcade ball bounce and brick smashing',
+    },
+    description: {
+      vi: 'Trò chơi phản xạ máy thùng kinh điển. Hứng bóng khéo léo, nhặt vật phẩm tăng sức mạnh và phá sạch các bức tường gạch qua từng màn chơi kịch tính!',
+      en: 'Legendary arcade action. Bounce the ball, catch power-ups, and smash every brick wall across exciting levels!',
+    },
+    route: '/games/brick-breaker',
+    status: 'available',
+    modes: ['single_player'],
+    minPlayers: 1,
+    maxPlayers: 1,
+    badge: {
       vi: 'MỚI RA MẮT',
       en: 'NEW RELEASE',
     },
