@@ -11,6 +11,7 @@ import { getSudokuStats, SudokuStats, formatSudokuTime } from '@/features/games/
 import { getXiangqiStats, XiangqiStats } from '@/features/games/xiangqi/xiangqiStatsService';
 import { getSnakeStats, SnakeStats } from '@/features/games/snake/snakeStatsService';
 import { getGame2048Stats, Game2048Stats } from '@/features/games/game2048/game2048StatsService';
+import { getMinesweeperStats, MinesweeperStats } from '@/features/games/minesweeper/minesweeperStatsService';
 import {
   X,
   User,
@@ -192,7 +193,8 @@ export function ProfileAuthModal({
   const [sudokuStats, setSudokuStats] = useState<SudokuStats | null>(null);
   const [snakeStats, setSnakeStats] = useState<SnakeStats | null>(null);
   const [game2048Stats, setGame2048Stats] = useState<Game2048Stats | null>(null);
-  const [statsGameTab, setStatsGameTab] = useState<'all' | 'chess' | 'caro' | 'xiangqi' | 'sudoku' | 'snake' | 'game2048'>('all');
+  const [minesweeperStats, setMinesweeperStats] = useState<MinesweeperStats | null>(null);
+  const [statsGameTab, setStatsGameTab] = useState<'all' | 'chess' | 'caro' | 'xiangqi' | 'sudoku' | 'snake' | 'game2048' | 'minesweeper'>('all');
   const wasOpenRef = useRef(false);
 
   useEffect(() => {
@@ -217,6 +219,7 @@ export function ProfileAuthModal({
       setSudokuStats(meta.sudoku_stats || getSudokuStats());
       setSnakeStats(meta.snake_stats || getSnakeStats());
       setGame2048Stats(meta.game2048_stats || getGame2048Stats());
+      setMinesweeperStats(meta.minesweeper_stats || getMinesweeperStats());
 
       // Kéo dữ liệu mới nhất nếu là tài khoản đám mây (chỉ cập nhật stats nền, không ghi đè form nhập của người dùng)
       if (user && !isAnonymous) {
@@ -229,6 +232,7 @@ export function ProfileAuthModal({
             if (m.sudoku_stats) setSudokuStats(m.sudoku_stats);
             if (m.snake_stats) setSnakeStats(m.snake_stats);
             if (m.game2048_stats) setGame2048Stats(m.game2048_stats);
+            if (m.minesweeper_stats) setMinesweeperStats(m.minesweeper_stats);
           }
         }).catch(() => {});
       }
@@ -670,10 +674,59 @@ export function ProfileAuthModal({
                     >
                       2048
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setStatsGameTab('minesweeper')}
+                      className={`px-1.5 py-0.5 font-pixel font-bold ${
+                        statsGameTab === 'minesweeper' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
+                      }`}
+                    >
+                      {language === 'vi' ? 'Dò Mìn' : 'Mines'}
+                    </button>
                   </div>
                 </div>
 
-                {statsGameTab === 'game2048' ? (
+                {statsGameTab === 'minesweeper' ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between bg-white px-3 py-1.5 border-2 border-zinc-900 text-xs font-mono">
+                      <span className="font-bold text-zinc-700">
+                        {language === 'vi' ? 'Tổng số ván phá đảo:' : 'Total Cleared Games:'}
+                      </span>
+                      <span className="font-pixel text-xl font-bold text-emerald-600">
+                        💣 {minesweeperStats?.totalWins || 0}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-1.5 text-center">
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-sm font-bold text-emerald-700">
+                          {minesweeperStats?.beginner.bestTimeSeconds !== null ? `${minesweeperStats?.beginner.bestTimeSeconds}s` : '--'}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Dễ (9×9)' : 'Easy'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-sm font-bold text-amber-700">
+                          {minesweeperStats?.intermediate.bestTimeSeconds !== null ? `${minesweeperStats?.intermediate.bestTimeSeconds}s` : '--'}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Vừa (16×16)' : 'Medium'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-sm font-bold text-rose-700">
+                          {minesweeperStats?.expert.bestTimeSeconds !== null ? `${minesweeperStats?.expert.bestTimeSeconds}s` : '--'}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Khó (16×30)' : 'Hard'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : statsGameTab === 'game2048' ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between bg-white px-3 py-1.5 border-2 border-zinc-900 text-xs font-mono">
                       <span className="font-bold text-zinc-700">

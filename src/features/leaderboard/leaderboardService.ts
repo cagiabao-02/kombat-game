@@ -6,6 +6,7 @@ import { getSudokuStats } from '@/features/games/sudoku/sudokuStatsService';
 import { getXiangqiStats } from '@/features/games/xiangqi/xiangqiStatsService';
 import { getSnakeStats } from '@/features/games/snake/snakeStatsService';
 import { getGame2048Stats } from '@/features/games/game2048/game2048StatsService';
+import { getMinesweeperStats } from '@/features/games/minesweeper/minesweeperStatsService';
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -135,6 +136,28 @@ export function getLocalLeaderboardData(
             : undefined,
       };
     }
+  } else if (game === 'minesweeper') {
+    const stats = getMinesweeperStats();
+    const bestSec =
+      stats.beginner.bestTimeSeconds ||
+      stats.intermediate.bestTimeSeconds ||
+      stats.expert.bestTimeSeconds ||
+      null;
+
+    if (bestSec !== null) {
+      userEntry = {
+        id: currentUserId || 'current_user',
+        userId: currentUserId,
+        name: currentUserName,
+        avatar: currentUserAvatar,
+        rank: 1,
+        scoreValue: bestSec,
+        scoreLabel: formatTime(bestSec),
+        secondaryInfo: `Phá đảo ${stats.totalWins} ván`,
+        isCurrentUser: true,
+        tierBadge: bestSec <= 30 ? 'Thần tốc' : bestSec <= 60 ? 'Chuyên gia' : 'Kỳ cựu',
+      };
+    }
   }
 
   const list = userEntry ? [userEntry] : [];
@@ -163,7 +186,7 @@ export async function getRealLeaderboardData(
   currentUserAvatar: string = '👑'
 ): Promise<{ list: LeaderboardEntry[]; userSummary: UserRankSummary | null }> {
   const localResult = getLocalLeaderboardData(game, currentUserId, currentUserName, currentUserAvatar);
-  const isHigherBetter = game !== 'sudoku';
+  const isHigherBetter = game !== 'sudoku' && game !== 'minesweeper';
   const entriesMap = new Map<string, Omit<LeaderboardEntry, 'rank'>>();
 
   // Đưa userEntry của người dùng vào trước
@@ -355,10 +378,21 @@ export async function syncLeaderboardScoreForGame(
       scoreValue = stats.highScore;
       scoreLabel = `${stats.highScore.toLocaleString()} Điểm`;
       secondaryInfo = `Ô cao nhất: ${stats.maxTile} • ${stats.totalGames} ván`;
+    } else if (game === 'minesweeper') {
+      const stats = getMinesweeperStats();
+      const bestSec =
+        stats.beginner.bestTimeSeconds ||
+        stats.intermediate.bestTimeSeconds ||
+        stats.expert.bestTimeSeconds ||
+        null;
+      if (bestSec === null) return;
+      scoreValue = bestSec;
+      scoreLabel = formatTime(bestSec);
+      secondaryInfo = `Phá đảo ${stats.totalWins} ván`;
     }
 
     // Kiểm tra điểm số hiện tại trên đám mây để không vô tình ghi đè điểm thấp hơn lên điểm cao hơn
-    const isHigherBetter = game !== 'sudoku';
+    const isHigherBetter = game !== 'sudoku' && game !== 'minesweeper';
     const { data: existingRow } = await supabase
       .from('leaderboard_scores')
       .select('score_value')
@@ -409,5 +443,6 @@ export async function syncAllLeaderboardScores() {
     syncLeaderboardScoreForGame('xiangqi'),
     syncLeaderboardScoreForGame('snake'),
     syncLeaderboardScoreForGame('game2048'),
+    syncLeaderboardScoreForGame('minesweeper'),
   ]);
 }

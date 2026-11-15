@@ -91,6 +91,7 @@ export function LeaderboardModal({
     if (game === 'xiangqi') return '/games/xiangqi';
     if (game === 'snake') return '/games/snake';
     if (game === 'game2048') return '/games/game2048';
+    if (game === 'minesweeper') return '/games/minesweeper';
     return '/games/sudoku';
   };
 
@@ -100,6 +101,7 @@ export function LeaderboardModal({
     if (game === 'xiangqi') return language === 'vi' ? 'Cờ Tướng' : 'Xiangqi';
     if (game === 'snake') return language === 'vi' ? 'Rắn săn mồi' : 'Snake';
     if (game === 'game2048') return '2048';
+    if (game === 'minesweeper') return language === 'vi' ? 'Dò Mìn' : 'Minesweeper';
     return 'Sudoku';
   };
 
@@ -141,7 +143,7 @@ export function LeaderboardModal({
           </div>
 
           {/* Game Switcher Tabs */}
-          <div className="mt-4 grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+          <div className="mt-4 grid grid-cols-4 sm:grid-cols-7 gap-1.5">
             <button
               type="button"
               onClick={() => setSelectedGame('chess')}
@@ -218,6 +220,19 @@ export function LeaderboardModal({
             >
               <span className={selectedGame === 'game2048' ? 'text-amber-300 font-bold' : 'text-amber-600 font-bold'}>🔢</span>
               <span>2048</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedGame('minesweeper')}
+              className={`pixel-btn flex items-center justify-center gap-1 min-h-[40px] text-xs font-bold ${
+                selectedGame === 'minesweeper'
+                  ? 'bg-indigo-600 text-amber-300'
+                  : 'bg-white text-zinc-800 hover:bg-zinc-100'
+              }`}
+            >
+              <span>💣</span>
+              <span>{language === 'vi' ? 'Dò Mìn' : 'Mines'}</span>
             </button>
           </div>
         </div>

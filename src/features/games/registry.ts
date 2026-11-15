@@ -147,6 +147,31 @@ export const GAME_REGISTRY: GameMetadata[] = [
     minPlayers: 1,
     maxPlayers: 1,
     badge: {
+      vi: 'HOT PUZZLE',
+      en: 'HOT PUZZLE',
+    },
+  },
+  {
+    id: 'minesweeper',
+    category: 'puzzle',
+    name: {
+      vi: 'Dò Mìn',
+      en: 'Minesweeper',
+    },
+    shortDescription: {
+      vi: 'Gỡ mìn cổ điển - suy luận logic và cắm cờ an toàn',
+      en: 'Classic minesweeper - logical deduction and safe flagging',
+    },
+    description: {
+      vi: 'Trò chơi trí tuệ huyền thoại. Tính toán số mìn xung quanh, cắm cờ đánh dấu vị trí hiểm nguy và mở rộng vùng đất an toàn với tốc độ nhanh nhất!',
+      en: 'Legendary deduction puzzle. Calculate adjacent mines, plant flags on danger spots, and sweep the minefield in record time!',
+    },
+    route: '/games/minesweeper',
+    status: 'available',
+    modes: ['single_player'],
+    minPlayers: 1,
+    maxPlayers: 1,
+    badge: {
       vi: 'MỚI RA MẮT',
       en: 'NEW RELEASE',
     },
