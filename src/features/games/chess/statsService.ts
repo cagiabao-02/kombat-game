@@ -118,8 +118,11 @@ export function recordChessGameResult(
 
   saveChessStatsLocally(updatedStats);
 
-  // Asynchronously sync to cloud
+  // Asynchronously sync to cloud & leaderboard
   syncChessStatsToCloud(updatedStats).catch(() => {});
+  import('@/features/leaderboard/leaderboardService')
+    .then((mod) => mod.syncLeaderboardScoreForGame('chess'))
+    .catch(() => {});
 
   return updatedStats;
 }

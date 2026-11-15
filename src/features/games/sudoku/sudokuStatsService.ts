@@ -63,17 +63,33 @@ export async function syncSudokuStatsToCloud(stats: SudokuStats): Promise<void> 
   }
 }
 
+export interface SudokuRecordResult {
+  stats: SudokuStats;
+  isNewRecord: boolean;
+  previousBest: number | null;
+}
+
+export function formatSudokuTime(seconds: number | null | undefined): string {
+  if (seconds === null || seconds === undefined) return '--:--';
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+export function getBestTimeForDifficulty(diff: SudokuDifficulty): number | null {
+  const stats = getSudokuStats();
+  return stats[diff]?.bestTimeSeconds ?? null;
+}
+
 export function recordSudokuVictory(
   difficulty: SudokuDifficulty,
   timeSeconds: number
-): SudokuStats {
+): SudokuRecordResult {
   const current = getSudokuStats();
   const currentDiff = current[difficulty] || { bestTimeSeconds: null, completedCount: 0 };
-
-  const newBestTime =
-    currentDiff.bestTimeSeconds === null
-      ? timeSeconds
-      : Math.min(currentDiff.bestTimeSeconds, timeSeconds);
+  const prevBest = currentDiff.bestTimeSeconds;
+  const isNewRecord = prevBest === null || timeSeconds < prevBest;
+  const newBestTime = isNewRecord ? timeSeconds : prevBest;
 
   const updatedStats: SudokuStats = {
     ...current,
@@ -88,6 +104,15 @@ export function recordSudokuVictory(
   saveSudokuStatsLocally(updatedStats);
   syncSudokuStatsToCloud(updatedStats).catch(() => {});
 
-  return updatedStats;
+  // Tự động đẩy kỷ lục lên bảng xếp hạng Supabase
+  import('@/features/leaderboard/leaderboardService')
+    .then((mod) => mod.syncLeaderboardScoreForGame('sudoku'))
+    .catch(() => {});
+
+  return {
+    stats: updatedStats,
+    isNewRecord,
+    previousBest: prevBest,
+  };
 }
 

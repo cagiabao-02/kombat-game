@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Play, Pause, RotateCcw, Plus, AlertCircle } from 'lucide-react';
+import { Play, Pause, RotateCcw, Plus, AlertCircle, Trophy } from 'lucide-react';
 import { SudokuDifficulty } from './types';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { formatSudokuTime } from './sudokuStatsService';
 
 interface SudokuControlsProps {
   difficulty: SudokuDifficulty;
@@ -11,6 +12,7 @@ interface SudokuControlsProps {
   mistakes: number;
   isPaused: boolean;
   highlightErrors: boolean;
+  bestTimeSeconds?: number | null;
   onChangeDifficulty: (diff: SudokuDifficulty) => void;
   onTogglePause: () => void;
   onReset: () => void;
@@ -24,13 +26,14 @@ export function SudokuControls({
   mistakes,
   isPaused,
   highlightErrors,
+  bestTimeSeconds,
   onChangeDifficulty,
   onTogglePause,
   onReset,
   onNewGame,
   onToggleHighlightErrors,
 }: SudokuControlsProps) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
 
   const formatTime = (totalSecs: number) => {
     const mins = Math.floor(totalSecs / 60);
@@ -111,6 +114,24 @@ export function SudokuControls({
             <RotateCcw className="h-3.5 w-3.5 text-zinc-700" />
             <span>{t.sudoku.reset}</span>
           </button>
+        </div>
+
+        {/* Best time for selected difficulty badge */}
+        <div
+          className="pixel-badge flex items-center gap-1.5 bg-amber-200/90 px-2.5 py-1.5 min-h-[40px] text-xs font-bold text-amber-950 border-2 border-zinc-900 shadow-pixel-xs"
+          title={
+            language === 'vi'
+              ? `Kỷ lục nhanh nhất ở cấp độ ${t.sudoku.difficulty[difficulty]}`
+              : `Best time for ${t.sudoku.difficulty[difficulty]}`
+          }
+        >
+          <Trophy className="h-3.5 w-3.5 text-amber-800 shrink-0" />
+          <span className="font-pixel text-[10px] text-amber-900 uppercase hidden sm:inline">
+            {language === 'vi' ? 'KỶ LỤC' : 'BEST'}:
+          </span>
+          <span className="font-mono font-bold text-zinc-950">
+            {formatSudokuTime(bestTimeSeconds)}
+          </span>
         </div>
 
         {/* Toggle highlight conflict toggle */}

@@ -101,6 +101,31 @@ export const GAME_REGISTRY: GameMetadata[] = [
       en: 'New Release',
     },
   },
+  {
+    id: 'snake',
+    category: 'arcade',
+    name: {
+      vi: 'Rắn Săn Mồi',
+      en: 'Pixel Snake',
+    },
+    shortDescription: {
+      vi: 'Game thùng 8-bit kinh điển - ăn táo và cày kỷ lục',
+      en: 'Classic 8-bit arcade - eat apples & chase high scores',
+    },
+    description: {
+      vi: 'Điều khiển chú rắn pixel ăn táo đỏ và táo vàng bonus, tránh va chạm tường và tự cắn đuôi. Tốc độ tăng dần cực kỳ kịch tính!',
+      en: 'Control the retro pixel snake to eat red apples & golden bonus fruits. Dodge walls and yourself as speed ramps up!',
+    },
+    route: '/games/snake',
+    status: 'available',
+    modes: ['single_player'],
+    minPlayers: 1,
+    maxPlayers: 1,
+    badge: {
+      vi: 'ARCADE KỶ LỤC',
+      en: 'ARCADE HIT',
+    },
+  },
 ];
 
 export function getGameById(id: string): GameMetadata | undefined {

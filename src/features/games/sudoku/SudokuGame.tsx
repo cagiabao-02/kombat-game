@@ -20,7 +20,7 @@ import { NumberPad } from './NumberPad';
 import { SudokuControls } from './SudokuControls';
 import { VictoryModal } from './VictoryModal';
 import { GameOverModal } from './GameOverModal';
-import { recordSudokuVictory } from './sudokuStatsService';
+import { recordSudokuVictory, getBestTimeForDifficulty } from './sudokuStatsService';
 import { sounds } from '@/lib/sound/soundService';
 
 export function SudokuGame() {
@@ -47,6 +47,14 @@ export function SudokuGame() {
   const [showVictoryModal, setShowVictoryModal] = useState<boolean>(false);
   const [highlightErrors, setHighlightErrors] = useState<boolean>(true);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
+  const [currentBestTime, setCurrentBestTime] = useState<number | null>(null);
+  const [isNewRecord, setIsNewRecord] = useState<boolean>(false);
+  const [previousBest, setPreviousBest] = useState<number | null>(null);
+
+  // Cập nhật kỷ lục thời gian tốt nhất khi đổi cấp độ
+  useEffect(() => {
+    setCurrentBestTime(getBestTimeForDifficulty(difficulty));
+  }, [difficulty]);
 
   // Start a new game
   const startNewGame = useCallback((newDiff: SudokuDifficulty) => {
@@ -201,7 +209,10 @@ export function SudokuGame() {
       // Check win condition
       if (isBoardComplete(newBoard, solution)) {
         sounds.playVictory();
-        recordSudokuVictory(difficulty, elapsedSeconds);
+        const recordResult = recordSudokuVictory(difficulty, elapsedSeconds);
+        setIsNewRecord(recordResult.isNewRecord);
+        setPreviousBest(recordResult.previousBest);
+        setCurrentBestTime(recordResult.stats[difficulty]?.bestTimeSeconds ?? null);
         setIsCompleted(true);
         setShowVictoryModal(true);
         clearSavedSudokuGame();
@@ -347,6 +358,7 @@ export function SudokuGame() {
         mistakes={mistakes}
         isPaused={isPaused}
         highlightErrors={highlightErrors}
+        bestTimeSeconds={currentBestTime}
         onChangeDifficulty={handleChangeDifficulty}
         onTogglePause={() => setIsPaused((prev) => !prev)}
         onReset={handleRequestReset}
@@ -378,6 +390,8 @@ export function SudokuGame() {
         isOpen={showVictoryModal}
         difficulty={difficulty}
         elapsedSeconds={elapsedSeconds}
+        isNewRecord={isNewRecord}
+        previousBest={previousBest}
         onPlayAgain={handleNewGame}
         onClose={() => setShowVictoryModal(false)}
       />
