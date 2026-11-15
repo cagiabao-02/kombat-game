@@ -5,7 +5,14 @@ import dynamic from 'next/dynamic';
 import { GAME_REGISTRY } from '@/features/games/registry';
 import { GameCard } from '@/components/GameCard';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Gamepad2, Sparkles, ShieldCheck, Zap, Bot, Smartphone, Trophy } from 'lucide-react';
+import {
+  PixelGamepad,
+  PixelSparkles,
+  PixelShieldCheck,
+  PixelBolt,
+  PixelBot,
+  PixelTrophy,
+} from '@/components/PixelIcons';
 
 const LeaderboardModal = dynamic(
   () => import('@/features/leaderboard/LeaderboardModal').then((mod) => mod.LeaderboardModal),
@@ -31,7 +38,7 @@ export default function LobbyPage() {
         </div>
 
         <div className="pixel-badge inline-flex items-center gap-1.5 bg-indigo-600 px-3 py-1 text-xs font-bold text-amber-300 mb-3 mt-1">
-          <Sparkles className="h-3.5 w-3.5 text-amber-300 animate-pulse" />
+          <PixelSparkles className="h-3.5 w-3.5 text-amber-300 animate-pulse" />
           <span>ARCADE SELECT • 16-BIT EDITION</span>
         </div>
 
@@ -50,25 +57,25 @@ export default function LobbyPage() {
             onClick={() => setIsLeaderboardOpen(true)}
             className="pixel-btn inline-flex items-center gap-1.5 bg-amber-300 hover:bg-amber-200 text-zinc-900 px-3 py-1.5 text-xs font-bold"
           >
-            <Trophy className="h-3.5 w-3.5 fill-current" />
+            <PixelTrophy className="h-3.5 w-3.5" />
             <span>{language === 'vi' ? 'BẢNG XẾP HẠNG' : 'HIGH SCORES'}</span>
           </button>
           <div className="pixel-badge inline-flex items-center gap-1.5 bg-[#ECE8DD] px-2.5 py-1.5 text-xs font-bold text-zinc-800">
-            <Zap className="h-3.5 w-3.5 text-amber-600" />
+            <PixelBolt className="h-3.5 w-3.5 text-amber-600" />
             <span>{language === 'vi' ? 'CHƠI NGAY' : 'INSTANT PLAY'}</span>
           </div>
           <div className="pixel-badge inline-flex items-center gap-1.5 bg-[#ECE8DD] px-2.5 py-1.5 text-xs font-bold text-zinc-800">
-            <Bot className="h-3.5 w-3.5 text-indigo-600" />
+            <PixelBot className="h-3.5 w-3.5 text-indigo-600" />
             <span>{language === 'vi' ? 'PVP & BOT AI' : 'PVP & BOT AI'}</span>
           </div>
           <div className="pixel-badge inline-flex items-center gap-1.5 bg-[#ECE8DD] px-2.5 py-1.5 text-xs font-bold text-zinc-800">
-            <Smartphone className="h-3.5 w-3.5 text-emerald-600" />
+            <PixelGamepad className="h-3.5 w-3.5 text-emerald-700" />
             <span>{language === 'vi' ? 'DI ĐỘNG & PC' : 'MOBILE-FIRST'}</span>
           </div>
         </div>
 
         <div className="mt-4 pt-3 border-t-2 border-dashed border-zinc-300 flex items-center justify-center sm:justify-start gap-2 text-xs font-mono text-zinc-600">
-          <ShieldCheck className="h-4 w-4 text-emerald-700 flex-shrink-0" />
+          <PixelShieldCheck className="h-4 w-4 text-emerald-700 flex-shrink-0" />
           <span>{t.app.loginNotice}</span>
         </div>
       </div>
@@ -78,7 +85,7 @@ export default function LobbyPage() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center bg-zinc-900 text-amber-400 border-2 border-zinc-900 shadow-pixel-xs">
-              <Gamepad2 className="h-5 w-5" />
+              <PixelGamepad className="h-5 w-5" />
             </div>
             <h2 className="font-pixel text-2xl font-bold text-zinc-950 tracking-wide uppercase">
               {t.nav.lobby}

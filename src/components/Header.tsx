@@ -5,9 +5,16 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/features/auth/AuthContext';
-import { Globe, Volume2, VolumeX, ShieldCheck, Trophy, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { sounds } from '@/lib/sound/soundService';
 import { UserAvatar } from '@/components/UserAvatar';
+import {
+  PixelTrophy,
+  PixelVolumeOn,
+  PixelVolumeOff,
+  PixelGlobe,
+  PixelShieldCheck,
+} from '@/components/PixelIcons';
 
 const ProfileAuthModal = dynamic(
   () => import('@/features/auth/ProfileAuthModal').then((mod) => mod.ProfileAuthModal),
@@ -81,7 +88,7 @@ export function Header() {
                 {guestName}
               </span>
               {!isAnonymous && (
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
+                <PixelShieldCheck className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
               )}
             </button>
 
@@ -95,7 +102,7 @@ export function Header() {
                 title={language === 'vi' ? 'Bảng xếp hạng / Leaderboard' : 'Leaderboard'}
                 aria-label="Leaderboard"
               >
-                <Trophy className="h-4 w-4 fill-current" />
+                <PixelTrophy className="h-4 w-4" />
               </button>
 
               {/* Sound Toggle */}
@@ -109,9 +116,9 @@ export function Header() {
                 aria-label="Toggle Sound"
               >
                 {isMuted ? (
-                  <VolumeX className="h-4 w-4 text-zinc-500" />
+                  <PixelVolumeOff className="h-4 w-4 text-zinc-500" />
                 ) : (
-                  <Volume2 className="h-4 w-4 text-emerald-800" />
+                  <PixelVolumeOn className="h-4 w-4 text-emerald-800" />
                 )}
               </button>
 
@@ -123,7 +130,7 @@ export function Header() {
                 title="Chuyển đổi ngôn ngữ / Switch language"
                 aria-label="Switch Language"
               >
-                <Globe className="h-4 w-4 text-indigo-600" />
+                <PixelGlobe className="h-4 w-4 text-indigo-600" />
                 <span className="font-pixel">{language.toUpperCase()}</span>
               </button>
             </div>
@@ -164,7 +171,7 @@ export function Header() {
                 <div>
                   <div className="flex items-center gap-1.5">
                     <span className="font-pixel text-sm font-bold text-zinc-900">{guestName}</span>
-                    {!isAnonymous && <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />}
+                    {!isAnonymous && <PixelShieldCheck className="h-3.5 w-3.5 text-emerald-600" />}
                   </div>
                   <span className="text-[11px] text-zinc-500 font-mono">
                     {isAnonymous
@@ -198,7 +205,7 @@ export function Header() {
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center bg-amber-400 text-zinc-900 border-2 border-zinc-900">
-                    <Trophy className="h-5 w-5 fill-current" />
+                    <PixelTrophy className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="font-pixel text-sm font-bold text-zinc-900">
@@ -210,7 +217,7 @@ export function Header() {
                   </div>
                 </div>
                 <span className="pixel-badge bg-amber-300 px-2.5 py-1 text-xs font-bold text-zinc-900">
-                  TOP 🏆
+                  TOP
                 </span>
               </button>
 
@@ -223,9 +230,9 @@ export function Header() {
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center bg-indigo-100 text-indigo-700 border-2 border-zinc-900">
                     {isMuted ? (
-                      <VolumeX className="h-5 w-5 text-zinc-500" />
+                      <PixelVolumeOff className="h-5 w-5 text-zinc-500" />
                     ) : (
-                      <Volume2 className="h-5 w-5 text-indigo-700" />
+                      <PixelVolumeOn className="h-5 w-5 text-indigo-700" />
                     )}
                   </div>
                   <div>
@@ -258,7 +265,7 @@ export function Header() {
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center bg-sky-100 text-sky-800 border-2 border-zinc-900">
-                    <Globe className="h-5 w-5" />
+                    <PixelGlobe className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="font-pixel text-sm font-bold text-zinc-900">
@@ -270,7 +277,7 @@ export function Header() {
                   </div>
                 </div>
                 <span className="pixel-badge bg-sky-200 px-2.5 py-1 text-xs font-bold text-zinc-900">
-                  {language === 'vi' ? 'VI 🇻🇳' : 'EN 🇬🇧'}
+                  {language === 'vi' ? 'VI' : 'EN'}
                 </span>
               </button>
             </div>

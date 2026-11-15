@@ -65,21 +65,21 @@ export function SudokuBoard({
               c % 3 === 0 && c !== 0 ? 'border-l-[2.5px] border-l-zinc-900' : 'border-l border-l-zinc-300',
             ].join(' ');
 
-            // High-contrast Neo-Arcade background and text hierarchy
+            // High-contrast Neo-Arcade background and text hierarchy (font-mono for unmistakable 1, 2, 5, 7)
             let bgClass = 'bg-[#FFFDF8] hover:bg-amber-50';
             let textClass = isInitial
-              ? 'font-pixel font-bold text-zinc-950'
-              : 'font-pixel font-bold text-indigo-700';
+              ? 'font-mono font-black text-zinc-950'
+              : 'font-mono font-black text-indigo-700';
 
             if (isError) {
               bgClass = 'bg-rose-200 ring-2 ring-inset ring-rose-600';
-              textClass = 'font-pixel font-bold text-rose-800';
+              textClass = 'font-mono font-black text-rose-800';
             } else if (isSelected) {
               bgClass = 'bg-indigo-600';
-              textClass = 'font-pixel font-bold text-amber-300';
+              textClass = 'font-mono font-black text-amber-300';
             } else if (isSameNumber) {
               bgClass = 'bg-amber-200 ring-1 ring-inset ring-zinc-900';
-              textClass = 'font-pixel font-bold text-zinc-950';
+              textClass = 'font-mono font-black text-zinc-950';
             } else if (isRelated) {
               bgClass = 'bg-[#ECE8DD]';
             }
