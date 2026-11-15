@@ -10,6 +10,7 @@ import { getCaroStats, CaroStats } from '@/features/games/caro/caroStatsService'
 import { getSudokuStats, SudokuStats, formatSudokuTime } from '@/features/games/sudoku/sudokuStatsService';
 import { getXiangqiStats, XiangqiStats } from '@/features/games/xiangqi/xiangqiStatsService';
 import { getSnakeStats, SnakeStats } from '@/features/games/snake/snakeStatsService';
+import { getGame2048Stats, Game2048Stats } from '@/features/games/game2048/game2048StatsService';
 import {
   X,
   User,
@@ -190,7 +191,8 @@ export function ProfileAuthModal({
   const [xiangqiStats, setXiangqiStats] = useState<XiangqiStats | null>(null);
   const [sudokuStats, setSudokuStats] = useState<SudokuStats | null>(null);
   const [snakeStats, setSnakeStats] = useState<SnakeStats | null>(null);
-  const [statsGameTab, setStatsGameTab] = useState<'all' | 'chess' | 'caro' | 'xiangqi' | 'sudoku' | 'snake'>('all');
+  const [game2048Stats, setGame2048Stats] = useState<Game2048Stats | null>(null);
+  const [statsGameTab, setStatsGameTab] = useState<'all' | 'chess' | 'caro' | 'xiangqi' | 'sudoku' | 'snake' | 'game2048'>('all');
   const wasOpenRef = useRef(false);
 
   useEffect(() => {
@@ -214,6 +216,7 @@ export function ProfileAuthModal({
       setXiangqiStats(meta.xiangqi_stats || getXiangqiStats());
       setSudokuStats(meta.sudoku_stats || getSudokuStats());
       setSnakeStats(meta.snake_stats || getSnakeStats());
+      setGame2048Stats(meta.game2048_stats || getGame2048Stats());
 
       // Kéo dữ liệu mới nhất nếu là tài khoản đám mây (chỉ cập nhật stats nền, không ghi đè form nhập của người dùng)
       if (user && !isAnonymous) {
@@ -225,6 +228,7 @@ export function ProfileAuthModal({
             if (m.xiangqi_stats) setXiangqiStats(m.xiangqi_stats);
             if (m.sudoku_stats) setSudokuStats(m.sudoku_stats);
             if (m.snake_stats) setSnakeStats(m.snake_stats);
+            if (m.game2048_stats) setGame2048Stats(m.game2048_stats);
           }
         }).catch(() => {});
       }
@@ -657,10 +661,50 @@ export function ProfileAuthModal({
                     >
                       {language === 'vi' ? 'Rắn' : 'Snake'}
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setStatsGameTab('game2048')}
+                      className={`px-1.5 py-0.5 font-pixel font-bold ${
+                        statsGameTab === 'game2048' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
+                      }`}
+                    >
+                      2048
+                    </button>
                   </div>
                 </div>
 
-                {statsGameTab === 'snake' ? (
+                {statsGameTab === 'game2048' ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between bg-white px-3 py-1.5 border-2 border-zinc-900 text-xs font-mono">
+                      <span className="font-bold text-zinc-700">
+                        {language === 'vi' ? 'Kỷ lục điểm cao:' : 'All-time High Score:'}
+                      </span>
+                      <span className="font-pixel text-xl font-bold text-amber-600">
+                        🏆 {game2048Stats?.highScore?.toLocaleString() || 0}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-1.5 text-center">
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-amber-600">
+                          🔢 {game2048Stats?.maxTile || 0}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Ô số lớn nhất' : 'Max Tile'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-indigo-700">
+                          {game2048Stats?.totalGames || 0}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Số ván đã chơi' : 'Games Played'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : statsGameTab === 'snake' ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between bg-white px-3 py-1.5 border-2 border-zinc-900 text-xs font-mono">
                       <span className="font-bold text-zinc-700">

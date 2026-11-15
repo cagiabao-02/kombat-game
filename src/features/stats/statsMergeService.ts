@@ -3,6 +3,7 @@ import { CaroStats } from '@/features/games/caro/caroStatsService';
 import { XiangqiStats } from '@/features/games/xiangqi/xiangqiStatsService';
 import { SudokuStats } from '@/features/games/sudoku/sudokuStatsService';
 import { SnakeStats } from '@/features/games/snake/snakeStatsService';
+import { Game2048Stats } from '@/features/games/game2048/game2048StatsService';
 
 export const STORAGE_KEYS = {
   CHESS: 'kombat_chess_stats',
@@ -10,6 +11,7 @@ export const STORAGE_KEYS = {
   XIANGQI: 'kombat_xiangqi_stats',
   SUDOKU: 'kombat_sudoku_stats',
   SNAKE: 'kombat_snake_stats',
+  GAME2048: 'kombat_2048_stats',
   GUEST_NAME: 'togame_guest_display_name',
   AVATAR: 'kombat_user_avatar',
 } as const;
@@ -110,6 +112,22 @@ export function mergeSnakeStats(
   };
 }
 
+export function mergeGame2048Stats(
+  local: Game2048Stats | null,
+  cloud: Game2048Stats | null
+): Game2048Stats | null {
+  if (!local && !cloud) return null;
+  if (!local) return cloud;
+  if (!cloud) return local;
+
+  return {
+    highScore: Math.max(local.highScore || 0, cloud.highScore || 0),
+    maxTile: Math.max(local.maxTile || 0, cloud.maxTile || 0),
+    totalGames: Math.max(local.totalGames || 0, cloud.totalGames || 0),
+    lastUpdated: Math.max(local.lastUpdated || 0, cloud.lastUpdated || 0, Date.now()),
+  };
+}
+
 /**
  * Gộp toàn bộ thành tích từ LocalStorage của máy vào tài khoản Đám mây (Google/Email).
  * Được kích hoạt tự động khi người dùng đăng nhập tài khoản.
@@ -127,6 +145,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const localXiangqi = safeParse<XiangqiStats>(STORAGE_KEYS.XIANGQI);
   const localSudoku = safeParse<SudokuStats>(STORAGE_KEYS.SUDOKU);
   const localSnake = safeParse<SnakeStats>(STORAGE_KEYS.SNAKE);
+  const local2048 = safeParse<Game2048Stats>(STORAGE_KEYS.GAME2048);
 
   // 2. Gộp thông minh với cloud
   const mergedChess = mergeBoardGameStats(localChess, meta.chess_stats);
@@ -134,6 +153,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const mergedXiangqi = mergeBoardGameStats(localXiangqi, meta.xiangqi_stats);
   const mergedSudoku = mergeSudokuStats(localSudoku, meta.sudoku_stats);
   const mergedSnake = mergeSnakeStats(localSnake, meta.snake_stats);
+  const merged2048 = mergeGame2048Stats(local2048, meta.game2048_stats);
 
   // 3. Lưu lại vào LocalStorage
   if (mergedChess) safeSet(STORAGE_KEYS.CHESS, mergedChess);
@@ -141,6 +161,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   if (mergedXiangqi) safeSet(STORAGE_KEYS.XIANGQI, mergedXiangqi);
   if (mergedSudoku) safeSet(STORAGE_KEYS.SUDOKU, mergedSudoku);
   if (mergedSnake) safeSet(STORAGE_KEYS.SNAKE, mergedSnake);
+  if (merged2048) safeSet(STORAGE_KEYS.GAME2048, merged2048);
 
   // 4. Đẩy bản gộp lên Supabase User Metadata để bảo lưu vĩnh viễn
   const updateData: Record<string, any> = {};
@@ -166,6 +187,10 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
     updateData.snake_stats = mergedSnake;
     hasUpdates = true;
   }
+  if (merged2048 && JSON.stringify(merged2048) !== JSON.stringify(meta.game2048_stats)) {
+    updateData.game2048_stats = merged2048;
+    hasUpdates = true;
+  }
 
   if (hasUpdates) {
     try {
@@ -181,5 +206,6 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
     xiangqi: mergedXiangqi,
     sudoku: mergedSudoku,
     snake: mergedSnake,
+    game2048: merged2048,
   };
 }

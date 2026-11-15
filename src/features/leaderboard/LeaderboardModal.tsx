@@ -90,6 +90,7 @@ export function LeaderboardModal({
     if (game === 'caro') return '/games/caro';
     if (game === 'xiangqi') return '/games/xiangqi';
     if (game === 'snake') return '/games/snake';
+    if (game === 'game2048') return '/games/game2048';
     return '/games/sudoku';
   };
 
@@ -98,6 +99,7 @@ export function LeaderboardModal({
     if (game === 'caro') return language === 'vi' ? 'Cờ Caro' : 'Caro';
     if (game === 'xiangqi') return language === 'vi' ? 'Cờ Tướng' : 'Xiangqi';
     if (game === 'snake') return language === 'vi' ? 'Rắn săn mồi' : 'Snake';
+    if (game === 'game2048') return '2048';
     return 'Sudoku';
   };
 
@@ -139,11 +141,11 @@ export function LeaderboardModal({
           </div>
 
           {/* Game Switcher Tabs */}
-          <div className="mt-4 grid grid-cols-2 sm:grid-cols-5 gap-1.5">
+          <div className="mt-4 grid grid-cols-3 sm:grid-cols-6 gap-1.5">
             <button
               type="button"
               onClick={() => setSelectedGame('chess')}
-              className={`pixel-btn flex items-center justify-center gap-1.5 min-h-[40px] text-xs font-bold ${
+              className={`pixel-btn flex items-center justify-center gap-1 min-h-[40px] text-xs font-bold ${
                 selectedGame === 'chess'
                   ? 'bg-indigo-600 text-amber-300'
                   : 'bg-white text-zinc-800 hover:bg-zinc-100'
@@ -156,7 +158,7 @@ export function LeaderboardModal({
             <button
               type="button"
               onClick={() => setSelectedGame('caro')}
-              className={`pixel-btn flex items-center justify-center gap-1.5 min-h-[40px] text-xs font-bold ${
+              className={`pixel-btn flex items-center justify-center gap-1 min-h-[40px] text-xs font-bold ${
                 selectedGame === 'caro'
                   ? 'bg-indigo-600 text-amber-300'
                   : 'bg-white text-zinc-800 hover:bg-zinc-100'
@@ -169,20 +171,20 @@ export function LeaderboardModal({
             <button
               type="button"
               onClick={() => setSelectedGame('xiangqi')}
-              className={`pixel-btn flex items-center justify-center gap-1.5 min-h-[40px] text-xs font-bold ${
+              className={`pixel-btn flex items-center justify-center gap-1 min-h-[40px] text-xs font-bold ${
                 selectedGame === 'xiangqi'
                   ? 'bg-indigo-600 text-amber-300'
                   : 'bg-white text-zinc-800 hover:bg-zinc-100'
               }`}
             >
               <span className={selectedGame === 'xiangqi' ? 'text-amber-300 font-bold' : 'text-rose-600 font-bold'}>帥</span>
-              <span>{language === 'vi' ? 'Cờ Tướng' : 'Xiangqi'}</span>
+              <span>{language === 'vi' ? 'Tướng' : 'Xiangqi'}</span>
             </button>
 
             <button
               type="button"
               onClick={() => setSelectedGame('sudoku')}
-              className={`pixel-btn flex items-center justify-center gap-1.5 min-h-[40px] text-xs font-bold ${
+              className={`pixel-btn flex items-center justify-center gap-1 min-h-[40px] text-xs font-bold ${
                 selectedGame === 'sudoku'
                   ? 'bg-indigo-600 text-amber-300'
                   : 'bg-white text-zinc-800 hover:bg-zinc-100'
@@ -195,14 +197,27 @@ export function LeaderboardModal({
             <button
               type="button"
               onClick={() => setSelectedGame('snake')}
-              className={`pixel-btn flex items-center justify-center gap-1.5 min-h-[40px] text-xs font-bold ${
+              className={`pixel-btn flex items-center justify-center gap-1 min-h-[40px] text-xs font-bold ${
                 selectedGame === 'snake'
                   ? 'bg-indigo-600 text-amber-300'
                   : 'bg-white text-zinc-800 hover:bg-zinc-100'
               }`}
             >
               <span>🐍</span>
-              <span>{language === 'vi' ? 'Rắn săn mồi' : 'Snake'}</span>
+              <span>{language === 'vi' ? 'Rắn' : 'Snake'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedGame('game2048')}
+              className={`pixel-btn flex items-center justify-center gap-1 min-h-[40px] text-xs font-bold ${
+                selectedGame === 'game2048'
+                  ? 'bg-indigo-600 text-amber-300'
+                  : 'bg-white text-zinc-800 hover:bg-zinc-100'
+              }`}
+            >
+              <span className={selectedGame === 'game2048' ? 'text-amber-300 font-bold' : 'text-amber-600 font-bold'}>🔢</span>
+              <span>2048</span>
             </button>
           </div>
         </div>

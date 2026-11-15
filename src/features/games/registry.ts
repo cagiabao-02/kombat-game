@@ -126,6 +126,31 @@ export const GAME_REGISTRY: GameMetadata[] = [
       en: 'ARCADE HIT',
     },
   },
+  {
+    id: 'game2048',
+    category: 'puzzle',
+    name: {
+      vi: '2048 Pixel',
+      en: '2048 Arcade',
+    },
+    shortDescription: {
+      vi: 'Trượt và gộp ô số chạm mốc 2048 huyền thoại',
+      en: 'Slide and merge tiles to reach the legendary 2048',
+    },
+    description: {
+      vi: 'Trò chơi giải đố số học gây nghiện. Trượt các ô số giống nhau để hợp nhất, tính toán từng bước đi để đạt được viên gạch 2048 vàng danh giá!',
+      en: 'Addictive number sliding puzzle. Merge identical tiles, plan your moves carefully, and conquer the golden 2048 tile!',
+    },
+    route: '/games/game2048',
+    status: 'available',
+    modes: ['single_player'],
+    minPlayers: 1,
+    maxPlayers: 1,
+    badge: {
+      vi: 'MỚI RA MẮT',
+      en: 'NEW RELEASE',
+    },
+  },
 ];
 
 export function getGameById(id: string): GameMetadata | undefined {

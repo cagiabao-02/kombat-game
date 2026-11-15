@@ -379,6 +379,92 @@ class SoundService {
       osc.stop(ctx.currentTime + 0.3);
     } catch {}
   }
+
+  /**
+   * Sound 13: 2048 tile slide (subtle tactile chiptune tap)
+   */
+  public play2048Slide(): void {
+    if (this.muted) return;
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(260, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(140, ctx.currentTime + 0.05);
+
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.055);
+    } catch {}
+  }
+
+  /**
+   * Sound 14: 2048 tile merge (bouncy square wave pop, pitch based on tile value)
+   */
+  public play2048Merge(value: number = 4): void {
+    if (this.muted) return;
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+
+    try {
+      // Dynamic frequency based on merged value (e.g., 4 -> 330Hz, 8 -> 392Hz, ... 2048 -> 987Hz)
+      const baseFreq = Math.min(1200, 280 + Math.log2(Math.max(2, value)) * 60);
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
+      osc.frequency.setValueAtTime(baseFreq * 1.25, ctx.currentTime + 0.03);
+
+      gain.gain.setValueAtTime(0.25, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.095);
+    } catch {}
+  }
+
+  /**
+   * Sound 15: 2048 victory fanfare (arpeggio to golden 2048)
+   */
+  public play2048Win(): void {
+    if (this.muted) return;
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+
+    try {
+      const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.08);
+
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + idx * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.08 + 0.16);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(ctx.currentTime + idx * 0.08);
+        osc.stop(ctx.currentTime + idx * 0.08 + 0.17);
+      });
+    } catch {}
+  }
 }
 
 export const sounds = new SoundService();

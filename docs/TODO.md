@@ -181,4 +181,17 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [x] Tích hợp Bảng xếp hạng Leaderboard và Hồ sơ người chơi (`ProfileAuthModal.tsx`).
 - [x] Kiểm thử `npx tsc --noEmit` và `npm run build`.
 
+## Chặng 17 — Trò chơi thứ 6: 2048 Pixel Arcade (Puzzle Logic)
+
+- [x] Thiết kế động cơ logic 2048 (`game2048Logic.ts`): Ma trận $4 \times 4$, thuật toán trượt và gộp ô số, tính điểm, 1-step Undo, nhận diện chiến thắng 2048 và kiểm tra Game Over.
+- [x] Dịch vụ lưu trữ thành tích (`game2048StatsService.ts`): Điểm cao kỷ lục (High score), ô số lớn nhất (Max tile), số ván đã chơi, tự động đồng bộ đám mây và Supabase `leaderboard_scores`.
+- [x] Thiết kế giao diện 16-bit Neo-Arcade (`Game2048Board.tsx`, `Game2048Controls.tsx`, `Game2048VictoryModal.tsx`, `Game2048OverModal.tsx`, `src/app/games/game2048/page.tsx`):
+  - [x] Hiển thị ô số với màu sắc pixel tương phản cao và hiệu ứng đổ bóng pixel retro.
+  - [x] Điều khiển đa nền tảng: Phím mũi tên / WASD / phím Z (Undo) trên PC, vuốt màn hình cảm ứng (Touch swipe) và cụm D-pad ảo trên điện thoại.
+  - [x] Tích hợp âm thanh chiptune trượt ô, gộp số và chúc mừng chiến thắng trong `soundService.ts`.
+- [x] Đăng ký 2048 vào `GAME_REGISTRY` (thể loại Puzzle), vẽ icon pixel 2048 cho `GameTile.tsx`.
+- [x] Tích hợp vào Bảng xếp hạng toàn cầu (`LeaderboardModal.tsx`), Hồ sơ người chơi (`ProfileAuthModal.tsx`) và gộp dữ liệu đám mây (`statsMergeService.ts`, `AuthContext.tsx`).
+- [x] Kiểm thử kiểu TypeScript `npx tsc --noEmit` và bản build `npm run build`.
+
+
 
