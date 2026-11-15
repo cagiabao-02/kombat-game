@@ -33,8 +33,8 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 - Nhiều biến thể cờ hoặc nhiều game online khác.
 
 **Giai đoạn kế tiếp:** 
-- Đã hoàn tất: Hàng đợi ghép ngẫu nhiên (Quick Match), tính năng Đấu lại (Rematch), hệ thống Bot cờ vua tự động (3 cấp độ Dễ/Vừa/Khó) chơi offline local kèm fallback sau 2 phút.
-- Đang phát triển: Hệ thống thả biểu cảm cảm xúc (Emoji Reactions) trong trận cờ 1v1 và Bảng thống kê thành tích cá nhân (Stats) lưu trên trình duyệt.
+- Đã hoàn tất: Hàng đợi ghép ngẫu nhiên (Quick Match), tính năng Đấu lại (Rematch), hệ thống Bot cờ vua tự động (3 cấp độ Dễ/Vừa/Khó) chơi offline local kèm fallback sau 2 phút, trò Rắn Săn Mồi Pixel (Game 5).
+- Đang phát triển: Trò chơi thứ 6: 2048 Pixel Arcade (Puzzle), bổ sung bảng xếp hạng kỷ lục điểm số và lưu trữ đám mây.
 
 ## 4. Yêu cầu chức năng
 

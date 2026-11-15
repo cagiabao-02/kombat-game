@@ -103,6 +103,26 @@ export function GameIcon({ id }: { id: GameId }) {
         </div>
       );
 
+    case 'game2048':
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-amber-100 p-1.5">
+          <div className="grid h-full w-full grid-cols-2 grid-rows-2 gap-1 border-2 border-zinc-900 bg-zinc-800 p-1 shadow-[2px_2px_0_0_#18181b]">
+            <div className="flex items-center justify-center border border-zinc-900 bg-[#FDFBF7] font-pixel text-[11px] font-black text-zinc-900">
+              2
+            </div>
+            <div className="flex items-center justify-center border border-zinc-900 bg-[#FEF08A] font-pixel text-[11px] font-black text-amber-950">
+              4
+            </div>
+            <div className="flex items-center justify-center border border-zinc-900 bg-[#FB923C] font-pixel text-[11px] font-black text-white">
+              8
+            </div>
+            <div className="flex items-center justify-center border border-amber-300 bg-[#E11D48] font-pixel text-[9px] font-black text-amber-200">
+              2048
+            </div>
+          </div>
+        </div>
+      );
+
     default:
       return null;
   }

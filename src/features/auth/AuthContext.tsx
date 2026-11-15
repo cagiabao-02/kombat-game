@@ -34,6 +34,7 @@ const CARO_STATS_KEY = 'kombat_caro_stats';
 const SUDOKU_STATS_KEY = 'kombat_sudoku_stats';
 const XIANGQI_STATS_KEY = 'kombat_xiangqi_stats';
 const SNAKE_STATS_KEY = 'kombat_snake_stats';
+const GAME2048_STATS_KEY = 'kombat_2048_stats';
 
 let supabasePromise: Promise<SupabaseClient<any, 'public', any>> | null = null;
 async function getClient(): Promise<SupabaseClient<any, 'public', any>> {
@@ -57,6 +58,7 @@ function syncAllCloudStats(userMetadata: any) {
   if (userMetadata.sudoku_stats) syncKey(SUDOKU_STATS_KEY, userMetadata.sudoku_stats);
   if (userMetadata.xiangqi_stats) syncKey(XIANGQI_STATS_KEY, userMetadata.xiangqi_stats);
   if (userMetadata.snake_stats) syncKey(SNAKE_STATS_KEY, userMetadata.snake_stats);
+  if (userMetadata.game2048_stats) syncKey(GAME2048_STATS_KEY, userMetadata.game2048_stats);
 }
 
 function generateDefaultGuestName(userId?: string): string {

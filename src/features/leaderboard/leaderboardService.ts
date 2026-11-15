@@ -5,6 +5,7 @@ import { getCaroStats } from '@/features/games/caro/caroStatsService';
 import { getSudokuStats } from '@/features/games/sudoku/sudokuStatsService';
 import { getXiangqiStats } from '@/features/games/xiangqi/xiangqiStatsService';
 import { getSnakeStats } from '@/features/games/snake/snakeStatsService';
+import { getGame2048Stats } from '@/features/games/game2048/game2048StatsService';
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -109,6 +110,29 @@ export function getLocalLeaderboardData(
         secondaryInfo: `Đã ăn ${stats.totalApples} táo • ${stats.totalGames} ván`,
         isCurrentUser: true,
         tierBadge: stats.highScore >= 300 ? 'Chuyên gia' : stats.highScore >= 150 ? 'Tay lái lụa' : undefined,
+      };
+    }
+  } else if (game === 'game2048') {
+    const stats = getGame2048Stats();
+    if (stats.highScore > 0) {
+      userEntry = {
+        id: currentUserId || 'current_user',
+        userId: currentUserId,
+        name: currentUserName,
+        avatar: currentUserAvatar,
+        rank: 1,
+        scoreValue: stats.highScore,
+        scoreLabel: `${stats.highScore.toLocaleString()} Điểm`,
+        secondaryInfo: `Ô cao nhất: ${stats.maxTile} • ${stats.totalGames} ván`,
+        isCurrentUser: true,
+        tierBadge:
+          stats.maxTile >= 2048
+            ? 'Bậc thầy 2048'
+            : stats.maxTile >= 1024
+            ? 'Cao thủ'
+            : stats.maxTile >= 512
+            ? 'Thành thạo'
+            : undefined,
       };
     }
   }
@@ -290,6 +314,12 @@ export async function syncLeaderboardScoreForGame(
       scoreValue = stats.highScore;
       scoreLabel = `${stats.highScore} Điểm`;
       secondaryInfo = `Đã ăn ${stats.totalApples} táo • ${stats.totalGames} ván`;
+    } else if (game === 'game2048') {
+      const stats = getGame2048Stats();
+      if (stats.highScore === 0) return;
+      scoreValue = stats.highScore;
+      scoreLabel = `${stats.highScore.toLocaleString()} Điểm`;
+      secondaryInfo = `Ô cao nhất: ${stats.maxTile} • ${stats.totalGames} ván`;
     }
 
     await supabase.from('leaderboard_scores').upsert(
@@ -311,7 +341,7 @@ export async function syncLeaderboardScoreForGame(
 }
 
 /**
- * Đồng bộ tất cả 5 game lên bảng xếp hạng Supabase
+ * Đồng bộ tất cả 6 game lên bảng xếp hạng Supabase
  */
 export async function syncAllLeaderboardScores() {
   await Promise.allSettled([
@@ -320,5 +350,6 @@ export async function syncAllLeaderboardScores() {
     syncLeaderboardScoreForGame('sudoku'),
     syncLeaderboardScoreForGame('xiangqi'),
     syncLeaderboardScoreForGame('snake'),
+    syncLeaderboardScoreForGame('game2048'),
   ]);
 }
