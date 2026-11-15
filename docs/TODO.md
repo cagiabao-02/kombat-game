@@ -151,3 +151,11 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Kiểm tra vùng chạm di động $\ge 44\text{px}$ và độ tương phản màu sắc.
   - [x] Chạy kiểm thử toàn diện `npm run build` không lỗi.
 
+## Chặng 14 — Sảnh chia theo thể loại game & Ô biểu tượng (Game Tiles)
+
+- [x] Thêm trường `category` vào `GameMetadata` và file cấu hình `src/features/games/categories.ts` (Giải đố, Cờ chiến thuật, Phản xạ / Arcade).
+- [x] Gắn thể loại cho 4 game hiện có trong `registry.ts`.
+- [x] Tạo component `GameTile.tsx` biểu tượng pixel đại diện từng game (Ngựa cờ vua, Tướng cờ tướng, X/O cờ caro, ma trận LCD Sudoku) kèm tooltip tên game khi rê chuột trên desktop và tên ngắn dưới icon trên mobile.
+- [x] Sảnh hiển thị từng khu vực theo thể loại, có thanh lọc nhanh và ô “Sắp có” (`UpcomingTile`) cho từng thể loại.
+- [ ] Chốt danh sách thể loại và tựa game mới cuối cùng với chủ dự án khi mở rộng.
+

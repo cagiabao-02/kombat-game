@@ -82,13 +82,19 @@
     - **Cờ Tướng:** Quân cờ tròn 16-bit Pixel Token đổ bóng cứng (`shadow-[0_3px_0_0_#18181b]`) trong [`XiangqiPiece.tsx`](file:///d:/personal-prj/game/togame/src/features/games/xiangqi/XiangqiPiece.tsx), bàn cờ Sở Hà Hán Giới khung pixel [`XiangqiBoard.tsx`](file:///d:/personal-prj/game/togame/src/features/games/xiangqi/XiangqiBoard.tsx) và bảng điều khiển [`XiangqiControls.tsx`](file:///d:/personal-prj/game/togame/src/features/games/xiangqi/XiangqiControls.tsx).
   - **Giai đoạn 4 (VFX, SFX & Kiểm thử):** Tinh chỉnh âm sắc Web Audio API sang sóng vuông (`square` / `sawtooth`) đậm chất Chiptune 8-bit/16-bit trong [`soundService.ts`](file:///d:/personal-prj/game/togame/src/lib/sound/soundService.ts) và kiểm thử `npm run build` thành công với 0 lỗi.
 
+- **Hoàn thành Chặng 14 — Phân loại game theo thể loại & Ô biểu tượng game (Compact Game Tiles) tại sảnh chính:**
+  - **Tổ chức thể loại game:** Xây dựng danh mục thể loại trong [`src/features/games/categories.ts`](file:///d:/personal-prj/game/togame/src/features/games/categories.ts) (`strategy` - Chiến thuật, `puzzle` - Giải đố, `arcade` - Phản xạ / Thử thách), mở rộng `GameMetadata` với trường `category` và gán thể loại cho 4 tựa game hiện có.
+  - **Ô biểu tượng game dạng pixel compact:** Tạo component [`GameTile.tsx`](file:///d:/personal-prj/game/togame/src/components/GameTile.tsx) gồm biểu tượng pixel đặc trưng cho từng game (Ngựa cờ vua, quân Tướng đỏ cờ tướng, lưới X/O cờ caro, ma trận mini Sudoku), thay thế thẻ banner lớn để tiết kiệm không gian sảnh chờ.
+  - **Tương tác trực quan:** Hỗ trợ tooltip pixel hiển thị tên game và huy hiệu khi rê chuột/focus bàn phím trên desktop; tự động hiển thị tên ngắn bên dưới ô icon trên thiết bị di động (mobile).
+  - **Ô Sắp có (`UpcomingTile`):** Hiển thị ô dự kiến cho các tựa game tiếp theo thuộc từng thể loại (ví dụ: Go/Reversi cho chiến thuật, 2048/Nonogram cho giải đố, Flappy/Phá gạch cho phản xạ).
+
 ## Đang làm
 
-- Toàn bộ 4 giai đoạn của Chặng 13 (Giao diện Neo-Arcade 16-bit) đã hoàn thành và vượt qua bài kiểm tra `npm run build`.
+- Chặng 14 (Phân loại sảnh game & Ô biểu tượng game compact) đã hoàn thành và vượt qua kiểm thử `npm run build`.
 
 ## Việc kế tiếp
 
-1. Nghiệm thu trực tiếp giao diện Neo-Arcade 16-bit trên trình duyệt máy tính và điện thoại.
+1. Trải nghiệm thử sảnh game mới với các ô icon gọn gàng và bộ lọc thể loại.
 2. Hướng dẫn commit và tạo Pull Request (PR) theo chuẩn Rule 8 trong `AGENTS.md` khi người dùng yêu cầu.
 
 ## Quyết định còn mở

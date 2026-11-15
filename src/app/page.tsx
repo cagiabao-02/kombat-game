@@ -3,7 +3,9 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { GAME_REGISTRY } from '@/features/games/registry';
-import { GameCard } from '@/components/GameCard';
+import { GAME_CATEGORIES } from '@/features/games/categories';
+import { GameCategoryId } from '@/types/game';
+import { GameTile, UpcomingTile } from '@/components/GameTile';
 import { useLanguage } from '@/i18n/LanguageContext';
 import {
   PixelGamepad,
@@ -24,6 +26,7 @@ import { LobbyPresenceWidget } from '@/features/presence/LobbyPresenceWidget';
 export default function LobbyPage() {
   const { language, t } = useLanguage();
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<GameCategoryId | 'all'>('all');
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
@@ -80,9 +83,9 @@ export default function LobbyPage() {
         </div>
       </div>
 
-      {/* Game Cartridges Grid */}
+      {/* Game Cartridges — grouped by category */}
       <section>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center bg-zinc-900 text-amber-400 border-2 border-zinc-900 shadow-pixel-xs">
               <PixelGamepad className="h-5 w-5" />
@@ -96,10 +99,60 @@ export default function LobbyPage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
-          {GAME_REGISTRY.map((game) => (
-            <GameCard key={game.id} game={game} />
+        {/* Category filter chips */}
+        <div className="mb-8 flex flex-wrap gap-2" role="tablist" aria-label={language === 'vi' ? 'Lọc theo thể loại' : 'Filter by category'}>
+          {[{ id: 'all' as const, label: language === 'vi' ? 'TẤT CẢ' : 'ALL', count: GAME_REGISTRY.length }, ...GAME_CATEGORIES.map((cat) => ({
+            id: cat.id,
+            label: cat.name[language].toUpperCase(),
+            count: GAME_REGISTRY.filter((g) => g.category === cat.id).length,
+          }))].map((chip) => (
+            <button
+              key={chip.id}
+              type="button"
+              role="tab"
+              aria-selected={activeCategory === chip.id}
+              onClick={() => setActiveCategory(chip.id)}
+              className={`pixel-btn min-h-[40px] px-3 py-1.5 text-xs font-bold ${
+                activeCategory === chip.id
+                  ? 'bg-zinc-900 text-amber-300'
+                  : 'bg-white text-zinc-800 hover:bg-amber-50'
+              }`}
+            >
+              {chip.label} <span className="opacity-70">({chip.count})</span>
+            </button>
           ))}
+        </div>
+
+        <div className="space-y-6">
+          {GAME_CATEGORIES.filter((cat) => activeCategory === 'all' || activeCategory === cat.id).map((cat) => {
+            const games = GAME_REGISTRY.filter((g) => g.category === cat.id);
+            return (
+              <div
+                key={cat.id}
+                className="pixel-box-sm bg-[#FFFDF8] p-4 sm:p-5"
+              >
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b-2 border-dashed border-zinc-300 pb-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className={`pixel-badge px-2.5 py-1 text-xs font-bold uppercase tracking-wide ${cat.accentClass}`}>
+                      {cat.name[language]}
+                    </span>
+                    <span className="text-xs font-mono text-zinc-600 hidden sm:inline">{cat.tagline[language]}</span>
+                  </div>
+                  <span className="font-mono text-[11px] font-bold text-zinc-500">
+                    {games.length} {language === 'vi' ? 'trò chơi' : 'games'}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-start gap-4 sm:gap-6 pt-1">
+                  {games.map((game) => (
+                    <GameTile key={game.id} game={game} />
+                  ))}
+                  {/* Ô đại diện cho game dự kiến tiếp theo */}
+                  <UpcomingTile label={cat.upcoming[language]} />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 

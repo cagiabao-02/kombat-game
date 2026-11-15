@@ -35,6 +35,7 @@ project-root/
 - `src/app/` chịu trách nhiệm route, layout và ghép các feature vào trang; không để toàn bộ luật game trong một file page.
 - `src/components/` chỉ chứa thành phần thực sự dùng chung. Nếu component chỉ dùng cho Sudoku hoặc cờ vua, giữ nó trong feature tương ứng.
 - `src/features/games/registry.ts` mô tả id, tên theo ngôn ngữ, route, trạng thái và chế độ chơi để sảnh có thể hiển thị game theo cấu hình.
+- Mỗi game phải khai báo `category` (`puzzle` | `strategy` | `arcade`). Danh sách, tên và thứ tự thể loại nằm ở `src/features/games/categories.ts`; sảnh tự nhóm game theo file này.
 - Mỗi game tự sở hữu UI, luật chơi, trạng thái và thành phần riêng. Chỉ chuyển code sang vùng dùng chung khi có ít nhất hai nơi thật sự dùng cùng một hành vi.
 - Giữ logic luật chơi trong hàm/module có đầu vào và đầu ra rõ ràng để dễ xem xét độc lập với UI. Dùng thư viện game phù hợp thay vì tự viết lại luật phức tạp.
 - `src/lib/` dành cho tích hợp dịch vụ/tiện ích chung; không biến nó thành nơi gom mọi thứ không biết để đâu.
