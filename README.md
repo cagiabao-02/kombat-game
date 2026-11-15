@@ -84,8 +84,8 @@ Sảnh trò chơi được phân loại thành 3 nhóm thể loại chính:
 ### 2. Các bước cài đặt
 ```bash
 # 1. Clone repository
-git clone https://github.com/phamtai88/togame.git
-cd togame
+git clone https://github.com/cagiabao-02/kombat-game.git
+cd kombat-game
 
 # 2. Cài đặt dependencies
 npm install
@@ -168,4 +168,4 @@ togame/
 
 ## 📄 Bản quyền & Đóng góp
 
-Dự án cá nhân mã nguồn mở được phát triển bởi [phamtai88](https://github.com/phamtai88). Mọi ý kiến đóng góp và cải tiến đều rất được hoan nghênh qua [Pull Requests](https://github.com/phamtai88/togame/pulls) hoặc [Issues](https://github.com/phamtai88/togame/issues).
+Dự án mã nguồn mở được phát hành theo giấy phép MIT. Mọi ý kiến đóng góp, báo lỗi và đề xuất tính năng mới đều rất được hoan nghênh qua [Pull Requests](https://github.com/cagiabao-02/kombat-game/pulls) hoặc [Issues](https://github.com/cagiabao-02/kombat-game/issues).
