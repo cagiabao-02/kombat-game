@@ -9,8 +9,14 @@ export const metadata: Metadata = {
   description: 'Sảnh trò chơi ngắn phong cách Pixel Arcade 16-bit, chơi mượt mà trên di động và máy tính.',
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/icon.svg?v=pixel',
-    apple: '/icon.svg?v=pixel',
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
   appleWebApp: {
     capable: true,
@@ -41,6 +47,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400..800;1,400..800&family=Pixelify+Sans:wght@400..700&display=swap"
           rel="stylesheet"
         />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
       </head>
       <body suppressHydrationWarning className="min-h-screen flex flex-col bg-[#F4F1EA] text-[#18181B] antialiased">
         <AuthProvider>
