@@ -130,8 +130,8 @@ export const GAME_REGISTRY: GameMetadata[] = [
     id: 'game2048',
     category: 'puzzle',
     name: {
-      vi: '2048 Pixel',
-      en: '2048 Arcade',
+      vi: '2048',
+      en: '2048',
     },
     shortDescription: {
       vi: 'Trượt và gộp ô số chạm mốc 2048 huyền thoại',

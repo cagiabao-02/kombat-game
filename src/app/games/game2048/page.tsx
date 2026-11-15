@@ -38,7 +38,7 @@ export default function Game2048Page() {
       {showRules && (
         <div className="pixel-box mb-6 bg-[#FFFDF8] p-4 text-xs sm:text-sm font-mono text-zinc-800">
           <h4 className="font-pixel font-bold text-amber-900 text-base mb-1 uppercase">
-            {language === 'vi' ? 'HƯỚNG DẪN CHƠI 2048 ARCADE' : 'HOW TO PLAY 2048 ARCADE'}
+            {language === 'vi' ? 'HƯỚNG DẪN CHƠI 2048' : 'HOW TO PLAY 2048'}
           </h4>
           <ul className="list-disc list-inside space-y-1.5 leading-relaxed">
             <li>
@@ -81,7 +81,7 @@ export default function Game2048Page() {
           <span>16-BIT NEO-ARCADE • PUZZLE</span>
         </div>
         <h1 className="font-pixel text-2xl sm:text-3xl font-bold text-zinc-950 uppercase mt-1">
-          {language === 'vi' ? '2048 PIXEL ARCADE' : '2048 PIXEL ARCADE'}
+          2048
         </h1>
       </div>
 

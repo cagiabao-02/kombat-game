@@ -100,7 +100,9 @@
   - **Hiệu ứng & Âm thanh Chiptune:** Bổ sung âm thanh 8-bit `playSnakeEat`, `playSnakeGolden`, `playSnakeDie` trong [`soundService.ts`](file:///d:/personal-prj/game/togame/src/lib/sound/soundService.ts) và hiệu ứng pháo hoa ăn mừng kỷ lục điểm cao [`GameOverModal.tsx`](file:///d:/personal-prj/game/togame/src/features/games/snake/GameOverModal.tsx).
   - **Tích hợp toàn diện:** Đăng ký vào sảnh chính với icon tile pixel chú rắn [`GameTile.tsx`](file:///d:/personal-prj/game/togame/src/components/GameTile.tsx), bổ sung tab Rắn săn mồi vào Bảng xếp hạng Leaderboard và Hồ sơ người chơi, tự động đồng bộ đám mây và bảng `leaderboard_scores`.
 
-- **Hoàn thành Chặng 17 — Trò chơi thứ 6: 2048 Pixel Arcade (Puzzle Logic):**
+- **Hoàn thành Chặng 17 — Trò chơi thứ 6: 2048 (Puzzle Logic):**
+  - **Tên trò chơi:** Chuẩn hóa tên gọn là `2048` (bỏ chữ Pixel).
+  - **Cập nhật sảnh:** Bỏ 2048 khỏi danh sách ô "Sắp có" của mục Giải đố (`Dò mìn, Nonogram`).
   - **Động cơ logic 2048:** Xây dựng [`src/features/games/game2048/game2048Logic.ts`](file:///d:/personal-prj/game/togame/src/features/games/game2048/game2048Logic.ts) với ma trận $4 \times 4$, cơ chế sinh ngẫu nhiên (90% ra ô 2, 10% ra ô 4), trượt và gộp 4 hướng chuẩn mực, phát hiện Game Over (kín bảng & không có 2 ô kề nhau bằng nhau), nhận diện mốc chiến thắng 2048 và tính toán ô lớn nhất (Max tile).
   - **Giao diện Neo-Arcade 16-bit:** Tạo [`Game2048Board.tsx`](file:///d:/personal-prj/game/togame/src/features/games/game2048/Game2048Board.tsx) với bảng màu pixel tương phản cao (2 đến 2048 và 4096+), đổ bóng pixel 3D, khung viền thùng máy arcade và lắng nghe cử chỉ vuốt chạm touch swipe.
   - **Điều khiển & Tính năng Hoàn tác (Undo):** Tạo [`Game2048Controls.tsx`](file:///d:/personal-prj/game/togame/src/features/games/game2048/Game2048Controls.tsx) hiển thị Điểm hiện tại, Kỷ lục (Best) và Ô lớn nhất (Max tile); hỗ trợ lùi 1 bước đi (1-step Undo); cụm D-pad ảo 4 chiều cho mobile; phím tắt WASD/Mũi tên/Z/U trên PC.

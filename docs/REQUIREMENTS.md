@@ -45,7 +45,7 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 - Mỗi game được đăng ký qua cấu hình/thành phần thống nhất (ví dụ: id, tên bản địa hóa, mô tả, route, trạng thái, chế độ chơi); logic riêng được giữ trong module của game đó.
 - Thêm game mới không yêu cầu viết lại cách sảnh liệt kê hoặc điều hướng game cũ.
 - Sảnh chia game theo **thể loại** (khai báo trong `src/features/games/categories.ts`, mỗi game gắn `category` trong registry):
-  - `puzzle` — **Giải đố**: chơi một mình, tư duy logic, không áp lực thời gian (Sudoku; dự kiến 2048, Dò mìn, Nonogram).
+  - `puzzle` — **Giải đố**: chơi một mình, tư duy logic, không áp lực thời gian (Sudoku, 2048; dự kiến Dò mìn, Nonogram).
   - `strategy` — **Cờ chiến thuật**: đối kháng theo lượt, đấu Bot hoặc người (Cờ vua, Cờ Tướng, Cờ Caro; dự kiến Cờ vây, Othello).
   - `arcade` — **Phản xạ / Arcade**: nhịp nhanh, tính điểm, cày kỷ lục (dự kiến Rắn săn mồi, xếp gạch, thử phản xạ).
 - Có thanh lọc nhanh theo thể loại (Tất cả + từng thể loại); thể loại chưa có game hiển thị ô “Sắp có” thay vì để trống.
