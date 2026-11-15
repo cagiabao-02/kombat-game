@@ -3,6 +3,7 @@ import { GameMetadata } from '@/types/game';
 export const GAME_REGISTRY: GameMetadata[] = [
   {
     id: 'sudoku',
+    category: 'puzzle',
     name: {
       vi: 'Sudoku',
       en: 'Sudoku',
@@ -27,6 +28,7 @@ export const GAME_REGISTRY: GameMetadata[] = [
   },
   {
     id: 'chess',
+    category: 'strategy',
     name: {
       vi: 'Cờ vua',
       en: 'Chess',
@@ -51,6 +53,7 @@ export const GAME_REGISTRY: GameMetadata[] = [
   },
   {
     id: 'caro',
+    category: 'strategy',
     name: {
       vi: 'Cờ Caro',
       en: 'Gomoku',
@@ -75,6 +78,7 @@ export const GAME_REGISTRY: GameMetadata[] = [
   },
   {
     id: 'xiangqi',
+    category: 'strategy',
     name: {
       vi: 'Cờ Tướng',
       en: 'Xiangqi',

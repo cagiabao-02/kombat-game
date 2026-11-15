@@ -4,6 +4,9 @@ export type GameStatus = 'available' | 'beta' | 'coming_soon';
 
 export type GameMode = 'single_player' | 'multiplayer_room' | 'matchmaking';
 
+/** Thể loại game hiển thị tại sảnh. Thêm thể loại mới: bổ sung ở đây và trong `categories.ts`. */
+export type GameCategoryId = 'puzzle' | 'strategy' | 'arcade';
+
 export interface LocalizedString {
   vi: string;
   en: string;
@@ -11,6 +14,7 @@ export interface LocalizedString {
 
 export interface GameMetadata {
   id: GameId;
+  category: GameCategoryId;
   name: LocalizedString;
   shortDescription: LocalizedString;
   description: LocalizedString;
