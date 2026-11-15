@@ -107,7 +107,7 @@ export function getLocalLeaderboardData(
         rank: 1,
         scoreValue: stats.highScore,
         scoreLabel: `${stats.highScore} Điểm`,
-        secondaryInfo: `Đã ăn ${stats.totalApples} táo • ${stats.totalGames} ván`,
+        secondaryInfo: undefined,
         isCurrentUser: true,
         tierBadge: stats.highScore >= 300 ? 'Chuyên gia' : stats.highScore >= 150 ? 'Tay lái lụa' : undefined,
       };
@@ -204,14 +204,16 @@ export async function getRealLeaderboardData(
 
         let finalScoreValue = Number(row.score_value);
         let finalScoreLabel = row.score_label;
-        let finalSecondary = row.secondary_info || undefined;
+        let finalSecondary: string | undefined = game === 'snake' ? undefined : (row.secondary_info || undefined);
 
         // Nếu là tài khoản hiện tại và local có điểm cao hơn cloud (vừa đạt kỷ lục mới)
         if (isCurrent && existingLocal) {
           if (isHigherBetter && existingLocal.scoreValue > finalScoreValue) {
             finalScoreValue = existingLocal.scoreValue;
             finalScoreLabel = existingLocal.scoreLabel;
-            finalSecondary = existingLocal.secondaryInfo;
+            if (game !== 'snake') {
+              finalSecondary = existingLocal.secondaryInfo;
+            }
           } else if (!isHigherBetter && existingLocal.scoreValue < finalScoreValue) {
             finalScoreValue = existingLocal.scoreValue;
             finalScoreLabel = existingLocal.scoreLabel;
@@ -308,7 +310,7 @@ export async function syncLeaderboardScoreForGame(
 
     let scoreValue = 0;
     let scoreLabel = '';
-    let secondaryInfo = '';
+    let secondaryInfo: string | undefined = undefined;
 
     if (game === 'chess') {
       const stats = getChessStats();
@@ -346,7 +348,7 @@ export async function syncLeaderboardScoreForGame(
       if (stats.highScore === 0) return;
       scoreValue = stats.highScore;
       scoreLabel = `${stats.highScore} Điểm`;
-      secondaryInfo = `Đã ăn ${stats.totalApples} táo • ${stats.totalGames} ván`;
+      secondaryInfo = undefined;
     } else if (game === 'game2048') {
       const stats = getGame2048Stats();
       if (stats.highScore === 0) return;
@@ -382,7 +384,7 @@ export async function syncLeaderboardScoreForGame(
         game_id: game,
         score_value: scoreValue,
         score_label: scoreLabel,
-        secondary_info: secondaryInfo,
+        secondary_info: secondaryInfo || null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'user_id,game_id' }
