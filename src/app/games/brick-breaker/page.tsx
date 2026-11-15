@@ -56,8 +56,8 @@ export default function BrickBreakerPage() {
             <li>
               🎁 <strong>{language === 'vi' ? 'Vật phẩm trợ giúp' : 'Power-ups'}</strong>:{' '}
               {language === 'vi'
-                ? 'Gạch vỡ có thể rơi ra: ↔️ (Kéo dài thanh trượt), ⚡ (Nhân thêm 2 bóng), 🔫 (Súng bắn Laser), 💖 (Thêm 1 mạng).'
-                : 'Broken bricks may drop: ↔️ (Expand Paddle), ⚡ (Multi-Ball), 🔫 (Laser Gun), 💖 (Extra Life).'}
+                ? 'Gạch vỡ có thể rơi ra: ↔️ (Kéo dài thanh trượt), ⚡ (Nhân đôi số bóng / Multi-Ball), 🔫 (Súng bắn Laser), 💖 (Thêm 1 mạng).'
+                : 'Broken bricks may drop: ↔️ (Expand Paddle), ⚡ (Duplicate Balls / Multi-Ball), 🔫 (Laser Gun), 💖 (Extra Life).'}
             </li>
             <li>
               💣 <strong>{language === 'vi' ? 'Gạch đặc biệt' : 'Special Bricks'}</strong>:{' '}

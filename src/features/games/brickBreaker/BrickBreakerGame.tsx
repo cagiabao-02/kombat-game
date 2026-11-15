@@ -311,31 +311,38 @@ export function BrickBreakerGame() {
               s.paddleWidth = PADDLE_EXPANDED_WIDTH;
               s.expandTimer = 14;
             } else if (pw.type === 'multi') {
-              // Tách thêm 2 quả bóng
-              if (s.balls.length > 0) {
-                const b0 = s.balls[0];
-                s.balls.push(
-                  {
-                    id: `b-${Date.now()}-1`,
-                    x: b0.x,
-                    y: b0.y,
-                    vx: -b0.vx * 0.9,
-                    vy: b0.vy,
-                    speed: b0.speed,
+              // Nhân đôi / nhân thêm bóng theo số bóng hiện có (Ví dụ 1 -> 3, 2 -> 4, 3 -> 6, tối đa 24 bóng)
+              const MAX_BALLS = 24;
+              if (s.balls.length > 0 && s.balls.length < MAX_BALLS) {
+                const currentBalls = [...s.balls];
+                const clonesToAdd = Math.max(2, currentBalls.length);
+                const newBalls: Ball[] = [];
+
+                for (let k = 0; k < clonesToAdd; k++) {
+                  if (s.balls.length + newBalls.length >= MAX_BALLS) break;
+                  const src = currentBalls[k % currentBalls.length];
+                  const baseSpeed = src.speed || BALL_BASE_SPEED;
+                  const currentAngle = src.stuckToPaddle
+                    ? -Math.PI / 2
+                    : Math.atan2(src.vy, src.vx);
+
+                  // Tách góc lệch đa dạng (±20° đến ±50°) để các bóng bay tỏa ra màn hình
+                  const angleOffset =
+                    (k % 2 === 0 ? 1 : -1) * (0.35 + (Math.floor(k / 2) * 0.15));
+                  const newAngle = currentAngle + angleOffset;
+
+                  newBalls.push({
+                    id: `b-${Date.now()}-${k}-${Math.random()}`,
+                    x: src.x,
+                    y: src.y,
+                    vx: Math.cos(newAngle) * baseSpeed,
+                    vy: Math.sin(newAngle) * baseSpeed,
+                    speed: baseSpeed,
                     stuckToPaddle: false,
                     stuckOffset: 0,
-                  },
-                  {
-                    id: `b-${Date.now()}-2`,
-                    x: b0.x,
-                    y: b0.y,
-                    vx: b0.vx * 0.6 + 120,
-                    vy: -Math.abs(b0.vy),
-                    speed: b0.speed,
-                    stuckToPaddle: false,
-                    stuckOffset: 0,
-                  }
-                );
+                  });
+                }
+                s.balls.push(...newBalls);
               }
             } else if (pw.type === 'laser') {
               s.laserTimer = 12;
