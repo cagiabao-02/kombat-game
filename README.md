@@ -168,4 +168,4 @@ togame/
 
 ## 📄 Bản quyền & Đóng góp
 
-Dự án cá nhân mã nguồn mở được phát triển bởi [cagiabao-02](https://github.com/cagiabao-02). Mọi ý kiến đóng góp và cải tiến đều rất được hoan nghênh qua [Pull Requests](https://github.com/cagiabao-02/kombat-game/pulls) hoặc [Issues](https://github.com/cagiabao-02/kombat-game/issues).
+Dự án mã nguồn mở được phát hành theo giấy phép MIT. Mọi ý kiến đóng góp, báo lỗi và đề xuất tính năng mới đều rất được hoan nghênh qua [Pull Requests](https://github.com/cagiabao-02/kombat-game/pulls) hoặc [Issues](https://github.com/cagiabao-02/kombat-game/issues).
