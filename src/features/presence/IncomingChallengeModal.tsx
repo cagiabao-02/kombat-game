@@ -77,62 +77,65 @@ export function IncomingChallengeModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-gray-100 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200 text-center">
-        {/* Glow Header Icon */}
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200 animate-bounce">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/65 p-4 animate-in fade-in duration-150">
+      <div className="pixel-box-lg relative w-full max-w-sm overflow-hidden bg-[#FFFDF8] p-6 text-center animate-in zoom-in-95 duration-150">
+        {/* Top Arcade Warning Stripe */}
+        <div className="absolute top-0 left-0 right-0 h-2.5 bg-amber-400 border-b-2 border-zinc-900" />
+
+        {/* Header Icon */}
+        <div className="mx-auto mb-4 mt-2 flex h-16 w-16 items-center justify-center bg-indigo-600 text-amber-300 border-2 border-zinc-900 shadow-pixel-sm animate-bounce">
           <Swords className="h-8 w-8" />
         </div>
 
         {/* Title */}
-        <h3 className="text-lg font-black text-gray-900 tracking-tight">
-          {language === 'vi' ? 'Lời Thách Đấu Mới!' : 'Incoming Challenge!'}
+        <h3 className="font-pixel text-xl font-bold text-zinc-950 uppercase tracking-wide">
+          {language === 'vi' ? 'THÁCH ĐẤU MỚI!' : 'HERE COMES A NEW CHALLENGER!'}
         </h3>
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs font-mono text-zinc-600">
           {language === 'vi'
-            ? 'Người chơi khác muốn so tài cùng bạn'
-            : 'Another player wants to challenge you'}
+            ? 'Đối thủ muốn so tài cùng bạn ngay bây giờ'
+            : 'Another player wants to battle you'}
         </p>
 
         {/* Challenger Card */}
-        <div className="mt-4 flex items-center gap-3 rounded-2xl bg-gray-50 p-3 border border-gray-100">
+        <div className="mt-4 flex items-center gap-3 border-2 border-zinc-900 bg-[#ECE8DD] p-3 shadow-pixel-sm">
           <UserAvatar avatar={challenge.fromAvatar} className="h-12 w-12 text-xl" />
           <div className="text-left min-w-0 flex-1">
-            <p className="text-sm font-bold text-gray-900 truncate">
+            <p className="font-pixel text-sm font-bold text-zinc-900 truncate">
               {challenge.fromName}
             </p>
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600">
-              <span>{gameTitle}</span>
+            <span className="inline-flex items-center gap-1 font-pixel text-xs font-bold text-indigo-700">
+              <span>[{gameTitle}]</span>
             </span>
           </div>
         </div>
 
         {/* Countdown Timer */}
-        <div className="mt-4 flex items-center justify-center gap-1.5 text-xs font-semibold text-amber-600 bg-amber-50 py-1.5 px-3 rounded-xl border border-amber-200/80">
+        <div className="mt-4 flex items-center justify-center gap-1.5 font-pixel text-xs font-bold text-amber-950 bg-amber-200 py-1.5 px-3 border-2 border-zinc-900">
           <Clock className="h-3.5 w-3.5 animate-spin" />
           <span>
-            {language === 'vi' ? `Tự động từ chối sau ${countdown}s` : `Auto-decline in ${countdown}s`}
+            {language === 'vi' ? `TỰ ĐỘNG TỪ CHỐI: ${countdown}S` : `TIME REMAINING: ${countdown}S`}
           </span>
         </div>
 
         {/* Actions */}
-        <div className="mt-5 grid grid-cols-2 gap-2.5">
+        <div className="mt-5 grid grid-cols-2 gap-3">
           <button
             type="button"
             onClick={handleDecline}
-            className="flex items-center justify-center gap-1.5 min-h-[44px] rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-700 hover:bg-gray-50 active:scale-95 transition-all"
+            className="pixel-btn flex items-center justify-center gap-1.5 min-h-[44px] bg-white hover:bg-rose-50 text-xs font-bold text-zinc-900"
           >
-            <X className="h-4 w-4 text-gray-400" />
-            <span>{language === 'vi' ? 'Từ chối' : 'Decline'}</span>
+            <X className="h-4 w-4 text-rose-600" />
+            <span>{language === 'vi' ? 'TỪ CHỐI' : 'DECLINE'}</span>
           </button>
 
           <button
             type="button"
             onClick={handleAccept}
-            className="flex items-center justify-center gap-1.5 min-h-[44px] rounded-xl bg-indigo-600 text-xs font-bold text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition-all"
+            className="pixel-btn flex items-center justify-center gap-1.5 min-h-[44px] bg-emerald-400 hover:bg-emerald-300 text-xs font-bold text-zinc-950"
           >
             <Check className="h-4 w-4" />
-            <span>{language === 'vi' ? 'Chiến ngay' : 'Accept'}</span>
+            <span>{language === 'vi' ? 'CHIẾN NGAY' : 'ACCEPT'}</span>
           </button>
         </div>
       </div>

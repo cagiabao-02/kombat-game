@@ -1,23 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <defs>
-    <linearGradient id="tg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#4F46E5" />
-      <stop offset="100%" stop-color="#3730A3" />
-    </linearGradient>
-  </defs>
-  <!-- Background Rounded Squircle -->
-  <rect width="512" height="512" rx="128" fill="url(#tg-grad)" />
-  
-  <!-- Stylized Gamepad / Crown Accent -->
-  <path d="M144 200 C144 160, 180 144, 256 144 C332 144, 368 160, 368 200 C368 240, 350 336, 310 336 C280 336, 270 290, 256 290 C242 290, 232 336, 202 336 C162 336, 144 240, 144 200 Z" fill="#FFFFFF" fill-opacity="0.15" />
-  
-  <!-- White KB monogram -->
-  <text x="256" y="320" font-family="system-ui, -apple-system, sans-serif" font-size="190" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="-6">
-    KB
-  </text>
-  
-  <!-- Subtle decorative spark dots -->
-  <circle cx="360" cy="150" r="14" fill="#FBBF24" />
-  <circle cx="150" cy="350" r="10" fill="#FBBF24" opacity="0.8" />
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="512" height="512" shape-rendering="crispEdges">
+  <!-- Hard Drop Shadow (Bottom-Right) -->
+  <rect x="2" y="2" width="14" height="14" fill="#18181B" />
 
+  <!-- Outer Pixel Border -->
+  <rect x="0" y="0" width="14" height="14" fill="#18181B" />
+
+  <!-- Main Indigo Arcade Button Face -->
+  <rect x="1" y="1" width="12" height="12" fill="#4F46E5" />
+
+  <!-- Top & Left 16-bit Highlight Bevel -->
+  <rect x="1" y="1" width="12" height="1" fill="#818CF8" />
+  <rect x="1" y="1" width="1" height="12" fill="#818CF8" />
+
+  <!-- Bottom & Right 16-bit Shade Bevel -->
+  <rect x="1" y="12" width="12" height="1" fill="#312E81" />
+  <rect x="12" y="1" width="1" height="12" fill="#312E81" />
+
+  <!-- Pixel Letter "K" Drop Shadow -->
+  <path d="M3 5h1v5H3z M4 7h1v1H4z M5 6h1v1H5z M6 5h1v1H6z M5 8h1v1H5z M6 9h1v1H6z" fill="#1E1B4B" />
+  <!-- Pixel Letter "B" Drop Shadow -->
+  <path d="M8 5h3v1H8z M8 5h1v5H8z M8 7h3v1H8z M8 9h3v1H8z M11 6h1v1h-1z M11 8h1v1h-1z" fill="#1E1B4B" />
+
+  <!-- Pixel Letter "K" (Golden Coin #FCD34D) -->
+  <path d="M2 4h1v5H2z M3 6h1v1H3z M4 5h1v1H4z M5 4h1v1H5z M4 7h1v1H4z M5 8h1v1H5z" fill="#FCD34D" />
+
+  <!-- Pixel Letter "B" (Golden Coin #FCD34D) -->
+  <path d="M7 4h3v1H7z M7 4h1v5H7z M7 6h3v1H7z M7 8h3v1H7z M10 5h1v1h-1z M10 7h1v1h-1z" fill="#FCD34D" />
+</svg>

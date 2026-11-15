@@ -14,7 +14,7 @@ import {
   X as CloseIcon,
   CheckCircle2,
 } from 'lucide-react';
-import { CaroBotDifficulty, CaroPiece } from './types';
+import { CaroBotDifficulty } from './types';
 
 interface CaroLobbyViewProps {
   onStartBotMatch: (difficulty: CaroBotDifficulty, playerPiece: 'X' | 'O' | 'random') => void;
@@ -70,14 +70,14 @@ export function CaroLobbyView({
     <div className="mx-auto max-w-lg">
       {/* Header Info */}
       <div className="text-center mb-6">
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 border border-rose-100/80 px-3 py-1 text-xs font-bold text-rose-700 mb-2 shadow-2xs">
-          <Sparkles className="h-3.5 w-3.5 text-rose-600" />
-          <span>{language === 'vi' ? 'Năm quân thẳng hàng' : 'Five in a row'}</span>
+        <div className="pixel-badge inline-flex items-center gap-1.5 bg-rose-200 px-3 py-1 text-xs font-bold text-zinc-950 mb-2">
+          <Sparkles className="h-3.5 w-3.5 text-rose-700" />
+          <span>{language === 'vi' ? 'NĂM QUÂN THẲNG HÀNG' : 'FIVE IN A ROW'}</span>
         </div>
-        <h1 className="text-3xl font-black tracking-tight text-gray-900">
+        <h1 className="font-pixel text-3xl sm:text-4xl font-bold tracking-wide text-zinc-950 uppercase">
           {language === 'vi' ? 'Cờ Caro (Gomoku)' : 'Gomoku (Caro)'}
         </h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-2 text-xs sm:text-sm font-mono text-zinc-600">
           {language === 'vi'
             ? 'Bàn cờ 15x15 tiêu chuẩn. Đấu trí cùng Bot AI, so tài cùng bạn trên một máy hoặc tạo phòng online.'
             : 'Standard 15x15 board. Battle smart Bot AI, pass & play with friends locally, or challenge online.'}
@@ -85,77 +85,77 @@ export function CaroLobbyView({
       </div>
 
       {/* Mode Navigation Tabs */}
-      <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-gray-100/90 rounded-2xl mb-6">
+      <div className="grid grid-cols-3 gap-2 mb-6">
         <button
           type="button"
           onClick={() => setActiveTab('bot')}
-          className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all min-h-[44px] ${
+          className={`pixel-btn flex items-center justify-center gap-1.5 py-2.5 px-2 text-xs sm:text-sm font-bold min-h-[44px] ${
             activeTab === 'bot'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-500 hover:text-gray-900'
+              ? 'bg-indigo-600 text-amber-300'
+              : 'bg-white text-zinc-800 hover:bg-zinc-100'
           }`}
         >
-          <Bot className="h-4 w-4 text-purple-600" />
-          <span>{language === 'vi' ? 'Đấu Máy' : 'Bot AI'}</span>
+          <Bot className="h-4 w-4" />
+          <span>{language === 'vi' ? 'ĐẤU MÁY' : 'BOT AI'}</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('local')}
-          className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all min-h-[44px] ${
+          className={`pixel-btn flex items-center justify-center gap-1.5 py-2.5 px-2 text-xs sm:text-sm font-bold min-h-[44px] ${
             activeTab === 'local'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-500 hover:text-gray-900'
+              ? 'bg-indigo-600 text-amber-300'
+              : 'bg-white text-zinc-800 hover:bg-zinc-100'
           }`}
         >
-          <Users className="h-4 w-4 text-indigo-600" />
-          <span>{language === 'vi' ? 'Chơi Đôi' : '2 Người'}</span>
+          <Users className="h-4 w-4" />
+          <span>{language === 'vi' ? 'CHƠI ĐÔI' : '2 PLAYERS'}</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('online')}
-          className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all min-h-[44px] ${
+          className={`pixel-btn flex items-center justify-center gap-1.5 py-2.5 px-2 text-xs sm:text-sm font-bold min-h-[44px] ${
             activeTab === 'online'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-500 hover:text-gray-900'
+              ? 'bg-indigo-600 text-amber-300'
+              : 'bg-white text-zinc-800 hover:bg-zinc-100'
           }`}
         >
-          <Wifi className="h-4 w-4 text-emerald-600" />
-          <span>{language === 'vi' ? 'Online 1v1' : 'Online'}</span>
+          <Wifi className="h-4 w-4" />
+          <span>{language === 'vi' ? 'ONLINE 1V1' : 'ONLINE'}</span>
         </button>
       </div>
 
       {/* Error Message */}
       {errorMessage && (
-        <div className="mb-6 rounded-2xl bg-rose-50 border border-rose-200/80 p-4 text-sm font-semibold text-rose-700 shadow-2xs">
+        <div className="mb-6 bg-rose-100 border-2 border-zinc-900 p-4 text-xs sm:text-sm font-mono font-bold text-rose-900 shadow-pixel-sm">
           {errorMessage}
         </div>
       )}
 
       {/* TAB 1: BOT AI */}
       {activeTab === 'bot' && (
-        <div className="space-y-5 rounded-3xl bg-white p-6 shadow-sm border border-gray-200/90">
+        <div className="pixel-box-lg space-y-5 bg-[#FFFDF8] p-6">
           <div>
-            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-              {language === 'vi' ? 'Độ khó Bot AI' : 'Bot Difficulty'}
+            <label className="block font-pixel text-xs font-bold text-zinc-800 uppercase tracking-wider mb-2">
+              {language === 'vi' ? 'ĐỘ KHÓ BOT AI' : 'BOT DIFFICULTY'}
             </label>
             <div className="grid grid-cols-3 gap-2">
               {(
                 [
-                  { id: 'easy', vi: 'Dễ', en: 'Easy', color: 'border-emerald-200 text-emerald-700 bg-emerald-50/50' },
-                  { id: 'medium', vi: 'Vừa', en: 'Medium', color: 'border-amber-200 text-amber-700 bg-amber-50/50' },
-                  { id: 'hard', vi: 'Khó', en: 'Hard', color: 'border-rose-200 text-rose-700 bg-rose-50/50' },
+                  { id: 'easy', vi: 'DỄ', en: 'EASY', activeBg: 'bg-emerald-300 text-zinc-950' },
+                  { id: 'medium', vi: 'VỪA', en: 'MEDIUM', activeBg: 'bg-amber-300 text-zinc-950' },
+                  { id: 'hard', vi: 'KHÓ', en: 'HARD', activeBg: 'bg-rose-400 text-white' },
                 ] as const
               ).map((diff) => (
                 <button
                   key={diff.id}
                   type="button"
                   onClick={() => setBotDifficulty(diff.id)}
-                  className={`min-h-[44px] py-2 px-3 rounded-xl border text-sm font-bold transition-all ${
+                  className={`pixel-btn min-h-[44px] py-2 px-3 text-sm font-bold ${
                     botDifficulty === diff.id
-                      ? `${diff.color} ring-2 ring-indigo-500 shadow-xs scale-102`
-                      : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                      ? diff.activeBg
+                      : 'bg-white text-zinc-700 hover:bg-zinc-100'
                   }`}
                 >
                   {language === 'vi' ? diff.vi : diff.en}
@@ -165,43 +165,43 @@ export function CaroLobbyView({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-              {language === 'vi' ? 'Chọn quân của bạn' : 'Select Your Piece'}
+            <label className="block font-pixel text-xs font-bold text-zinc-800 uppercase tracking-wider mb-2">
+              {language === 'vi' ? 'CHỌN QUÂN CỦA BẠN' : 'SELECT YOUR PIECE'}
             </label>
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => setPlayerPiece('X')}
-                className={`min-h-[44px] flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-sm font-bold transition-all ${
+                className={`pixel-btn min-h-[44px] flex items-center justify-center gap-2 py-2 px-3 text-sm font-bold ${
                   playerPiece === 'X'
-                    ? 'border-rose-300 bg-rose-50 text-rose-700 ring-2 ring-rose-400/40 shadow-xs'
-                    : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                    ? 'bg-rose-200 text-zinc-950'
+                    : 'bg-white text-zinc-700 hover:bg-zinc-100'
                 }`}
               >
-                <span className="font-black text-rose-600">✕</span>
-                <span>{language === 'vi' ? 'X (Đi trước)' : 'X (First)'}</span>
+                <span className="font-pixel font-bold text-rose-600">X</span>
+                <span>{language === 'vi' ? 'Đi trước' : 'First'}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setPlayerPiece('O')}
-                className={`min-h-[44px] flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-sm font-bold transition-all ${
+                className={`pixel-btn min-h-[44px] flex items-center justify-center gap-2 py-2 px-3 text-sm font-bold ${
                   playerPiece === 'O'
-                    ? 'border-indigo-300 bg-indigo-50 text-indigo-700 ring-2 ring-indigo-400/40 shadow-xs'
-                    : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                    ? 'bg-indigo-200 text-zinc-950'
+                    : 'bg-white text-zinc-700 hover:bg-zinc-100'
                 }`}
               >
-                <span className="font-black text-indigo-600">◯</span>
-                <span>{language === 'vi' ? 'O (Đi sau)' : 'O (Second)'}</span>
+                <span className="font-pixel font-bold text-indigo-700">O</span>
+                <span>{language === 'vi' ? 'Đi sau' : 'Second'}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setPlayerPiece('random')}
-                className={`min-h-[44px] flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-sm font-bold transition-all ${
+                className={`pixel-btn min-h-[44px] flex items-center justify-center gap-1.5 py-2 px-3 text-sm font-bold ${
                   playerPiece === 'random'
-                    ? 'border-purple-300 bg-purple-50 text-purple-700 ring-2 ring-purple-400/40 shadow-xs'
-                    : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                    ? 'bg-amber-200 text-zinc-950'
+                    : 'bg-white text-zinc-700 hover:bg-zinc-100'
                 }`}
               >
                 <span>🎲</span>
@@ -213,49 +213,49 @@ export function CaroLobbyView({
           <button
             type="button"
             onClick={() => onStartBotMatch(botDifficulty, playerPiece)}
-            className="w-full min-h-[48px] flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-base shadow-lg shadow-indigo-200 hover:from-purple-700 hover:to-indigo-700 active:scale-98 transition-all"
+            className="pixel-btn w-full min-h-[48px] flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-amber-300 font-bold text-base"
           >
             <Play className="h-5 w-5 fill-current" />
-            <span>{language === 'vi' ? 'Bắt đầu ván đấu' : 'Start Match'}</span>
+            <span>{language === 'vi' ? 'BẮT ĐẦU VÁN ĐẤU' : 'START MATCH'}</span>
           </button>
         </div>
       )}
 
       {/* TAB 2: PASS & PLAY (CHƠI ĐÔI CÙNG MÁY) */}
       {activeTab === 'local' && (
-        <div className="space-y-5 rounded-3xl bg-white p-6 shadow-sm border border-gray-200/90">
-          <div className="flex items-center gap-3 p-3 bg-indigo-50/70 border border-indigo-100 rounded-2xl">
-            <Users className="h-6 w-6 text-indigo-600 shrink-0" />
-            <p className="text-xs text-indigo-900 leading-relaxed">
+        <div className="pixel-box-lg space-y-5 bg-[#FFFDF8] p-6">
+          <div className="flex items-center gap-3 p-3 bg-indigo-50 border-2 border-zinc-900">
+            <Users className="h-6 w-6 text-indigo-700 shrink-0" />
+            <p className="text-xs font-mono text-zinc-800 leading-relaxed">
               {language === 'vi'
-                ? 'Hai người chơi chuyền tay nhau đánh lần lượt từng nước trên cùng một màn hình điện thoại hoặc máy tính.'
+                ? 'Hai người chơi chuyền tay nhau đánh lần lượt từng nước trên cùng một thiết bị.'
                 : 'Pass & play locally on the same device. Take turns placing pieces.'}
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">
-                {language === 'vi' ? 'Tên Người 1 (✕)' : 'Player 1 (✕)'}
+              <label className="block font-pixel text-xs font-bold text-zinc-800 mb-1">
+                {language === 'vi' ? 'NGƯỜI CHƠI 1 [X]' : 'PLAYER 1 [X]'}
               </label>
               <input
                 type="text"
                 value={p1Name}
                 onChange={(e) => setP1Name(e.target.value)}
                 maxLength={15}
-                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="pixel-input w-full bg-white px-3 py-2 text-sm font-bold text-zinc-900"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">
-                {language === 'vi' ? 'Tên Người 2 (◯)' : 'Player 2 (◯)'}
+              <label className="block font-pixel text-xs font-bold text-zinc-800 mb-1">
+                {language === 'vi' ? 'NGƯỜI CHƠI 2 [O]' : 'PLAYER 2 [O]'}
               </label>
               <input
                 type="text"
                 value={p2Name}
                 onChange={(e) => setP2Name(e.target.value)}
                 maxLength={15}
-                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="pixel-input w-full bg-white px-3 py-2 text-sm font-bold text-zinc-900"
               />
             </div>
           </div>
@@ -263,10 +263,10 @@ export function CaroLobbyView({
           <button
             type="button"
             onClick={() => onStartLocalMatch(p1Name.trim() || 'Người chơi 1', p2Name.trim() || 'Người chơi 2')}
-            className="w-full min-h-[48px] flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-black text-base shadow-lg shadow-indigo-200 hover:from-indigo-700 hover:to-blue-700 active:scale-98 transition-all"
+            className="pixel-btn w-full min-h-[48px] flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-amber-300 font-bold text-base"
           >
             <Play className="h-5 w-5 fill-current" />
-            <span>{language === 'vi' ? 'Bắt đầu chơi đôi' : 'Start Pass & Play'}</span>
+            <span>{language === 'vi' ? 'BẮT ĐẦU CHƠI ĐÔI' : 'START PASS & PLAY'}</span>
           </button>
         </div>
       )}
@@ -275,16 +275,16 @@ export function CaroLobbyView({
       {activeTab === 'online' && (
         <div className="space-y-4">
           {/* Quick Match Card */}
-          <div className="rounded-3xl bg-white p-6 shadow-sm border border-gray-200/90">
+          <div className="pixel-box-lg bg-[#FFFDF8] p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+              <div className="flex h-10 w-10 items-center justify-center bg-amber-300 border-2 border-zinc-900 text-zinc-900">
                 <Zap className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-base font-black text-gray-900">
-                  {language === 'vi' ? 'Ghép Trận Nhanh' : 'Quick Match'}
+                <h3 className="font-pixel text-base font-bold text-zinc-950 uppercase">
+                  {language === 'vi' ? 'GHÉP TRẬN NHANH' : 'QUICK MATCH'}
                 </h3>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs font-mono text-zinc-600">
                   {language === 'vi'
                     ? 'Tự động tìm kiếm đối thủ đang chờ trên mạng'
                     : 'Automatically pair with an active waiting opponent'}
@@ -296,19 +296,19 @@ export function CaroLobbyView({
               type="button"
               onClick={onStartQuickMatch}
               disabled={isSearchingMatch}
-              className="w-full min-h-[46px] flex items-center justify-center gap-2 rounded-2xl bg-amber-500 text-white font-bold text-sm shadow-md shadow-amber-200 hover:bg-amber-600 active:scale-98 transition-all disabled:opacity-50"
+              className="pixel-btn w-full min-h-[46px] flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-sm disabled:opacity-50"
             >
               <Zap className="h-4 w-4 fill-current" />
-              <span>{language === 'vi' ? 'Tìm đối thủ ngay' : 'Find Match Now'}</span>
+              <span>{language === 'vi' ? 'TÌM ĐỐI THỦ NGAY' : 'FIND MATCH NOW'}</span>
             </button>
           </div>
 
           {/* Create Private Room Card */}
-          <div className="rounded-3xl bg-white p-6 shadow-sm border border-gray-200/90">
-            <h3 className="text-base font-black text-gray-900 mb-1">
-              {language === 'vi' ? 'Tạo Phòng Riêng' : 'Create Private Room'}
+          <div className="pixel-box bg-[#FFFDF8] p-6">
+            <h3 className="font-pixel text-base font-bold text-zinc-950 uppercase mb-1">
+              {language === 'vi' ? 'TẠO PHÒNG RIÊNG' : 'CREATE PRIVATE ROOM'}
             </h3>
-            <p className="text-xs text-gray-500 mb-4">
+            <p className="text-xs font-mono text-zinc-600 mb-4">
               {language === 'vi'
                 ? 'Nhận mã phòng 6 ký tự để gửi lời mời bạn bè vào chơi'
                 : 'Get a 6-character room code to invite a friend'}
@@ -318,19 +318,19 @@ export function CaroLobbyView({
               type="button"
               onClick={onCreateOnlineRoom}
               disabled={isCreating}
-              className="w-full min-h-[46px] flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 text-white font-bold text-sm shadow-md shadow-indigo-200 hover:bg-indigo-700 active:scale-98 transition-all disabled:opacity-50"
+              className="pixel-btn w-full min-h-[46px] flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-amber-300 font-bold text-sm disabled:opacity-50"
             >
               <ShieldCheck className="h-4 w-4" />
-              <span>{isCreating ? (language === 'vi' ? 'Đang tạo phòng...' : 'Creating...') : (language === 'vi' ? 'Tạo phòng mới' : 'Create Room')}</span>
+              <span>{isCreating ? (language === 'vi' ? 'ĐANG TẠO PHÒNG...' : 'CREATING...') : (language === 'vi' ? 'TẠO PHÒNG MỚI' : 'CREATE ROOM')}</span>
             </button>
           </div>
 
           {/* Join Room by Code */}
-          <div className="rounded-3xl bg-white p-6 shadow-sm border border-gray-200/90">
-            <h3 className="text-base font-black text-gray-900 mb-1">
-              {language === 'vi' ? 'Vào Phòng Bằng Mã' : 'Join by Code'}
+          <div className="pixel-box bg-[#FFFDF8] p-6">
+            <h3 className="font-pixel text-base font-bold text-zinc-950 uppercase mb-1">
+              {language === 'vi' ? 'VÀO PHÒNG BẰNG MÃ' : 'JOIN BY CODE'}
             </h3>
-            <p className="text-xs text-gray-500 mb-3">
+            <p className="text-xs font-mono text-zinc-600 mb-3">
               {language === 'vi'
                 ? 'Nhập mã 6 ký tự do bạn bè chia sẻ'
                 : 'Enter the 6-character room code from your friend'}
@@ -343,12 +343,12 @@ export function CaroLobbyView({
                 onChange={(e) => setInputCode(e.target.value.toUpperCase())}
                 placeholder="VD: CARO88"
                 maxLength={6}
-                className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-center font-mono text-base font-black tracking-widest uppercase text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="pixel-input flex-1 bg-white px-4 py-2.5 text-center font-pixel text-base font-bold tracking-widest uppercase text-zinc-900 placeholder:text-zinc-300"
               />
               <button
                 type="submit"
                 disabled={isJoining || inputCode.trim().length < 4}
-                className="min-h-[44px] px-5 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 active:scale-95 transition-all disabled:opacity-40"
+                className="pixel-btn min-h-[44px] px-5 bg-zinc-900 text-amber-300 text-sm font-bold hover:bg-zinc-800 disabled:opacity-40"
               >
                 {isJoining ? '...' : <ArrowRight className="h-4 w-4" />}
               </button>
@@ -359,44 +359,43 @@ export function CaroLobbyView({
 
       {/* MATCH SEARCHING MODAL OVERLAY */}
       {isSearchingMatch && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/70 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl text-center border border-gray-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 animate-in fade-in duration-150">
+          <div className="pixel-box-lg w-full max-w-sm bg-[#FFFDF8] p-6 text-center">
             {matchFoundOpponentName ? (
               <div className="space-y-3">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 animate-bounce">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center bg-emerald-300 border-2 border-zinc-900 text-zinc-950 animate-bounce">
                   <CheckCircle2 className="h-8 w-8" />
                 </div>
-                <h3 className="text-lg font-black text-gray-900">
-                  {language === 'vi' ? 'Đã tìm thấy đối thủ!' : 'Opponent Found!'}
+                <h3 className="font-pixel text-lg font-bold text-zinc-950 uppercase">
+                  {language === 'vi' ? 'ĐÃ TÌM THẤY ĐỐI THỦ!' : 'CHALLENGER FOUND!'}
                 </h3>
-                <p className="text-sm font-semibold text-gray-600">
+                <p className="font-pixel text-sm font-bold text-indigo-700">
                   {matchFoundOpponentName}
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs font-mono text-zinc-500">
                   {language === 'vi' ? 'Đang chuẩn bị bàn cờ...' : 'Preparing board...'}
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="relative mx-auto flex h-16 w-16 items-center justify-center">
-                  <div className="absolute inset-0 rounded-full border-4 border-amber-200 border-t-amber-500 animate-spin" />
-                  <Zap className="h-6 w-6 text-amber-500 animate-pulse" />
+                <div className="relative mx-auto flex h-16 w-16 items-center justify-center bg-amber-100 border-2 border-zinc-900 shadow-pixel-sm">
+                  <Zap className="h-8 w-8 text-amber-600 animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-gray-900">
-                    {language === 'vi' ? 'Đang tìm đối thủ...' : 'Searching for Opponent...'}
+                  <h3 className="font-pixel text-lg font-bold text-zinc-950 uppercase">
+                    {language === 'vi' ? 'ĐANG TÌM ĐỐI THỦ...' : 'SEARCHING...'}
                   </h3>
-                  <p className="mt-1 font-mono text-2xl font-black text-amber-600">
+                  <p className="mt-1 font-pixel text-2xl font-bold text-amber-700">
                     {formatQueueTime(searchElapsedSeconds)}
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={onCancelQuickMatch}
-                  className="w-full min-h-[44px] rounded-xl border border-gray-200 bg-white py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 active:scale-95 transition-all"
+                  className="pixel-btn w-full min-h-[44px] bg-white py-2 text-sm font-bold text-zinc-900 hover:bg-rose-50"
                 >
-                  <CloseIcon className="inline h-4 w-4 mr-1 text-gray-400" />
-                  {language === 'vi' ? 'Hủy tìm kiếm' : 'Cancel'}
+                  <CloseIcon className="inline h-4 w-4 mr-1 text-rose-600" />
+                  {language === 'vi' ? 'HỦY TÌM KIẾM' : 'CANCEL'}
                 </button>
               </div>
             )}
@@ -406,4 +405,3 @@ export function CaroLobbyView({
     </div>
   );
 }
-

@@ -102,13 +102,13 @@ export function ChessBoard({
   };
 
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[460px] select-none overflow-hidden rounded-xl border-4 border-amber-900/40 bg-amber-900/20 shadow-xl">
+    <div className="relative mx-auto aspect-square w-full max-w-[460px] select-none overflow-hidden border-[3px] border-zinc-900 bg-[#5C3A21] p-1.5 sm:p-2 shadow-pixel-lg">
       {/* Promotion Choice Modal */}
       {pendingPromotion && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-[2px] p-4 animate-fade-in">
-          <div className="w-full max-w-xs rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl text-center">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
-              Chọn quân phong cấp
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/75 p-4 animate-fade-in">
+          <div className="pixel-box-lg w-full max-w-xs bg-[#FFFDF8] p-4 text-center">
+            <h4 className="font-pixel text-sm font-bold uppercase tracking-wider text-zinc-950 mb-3">
+              CHỌN QUÂN PHONG CẤP
             </h4>
             <div className="grid grid-cols-4 gap-2">
               {[
@@ -121,7 +121,7 @@ export function ChessBoard({
                   key={item.type}
                   type="button"
                   onClick={() => handleSelectPromotionPiece(item.type)}
-                  className="flex flex-col items-center justify-center rounded-xl border border-gray-200 bg-gray-50 hover:bg-indigo-50 hover:border-indigo-300 py-2.5 transition-all active:scale-95 shadow-sm"
+                  className="pixel-btn flex flex-col items-center justify-center bg-amber-100 hover:bg-amber-200 py-2.5"
                 >
                   <div className="h-10 w-10 flex items-center justify-center">
                     <ChessPiece
@@ -129,7 +129,7 @@ export function ChessBoard({
                       color={playerColor === 'white' ? 'w' : 'b'}
                     />
                   </div>
-                  <span className="text-[11px] font-bold text-gray-700 mt-1">
+                  <span className="font-pixel text-[11px] font-bold text-zinc-900 mt-1">
                     {item.label}
                   </span>
                 </button>
@@ -141,16 +141,16 @@ export function ChessBoard({
                 setPendingPromotion(null);
                 setSelectedSquare(null);
               }}
-              className="mt-3 text-xs font-semibold text-gray-400 hover:text-gray-700"
+              className="mt-3 font-pixel text-xs font-bold text-rose-700 hover:underline uppercase"
             >
-              Hủy nước đi
+              [HỦY NƯỚC ĐI]
             </button>
           </div>
         </div>
       )}
 
       {/* Chess Grid */}
-      <div className="grid h-full w-full grid-cols-8 grid-rows-8">
+      <div className="grid h-full w-full grid-cols-8 grid-rows-8 border-2 border-zinc-900">
         {ranks.map((rank, rIdx) =>
           files.map((file, fIdx) => {
             const square = `${file}${rank}` as Square;
@@ -167,16 +167,16 @@ export function ChessBoard({
               piece?.type === 'k' &&
               piece?.color === chess.turn();
 
-            // Background color styling (tournament green & cream)
-            let bgClass = isLightSquare ? 'bg-[#EEEED2]' : 'bg-[#769656]';
+            // Background color styling (16-bit Arcade Mint/Wood & Cream)
+            let bgClass = isLightSquare ? 'bg-[#F3E5AB]' : 'bg-[#6E9958]';
             if (isLastMove) {
-              bgClass = isLightSquare ? 'bg-[#F7EC74]' : 'bg-[#BACA44]';
+              bgClass = isLightSquare ? 'bg-[#FDE047]' : 'bg-[#A3E635]';
             }
             if (isSelected) {
-              bgClass = 'bg-[#BBCE44]';
+              bgClass = 'bg-amber-300 ring-2 ring-inset ring-zinc-900';
             }
             if (isKingInCheck) {
-              bgClass = 'bg-red-400';
+              bgClass = 'bg-rose-500 animate-pulse';
             }
 
             return (
@@ -184,7 +184,7 @@ export function ChessBoard({
                 key={square}
                 type="button"
                 onClick={() => handleSquareClick(square)}
-                className={`relative flex items-center justify-center transition-colors focus:outline-none ${bgClass}`}
+                className={`relative flex items-center justify-center focus:outline-none ${bgClass}`}
                 aria-label={`Square ${square}`}
               >
                 {/* Chess piece */}
@@ -192,15 +192,15 @@ export function ChessBoard({
                   <ChessPiece
                     type={piece.type}
                     color={piece.color}
-                    className="w-full h-full transform scale-85 sm:scale-95"
+                    className="w-full h-full"
                   />
                 )}
 
                 {/* Coordinates labels - rendered with z-10 on top */}
                 {fIdx === 0 && (
                   <span
-                    className={`pointer-events-none select-none absolute left-1 top-1 text-[9px] sm:text-[11px] font-black leading-none drop-shadow-xs z-10 ${
-                      isLightSquare ? 'text-[#769656]' : 'text-[#EEEED2]'
+                    className={`pointer-events-none select-none absolute left-1 top-0.5 font-pixel text-[9px] sm:text-[11px] font-bold leading-none z-10 ${
+                      isLightSquare ? 'text-[#446334]' : 'text-[#F3E5AB]'
                     }`}
                   >
                     {rank}
@@ -208,21 +208,21 @@ export function ChessBoard({
                 )}
                 {rIdx === 7 && (
                   <span
-                    className={`pointer-events-none select-none absolute right-1.5 bottom-1.5 text-[9px] sm:text-[11px] font-black leading-none drop-shadow-xs z-10 ${
-                      isLightSquare ? 'text-[#769656]' : 'text-[#EEEED2]'
+                    className={`pointer-events-none select-none absolute right-1 bottom-0.5 font-pixel text-[9px] sm:text-[11px] font-bold leading-none z-10 ${
+                      isLightSquare ? 'text-[#446334]' : 'text-[#F3E5AB]'
                     }`}
                   >
                     {file}
                   </span>
                 )}
 
-                {/* Valid Move Indicator Dot / Ring */}
+                {/* Valid Move Pixel Indicator */}
                 {isValidTarget && (
                   <span
                     className={`pointer-events-none absolute z-10 ${
                       piece
-                        ? 'h-full w-full rounded-full border-4 border-black/30'
-                        : 'h-4 w-4 rounded-full bg-black/25'
+                        ? 'inset-0.5 border-[3px] border-rose-600 bg-rose-500/20'
+                        : 'h-3.5 w-3.5 bg-zinc-900/45 border border-white/60'
                     }`}
                   />
                 )}

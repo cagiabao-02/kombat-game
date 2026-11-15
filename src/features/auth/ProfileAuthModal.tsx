@@ -354,73 +354,73 @@ export function ProfileAuthModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-2xl transition-all">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 animate-fade-in">
+      <div className="pixel-box-lg relative w-full max-w-md overflow-hidden bg-[#FFFDF8] transition-all">
         {/* Header with Avatar preview */}
-        <div className="relative bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 px-6 pt-6 pb-5 text-white">
+        <div className="relative bg-indigo-700 border-b-2 border-zinc-900 px-6 pt-6 pb-5 text-white">
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 rounded-full bg-white/20 p-1.5 text-white/90 hover:bg-white/30 hover:text-white transition-colors"
+            className="pixel-btn absolute top-4 right-4 bg-white p-1.5 text-zinc-900 hover:bg-rose-100"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
 
           <div className="flex items-center gap-4">
-            <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 text-3xl shadow-inner backdrop-blur-md border border-white/30 overflow-hidden shrink-0">
+            <div className="relative flex h-16 w-16 items-center justify-center bg-amber-100 text-3xl border-2 border-zinc-900 shadow-pixel-sm overflow-hidden shrink-0">
               {isCustomImageAvatar(tempAvatar) ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={tempAvatar} alt="Avatar" className="h-full w-full object-cover" />
+                <img src={tempAvatar} alt="Avatar" className="h-full w-full object-cover pixelated" />
               ) : (
                 <span>{tempAvatar}</span>
               )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-black tracking-tight truncate">
+                <h2 className="font-pixel text-lg font-bold tracking-wide text-amber-300 truncate">
                   {tempName || guestName}
                 </h2>
                 {!isAnonymous && (
                   <span
-                    className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 px-2 py-0.5 text-[10px] font-bold text-emerald-200"
+                    className="inline-flex items-center gap-1 bg-emerald-400 border border-zinc-900 px-2 py-0.5 font-pixel text-[10px] font-bold text-zinc-950"
                     title={language === 'vi' ? 'Tài khoản đã đồng bộ' : 'Synced Account'}
                   >
                     <ShieldCheck className="h-3 w-3" />
-                    <span>Cloud</span>
+                    <span>CLOUD</span>
                   </span>
                 )}
               </div>
-              <p className="text-xs text-indigo-100/80 truncate">
+              <p className="text-xs font-mono text-indigo-100 truncate">
                 {!isAnonymous && user?.email
                   ? user.email
                   : language === 'vi'
-                    ? 'Khách tạm thời • Dữ liệu lưu trình duyệt'
-                    : 'Temporary Guest • Saved in browser'}
+                    ? 'PLAYER: KHÁCH • LƯU TRÊN MÁY'
+                    : 'PLAYER: GUEST • LOCAL SAVE'}
               </p>
             </div>
           </div>
 
           {/* Navigation Tabs */}
-          <div className="mt-4 flex gap-1 rounded-xl bg-black/20 p-1 text-xs font-bold">
+          <div className="mt-4 grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => setActiveTab('profile')}
-              className={`flex-1 rounded-lg py-1.5 transition-colors ${activeTab === 'profile'
-                  ? 'bg-white text-indigo-700 shadow-sm'
-                  : 'text-white/80 hover:text-white'
+              className={`pixel-btn py-1.5 text-xs font-bold ${activeTab === 'profile'
+                  ? 'bg-amber-300 text-zinc-950'
+                  : 'bg-indigo-900 text-indigo-200 hover:bg-indigo-800'
                 }`}
             >
-              {language === 'vi' ? 'Hồ sơ & Avatar' : 'Profile & Avatar'}
+              {language === 'vi' ? 'HỒ SƠ & AVATAR' : 'PLAYER CARD'}
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('account')}
-              className={`flex-1 rounded-lg py-1.5 transition-colors ${activeTab === 'account'
-                  ? 'bg-white text-indigo-700 shadow-sm'
-                  : 'text-white/80 hover:text-white'
+              className={`pixel-btn py-1.5 text-xs font-bold ${activeTab === 'account'
+                  ? 'bg-amber-300 text-zinc-950'
+                  : 'bg-indigo-900 text-indigo-200 hover:bg-indigo-800'
                 }`}
             >
-              {language === 'vi' ? 'Tài khoản Đám mây' : 'Cloud Account'}
+              {language === 'vi' ? 'TÀI KHOẢN CLOUD' : 'CLOUD SAVE'}
             </button>
           </div>
         </div>
@@ -432,15 +432,15 @@ export function ProfileAuthModal({
               {/* Avatar Selector */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                    {language === 'vi' ? 'Ảnh / Linh vật đại diện:' : 'Avatar or photo:'}
+                  <label className="font-pixel text-xs font-bold uppercase tracking-wider text-zinc-800">
+                    {language === 'vi' ? 'CHỌN LINH VẬT:' : 'SELECT AVATAR:'}
                   </label>
                   <button
                     type="button"
                     onClick={handleUploadClick}
-                    className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors ${isAnonymous
-                        ? 'border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100'
-                        : 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+                    className={`pixel-btn inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold ${isAnonymous
+                        ? 'bg-amber-100 text-amber-950 hover:bg-amber-200'
+                        : 'bg-indigo-100 text-indigo-950 hover:bg-indigo-200'
                       }`}
                     title={
                       isAnonymous
@@ -451,17 +451,17 @@ export function ProfileAuthModal({
                     }
                   >
                     {isAnonymous ? (
-                      <Lock className="h-3.5 w-3.5 text-amber-600" />
+                      <Lock className="h-3.5 w-3.5 text-amber-700" />
                     ) : (
                       <Upload className="h-3.5 w-3.5" />
                     )}
                     <span>
                       {language === 'vi'
                         ? isAnonymous
-                          ? 'Tải ảnh (Cần tài khoản)'
+                          ? 'Tải ảnh (Cần Cloud)'
                           : 'Tải ảnh từ máy'
                         : isAnonymous
-                          ? 'Upload photo (Account)'
+                          ? 'Upload (Cloud)'
                           : 'Upload photo'}
                     </span>
                   </button>
@@ -478,33 +478,30 @@ export function ProfileAuthModal({
                 {customPhoto && (
                   <div
                     onClick={() => setTempAvatar(customPhoto)}
-                    className={`mb-3 flex items-center justify-between rounded-2xl p-2.5 transition-all cursor-pointer ${tempAvatar === customPhoto
-                        ? 'border-2 border-indigo-600 bg-indigo-50/70 shadow-xs'
-                        : 'border border-gray-200 bg-gray-50/80 hover:bg-gray-100 hover:border-gray-300'
+                    className={`mb-3 flex items-center justify-between border-2 border-zinc-900 p-2.5 cursor-pointer shadow-pixel-xs ${tempAvatar === customPhoto
+                        ? 'bg-indigo-100'
+                        : 'bg-white hover:bg-zinc-50'
                       }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <div className={`h-10 w-10 overflow-hidden rounded-xl border shadow-xs ${tempAvatar === customPhoto ? 'border-indigo-400' : 'border-gray-200'
-                        }`}>
+                      <div className="h-10 w-10 overflow-hidden border-2 border-zinc-900 bg-white">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={customPhoto} alt="Custom" className="h-full w-full object-cover" />
+                        <img src={customPhoto} alt="Custom" className="h-full w-full object-cover pixelated" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className={`text-xs font-bold ${tempAvatar === customPhoto ? 'text-indigo-900' : 'text-gray-800'
-                            }`}>
-                            {language === 'vi' ? 'Ảnh bạn tự tải lên' : 'Custom uploaded photo'}
+                          <p className="font-pixel text-xs font-bold text-zinc-900">
+                            {language === 'vi' ? 'ẢNH TỰ TẢI LÊN' : 'CUSTOM PHOTO'}
                           </p>
                         </div>
-                        <p className={`text-[10px] ${tempAvatar === customPhoto ? 'text-indigo-600 font-medium' : 'text-gray-500'
-                          }`}>
+                        <p className="text-[10px] font-mono text-zinc-600">
                           {tempAvatar === customPhoto
                             ? language === 'vi'
-                              ? 'Đang được chọn làm đại diện'
-                              : 'Active profile photo'
+                              ? 'Đang được chọn'
+                              : 'Active photo'
                             : language === 'vi'
                               ? 'Bấm để dùng lại ảnh này'
-                              : 'Click to select this photo'}
+                              : 'Click to select'}
                         </p>
                       </div>
                     </div>
@@ -512,10 +509,10 @@ export function ProfileAuthModal({
                       type="button"
                       onClick={handleRemoveCustomPhoto}
                       title={language === 'vi' ? 'Xóa vĩnh viễn ảnh tải lên' : 'Delete uploaded photo'}
-                      className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors z-10"
+                      className="pixel-btn inline-flex items-center gap-1 bg-rose-100 px-2 py-1 text-[11px] font-bold text-rose-800 hover:bg-rose-200 z-10"
                     >
                       <Trash2 className="h-3 w-3" />
-                      <span>{language === 'vi' ? 'Gỡ ảnh' : 'Remove'}</span>
+                      <span>{language === 'vi' ? 'Gỡ' : 'Remove'}</span>
                     </button>
                   </div>
                 )}
@@ -528,14 +525,14 @@ export function ProfileAuthModal({
                         key={item.id}
                         type="button"
                         onClick={() => setTempAvatar(item.emoji)}
-                        className={`group relative flex flex-col items-center justify-center rounded-2xl p-2.5 transition-all text-2xl ${isSelected
-                            ? 'bg-indigo-50 border-2 border-indigo-600 shadow-sm scale-105'
-                            : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+                        className={`pixel-btn group relative flex flex-col items-center justify-center p-2 text-2xl ${isSelected
+                            ? 'bg-amber-300 border-zinc-900'
+                            : 'bg-white hover:bg-zinc-100'
                           }`}
                         title={language === 'vi' ? item.nameVi : item.nameEn}
                       >
                         <span>{item.emoji}</span>
-                        <span className="mt-1 text-[9px] font-medium text-gray-500 truncate max-w-full group-hover:text-gray-900">
+                        <span className="mt-1 font-pixel text-[9px] font-bold text-zinc-700 truncate max-w-full">
                           {language === 'vi' ? item.nameVi : item.nameEn}
                         </span>
                       </button>
@@ -546,11 +543,11 @@ export function ProfileAuthModal({
 
               {/* Display Name Input */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">
-                  {language === 'vi' ? 'Tên hiển thị:' : 'Display name:'}
+                <label className="block font-pixel text-xs font-bold uppercase tracking-wider text-zinc-800 mb-1.5">
+                  {language === 'vi' ? 'TÊN HIỂN THỊ (PLAYER NAME):' : 'PLAYER NAME:'}
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-600">
                     <User className="h-4 w-4" />
                   </div>
                   <input
@@ -559,29 +556,29 @@ export function ProfileAuthModal({
                     value={tempName}
                     onChange={(e) => setTempName(e.target.value)}
                     placeholder={language === 'vi' ? 'Nhập tên của bạn...' : 'Enter your name...'}
-                    className="w-full rounded-xl border border-gray-300 pl-9 pr-3.5 py-2.5 text-sm font-semibold text-gray-900 focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                    className="pixel-input w-full bg-white pl-9 pr-3.5 py-2.5 text-sm font-bold text-zinc-900"
                   />
                 </div>
-                <p className="mt-1 text-[11px] text-gray-400">
+                <p className="mt-1 text-[11px] font-mono text-zinc-500">
                   {language === 'vi'
-                    ? 'Tên và avatar này sẽ hiển thị cho đối thủ trong phòng cờ.'
-                    : 'Name and avatar will be visible to opponents in game rooms.'}
+                    ? 'Tên và avatar sẽ hiển thị trong phòng đấu.'
+                    : 'Name and avatar will appear in game rooms.'}
                 </p>
               </div>
 
               {/* Quick Stats Snapshot */}
-              <div className="rounded-2xl border border-gray-100 bg-gray-50/70 p-3.5">
-                <div className="flex items-center justify-between text-xs font-bold text-gray-700 mb-2.5">
+              <div className="border-2 border-zinc-900 bg-[#ECE8DD] p-3.5 shadow-pixel-sm">
+                <div className="flex items-center justify-between font-pixel text-xs font-bold text-zinc-900 mb-2.5">
                   <span className="flex items-center gap-1.5">
-                    <Trophy className="h-3.5 w-3.5 text-amber-500" />
-                    <span>{language === 'vi' ? 'Thành tích thi đấu' : 'Competitive Record'}</span>
+                    <Trophy className="h-3.5 w-3.5 text-amber-600" />
+                    <span>{language === 'vi' ? 'THÀNH TÍCH' : 'STATS'}</span>
                   </span>
-                  <div className="flex items-center gap-1 bg-gray-200/70 p-0.5 rounded-lg text-[10px]">
+                  <div className="flex items-center gap-1 bg-zinc-900 p-0.5 text-[10px]">
                     <button
                       type="button"
                       onClick={() => setStatsGameTab('all')}
-                      className={`px-2 py-0.5 rounded-md font-bold transition-all ${
-                        statsGameTab === 'all' ? 'bg-white text-gray-900 shadow-2xs' : 'text-gray-500 hover:text-gray-900'
+                      className={`px-2 py-0.5 font-pixel font-bold ${
+                        statsGameTab === 'all' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
                       }`}
                     >
                       {language === 'vi' ? 'Tất cả' : 'All'}
@@ -589,8 +586,8 @@ export function ProfileAuthModal({
                     <button
                       type="button"
                       onClick={() => setStatsGameTab('chess')}
-                      className={`px-2 py-0.5 rounded-md font-bold transition-all ${
-                        statsGameTab === 'chess' ? 'bg-white text-gray-900 shadow-2xs' : 'text-gray-500 hover:text-gray-900'
+                      className={`px-2 py-0.5 font-pixel font-bold ${
+                        statsGameTab === 'chess' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
                       }`}
                     >
                       {language === 'vi' ? 'Cờ vua' : 'Chess'}
@@ -598,8 +595,8 @@ export function ProfileAuthModal({
                     <button
                       type="button"
                       onClick={() => setStatsGameTab('caro')}
-                      className={`px-2 py-0.5 rounded-md font-bold transition-all ${
-                        statsGameTab === 'caro' ? 'bg-white text-gray-900 shadow-2xs' : 'text-gray-500 hover:text-gray-900'
+                      className={`px-2 py-0.5 font-pixel font-bold ${
+                        statsGameTab === 'caro' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
                       }`}
                     >
                       {language === 'vi' ? 'Caro' : 'Caro'}
@@ -608,30 +605,30 @@ export function ProfileAuthModal({
                 </div>
 
                 <div className="grid grid-cols-4 gap-1.5 text-center">
-                  <div className="rounded-xl bg-white p-2 border border-gray-200/60 shadow-xs">
-                    <p className="text-sm sm:text-base font-black text-indigo-600">{currentStatData.wins}</p>
-                    <p className="text-[10px] text-gray-400 font-medium">
+                  <div className="bg-white p-2 border-2 border-zinc-900">
+                    <p className="font-pixel text-sm sm:text-base font-bold text-indigo-700">{currentStatData.wins}</p>
+                    <p className="text-[10px] font-mono text-zinc-600 font-bold">
                       {language === 'vi' ? 'Thắng' : 'Wins'}
                     </p>
                   </div>
-                  <div className="rounded-xl bg-white p-2 border border-gray-200/60 shadow-xs">
-                    <p className="text-sm sm:text-base font-black text-rose-600">{currentStatData.losses}</p>
-                    <p className="text-[10px] text-gray-400 font-medium">
+                  <div className="bg-white p-2 border-2 border-zinc-900">
+                    <p className="font-pixel text-sm sm:text-base font-bold text-rose-600">{currentStatData.losses}</p>
+                    <p className="text-[10px] font-mono text-zinc-600 font-bold">
                       {language === 'vi' ? 'Thua' : 'Losses'}
                     </p>
                   </div>
-                  <div className="rounded-xl bg-white p-2 border border-gray-200/60 shadow-xs">
-                    <p className="text-sm sm:text-base font-black text-emerald-600">{currentStatData.rate}%</p>
-                    <p className="text-[10px] text-gray-400 font-medium">
-                      {language === 'vi' ? 'Tỉ lệ thắng' : 'Win Rate'}
+                  <div className="bg-white p-2 border-2 border-zinc-900">
+                    <p className="font-pixel text-sm sm:text-base font-bold text-emerald-700">{currentStatData.rate}%</p>
+                    <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                      {language === 'vi' ? 'Tỉ lệ' : 'Win%'}
                     </p>
                   </div>
-                  <div className="rounded-xl bg-white p-2 border border-gray-200/60 shadow-xs">
-                    <p className="text-sm sm:text-base font-black text-amber-600 flex items-center justify-center gap-0.5">
+                  <div className="bg-white p-2 border-2 border-zinc-900">
+                    <p className="font-pixel text-sm sm:text-base font-bold text-amber-600 flex items-center justify-center gap-0.5">
                       <Flame className="h-3 w-3 fill-amber-500 text-amber-500" />
                       {currentStatData.streak}
                     </p>
-                    <p className="text-[10px] text-gray-400 font-medium">
+                    <p className="text-[10px] font-mono text-zinc-600 font-bold">
                       {language === 'vi' ? 'Chuỗi' : 'Streak'}
                     </p>
                   </div>
@@ -640,32 +637,32 @@ export function ProfileAuthModal({
 
               {/* Feedback Message */}
               {profileSuccessMsg && (
-                <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 p-2.5 text-xs font-semibold text-emerald-700 animate-fade-in">
+                <div className="flex items-center gap-2 bg-emerald-100 border-2 border-zinc-900 p-2.5 text-xs font-mono font-bold text-emerald-950 animate-fade-in">
                   <Check className="h-4 w-4 shrink-0" />
                   <span>{profileSuccessMsg}</span>
                 </div>
               )}
 
               {/* Action Buttons */}
-              <div className="flex gap-2 pt-1">
+              <div className="flex gap-2.5 pt-1">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 rounded-xl border border-gray-200 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-50"
+                  className="pixel-btn flex-1 bg-white py-2.5 text-xs font-bold text-zinc-800 hover:bg-zinc-100"
                 >
-                  {language === 'vi' ? 'Đóng' : 'Close'}
+                  {language === 'vi' ? 'ĐÓNG' : 'CLOSE'}
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingProfile || !tempName.trim()}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
+                  className="pixel-btn flex-1 inline-flex items-center justify-center gap-1.5 bg-indigo-600 py-2.5 text-xs font-bold text-amber-300 hover:bg-indigo-500 disabled:opacity-50"
                 >
                   {isSavingProfile ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Check className="h-4 w-4" />
                   )}
-                  <span>{language === 'vi' ? 'Lưu thay đổi' : 'Save Changes'}</span>
+                  <span>{language === 'vi' ? 'LƯU HỒ SƠ' : 'SAVE PROFILE'}</span>
                 </button>
               </div>
             </form>
@@ -674,52 +671,52 @@ export function ProfileAuthModal({
               {/* Authenticated Account View */}
               {!isAnonymous ? (
                 <div className="space-y-4">
-                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
-                    <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm mb-1">
+                  <div className="border-2 border-zinc-900 bg-emerald-100 p-4 shadow-pixel-sm">
+                    <div className="flex items-center gap-2 text-emerald-950 font-pixel font-bold text-sm mb-1">
                       <ShieldCheck className="h-4 w-4" />
-                      <span>{language === 'vi' ? 'Tài khoản đã liên kết' : 'Linked Cloud Account'}</span>
+                      <span>{language === 'vi' ? 'TÀI KHOẢN ĐÃ LIÊN KẾT' : 'LINKED CLOUD ACCOUNT'}</span>
                     </div>
-                    <p className="text-xs text-emerald-700/90 leading-relaxed">
+                    <p className="text-xs font-mono text-emerald-900 leading-relaxed">
                       {language === 'vi'
-                        ? 'Dữ liệu thành tích và thông tin của bạn đang được đồng bộ đám mây an toàn với Supabase.'
-                        : 'Your stats and profile are safely synced to the cloud with Supabase.'}
+                        ? 'Dữ liệu thành tích và thông tin của bạn đang được đồng bộ đám mây an toàn.'
+                        : 'Your stats and profile are safely synced to the cloud.'}
                     </p>
-                    <div className="mt-3 text-xs font-semibold text-gray-700 bg-white/80 p-2.5 rounded-xl border border-emerald-200/50">
-                      <span className="text-gray-400">Email: </span>
-                      <span className="font-mono text-gray-900">{user?.email}</span>
+                    <div className="mt-3 text-xs font-mono font-bold text-zinc-900 bg-white p-2.5 border-2 border-zinc-900">
+                      <span className="text-zinc-500">Email: </span>
+                      <span>{user?.email}</span>
                     </div>
                   </div>
 
                   <button
                     type="button"
                     onClick={handleSignOut}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50/50 py-2.5 text-xs font-bold text-red-600 hover:bg-red-100/60 transition-colors"
+                    className="pixel-btn w-full flex items-center justify-center gap-2 bg-rose-100 py-2.5 text-xs font-bold text-rose-800 hover:bg-rose-200"
                   >
                     <LogOut className="h-4 w-4" />
-                    <span>{language === 'vi' ? 'Đăng xuất tài khoản' : 'Sign Out'}</span>
+                    <span>{language === 'vi' ? 'ĐĂNG XUẤT TÀI KHOẢN' : 'SIGN OUT'}</span>
                   </button>
                 </div>
               ) : (
                 /* Anonymous / Upgrade Account View */
                 <div>
-                  <div className="mb-4 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-3.5 text-xs text-indigo-900">
-                    <div className="flex items-center gap-1.5 font-bold mb-1">
-                      <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
+                  <div className="mb-4 border-2 border-zinc-900 bg-indigo-50 p-3.5 text-xs text-indigo-950 shadow-pixel-xs">
+                    <div className="flex items-center gap-1.5 font-pixel font-bold mb-1">
+                      <Sparkles className="h-3.5 w-3.5 text-indigo-700" />
                       <span>
                         {language === 'vi'
-                          ? 'Nâng cấp từ Khách lên Tài khoản'
-                          : 'Upgrade Guest to Cloud Account'}
+                          ? 'NÂNG CẤP LÊN TÀI KHOẢN CLOUD'
+                          : 'UPGRADE TO CLOUD SAVE'}
                       </span>
                     </div>
-                    <p className="text-[11px] text-indigo-700/90 leading-relaxed">
+                    <p className="text-[11px] font-mono text-indigo-900 leading-relaxed">
                       {language === 'vi'
-                        ? 'Đăng ký giúp bạn giữ lại thành tích, chuỗi thắng và tên hiển thị khi đổi trình duyệt hoặc thiết bị.'
+                        ? 'Đăng ký giúp bạn giữ lại thành tích, chuỗi thắng và tên hiển thị khi đổi thiết bị.'
                         : 'Registering preserves your game records, win streak, and name across devices.'}
                     </p>
                   </div>
 
                   {/* Switch between Sign In & Sign Up */}
-                  <div className="flex rounded-xl bg-gray-100 p-1 text-xs font-bold mb-4">
+                  <div className="grid grid-cols-2 gap-2 mb-4">
                     <button
                       type="button"
                       onClick={() => {
@@ -727,12 +724,12 @@ export function ProfileAuthModal({
                         setAuthError(null);
                         setAuthSuccess(null);
                       }}
-                      className={`flex-1 rounded-lg py-1.5 transition-colors ${authMode === 'signin'
-                          ? 'bg-white text-indigo-600 shadow-xs'
-                          : 'text-gray-500 hover:text-gray-800'
+                      className={`pixel-btn py-1.5 text-xs font-bold ${authMode === 'signin'
+                          ? 'bg-indigo-600 text-amber-300'
+                          : 'bg-white text-zinc-700 hover:bg-zinc-100'
                         }`}
                     >
-                      {language === 'vi' ? 'Đăng nhập' : 'Sign In'}
+                      {language === 'vi' ? 'ĐĂNG NHẬP' : 'SIGN IN'}
                     </button>
                     <button
                       type="button"
@@ -741,20 +738,20 @@ export function ProfileAuthModal({
                         setAuthError(null);
                         setAuthSuccess(null);
                       }}
-                      className={`flex-1 rounded-lg py-1.5 transition-colors ${authMode === 'signup'
-                          ? 'bg-white text-indigo-600 shadow-xs'
-                          : 'text-gray-500 hover:text-gray-800'
+                      className={`pixel-btn py-1.5 text-xs font-bold ${authMode === 'signup'
+                          ? 'bg-indigo-600 text-amber-300'
+                          : 'bg-white text-zinc-700 hover:bg-zinc-100'
                         }`}
                     >
-                      {language === 'vi' ? 'Đăng ký mới' : 'Register'}
+                      {language === 'vi' ? 'ĐĂNG KÝ MỚI' : 'REGISTER'}
                     </button>
                   </div>
 
                   <form onSubmit={handleEmailAuth} className="space-y-3">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
+                      <label className="block font-pixel text-xs font-bold text-zinc-800 mb-1">EMAIL</label>
                       <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
                           <Mail className="h-4 w-4" />
                         </div>
                         <input
@@ -763,17 +760,17 @@ export function ProfileAuthModal({
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="tenban@example.com"
-                          className="w-full rounded-xl border border-gray-300 pl-9 pr-3 py-2 text-xs font-medium text-gray-900 focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                          className="pixel-input w-full bg-white pl-9 pr-3 py-2 text-xs font-bold text-zinc-900"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">
-                        {language === 'vi' ? 'Mật khẩu' : 'Password'}
+                      <label className="block font-pixel text-xs font-bold text-zinc-800 mb-1">
+                        {language === 'vi' ? 'MẬT KHẨU' : 'PASSWORD'}
                       </label>
                       <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
                           <Lock className="h-4 w-4" />
                         </div>
                         <input
@@ -783,18 +780,18 @@ export function ProfileAuthModal({
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="••••••••"
-                          className="w-full rounded-xl border border-gray-300 pl-9 pr-3 py-2 text-xs font-medium text-gray-900 focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                          className="pixel-input w-full bg-white pl-9 pr-3 py-2 text-xs font-bold text-zinc-900"
                         />
                       </div>
                     </div>
 
                     {authMode === 'signup' && (
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          {language === 'vi' ? 'Xác nhận mật khẩu' : 'Confirm Password'}
+                        <label className="block font-pixel text-xs font-bold text-zinc-800 mb-1">
+                          {language === 'vi' ? 'XÁC NHẬN MẬT KHẨU' : 'CONFIRM PASSWORD'}
                         </label>
                         <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
                             <Lock className="h-4 w-4" />
                           </div>
                           <input
@@ -804,21 +801,21 @@ export function ProfileAuthModal({
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="••••••••"
-                            className="w-full rounded-xl border border-gray-300 pl-9 pr-3 py-2 text-xs font-medium text-gray-900 focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                            className="pixel-input w-full bg-white pl-9 pr-3 py-2 text-xs font-bold text-zinc-900"
                           />
                         </div>
                       </div>
                     )}
 
                     {authError && (
-                      <div className="flex items-center gap-1.5 rounded-xl bg-red-50 p-2.5 text-xs text-red-600 border border-red-200">
+                      <div className="flex items-center gap-1.5 bg-rose-100 p-2.5 text-xs font-mono font-bold text-rose-900 border-2 border-zinc-900">
                         <AlertCircle className="h-4 w-4 shrink-0" />
                         <span>{authError}</span>
                       </div>
                     )}
 
                     {authSuccess && (
-                      <div className="flex items-center gap-1.5 rounded-xl bg-emerald-50 p-2.5 text-xs text-emerald-700 border border-emerald-200">
+                      <div className="flex items-center gap-1.5 bg-emerald-100 p-2.5 text-xs font-mono font-bold text-emerald-950 border-2 border-zinc-900">
                         <Check className="h-4 w-4 shrink-0" />
                         <span>{authSuccess}</span>
                       </div>
@@ -827,7 +824,7 @@ export function ProfileAuthModal({
                     <button
                       type="submit"
                       disabled={authLoading}
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                      className="pixel-btn w-full inline-flex items-center justify-center gap-2 bg-indigo-600 py-2.5 text-xs font-bold text-amber-300 hover:bg-indigo-500 disabled:opacity-50"
                     >
                       {authLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -837,22 +834,22 @@ export function ProfileAuthModal({
                       <span>
                         {authMode === 'signin'
                           ? language === 'vi'
-                            ? 'Đăng nhập'
-                            : 'Sign In'
+                            ? 'ĐĂNG NHẬP'
+                            : 'SIGN IN'
                           : language === 'vi'
-                            ? 'Tạo tài khoản'
-                            : 'Create Account'}
+                            ? 'TẠO TÀI KHOẢN'
+                            : 'CREATE ACCOUNT'}
                       </span>
                     </button>
                   </form>
 
                   {/* Google OAuth Option */}
-                  <div className="mt-4 pt-3 border-t border-gray-100">
+                  <div className="mt-4 pt-3 border-t-2 border-dashed border-zinc-300">
                     <button
                       type="button"
                       onClick={handleGoogleSignIn}
                       disabled={authLoading}
-                      className="w-full flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-2 text-xs font-semibold text-gray-700 shadow-xs hover:bg-gray-50 active:scale-98 transition-all"
+                      className="pixel-btn w-full flex items-center justify-center gap-2 bg-white py-2 text-xs font-bold text-zinc-900 hover:bg-zinc-50"
                     >
                       <svg className="h-4 w-4" viewBox="0 0 24 24">
                         <path
@@ -873,7 +870,7 @@ export function ProfileAuthModal({
                         />
                       </svg>
                       <span>
-                        {language === 'vi' ? 'Tiếp tục với Google' : 'Continue with Google'}
+                        {language === 'vi' ? 'TIẾP TỤC VỚI GOOGLE' : 'CONTINUE WITH GOOGLE'}
                       </span>
                     </button>
                   </div>

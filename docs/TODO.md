@@ -131,3 +131,23 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [x] Tích hợp chế độ Phòng riêng PvP Realtime và Ghép trận nhanh qua Supabase.
 - [x] Tích hợp lưu trữ thành tích và hiển thị tab Cờ Tướng trên Bảng xếp hạng Leaderboard.
 
+## Chặng 13 — Chuyển đổi giao diện Neo-Arcade (Modern Pixel 16-bit)
+> *Chi tiết kế hoạch từng bước được lưu tại [`docs/PIXEL_THEME_PLAN.md`](./PIXEL_THEME_PLAN.md).*
+
+- [x] **Giai đoạn 1: Nền tảng Theme & Design System**:
+  - [x] Nhúng Google Font `Pixelify Sans` hỗ trợ tiếng Việt trong `src/app/layout.tsx`.
+  - [x] Thêm các tiện ích Tailwind cho pixel art (`pixel-box`, `pixel-btn`, `pixel-card`, hard-shadows) trong `tailwind.config.ts` và `src/app/globals.css`.
+- [x] **Giai đoạn 2: Sảnh chính & Khung điều hướng chung**:
+  - [x] Làm mới Header & Footer phong cách Arcade Cabinet (`Header.tsx`).
+  - [x] Đổi mới Sảnh chính (`src/app/page.tsx`) & thẻ chọn game `GameCard.tsx` dạng Cartridge băng game.
+  - [x] Đồng bộ phong cách các Modal (Hồ sơ, Bảng xếp hạng, Thách đấu).
+- [x] **Giai đoạn 3: Chuyển đổi Bàn cờ 4 Game (Thực hiện tuần tự)**:
+  - [x] 3.1 Cờ Caro (Gomoku): Bàn cờ gỗ pixel và quân cờ X/O chunky 8-bit.
+  - [x] 3.2 Sudoku: Bảng 9x9 kiểu máy game cầm tay LCD và bàn phím số cơ học pixel.
+  - [x] 3.3 Cờ Vua (Chess): Bàn cờ retro và bộ quân cờ Pixel Chess Sprite 16-bit.
+  - [x] 3.4 Cờ Tướng (Xiangqi): Bàn cờ mộc pixel và quân cờ tròn dập nổi chữ Hán/Việt nét pixel.
+- [x] **Giai đoạn 4: Hoàn thiện Hiệu ứng, Âm thanh & Mobile UX**:
+  - [x] Đồng bộ hiệu ứng `PixelFX` pháo hoa confetti và âm thanh chiptune Web Audio API.
+  - [x] Kiểm tra vùng chạm di động $\ge 44\text{px}$ và độ tương phản màu sắc.
+  - [x] Chạy kiểm thử toàn diện `npm run build` không lỗi.
+

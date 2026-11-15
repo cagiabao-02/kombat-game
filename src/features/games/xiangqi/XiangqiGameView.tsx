@@ -20,6 +20,7 @@ import {
   startXiangqiRematch,
 } from './xiangqiRoomService';
 import { recordXiangqiGameResult } from './xiangqiStatsService';
+import { PixelFxOverlay } from '@/components/fx/PixelFxOverlay';
 import { sounds } from '@/lib/sound/soundService';
 import { useLanguage } from '@/i18n/LanguageContext';
 import {
@@ -110,6 +111,16 @@ export function XiangqiGameView({
 
   const isWaitingGuest = isOnline && room?.status === 'waiting';
   const isBotTurn = gameMode === 'bot' && gameState.turn === botSide && !gameState.winner;
+
+  // Xác định người chơi hiện tại có phải bên chiến thắng không (để bắn pháo hoa)
+  const isHumanWinner =
+    gameMode === 'local'
+      ? Boolean(gameState.winner)
+      : gameMode === 'bot'
+      ? Boolean(gameState.winner && gameState.winner !== botSide)
+      : isOnline && myOnlineSide
+      ? gameState.winner === myOnlineSide
+      : false;
 
   // Lượt đi của tôi:
   // - Local: luôn được đi
@@ -207,7 +218,12 @@ export function XiangqiGameView({
 
           const last = nextState.moveHistory[nextState.moveHistory.length - 1];
           if (nextState.winner) {
-            sounds.playVictory();
+            const willHumanWin = myOnlineSide ? nextState.winner === myOnlineSide : false;
+            if (willHumanWin) {
+              sounds.playVictory();
+            } else {
+              sounds.playDefeat();
+            }
             setShowVictoryModal(true);
           } else if (nextState.isCheck) {
             sounds.playCheck();
@@ -276,7 +292,20 @@ export function XiangqiGameView({
 
     // Âm thanh
     if (nextState.winner) {
-      sounds.playVictory();
+      const willHumanWin =
+        gameMode === 'local'
+          ? true
+          : gameMode === 'bot'
+          ? nextState.winner !== botSide
+          : isOnline && myOnlineSide
+          ? nextState.winner === myOnlineSide
+          : false;
+
+      if (willHumanWin) {
+        sounds.playVictory();
+      } else {
+        sounds.playDefeat();
+      }
       setShowVictoryModal(true);
     } else if (nextState.isCheck) {
       sounds.playCheck();
@@ -488,27 +517,27 @@ export function XiangqiGameView({
     <div className="mx-auto flex flex-col items-center gap-4 max-w-lg select-none pb-6">
       {/* Banner Chờ đối thủ tham gia phòng Online */}
       {isWaitingGuest && room && (
-        <div className="w-full rounded-2xl border border-amber-200 bg-amber-50/90 p-4 shadow-sm animate-fade-in text-center">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900 mb-2">
-            <span className="h-2 w-2 rounded-full bg-amber-600 animate-pulse" />
+        <div className="w-full pixel-box bg-amber-50 p-4 animate-fade-in text-center">
+          <div className="pixel-badge bg-amber-300 text-zinc-900 mb-2">
+            <span className="h-2 w-2 border border-zinc-900 bg-amber-600 animate-pulse" />
             <span>{language === 'vi' ? 'Đang Chờ Đối Thủ Vào Phòng' : 'Waiting for Opponent'}</span>
           </div>
 
-          <div className="flex items-center justify-center gap-3 my-2">
-            <span className="text-2xl font-mono font-black tracking-widest text-gray-900 bg-white px-4 py-1.5 rounded-xl border border-amber-300 shadow-xs">
+          <div className="flex items-center justify-center gap-3 my-3">
+            <span className="text-2xl font-mono font-black tracking-[0.2em] text-zinc-900 bg-white px-4 py-1.5 border-2 border-zinc-900 shadow-pixel-sm">
               {room.code}
             </span>
             <button
               type="button"
               onClick={handleCopyCode}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-gray-900 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-gray-800 active:scale-95 transition-all"
+              className="pixel-btn inline-flex items-center gap-1.5 bg-zinc-900 px-3.5 py-2 font-pixel text-xs font-bold uppercase text-white hover:bg-zinc-800"
             >
               {copiedCode ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
               <span>{copiedCode ? (language === 'vi' ? 'Đã chép' : 'Copied') : (language === 'vi' ? 'Chép mã' : 'Copy code')}</span>
             </button>
           </div>
 
-          <p className="text-xs text-amber-800 leading-relaxed">
+          <p className="text-xs font-bold text-amber-900 leading-relaxed">
             {language === 'vi'
               ? 'Gửi mã 6 ký tự trên cho bạn bè để bắt đầu trận cờ tướng online thời gian thực!'
               : 'Share the 6-character code with your friend to start real-time Xiangqi PvP!'}
@@ -518,15 +547,15 @@ export function XiangqiGameView({
 
       {/* Banner thông báo lời mời tái đấu trong Online Mode */}
       {rematchOfferedByOpponent && !gameState.winner && (
-        <div className="w-full flex items-center justify-between gap-3 rounded-2xl bg-indigo-50 border border-indigo-200 p-3.5 shadow-sm animate-fade-in">
-          <div className="flex items-center gap-2 text-xs font-bold text-indigo-900">
+        <div className="w-full flex items-center justify-between gap-3 pixel-box-sm bg-indigo-100 p-3.5 animate-fade-in">
+          <div className="flex items-center gap-2 font-pixel text-xs font-bold uppercase text-indigo-900">
             <Handshake className="h-4 w-4 text-indigo-600" />
             <span>{language === 'vi' ? 'Đối thủ muốn tái đấu ván mới!' : 'Opponent offered a rematch!'}</span>
           </div>
           <button
             type="button"
             onClick={handleAcceptRematch}
-            className="rounded-xl bg-indigo-600 px-3.5 py-1.5 text-xs font-black text-white hover:bg-indigo-700 active:scale-95 transition-all"
+            className="pixel-btn bg-indigo-600 px-3.5 py-1.5 font-pixel text-xs font-bold uppercase text-white hover:bg-indigo-500"
           >
             {language === 'vi' ? 'Đồng ý' : 'Accept'}
           </button>
@@ -571,77 +600,109 @@ export function XiangqiGameView({
 
       {/* Modal Vinh danh Kết quả Ván đấu */}
       {showVictoryModal && gameState.winner && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-fade-in">
-          <div className="relative w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl border border-gray-100 text-center animate-scale-up">
-            {/* Cúp vinh danh */}
-            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-200 text-amber-950 shadow-lg ring-4 ring-amber-100">
-              <Trophy className="h-8 w-8 fill-current" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 animate-fade-in overflow-hidden">
+          {/* Pixel Art Confetti Burst - CHỈ BẮN KHI CHIẾN THẮNG */}
+          {isHumanWinner && (
+            <PixelFxOverlay active={showVictoryModal} />
+          )}
+
+          <div className="relative w-full max-w-sm pixel-box-lg bg-white overflow-hidden text-center z-10">
+            {/* Arcade Header */}
+            <div
+              className={`border-b-2 border-zinc-900 py-3 px-4 font-pixel text-xs font-bold uppercase tracking-widest ${
+                isHumanWinner ? 'bg-amber-400 text-zinc-900' : 'bg-zinc-800 text-white'
+              }`}
+            >
+              {isHumanWinner ? '★ STAGE CLEAR ★' : 'GAME OVER'}
             </div>
 
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-800 mb-2">
-              <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-              <span>
-                {gameState.isCheckmate
-                  ? language === 'vi' ? 'Chiếu Bí (Checkmate)' : 'Checkmate'
-                  : gameState.isStalemate
-                  ? language === 'vi' ? 'Hết Nước Đi (Stalemate)' : 'Stalemate'
-                  : language === 'vi' ? 'Đối Thủ Đầu Hàng' : 'Resignation'}
-              </span>
-            </div>
-
-            <h2 className="text-2xl font-black text-gray-900 mb-1">
-              {gameState.winner === 'red'
-                ? `${effectiveRedName} (Đỏ) Chiến Thắng!`
-                : `${effectiveBlackName} (Đen) Chiến Thắng!`}
-            </h2>
-
-            <p className="text-xs text-gray-500 mb-6">
-              {language === 'vi'
-                ? `Ván cờ kết thúc sau ${gameState.moveHistory.length} nước đi.`
-                : `Match completed after ${gameState.moveHistory.length} moves.`}
-            </p>
-
-            <div className="flex gap-2.5">
-              <button
-                type="button"
-                onClick={handleLeaveGame}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 py-3 text-xs font-bold text-gray-700 hover:bg-gray-50 active:scale-95 transition-all"
+            <div className="p-6">
+              {/* Cúp vinh danh (khi thắng) hoặc Biểu tượng Thất bại (khi thua) */}
+              <div
+                className={`mx-auto mb-3 flex h-16 w-16 items-center justify-center border-2 border-zinc-900 shadow-pixel-sm ${
+                  isHumanWinner
+                    ? 'bg-amber-300 text-zinc-900'
+                    : 'bg-zinc-200 text-zinc-700'
+                }`}
               >
-                <Home className="h-4 w-4" />
-                <span>{language === 'vi' ? 'Về Sảnh' : 'Lobby'}</span>
-              </button>
+                <Trophy className="h-8 w-8 fill-current" />
+              </div>
 
-              {isOnline ? (
-                rematchOfferedByOpponent ? (
-                  <button
-                    type="button"
-                    onClick={handleAcceptRematch}
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 py-3 text-xs font-black text-white shadow-md hover:bg-emerald-700 active:scale-95 transition-all"
-                  >
-                    <Handshake className="h-4 w-4" />
-                    <span>{language === 'vi' ? 'Chấp Nhận Tái Đấu' : 'Accept Rematch'}</span>
-                  </button>
+              <div
+                className={`pixel-badge mb-2 ${
+                  isHumanWinner
+                    ? 'bg-amber-100 text-zinc-900'
+                    : 'bg-zinc-100 text-zinc-700'
+                }`}
+              >
+                <Sparkles className={`h-3.5 w-3.5 ${isHumanWinner ? 'text-amber-600' : 'text-zinc-500'}`} />
+                <span>
+                  {gameState.isCheckmate
+                    ? language === 'vi' ? 'Chiếu Bí (Checkmate)' : 'Checkmate'
+                    : gameState.isStalemate
+                    ? language === 'vi' ? 'Hết Nước Đi (Stalemate)' : 'Stalemate'
+                    : isHumanWinner
+                    ? (language === 'vi' ? 'Đối Thủ Đầu Hàng' : 'Resignation')
+                    : (language === 'vi' ? 'Đã Xin Thua' : 'Resigned')}
+                </span>
+              </div>
+
+              <h2 className="font-pixel text-2xl font-bold uppercase tracking-wide text-zinc-900 mb-1">
+                {gameMode === 'local'
+                  ? (gameState.winner === 'red' ? `${effectiveRedName} (Đỏ) Chiến Thắng!` : `${effectiveBlackName} (Đen) Chiến Thắng!`)
+                  : isHumanWinner
+                  ? (language === 'vi' ? 'Bạn Đã Chiến Thắng!' : 'Victory!')
+                  : (language === 'vi' ? 'Bạn Đã Thua Cuộc!' : 'Defeat!')}
+              </h2>
+
+              <p className="text-xs font-bold text-zinc-500 mb-6">
+                {language === 'vi'
+                  ? `Ván cờ kết thúc sau ${gameState.moveHistory.length} nước đi.`
+                  : `Match completed after ${gameState.moveHistory.length} moves.`}
+              </p>
+
+              <div className="flex gap-2.5">
+                <button
+                  type="button"
+                  onClick={handleLeaveGame}
+                  className="pixel-btn flex-1 flex items-center justify-center gap-1.5 bg-white py-3 font-pixel text-xs font-bold uppercase tracking-wider text-zinc-800 hover:bg-zinc-100"
+                >
+                  <Home className="h-4 w-4" />
+                  <span>{language === 'vi' ? 'Về Sảnh' : 'Lobby'}</span>
+                </button>
+
+                {isOnline ? (
+                  rematchOfferedByOpponent ? (
+                    <button
+                      type="button"
+                      onClick={handleAcceptRematch}
+                      className="pixel-btn flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 py-3 font-pixel text-xs font-bold uppercase tracking-wider text-zinc-900 hover:bg-emerald-400"
+                    >
+                      <Handshake className="h-4 w-4" />
+                      <span>{language === 'vi' ? 'Chấp Nhận Tái Đấu' : 'Accept Rematch'}</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleOfferRematch}
+                      disabled={rematchRequestedByMe}
+                      className="pixel-btn flex-1 flex items-center justify-center gap-1.5 bg-indigo-600 py-3 font-pixel text-xs font-bold uppercase tracking-wider text-white hover:bg-indigo-500 disabled:opacity-50"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      <span>{rematchRequestedByMe ? (language === 'vi' ? 'Đã gửi lời mời...' : 'Offered...') : (language === 'vi' ? 'Mời Tái Đấu' : 'Offer Rematch')}</span>
+                    </button>
+                  )
                 ) : (
                   <button
                     type="button"
-                    onClick={handleOfferRematch}
-                    disabled={rematchRequestedByMe}
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 py-3 text-xs font-black text-white shadow-md hover:bg-indigo-700 active:scale-95 transition-all disabled:opacity-50"
+                    onClick={handleRestart}
+                    className="pixel-btn flex-1 flex items-center justify-center gap-1.5 bg-indigo-600 py-3 font-pixel text-xs font-bold uppercase tracking-wider text-white hover:bg-indigo-500"
                   >
                     <RotateCcw className="h-4 w-4" />
-                    <span>{rematchRequestedByMe ? (language === 'vi' ? 'Đã gửi lời mời...' : 'Offered...') : (language === 'vi' ? 'Mời Tái Đấu' : 'Offer Rematch')}</span>
+                    <span>{language === 'vi' ? 'Ván Mới' : 'Play Again'}</span>
                   </button>
-                )
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleRestart}
-                  className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 py-3 text-xs font-black text-white shadow-md hover:bg-indigo-700 active:scale-95 transition-all"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  <span>{language === 'vi' ? 'Ván Mới' : 'Play Again'}</span>
-                </button>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>

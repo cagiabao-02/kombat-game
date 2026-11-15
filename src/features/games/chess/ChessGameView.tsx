@@ -13,6 +13,7 @@ import { useAuth } from '@/features/auth/AuthContext';
 import { getBotMove, simulateBotThinkingDelay } from './ai/chessBot';
 import { recordChessGameResult } from './statsService';
 import { UserAvatar } from '@/components/UserAvatar';
+import { PixelFxOverlay } from '@/components/fx/PixelFxOverlay';
 import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle, Clock, WifiOff, Trophy, Eye, RotateCcw, Bot, Smile } from 'lucide-react';
 
 interface ChessGameViewProps {
@@ -50,6 +51,10 @@ export function ChessGameView({
   const botTurnChar = botColor === 'white' ? 'w' : 'b';
   const isBotTurn = isBotGame && room.status === 'in_progress' && room.game_state.turn === botTurnChar;
   const [isBotThinking, setIsBotThinking] = useState(false);
+
+  const isHumanWinner = isLocalGame
+    ? Boolean(room.game_state.winner && room.game_state.winner !== 'draw')
+    : room.game_state.winner === myColor;
 
   const opponentAvatar = isBotGame
     ? '🤖'
@@ -842,24 +847,24 @@ export function ChessGameView({
     <div className="mx-auto max-w-xl pb-10">
       {/* Waiting Lobby Overlay if waiting for 2nd player */}
       {room.status === 'waiting' && (
-        <div className="mb-6 rounded-3xl border border-amber-200 bg-white p-6 sm:p-8 text-center shadow-lg animate-fade-in">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 mb-4 animate-pulse">
+        <div className="mb-6 pixel-box-lg bg-white p-6 sm:p-8 text-center animate-fade-in">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center border-2 border-zinc-900 bg-amber-300 text-zinc-900 shadow-pixel-sm mb-4 animate-pulse">
             <Users className="h-7 w-7" />
           </div>
 
-          <h2 className="text-xl font-black text-gray-900 sm:text-2xl">
+          <h2 className="font-pixel text-2xl font-bold uppercase tracking-wide text-zinc-900 sm:text-3xl">
             {t.chess.waitingOpponent}
           </h2>
-          <p className="mt-1.5 text-xs sm:text-sm text-gray-600">
+          <p className="mt-1.5 text-xs sm:text-sm font-medium text-zinc-600">
             {t.chess.waitingDesc}
           </p>
 
           {/* Room Code Banner */}
-          <div className="my-6 inline-flex flex-col items-center justify-center rounded-2xl bg-gray-50 border border-gray-200 px-6 py-4">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <div className="my-6 inline-flex flex-col items-center justify-center border-2 border-zinc-900 bg-amber-50 px-8 py-4 shadow-pixel-sm">
+            <span className="font-pixel text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
               {t.chess.roomCode}
             </span>
-            <span className="mt-1 font-mono text-3xl font-black tracking-widest text-indigo-700">
+            <span className="mt-1 font-mono text-3xl font-black tracking-[0.25em] text-zinc-900">
               {room.code}
             </span>
           </div>
@@ -868,7 +873,7 @@ export function ChessGameView({
             <button
               type="button"
               onClick={handleCopyLink}
-              className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-indigo-700 active:scale-95 transition-all"
+              className="pixel-btn inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-indigo-600 px-5 py-3 font-pixel text-xs sm:text-sm font-bold uppercase tracking-wider text-white hover:bg-indigo-500"
             >
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               <span>{copied ? t.common.copied : t.chess.copyLink}</span>
@@ -877,7 +882,7 @@ export function ChessGameView({
             <button
               type="button"
               onClick={confirmLeave}
-              className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-3 text-xs font-semibold text-gray-600 hover:bg-gray-50 active:scale-95 transition-all"
+              className="pixel-btn inline-flex w-full sm:w-auto items-center justify-center gap-1.5 bg-white px-4 py-3 font-pixel text-xs font-bold uppercase tracking-wider text-zinc-700 hover:bg-zinc-100"
             >
               <LogOut className="h-4 w-4" />
               <span>{t.chess.leaveRoom}</span>
@@ -887,7 +892,7 @@ export function ChessGameView({
       )}
 
       {/* Opponent Profile Bar */}
-      <div className="relative flex items-center justify-between rounded-xl bg-white border border-gray-200 px-3 py-2.5 sm:px-4 sm:py-3 mb-3 shadow-sm min-w-0">
+      <div className="relative flex items-center justify-between pixel-box-sm bg-white px-3 py-2.5 sm:px-4 sm:py-3 mb-3 min-w-0">
         {/* Floating Opponent Reactions */}
         <div className="absolute -top-7 left-8 flex items-center gap-1.5 pointer-events-none z-30">
           {activeReactions
@@ -906,17 +911,17 @@ export function ChessGameView({
           <div className="relative shrink-0">
             <UserAvatar
               avatar={opponentAvatar}
-              className={`h-9 w-9 text-lg rounded-xl border shadow-2xs ${
+              className={`h-9 w-9 text-lg ${
                 isBotGame
-                  ? 'border-purple-200 bg-purple-50 text-purple-700'
-                  : 'border-gray-200 bg-white'
+                  ? 'bg-purple-100 text-purple-800'
+                  : 'bg-white'
               }`}
             />
             <span
-              className={`absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold shadow-2xs border ${
+              className={`absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center border-2 border-zinc-900 text-[9px] font-bold ${
                 opponentColor === 'white'
-                  ? 'bg-white text-gray-800 border-gray-300'
-                  : 'bg-gray-900 text-white border-gray-800'
+                  ? 'bg-white text-zinc-900'
+                  : 'bg-zinc-900 text-white'
               }`}
               title={opponentColor === 'white' ? t.chess.white : t.chess.black}
             >
@@ -927,7 +932,7 @@ export function ChessGameView({
             <div className="flex items-center gap-1.5">
               {room.status === 'in_progress' && (
                 <span
-                  className={`h-2 w-2 rounded-full shrink-0 ${
+                  className={`h-2.5 w-2.5 border border-zinc-900 shrink-0 ${
                     isBotGame
                       ? 'bg-purple-500'
                       : isOpponentDisconnected
@@ -937,11 +942,11 @@ export function ChessGameView({
                   title={isBotGame ? 'AI Bot' : isOpponentDisconnected ? 'Offline' : 'Online'}
                 />
               )}
-              <p className="text-xs sm:text-sm font-bold text-gray-900 truncate max-w-[100px] sm:max-w-[200px]">
+              <p className="font-pixel text-xs sm:text-sm font-bold uppercase text-zinc-900 truncate max-w-[100px] sm:max-w-[200px]">
                 {opponentName}
               </p>
             </div>
-            <span className="text-[10px] text-gray-400 font-medium">
+            <span className="font-pixel text-[10px] text-zinc-500 font-bold uppercase">
               {isBotGame
                 ? `${opponentColor === 'white' ? t.chess.white : t.chess.black} • AI`
                 : isOpponentDisconnected && room.status === 'in_progress'
@@ -955,12 +960,12 @@ export function ChessGameView({
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {timeControl > 0 && (
             <div
-              className={`flex items-center gap-1.5 rounded-lg border px-2 py-1 sm:px-2.5 sm:py-1 font-mono text-[11px] sm:text-xs font-bold transition-all shrink-0 ${
+              className={`flex items-center gap-1.5 border-2 border-zinc-900 px-2 py-1 sm:px-2.5 sm:py-1 font-mono text-[11px] sm:text-xs font-black transition-all shrink-0 shadow-pixel-xs ${
                 opponentSeconds < 30 && room.status === 'in_progress'
-                  ? 'border-red-400 bg-red-50 text-red-600 animate-pulse'
+                  ? 'bg-red-500 text-white animate-pulse'
                   : !isMyTurn && room.status === 'in_progress'
-                  ? 'border-amber-400 bg-amber-50 text-amber-800 ring-2 ring-amber-200'
-                  : 'border-gray-200 bg-gray-50 text-gray-700'
+                  ? 'bg-amber-300 text-zinc-900'
+                  : 'bg-zinc-100 text-zinc-700'
               }`}
             >
               <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
@@ -969,12 +974,12 @@ export function ChessGameView({
           )}
 
           {isBotThinking ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-[11px] font-bold text-purple-800 animate-pulse shrink-0">
+            <span className="inline-flex items-center gap-1 border-2 border-zinc-900 bg-purple-200 px-2 py-0.5 sm:px-2.5 sm:py-1 font-pixel text-[10px] sm:text-[11px] font-bold uppercase text-purple-900 animate-pulse shrink-0">
               <Bot className="h-3 w-3" />
               <span>{t.chess.botThinking}</span>
             </span>
           ) : room.status === 'in_progress' && !isMyTurn ? (
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-[11px] font-semibold text-amber-800 animate-pulse shrink-0">
+            <span className="border-2 border-zinc-900 bg-amber-200 px-2 py-0.5 sm:px-2.5 sm:py-1 font-pixel text-[10px] sm:text-[11px] font-bold uppercase text-zinc-900 animate-pulse shrink-0">
               {t.chess.opponentTurn}
             </span>
           ) : null}
@@ -983,16 +988,16 @@ export function ChessGameView({
 
       {/* Opponent Disconnected Alert Banner */}
       {isOpponentDisconnected && room.status === 'in_progress' && (
-        <div className="mb-3 rounded-2xl border border-amber-300 bg-amber-50 p-3.5 shadow-sm animate-fade-in">
+        <div className="mb-3 pixel-box-sm bg-amber-100 p-3.5 animate-fade-in">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-200 text-amber-800 animate-pulse">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center border-2 border-zinc-900 bg-amber-300 text-zinc-900 animate-pulse">
               <WifiOff className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs sm:text-sm font-bold text-amber-900">
+              <p className="font-pixel text-xs sm:text-sm font-bold uppercase text-zinc-900">
                 {t.chess.opponentDisconnected}
               </p>
-              <p className="text-[11px] text-amber-700">
+              <p className="text-[11px] font-bold text-amber-800">
                 {t.chess.reconnectingCountdown.replace('{seconds}', String(disconnectCountdown))}
               </p>
             </div>
@@ -1012,7 +1017,7 @@ export function ChessGameView({
       />
 
       {/* Player Profile & Controls Bar */}
-      <div className="relative mt-3 flex items-center justify-between rounded-xl bg-white border border-gray-200 px-3 py-2.5 sm:px-4 sm:py-3 shadow-sm min-w-0">
+      <div className="relative mt-3 flex items-center justify-between pixel-box-sm bg-white px-3 py-2.5 sm:px-4 sm:py-3 min-w-0">
         {/* Floating Player Reactions */}
         <div className="absolute -top-7 left-8 flex items-center gap-1.5 pointer-events-none z-30">
           {activeReactions
@@ -1031,13 +1036,13 @@ export function ChessGameView({
           <div className="relative shrink-0">
             <UserAvatar
               avatar={myAvatar}
-              className="h-9 w-9 text-lg rounded-xl border border-gray-200 bg-white shadow-2xs"
+              className="h-9 w-9 text-lg bg-white"
             />
             <span
-              className={`absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold shadow-2xs border ${
+              className={`absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center border-2 border-zinc-900 text-[9px] font-bold ${
                 myColor === 'white'
-                  ? 'bg-white text-gray-800 border-gray-300'
-                  : 'bg-gray-900 text-white border-gray-800'
+                  ? 'bg-white text-zinc-900'
+                  : 'bg-zinc-900 text-white'
               }`}
               title={myColor === 'white' ? t.chess.white : t.chess.black}
             >
@@ -1046,16 +1051,16 @@ export function ChessGameView({
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <p className="text-xs sm:text-sm font-bold text-indigo-700 truncate max-w-[85px] sm:max-w-[160px]">
+              <p className="font-pixel text-xs sm:text-sm font-bold uppercase text-indigo-700 truncate max-w-[85px] sm:max-w-[160px]">
                 {myDisplayName}
               </p>
               {room.status === 'in_progress' && isMyTurn && (
-                <span className="sm:hidden rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold text-emerald-800 animate-pulse shrink-0">
+                <span className="sm:hidden border border-zinc-900 bg-emerald-300 px-1.5 py-0.5 font-pixel text-[9px] font-bold uppercase text-zinc-900 animate-pulse shrink-0">
                   {language === 'vi' ? 'Lượt bạn' : 'Turn'}
                 </span>
               )}
             </div>
-            <span className="text-[10px] text-gray-400 font-medium">
+            <span className="font-pixel text-[10px] text-zinc-500 font-bold uppercase">
               {myColor === 'white' ? t.chess.white : t.chess.black} ({language === 'vi' ? 'Bạn' : 'You'})
             </span>
           </div>
@@ -1065,12 +1070,12 @@ export function ChessGameView({
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {timeControl > 0 && (
             <div
-              className={`flex items-center gap-1.5 rounded-lg border px-2 py-1 sm:px-2.5 sm:py-1 font-mono text-[11px] sm:text-xs font-bold transition-all shrink-0 ${
+              className={`flex items-center gap-1.5 border-2 border-zinc-900 px-2 py-1 sm:px-2.5 sm:py-1 font-mono text-[11px] sm:text-xs font-black transition-all shrink-0 shadow-pixel-xs ${
                 mySeconds < 30 && room.status === 'in_progress'
-                  ? 'border-red-400 bg-red-50 text-red-600 animate-pulse'
+                  ? 'bg-red-500 text-white animate-pulse'
                   : isMyTurn && room.status === 'in_progress'
-                  ? 'border-emerald-400 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-200'
-                  : 'border-gray-200 bg-gray-50 text-gray-700'
+                  ? 'bg-emerald-300 text-zinc-900'
+                  : 'bg-zinc-100 text-zinc-700'
               }`}
             >
               <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
@@ -1079,7 +1084,7 @@ export function ChessGameView({
           )}
 
           {room.status === 'in_progress' && isMyTurn && (
-            <span className="hidden sm:inline-block rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-800 animate-pulse shrink-0">
+            <span className="hidden sm:inline-block border-2 border-zinc-900 bg-emerald-300 px-2.5 py-1 font-pixel text-[11px] font-bold uppercase text-zinc-900 animate-pulse shrink-0">
               {t.chess.yourTurn}
             </span>
           )}
@@ -1093,10 +1098,10 @@ export function ChessGameView({
                 setShowResignConfirm(false);
                 setShowLeaveConfirm(false);
               }}
-              className={`h-9 w-9 sm:h-10 sm:w-10 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-xl border transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none ${
+              className={`pixel-btn h-9 w-9 sm:h-10 sm:w-10 min-h-[36px] min-w-[36px] flex items-center justify-center outline-none ${
                 showReactionPicker
-                  ? 'border-indigo-400 bg-indigo-50 text-indigo-600'
-                  : 'border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-white text-zinc-700 hover:bg-zinc-100'
               }`}
               title={t.chess.sendReaction}
               aria-label="Send Reaction"
@@ -1106,13 +1111,13 @@ export function ChessGameView({
 
             {/* Reaction Popover */}
             {showReactionPicker && (
-              <div className="absolute bottom-full right-0 mb-2 flex items-center gap-1.5 rounded-2xl border border-gray-200 bg-white/95 backdrop-blur-md p-1.5 shadow-xl animate-scale-up z-40">
+              <div className="absolute bottom-full right-0 mb-2 flex items-center gap-1.5 pixel-box bg-white p-1.5 z-40">
                 {EMOJI_OPTIONS.map((emoji) => (
                   <button
                     key={emoji}
                     type="button"
                     onClick={() => handleSendReaction(emoji)}
-                    className="flex h-9 w-9 items-center justify-center rounded-xl text-lg hover:bg-gray-100 hover:scale-125 active:scale-95 transition-transform"
+                    className="flex h-9 w-9 items-center justify-center border border-transparent hover:border-zinc-900 hover:bg-amber-100 text-lg transition-transform"
                   >
                     {emoji}
                   </button>
@@ -1131,10 +1136,10 @@ export function ChessGameView({
                   setShowLeaveConfirm(false);
                   setShowReactionPicker(false);
                 }}
-                className={`h-9 w-9 sm:h-10 sm:w-10 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-xl border transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-red-500 outline-none ${
+                className={`pixel-btn h-9 w-9 sm:h-10 sm:w-10 min-h-[36px] min-w-[36px] flex items-center justify-center outline-none ${
                   showResignConfirm
-                    ? 'border-red-400 bg-red-50 text-red-600 ring-2 ring-red-200'
-                    : 'border-gray-200 text-gray-500 hover:text-red-600 hover:bg-red-50'
+                    ? 'bg-red-500 text-white'
+                    : 'bg-white text-zinc-700 hover:bg-red-100 hover:text-red-700'
                 }`}
                 title={t.chess.resign}
                 aria-label="Resign"
@@ -1143,25 +1148,25 @@ export function ChessGameView({
               </button>
 
               {showResignConfirm && (
-                <div className="absolute bottom-full right-0 mb-2 w-48 rounded-2xl border border-red-200 bg-white p-3 shadow-2xl z-40 animate-scale-up">
-                  <p className="text-xs font-bold text-gray-900 mb-1">
+                <div className="absolute bottom-full right-0 mb-2 w-52 pixel-box bg-white p-3 z-40">
+                  <p className="font-pixel text-xs font-bold uppercase text-zinc-900 mb-1">
                     {language === 'vi' ? 'Bạn muốn đầu hàng?' : 'Resign this match?'}
                   </p>
-                  <p className="text-[10px] text-gray-500 mb-2.5">
+                  <p className="text-[11px] font-medium text-zinc-600 mb-2.5">
                     {language === 'vi' ? 'Đối thủ sẽ được xử thắng ván này.' : 'Opponent will be awarded the win.'}
                   </p>
                   <div className="flex gap-1.5">
                     <button
                       type="button"
                       onClick={confirmResign}
-                      className="flex-1 rounded-xl bg-red-600 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-red-700 active:scale-95 transition-all"
+                      className="pixel-btn flex-1 bg-red-600 py-1.5 font-pixel text-xs font-bold uppercase text-white hover:bg-red-500"
                     >
                       {language === 'vi' ? 'Đầu hàng' : 'Resign'}
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowResignConfirm(false)}
-                      className="flex-1 rounded-xl border border-gray-200 bg-gray-50 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-100 active:scale-95 transition-all"
+                      className="pixel-btn flex-1 bg-zinc-100 py-1.5 font-pixel text-xs font-bold uppercase text-zinc-800 hover:bg-zinc-200"
                     >
                       {language === 'vi' ? 'Hủy' : 'Cancel'}
                     </button>
@@ -1176,10 +1181,10 @@ export function ChessGameView({
             <button
               type="button"
               onClick={handleLeaveClick}
-              className={`h-9 w-9 sm:h-10 sm:w-10 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-xl border transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-gray-500 outline-none ${
+              className={`pixel-btn h-9 w-9 sm:h-10 sm:w-10 min-h-[36px] min-w-[36px] flex items-center justify-center outline-none ${
                 showLeaveConfirm
-                  ? 'border-gray-400 bg-gray-100 text-gray-900 ring-2 ring-gray-200'
-                  : 'border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                  ? 'bg-zinc-800 text-white'
+                  : 'bg-white text-zinc-700 hover:bg-zinc-100'
               }`}
               title={t.chess.leaveRoom}
               aria-label="Leave Room"
@@ -1188,25 +1193,25 @@ export function ChessGameView({
             </button>
 
             {showLeaveConfirm && (
-              <div className="absolute bottom-full right-0 mb-2 w-52 rounded-2xl border border-amber-200 bg-white p-3 shadow-2xl z-40 animate-scale-up">
-                <p className="text-xs font-bold text-gray-900 mb-1">
+              <div className="absolute bottom-full right-0 mb-2 w-56 pixel-box bg-white p-3 z-40">
+                <p className="font-pixel text-xs font-bold uppercase text-zinc-900 mb-1">
                   {language === 'vi' ? 'Rời phòng thi đấu?' : 'Leave this game?'}
                 </p>
-                <p className="text-[10px] text-amber-700 mb-2.5">
+                <p className="text-[11px] font-medium text-amber-800 mb-2.5">
                   {language === 'vi' ? 'Trận đấu đang diễn ra sẽ bị xử thua!' : 'You will forfeit this ongoing match!'}
                 </p>
                 <div className="flex gap-1.5">
                   <button
                     type="button"
                     onClick={confirmLeave}
-                    className="flex-1 rounded-xl bg-amber-600 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-amber-700 active:scale-95 transition-all"
+                    className="pixel-btn flex-1 bg-amber-500 py-1.5 font-pixel text-xs font-bold uppercase text-zinc-900 hover:bg-amber-400"
                   >
                     {language === 'vi' ? 'Rời phòng' : 'Leave'}
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowLeaveConfirm(false)}
-                    className="flex-1 rounded-xl border border-gray-200 bg-gray-50 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-100 active:scale-95 transition-all"
+                    className="pixel-btn flex-1 bg-zinc-100 py-1.5 font-pixel text-xs font-bold uppercase text-zinc-800 hover:bg-zinc-200"
                   >
                     {language === 'vi' ? 'Ở lại' : 'Stay'}
                   </button>
@@ -1224,7 +1229,7 @@ export function ChessGameView({
 
       {/* Check Alert Banner */}
       {room.game_state.isCheck && room.status === 'in_progress' && (
-        <div className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-red-50 border border-red-200 py-2 px-4 text-xs font-bold text-red-700 animate-bounce">
+        <div className="mt-3 flex items-center justify-center gap-2 border-2 border-zinc-900 bg-red-500 py-2 px-4 font-pixel text-xs font-bold uppercase tracking-wider text-white shadow-pixel-sm animate-bounce">
           <AlertCircle className="h-4 w-4" />
           <span>{t.chess.check}</span>
         </div>
@@ -1232,106 +1237,128 @@ export function ChessGameView({
 
       {/* Game Over Centered Modal */}
       {room.status === 'completed' && showGameOverModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 sm:p-8 text-center shadow-2xl border border-gray-100 animate-scale-up">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 animate-fade-in overflow-hidden">
+          {/* Pixel Art Confetti Burst on Victory - CHỈ BẮN KHI CHIẾN THẮNG */}
+          {isHumanWinner && (
+            <PixelFxOverlay active={true} />
+          )}
+
+          <div className="relative w-full max-w-sm pixel-box-lg bg-white overflow-hidden text-center z-10">
+            {/* Arcade Top Header */}
             <div
-              className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl mb-4 ${
-                room.game_state.winner === myColor
-                  ? 'bg-amber-100 text-amber-600'
+              className={`border-b-2 border-zinc-900 py-3 px-4 font-pixel text-xs font-bold uppercase tracking-widest ${
+                isHumanWinner
+                  ? 'bg-amber-400 text-zinc-900'
                   : room.game_state.winner === 'draw'
-                  ? 'bg-blue-100 text-blue-600'
-                  : 'bg-gray-100 text-gray-500'
+                  ? 'bg-sky-400 text-zinc-900'
+                  : 'bg-zinc-800 text-white'
               }`}
             >
-              {room.game_state.winner === myColor ? (
-                <Trophy className="h-8 w-8 animate-bounce" />
-              ) : (
-                <Sparkles className="h-8 w-8" />
-              )}
+              {isHumanWinner ? '★ STAGE CLEAR ★' : room.game_state.winner === 'draw' ? 'DRAW GAME' : 'GAME OVER'}
             </div>
 
-            <h3 className="text-2xl font-black text-gray-900 tracking-tight">
-              {room.game_state.winner === myColor
-                ? t.chess.youWon
-                : room.game_state.winner === 'draw'
-                ? t.chess.draw
-                : t.chess.youLost}
-            </h3>
-
-            <p className="mt-2 text-sm text-gray-600">
-              {room.game_state.isCheckmate
-                ? t.chess.checkmate
-                : room.game_state.isTimeout
-                ? room.game_state.winner === myColor
-                  ? t.chess.timeoutWon
-                  : t.chess.timeoutLost
-                : room.game_state.isResigned
-                ? room.game_state.winner === myColor
-                  ? t.chess.resignedWon
-                  : t.chess.resignedLost
-                : isOpponentDisconnected && room.game_state.winner === myColor
-                ? t.chess.opponentAbandonedWin
-                : ''}
-            </p>
-
-            <div className="mt-6 flex flex-col gap-2.5">
-              {/* Rematch Button */}
-              {isBotGame ? (
-                <button
-                  type="button"
-                  onClick={handleOfferRematch}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-purple-600 py-3 text-sm font-bold text-white shadow-md hover:bg-purple-700 active:scale-95 transition-all"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  <span>{t.chess.rematch}</span>
-                </button>
-              ) : rematchOfferedByOpponent ? (
-                <button
-                  type="button"
-                  onClick={handleAcceptRematch}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-md hover:bg-emerald-700 active:scale-95 transition-all animate-pulse"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  <span>{t.chess.acceptRematch}</span>
-                </button>
-              ) : rematchRequestedByMe ? (
-                <button
-                  type="button"
-                  disabled
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 py-3 text-xs font-semibold text-indigo-700 opacity-90 cursor-not-allowed"
-                >
-                  <Clock className="h-4 w-4 animate-spin text-indigo-600" />
-                  <span>{t.chess.rematchWaiting}</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleOfferRematch}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-md hover:bg-indigo-700 active:scale-95 transition-all"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  <span>{t.chess.rematch}</span>
-                </button>
-              )}
-
-              {/* Review Board Button */}
-              <button
-                type="button"
-                onClick={() => setShowGameOverModal(false)}
-                className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white py-2.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-all"
+            <div className="p-6 sm:p-8">
+              <div
+                className={`mx-auto flex h-16 w-16 items-center justify-center border-2 border-zinc-900 shadow-pixel-sm mb-4 ${
+                  isHumanWinner
+                    ? 'bg-amber-300 text-zinc-900'
+                    : room.game_state.winner === 'draw'
+                    ? 'bg-sky-200 text-zinc-900'
+                    : 'bg-zinc-200 text-zinc-700'
+                }`}
               >
-                <Eye className="h-4 w-4" />
-                <span>{language === 'vi' ? 'Xem lại bàn cờ' : 'Review Board'}</span>
-              </button>
+                {isHumanWinner ? (
+                  <Trophy className="h-8 w-8 animate-bounce" />
+                ) : (
+                  <Sparkles className="h-8 w-8" />
+                )}
+              </div>
 
-              {/* Back to Lobby Button */}
-              <button
-                type="button"
-                onClick={onExitRoom}
-                className="w-full rounded-xl border border-transparent bg-gray-100 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-200 active:scale-95 transition-all"
-              >
-                {t.common.backToLobby}
-              </button>
+              <h3 className="font-pixel text-2xl font-bold uppercase tracking-wide text-zinc-900">
+                {isLocalGame
+                  ? (room.game_state.winner === 'draw' ? t.chess.draw : `${room.game_state.winner === 'white' ? room.host_name : room.guest_name} Chiến Thắng!`)
+                  : isHumanWinner
+                  ? t.chess.youWon
+                  : room.game_state.winner === 'draw'
+                  ? t.chess.draw
+                  : t.chess.youLost}
+              </h3>
+
+              <p className="mt-2 text-xs font-bold text-zinc-600">
+                {room.game_state.isCheckmate
+                  ? t.chess.checkmate
+                  : room.game_state.isTimeout
+                  ? room.game_state.winner === myColor
+                    ? t.chess.timeoutWon
+                    : t.chess.timeoutLost
+                  : room.game_state.isResigned
+                  ? room.game_state.winner === myColor
+                    ? t.chess.resignedWon
+                    : t.chess.resignedLost
+                  : isOpponentDisconnected && room.game_state.winner === myColor
+                  ? t.chess.opponentAbandonedWin
+                  : ''}
+              </p>
+
+              <div className="mt-6 flex flex-col gap-2.5">
+                {/* Rematch Button */}
+                {isBotGame ? (
+                  <button
+                    type="button"
+                    onClick={handleOfferRematch}
+                    className="pixel-btn w-full inline-flex items-center justify-center gap-2 bg-purple-600 py-3 font-pixel text-sm font-bold uppercase tracking-wider text-white hover:bg-purple-500"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    <span>{t.chess.rematch}</span>
+                  </button>
+                ) : rematchOfferedByOpponent ? (
+                  <button
+                    type="button"
+                    onClick={handleAcceptRematch}
+                    className="pixel-btn w-full inline-flex items-center justify-center gap-2 bg-emerald-500 py-3 font-pixel text-sm font-bold uppercase tracking-wider text-zinc-900 hover:bg-emerald-400 animate-pulse"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    <span>{t.chess.acceptRematch}</span>
+                  </button>
+                ) : rematchRequestedByMe ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="w-full inline-flex items-center justify-center gap-2 border-2 border-zinc-900 bg-indigo-100 py-3 font-pixel text-xs font-bold uppercase tracking-wider text-indigo-800 opacity-90 cursor-not-allowed"
+                  >
+                    <Clock className="h-4 w-4 animate-spin text-indigo-600" />
+                    <span>{t.chess.rematchWaiting}</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleOfferRematch}
+                    className="pixel-btn w-full inline-flex items-center justify-center gap-2 bg-indigo-600 py-3 font-pixel text-sm font-bold uppercase tracking-wider text-white hover:bg-indigo-500"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    <span>{t.chess.rematch}</span>
+                  </button>
+                )}
+
+                {/* Review Board Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowGameOverModal(false)}
+                  className="pixel-btn inline-flex w-full items-center justify-center gap-1.5 bg-white py-2.5 font-pixel text-xs font-bold uppercase tracking-wider text-zinc-700 hover:bg-zinc-100"
+                >
+                  <Eye className="h-4 w-4" />
+                  <span>{language === 'vi' ? 'Xem lại bàn cờ' : 'Review Board'}</span>
+                </button>
+
+                {/* Back to Lobby Button */}
+                <button
+                  type="button"
+                  onClick={onExitRoom}
+                  className="pixel-btn w-full bg-zinc-200 py-2.5 font-pixel text-xs font-bold uppercase tracking-wider text-zinc-800 hover:bg-zinc-300"
+                >
+                  {t.common.backToLobby}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1339,16 +1366,16 @@ export function ChessGameView({
 
       {/* Game Over Review Banner at Bottom (when modal is dismissed) */}
       {room.status === 'completed' && !showGameOverModal && (
-        <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-indigo-200 bg-white p-4 shadow-sm animate-fade-in">
+        <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pixel-box bg-white p-4 animate-fade-in">
           <div>
-            <h4 className="text-sm font-bold text-gray-900">
+            <h4 className="font-pixel text-sm font-bold uppercase text-zinc-900">
               {room.game_state.winner === myColor
                 ? t.chess.youWon
                 : room.game_state.winner === 'draw'
                 ? t.chess.draw
                 : t.chess.youLost}
             </h4>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs font-medium text-zinc-500">
               {room.game_state.isCheckmate
                 ? t.chess.checkmate
                 : room.game_state.isTimeout
@@ -1369,7 +1396,7 @@ export function ChessGameView({
               <button
                 type="button"
                 onClick={handleOfferRematch}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-purple-700"
+                className="pixel-btn inline-flex items-center gap-1.5 bg-purple-600 px-3.5 py-2 font-pixel text-xs font-bold uppercase text-white hover:bg-purple-500"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 <span>{t.chess.rematch}</span>
@@ -1378,20 +1405,20 @@ export function ChessGameView({
               <button
                 type="button"
                 onClick={handleAcceptRematch}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 animate-pulse"
+                className="pixel-btn inline-flex items-center gap-1.5 bg-emerald-500 px-3.5 py-2 font-pixel text-xs font-bold uppercase text-zinc-900 hover:bg-emerald-400 animate-pulse"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 <span>{t.chess.acceptRematch}</span>
               </button>
             ) : rematchRequestedByMe ? (
-              <span className="rounded-xl bg-indigo-50 px-3 py-2 text-[11px] font-semibold text-indigo-700">
+              <span className="border-2 border-zinc-900 bg-indigo-100 px-3 py-2 font-pixel text-[11px] font-bold uppercase text-indigo-800">
                 {t.chess.rematchWaiting}
               </span>
             ) : (
               <button
                 type="button"
                 onClick={handleOfferRematch}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-indigo-700"
+                className="pixel-btn inline-flex items-center gap-1.5 bg-indigo-600 px-3.5 py-2 font-pixel text-xs font-bold uppercase text-white hover:bg-indigo-500"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 <span>{t.chess.rematch}</span>
@@ -1401,7 +1428,7 @@ export function ChessGameView({
             <button
               type="button"
               onClick={onExitRoom}
-              className="rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50"
+              className="pixel-btn bg-white px-3.5 py-2 font-pixel text-xs font-bold uppercase text-zinc-800 hover:bg-zinc-100"
             >
               {t.common.backToLobby}
             </button>
@@ -1411,21 +1438,21 @@ export function ChessGameView({
 
       {/* Opponent Abandoned / Left Modal -> Award victory to remaining player */}
       {room.status === 'abandoned' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 sm:p-8 text-center shadow-2xl border border-gray-100 animate-scale-up">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 animate-fade-in">
+          <div className="w-full max-w-sm pixel-box-lg bg-white p-6 sm:p-8 text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center border-2 border-zinc-900 bg-amber-300 text-zinc-900 shadow-pixel-sm mb-4">
               <Trophy className="h-8 w-8 animate-bounce" />
             </div>
-            <h3 className="text-2xl font-black text-gray-900 tracking-tight">
+            <h3 className="font-pixel text-2xl font-bold uppercase tracking-wide text-zinc-900">
               {t.chess.youWon}
             </h3>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm font-medium text-zinc-600">
               {t.chess.opponentLeftWin}
             </p>
             <button
               type="button"
               onClick={onExitRoom}
-              className="mt-6 w-full rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-md hover:bg-indigo-700 active:scale-95 transition-all"
+              className="pixel-btn mt-6 w-full bg-indigo-600 py-3 font-pixel text-sm font-bold uppercase tracking-wider text-white hover:bg-indigo-500"
             >
               {t.common.backToLobby}
             </button>

@@ -5,12 +5,12 @@ import { AuthProvider } from '@/features/auth/AuthContext';
 import { Header } from '@/components/Header';
 
 export const metadata: Metadata = {
-  title: 'Kombat - Sảnh Mini-Game Indie',
-  description: 'Sảnh trò chơi ngắn gọn nhẹ, chơi mượt mà trên di động và máy tính.',
+  title: 'Kombat - Sảnh Mini-Game Indie (Neo-Arcade 16-Bit)',
+  description: 'Sảnh trò chơi ngắn phong cách Pixel Arcade 16-bit, chơi mượt mà trên di động và máy tính.',
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/icon.svg',
-    apple: '/icon.svg',
+    icon: '/icon.svg?v=pixel',
+    apple: '/icon.svg?v=pixel',
   },
   appleWebApp: {
     capable: true,
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#4F46E5',
+  themeColor: '#18181B',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -34,16 +34,30 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <head />
-      <body suppressHydrationWarning className="min-h-screen flex flex-col bg-[#F6F7FB] text-[#1F2937] antialiased">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400..800;1,400..800&family=Pixelify+Sans:wght@400..700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body suppressHydrationWarning className="min-h-screen flex flex-col bg-[#F4F1EA] text-[#18181B] antialiased">
         <AuthProvider>
           <LanguageProvider>
             <Header />
             <main className="flex-1">{children}</main>
-            <footer className="border-t border-gray-200 bg-white py-6 text-center text-xs text-gray-500">
-              <div className="mx-auto max-w-5xl px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-                <p>&copy; {new Date().getFullYear()} Kombat. Indie game experiment.</p>
-                <p className="text-gray-400">Mobile-first &bull; No install &bull; Guest session</p>
+            <footer className="border-t-2 border-zinc-900 bg-zinc-900 py-6 text-center text-xs text-zinc-300 font-pixel">
+              <div className="mx-auto max-w-5xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block h-2.5 w-2.5 bg-emerald-400 border border-zinc-950 animate-pulse" />
+                  <p className="tracking-wider font-bold text-amber-400">
+                    &copy; {new Date().getFullYear()} KOMBAT ARCADE SYSTEM [16-BIT EDITION]
+                  </p>
+                </div>
+                <p className="text-zinc-400 font-mono text-[11px] uppercase tracking-wider">
+                  INSERT COIN &bull; MOBILE-FIRST &bull; INSTANT PLAY
+                </p>
               </div>
             </footer>
           </LanguageProvider>

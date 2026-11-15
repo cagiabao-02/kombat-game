@@ -31,20 +31,20 @@ export function SudokuBoard({
       : null;
 
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[460px] select-none rounded-2xl border-2 border-gray-900 bg-white p-1 sm:p-2 shadow-lg">
+    <div className="relative mx-auto aspect-square w-full max-w-[460px] select-none border-[3px] border-zinc-900 bg-[#8B956D] p-1.5 sm:p-2.5 shadow-pixel-lg">
       {/* Paused Overlay */}
       {isPaused && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-2xl bg-white/95 backdrop-blur-sm p-4 text-center">
-          <p className="text-base sm:text-lg font-bold text-gray-800">
-            {t.sudoku.pausedOverlay}
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#D4DFB8] border-2 border-zinc-900 p-4 text-center">
+          <p className="font-pixel text-xl sm:text-2xl font-bold text-zinc-950 uppercase tracking-wider">
+            [ {t.sudoku.pausedOverlay} ]
           </p>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-2 text-xs font-mono font-bold text-zinc-700">
             {language === 'vi' ? 'Bấm nút Tiếp tục để chơi tiếp' : 'Click Resume to continue playing'}
           </p>
         </div>
       )}
 
-      <div className="grid h-full w-full grid-cols-9 grid-rows-9">
+      <div className="grid h-full w-full grid-cols-9 grid-rows-9 border-2 border-zinc-900 bg-[#FFFDF8]">
         {board.map((row, r) =>
           row.map((val, c) => {
             const isInitial = initialBoard[r]?.[c] !== null;
@@ -59,31 +59,29 @@ export function SudokuBoard({
               selectedValue !== null && val !== null && val === selectedValue;
             const isError = highlightErrors && conflictingCells.has(`${r}-${c}`);
 
-            // Border styling to mark 3x3 box borders
+            // Border styling to mark 3x3 box borders with crisp pixel lines
             const borderClasses = [
-              r % 3 === 0 && r !== 0 ? 'border-t-2 border-t-gray-900' : 'border-t border-t-gray-200',
-              c % 3 === 0 && c !== 0 ? 'border-l-2 border-l-gray-900' : 'border-l border-l-gray-200',
-              r === 8 ? 'border-b border-b-gray-900' : '',
-              c === 8 ? 'border-r border-r-gray-900' : '',
+              r % 3 === 0 && r !== 0 ? 'border-t-[2.5px] border-t-zinc-900' : 'border-t border-t-zinc-300',
+              c % 3 === 0 && c !== 0 ? 'border-l-[2.5px] border-l-zinc-900' : 'border-l border-l-zinc-300',
             ].join(' ');
 
-            // High-contrast background and text hierarchy
-            let bgClass = 'bg-white hover:bg-indigo-50/30';
+            // High-contrast Neo-Arcade background and text hierarchy
+            let bgClass = 'bg-[#FFFDF8] hover:bg-amber-50';
             let textClass = isInitial
-              ? 'font-black text-gray-950'
-              : 'font-bold text-indigo-700';
+              ? 'font-pixel font-bold text-zinc-950'
+              : 'font-pixel font-bold text-indigo-700';
 
             if (isError) {
-              bgClass = 'bg-red-100/90 ring-1 ring-inset ring-red-400';
-              textClass = 'font-black text-red-700';
+              bgClass = 'bg-rose-200 ring-2 ring-inset ring-rose-600';
+              textClass = 'font-pixel font-bold text-rose-800';
             } else if (isSelected) {
-              bgClass = 'bg-indigo-600 shadow-inner';
-              textClass = 'font-black text-white';
+              bgClass = 'bg-indigo-600';
+              textClass = 'font-pixel font-bold text-amber-300';
             } else if (isSameNumber) {
-              bgClass = 'bg-indigo-100/90 ring-1 ring-inset ring-indigo-300';
-              textClass = isInitial ? 'font-black text-indigo-950' : 'font-black text-indigo-800';
+              bgClass = 'bg-amber-200 ring-1 ring-inset ring-zinc-900';
+              textClass = 'font-pixel font-bold text-zinc-950';
             } else if (isRelated) {
-              bgClass = 'bg-indigo-50/40';
+              bgClass = 'bg-[#ECE8DD]';
             }
 
             return (
@@ -91,7 +89,7 @@ export function SudokuBoard({
                 key={`${r}-${c}`}
                 type="button"
                 onClick={() => onSelectCell({ row: r, col: c })}
-                className={`flex items-center justify-center text-lg sm:text-xl md:text-2xl transition-all duration-100 active:scale-95 focus:outline-none ${borderClasses} ${bgClass} ${textClass}`}
+                className={`flex items-center justify-center text-lg sm:text-xl md:text-2xl focus:outline-none ${borderClasses} ${bgClass} ${textClass}`}
                 aria-label={`Row ${r + 1}, Column ${c + 1}: ${val ?? 'empty'}`}
               >
                 {val !== null ? val : ''}
@@ -103,4 +101,3 @@ export function SudokuBoard({
     </div>
   );
 }
-

@@ -16,19 +16,19 @@ export default function SudokuPage() {
       <div className="mb-4 flex items-center justify-between">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors"
+          className="pixel-btn inline-flex items-center gap-1.5 bg-white px-3 py-1.5 text-xs font-bold text-zinc-900 hover:bg-amber-100"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>{t.common.backToLobby}</span>
         </Link>
 
-        {/* Toggle Rules accordian */}
+        {/* Toggle Rules accordion */}
         <button
           type="button"
           onClick={() => setShowRules((prev) => !prev)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
+          className="pixel-btn inline-flex items-center gap-1.5 bg-indigo-100 px-3 py-1.5 text-xs font-bold text-zinc-900 hover:bg-indigo-200"
         >
-          <BookOpen className="h-3.5 w-3.5 text-indigo-600" />
+          <BookOpen className="h-3.5 w-3.5 text-indigo-700" />
           <span>{t.sudoku.rulesTitle}</span>
           {showRules ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
         </button>
@@ -36,10 +36,10 @@ export default function SudokuPage() {
 
       {/* Rules Dropdown Box */}
       {showRules && (
-        <div className="mb-6 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4 text-xs sm:text-sm text-indigo-950">
-          <h4 className="font-bold text-indigo-900 mb-1">{t.sudoku.rulesTitle}</h4>
+        <div className="pixel-box mb-6 bg-[#FFFDF8] p-4 text-xs sm:text-sm font-mono text-zinc-800">
+          <h4 className="font-pixel font-bold text-indigo-800 text-base mb-1 uppercase">{t.sudoku.rulesTitle}</h4>
           <p className="leading-relaxed">{t.sudoku.rulesContent}</p>
-          <div className="mt-2 text-indigo-800/80">
+          <div className="mt-2 pt-2 border-t border-dashed border-zinc-300 text-indigo-900 font-semibold">
             {language === 'vi'
               ? 'Mẹo: Dùng các phím mũi tên để di chuyển ô, phím 1-9 để điền, Delete/Backspace để xóa, hoặc Ctrl+Z / U để hoàn tác.'
               : 'Tip: Use arrow keys to navigate, 1-9 to place numbers, Delete/Backspace to erase, or Ctrl+Z / U to undo.'}
