@@ -221,7 +221,7 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [x] Động cơ vật lý nảy bóng Canvas 2D (`brickBreakerLogic.ts`):
   - [x] Tỉ lệ khung hình $3:4$ (Canvas $480 \times 640$), tốc độ tăng dần theo combo và màn chơi.
   - [x] Thuật toán nảy bóng linh hoạt trên thanh trượt (góc nảy phụ thuộc điểm chạm).
-  - [x] Hệ thống vật phẩm rơi (Powerups): Kéo dài thanh (↔️), Nhân thêm 2 bóng (⚡), Bắn đạn Laser (🔫), Thêm mạng (💖).
+  - [x] Hệ thống vật phẩm rơi (Powerups): Kéo dài thanh (↔️), Nhân đôi số bóng dựa trên bóng hiện có (⚡), Bắn đạn Laser (🔫), Thêm mạng (💖).
   - [x] Đa dạng loại gạch: Gạch thường 5 tầng màu tính điểm, gạch thép 2 lần đập và gạch bom phát nổ lân cận.
   - [x] Hệ thống qua màn liên hoàn (Stages), hồi sinh bóng và hiệu ứng nổ hạt pixel (Particles).
 - [x] Dịch vụ lưu trữ thành tích (`brickBreakerStatsService.ts`):
