@@ -20,9 +20,11 @@ import {
   startBotCaroRematch,
 } from './caroRoomService';
 import { recordCaroGameResult } from './caroStatsService';
-import { soundService } from '@/lib/sound/soundService';
+import { soundService, sounds } from '@/lib/sound/soundService';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { PixelFxOverlay } from '@/components/fx/PixelFxOverlay';
+import { ChatBubble } from '@/features/social/ChatBubble';
+import { ActiveSocialMessage, SocialContentType } from '@/features/social/types';
 import {
   Copy,
   Check,
@@ -70,6 +72,64 @@ export function CaroGameView({
     : isHost
     ? 'X'
     : 'O';
+
+  // In-Game Social Chat & Reactions State
+  const [activeSocialMessages, setActiveSocialMessages] = useState<ActiveSocialMessage[]>([]);
+  const channelRef = useRef<any>(null);
+
+  const handleIncomingSocial = useCallback(
+    (type: SocialContentType, content: string, target: 'me' | 'opponent') => {
+      sounds.playSocialPop();
+      const id = `${Date.now()}_${Math.random()}`;
+      setActiveSocialMessages((prev) => [...prev, { id, type, content, target, createdAt: Date.now() }]);
+      setTimeout(() => {
+        setActiveSocialMessages((prev) => prev.filter((r) => r.id !== id));
+      }, 3500);
+    },
+    []
+  );
+
+  const handleSendSocial = useCallback(
+    (type: SocialContentType, content: string) => {
+      handleIncomingSocial(type, content, 'me');
+
+      if (!isBotGame && channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'in_game_social',
+          payload: {
+            from: currentUserId,
+            type,
+            content,
+          },
+        });
+      }
+
+      // If playing with Bot, bot playfully replies with subtle probability
+      if (isBotGame) {
+        if (Math.random() < 0.45) {
+          setTimeout(() => {
+            if (type === 'chat') {
+              const botChatReplies = [
+                '🔥 Nước cờ hay đấy!',
+                '🤔 Đang tính toán một chút...',
+                '⚔️ Đấu Caro thì mình không ngại đâu!',
+                '👑 Tuyệt vời! Cảm ơn!',
+                '☕ Nước cờ hiểm thật!',
+              ];
+              const randomReply = botChatReplies[Math.floor(Math.random() * botChatReplies.length)];
+              handleIncomingSocial('chat', randomReply, 'opponent');
+            } else {
+              const botReplies = ['👍', '🔥', '🤔', '👏', '😎'];
+              const randomReply = botReplies[Math.floor(Math.random() * botReplies.length)];
+              handleIncomingSocial('emote', randomReply, 'opponent');
+            }
+          }, 900);
+        }
+      }
+    },
+    [currentUserId, isBotGame, handleIncomingSocial]
+  );
 
   const isMyTurn =
     !gameState.isGameOver &&
@@ -156,9 +216,17 @@ export function CaroGameView({
           soundService.playVictory();
         }
       })
+      .on('broadcast', { event: 'in_game_social' }, ({ payload }) => {
+        if (payload && payload.from !== currentUserId && payload.content) {
+          handleIncomingSocial(payload.type || 'emote', payload.content, 'opponent');
+        }
+      })
       .subscribe();
 
+    channelRef.current = channel;
+
     return () => {
+      channelRef.current = null;
       supabase.removeChannel(channel);
     };
   }, [isOnline, room.id, currentUserId]);
@@ -506,7 +574,23 @@ export function CaroGameView({
   return (
     <div className="mx-auto flex flex-col items-center gap-4 sm:gap-5 py-2 sm:py-4 px-2 w-full max-w-2xl">
       {/* Player Header Card */}
-      <div className="pixel-box w-full max-w-lg flex items-center justify-between bg-[#FFFDF8] px-3 py-2.5">
+      <div className="relative pixel-box w-full max-w-lg flex items-center justify-between bg-[#FFFDF8] px-3 py-2.5">
+        {/* Floating Social Speech Bubbles (Below card pointing up) */}
+        <div className="absolute top-full mt-2 left-3 sm:left-4 flex flex-col items-start gap-1 pointer-events-none z-40">
+          {activeSocialMessages
+            .filter((m) => m.target === (isHost ? 'me' : 'opponent'))
+            .map((m) => (
+              <ChatBubble key={m.id} message={m} align="left" placement="bottom" />
+            ))}
+        </div>
+        <div className="absolute top-full mt-2 right-3 sm:right-4 flex flex-col items-end gap-1 pointer-events-none z-40">
+          {activeSocialMessages
+            .filter((m) => m.target === (isHost ? 'opponent' : 'me'))
+            .map((m) => (
+              <ChatBubble key={m.id} message={m} align="right" placement="bottom" />
+            ))}
+        </div>
+
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center bg-rose-100 text-rose-600 font-pixel font-bold text-sm border-2 border-zinc-900 shadow-pixel-xs">
             X
@@ -565,6 +649,7 @@ export function CaroGameView({
         hostName={room.host_name}
         guestName={room.guest_name || 'Người chơi 2'}
         isHost={isHost}
+        onSendMessage={handleSendSocial}
       />
 
       {/* GAME OVER MODAL */}

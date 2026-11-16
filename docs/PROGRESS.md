@@ -39,13 +39,23 @@
 - **Triển khai Bảng xếp hạng toàn sảnh Leaderboard (Chặng 11 - Bước 3.1):**
   - Xây dựng module `src/features/leaderboard/` vinh danh cao thủ cho toàn bộ các tựa game.
   - Tinh gọn Bảng xếp hạng: Bỏ toàn bộ các thông tin phụ (số ván chơi, số bàn, chuỗi trận, số gạch vỡ), chỉ hiển thị duy nhất Điểm số (với Cờ vua, Cờ tướng, Cờ caro, Rắn, 2048, Phá gạch) hoặc Thời gian hoàn thành (với Sudoku, Dò mìn) giúp giao diện sạch đẹp, trực quan và tập trung vào thành tích cốt lõi.
+  - **Phân chia cấp độ thi đấu (Dễ, Trung bình, Khó):** Thêm thanh chọn cấp độ con cho các game có độ khó (Sudoku và Dò Mìn: 🟢 Dễ / 🟡 Trung bình / 🔴 Khó). Tự động lưu và truy vấn riêng biệt kỷ lục theo từng cấp độ (`sudoku_easy/medium/hard`, `minesweeper_easy/medium/hard`) trên cả local và đám mây Supabase (`migration 20261116120000_add_difficulty_levels_to_leaderboard.sql`).
+  - **Chính sách Bảng xếp hạng độc quyền cho tài khoản đăng ký:** Chỉ tài khoản đã đăng ký (Email/Google) mới được lưu lên Supabase Cloud nhằm chống spam tài khoản rác. Khách (Guest) vẫn có xem trước thứ hạng (Preview Rank) trên máy cục bộ, kèm thanh kêu gọi đăng nhập 1 chạm trong modal để vinh danh điểm số vĩnh viễn (`migration 20261116180000_only_allow_registered_users_on_leaderboard.sql`).
   - Thiết kế bục vinh danh Top 3 Podium (1st Quán quân Vàng 🥇, 2nd Bạc 🥈, 3rd Đồng 🥉) và danh sách thứ hạng chi tiết kèm avatar người chơi.
   - Thanh ghim cố định vị trí xếp hạng của người dùng hiện tại (Your Rank) giúp theo dõi thứ hạng cá nhân tức thì.
   - Tích hợp dịch vụ lưu trữ thành tích tự động cho các tựa game và migration database `20261109000000_leaderboard_schema.sql` với RLS an toàn.
-- **Triển khai Người chơi trực tuyến & Thách đấu 1 chạm (Chặng 11 - Bước 3.2):**
-  - Xây dựng module `src/features/presence/` dùng Supabase Realtime Presence channel (`kombat_lobby_presence`) theo dõi danh sách người chơi online tại sảnh.
-  - Widget trạng thái trực tuyến hiển thị trực quan ở Hero sảnh chính (`🟢 X người online • ⚔️`) với danh sách đối thủ sẵn sàng. Render tĩnh SSR đảm bảo luôn hiển thị ngay từ frame đầu tiên (kể cả khi chỉ có 1 người online).
-  - Hệ thống Thách đấu 1 chạm (Direct 1-Click Challenge): Chọn người chơi -> Chọn game (Cờ vua hoặc Cờ Caro 15x15) -> Tự động tạo phòng ngầm và gửi broadcast tới đối thủ.
+- **Triển khai Trò chuyện nhanh & Biểu cảm tương tác Trong trận (Chặng 11 - Bước 3.3 / Direction 3):**
+  - Xây dựng module dùng chung `src/features/social/` hỗ trợ tương tác tức thì trong các phòng thi đấu đối kháng:
+    - **Bộ câu Quick Chat cài sẵn (`socialPresets.ts`):** Song ngữ Việt-Anh kèm icon, chia làm 3 nhóm thực tế: Chào hỏi/Giao lưu (👋 Chào bạn / Hello, ⚔️ Chiến thôi / Let's go), Chiến thuật/Đang đấu (🔥 Hay đấy! / Nice move!, 🤔 Đang tính... / Thinking..., ☕ Làm ngụm trà / Take a sip, 😅 Căng thẳng quá / Intense game), Kết thúc/Lịch sự (👑 Chúc mừng! / Well played!, 👏 Cảm ơn trận đấu / Thanks for the game, 🤝 Tái đấu ván nữa? / Rematch?).
+    - **Bộ Biểu cảm Emote Pixel 16-bit:** 12 biểu tượng cảm xúc đậm chất Arcade (😎, 🔥, 👏, 🤔, 👑, ☕, 👍, ⚡, 🎯, 💀, 😱, 🤝).
+    - **Bóng thoại Pixel Speech Bubble (`ChatBubble.tsx`):** Thiết kế bóng thoại phong cách cổ điển retro viền đen 2px, đuôi chỉ định hướng về phía avatar người gửi, animation nảy nhẹ và tự biến mất sau 3.5 giây.
+    - **Trình chọn tương tác Neo-Arcade (`InGameSocialPicker.tsx`):** Popover 2 tab (Biểu cảm & Câu chat nhanh) kèm cơ chế chống spam (cooldown 2 giây).
+    - **Âm thanh hiệu ứng 8-bit:** Bổ sung `playSocialPop()` (Web Audio API tần số quét 450Hz $\to$ 880Hz) tạo cảm giác bong bóng thoại vui nhộn.
+  - Tích hợp toàn diện vào cả 3 tựa game đối kháng nhiều người chơi:
+    - **Cờ vua (`ChessGameView.tsx`):** Tích hợp nút Quick Chat vào thanh điều khiển người chơi, bóng thoại hiển thị trên avatar người chơi và đối thủ, phát sóng `in_game_social` qua Supabase Realtime channel.
+    - **Cờ Caro (`CaroGameView.tsx` & `CaroControls.tsx`):** Tích hợp nút Quick Chat ngay cạnh nút âm thanh trên thanh trạng thái LCD, bóng thoại hiển thị nổi trên thẻ đại diện Host (P1) và Guest (P2).
+    - **Cờ Tướng (`XiangqiGameView.tsx` & `XiangqiControls.tsx`):** Bổ sung thẻ thông tin đối đầu 2 bên Đỏ (帥) và Đen (將), tích hợp bóng thoại phía trên avatar mỗi bên và nút Quick Chat tại thanh công cụ bàn cờ.
+  - **Tương tác Bot AI:** Khi chơi offline với Máy (Bot AI), bot có xác suất 45% tự động phản hồi lại bằng câu chat dí dỏm hoặc biểu cảm thân thiện sau khoảng 900ms, giúp trải nghiệm chơi đơn sống động và cuốn hút.
   - Modal nhận lời thách đấu (`IncomingChallengeModal.tsx`) với âm thanh chuông báo, đếm ngược 15s tự động và nút "Chiến ngay" / "Từ chối" đưa thẳng cả hai người vào bàn đấu.
   - Khắc phục triệt để lỗi đơ thanh Header do Webpack bundling xung đột eval syntax với `@supabase/auth-js`: Tách `@supabase/supabase-js` thành dynamic lazy-load trong `AuthContext.tsx`, giảm 98% kích thước chunk `layout.js` (từ 3.3MB xuống ~60KB), giúp toàn bộ nút bấm trên Header (Hồ sơ, BXH, Âm thanh, Ngôn ngữ) phản hồi tức thì và không bị crash.
   - Tối ưu giao diện Header di động: Gom các nút phụ (BXH, Âm thanh, Ngôn ngữ) vào menu 3 gạch (Hamburger) hiện đại, mở drawer popover trực quan tránh tràn viền; giữ nguyên pill Hồ sơ nhỏ gọn trên thanh điều hướng.

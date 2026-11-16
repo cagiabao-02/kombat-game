@@ -23,6 +23,8 @@ import { recordXiangqiGameResult } from './xiangqiStatsService';
 import { PixelFxOverlay } from '@/components/fx/PixelFxOverlay';
 import { sounds } from '@/lib/sound/soundService';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { ChatBubble } from '@/features/social/ChatBubble';
+import { ActiveSocialMessage, SocialContentType } from '@/features/social/types';
 import {
   Trophy,
   RotateCcw,
@@ -85,6 +87,64 @@ export function XiangqiGameView({
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
   const [rematchRequestedByMe, setRematchRequestedByMe] = useState<boolean>(false);
   const [rematchOfferedByOpponent, setRematchOfferedByOpponent] = useState<boolean>(false);
+
+  // In-Game Social Chat & Reactions State
+  const [activeSocialMessages, setActiveSocialMessages] = useState<ActiveSocialMessage[]>([]);
+  const channelRef = useRef<any>(null);
+
+  const handleIncomingSocial = useCallback(
+    (type: SocialContentType, content: string, target: 'me' | 'opponent') => {
+      sounds.playSocialPop();
+      const id = `${Date.now()}_${Math.random()}`;
+      setActiveSocialMessages((prev) => [...prev, { id, type, content, target, createdAt: Date.now() }]);
+      setTimeout(() => {
+        setActiveSocialMessages((prev) => prev.filter((r) => r.id !== id));
+      }, 3500);
+    },
+    []
+  );
+
+  const handleSendSocial = useCallback(
+    (type: SocialContentType, content: string) => {
+      handleIncomingSocial(type, content, 'me');
+
+      if (isOnline && channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'in_game_social',
+          payload: {
+            from: currentUserId,
+            type,
+            content,
+          },
+        });
+      }
+
+      // If playing with Bot, bot playfully replies with subtle probability
+      if (gameMode === 'bot') {
+        if (Math.random() < 0.45) {
+          setTimeout(() => {
+            if (type === 'chat') {
+              const botChatReplies = [
+                '🔥 Nước cờ cao kiến!',
+                '🤔 Kỳ phùng địch thủ, để mình tính nước...',
+                '⚔️ Chiếu tướng hay điều quân vậy bạn?',
+                '👑 Tuyệt vời! Cảm ơn!',
+                '☕ Nâng chén trà, đàm đạo cờ tướng nào!',
+              ];
+              const randomReply = botChatReplies[Math.floor(Math.random() * botChatReplies.length)];
+              handleIncomingSocial('chat', randomReply, 'opponent');
+            } else {
+              const botReplies = ['👍', '🔥', '🤔', '👏', '😎'];
+              const randomReply = botReplies[Math.floor(Math.random() * botReplies.length)];
+              handleIncomingSocial('emote', randomReply, 'opponent');
+            }
+          }, 900);
+        }
+      }
+    },
+    [currentUserId, isOnline, gameMode, handleIncomingSocial]
+  );
 
   // Ref chống ghi nhận chỉ số 2 lần trong 1 ván
   const statsRecordedRef = useRef<boolean>(false);
@@ -260,9 +320,17 @@ export function XiangqiGameView({
           sounds.playClick();
         }
       })
+      .on('broadcast', { event: 'in_game_social' }, ({ payload }) => {
+        if (payload && payload.from !== currentUserId && payload.content) {
+          handleIncomingSocial(payload.type || 'emote', payload.content, 'opponent');
+        }
+      })
       .subscribe();
 
+    channelRef.current = channel;
+
     return () => {
+      channelRef.current = null;
       supabase.removeChannel(channel);
     };
   }, [isOnline, room?.id, currentUserId, myOnlineSide, gameState.winner]);
@@ -510,6 +578,7 @@ export function XiangqiGameView({
   };
 
   const isGameOver = Boolean(gameState.winner);
+  const isUserRed = isOnline ? isHost : (gameMode === 'bot' ? botSide !== 'red' : true);
   const isBoardDisabled = isGameOver || isBotThinking || !isMyTurn;
   const lastMove = gameState.moveHistory[gameState.moveHistory.length - 1] || null;
 
@@ -562,6 +631,59 @@ export function XiangqiGameView({
         </div>
       )}
 
+      {/* Player Header Card */}
+      <div className="relative pixel-box w-full max-w-lg flex items-center justify-between bg-[#FFFDF8] px-3 py-2.5">
+        {/* Floating Social Speech Bubbles for Red and Black (Below card pointing up) */}
+        <div className="absolute top-full mt-2 left-3 sm:left-4 flex flex-col items-start gap-1 pointer-events-none z-40">
+          {activeSocialMessages
+            .filter((m) => m.target === (isUserRed ? 'me' : 'opponent'))
+            .map((m) => (
+              <ChatBubble key={m.id} message={m} align="left" placement="bottom" />
+            ))}
+        </div>
+        <div className="absolute top-full mt-2 right-3 sm:right-4 flex flex-col items-end gap-1 pointer-events-none z-40">
+          {activeSocialMessages
+            .filter((m) => m.target === (isUserRed ? 'opponent' : 'me'))
+            .map((m) => (
+              <ChatBubble key={m.id} message={m} align="right" placement="bottom" />
+            ))}
+        </div>
+
+        {/* Red Player (Left) */}
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center bg-rose-100 text-rose-700 font-pixel font-bold text-sm border-2 border-zinc-900 shadow-pixel-xs">
+            帥
+          </div>
+          <div className="flex flex-col">
+            <span className="font-pixel text-xs sm:text-sm font-bold text-zinc-950 leading-tight">
+              {effectiveRedName}
+            </span>
+            <span className="text-[10px] font-mono text-zinc-500 font-bold uppercase">
+              {isOnline && isHost ? 'BẠN (ĐỎ)' : gameMode === 'bot' && botSide === 'black' ? 'BẠN (ĐỎ)' : 'P1 (ĐỎ)'}
+            </span>
+          </div>
+        </div>
+
+        <div className="pixel-badge bg-amber-300 px-2.5 py-0.5 text-[11px] font-bold text-zinc-950">
+          <span>VS</span>
+        </div>
+
+        {/* Black Player (Right) */}
+        <div className="flex items-center gap-2.5 flex-row-reverse text-right">
+          <div className="flex h-9 w-9 items-center justify-center bg-zinc-900 text-white font-pixel font-bold text-sm border-2 border-zinc-900 shadow-pixel-xs">
+            將
+          </div>
+          <div className="flex flex-col">
+            <span className="font-pixel text-xs sm:text-sm font-bold text-zinc-950 leading-tight">
+              {effectiveBlackName}
+            </span>
+            <span className="text-[10px] font-mono text-zinc-500 font-bold uppercase">
+              {isOnline && !isHost ? 'BẠN (ĐEN)' : gameMode === 'bot' ? 'CPU (ĐEN)' : 'P2 (ĐEN)'}
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Bàn cờ Cờ Tướng */}
       <XiangqiBoard
         board={gameState.board}
@@ -596,6 +718,7 @@ export function XiangqiGameView({
         onRestart={isOnline ? handleOfferRematch : handleRestart}
         onResign={handleResign}
         onLeave={handleLeaveGame}
+        onSendMessage={handleSendSocial}
       />
 
       {/* Modal Vinh danh Kết quả Ván đấu */}
