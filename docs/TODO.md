@@ -209,6 +209,7 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Màn hình LED kỹ thuật số đếm số mìn còn lại và đếm giây từ 000 đến 999.
   - [x] Phím chuyển đổi Đào ô / Cắm cờ và hỗ trợ chạm giữ (long-press) tiện lợi trên điện thoại.
   - [x] Khung cuộn ngang linh hoạt cho các màn chơi kích thước lớn trên di động.
+  - [x] Tối ưu hiển thị Dò Mìn di động: Cố định ô vuông không bị ép dẹp ở chế độ Khó, chữ số rõ nét không bị che khuất, cuộn ngang mượt mà và bổ sung nút Thu phóng (Zoom) kích thước ô.
   - [x] Âm thanh Web Audio chiptune (click, cắm cờ, bom nổ, chiến thắng).
 - [x] Đăng ký Sảnh chính và Bảng xếp hạng:
   - [x] Đăng ký `minesweeper` vào `GAME_REGISTRY` và vẽ icon pixel quả mìn gai + cờ đỏ cho `GameTile.tsx`.

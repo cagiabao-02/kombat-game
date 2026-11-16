@@ -36,6 +36,7 @@ export function Minesweeper() {
   const [timeSeconds, setTimeSeconds] = useState<number>(0);
   const [activeTool, setActiveTool] = useState<'dig' | 'flag'>('dig');
   const [isPressing, setIsPressing] = useState<boolean>(false);
+  const [zoomLevel, setZoomLevel] = useState<number>(100);
   const [stats, setStats] = useState<MinesweeperStats>(() => getMinesweeperStats());
 
   // Modal kết quả
@@ -75,8 +76,14 @@ export function Minesweeper() {
   const handleSelectDifficulty = (d: MinesweeperDifficulty) => {
     if (d === difficulty) return;
     setDifficulty(d);
+    setZoomLevel(100);
     handleReset(d);
   };
+
+  // Điều khiển thu phóng kích thước ô
+  const handleZoomIn = () => setZoomLevel((prev) => Math.min(140, prev + 10));
+  const handleZoomOut = () => setZoomLevel((prev) => Math.max(70, prev - 10));
+  const handleZoomReset = () => setZoomLevel(100);
 
   // Đồng hồ đếm giây (chạy khi status === 'playing')
   useEffect(() => {
@@ -190,10 +197,14 @@ export function Minesweeper() {
 
   const bestRecord = stats[difficulty]?.bestTimeSeconds ?? null;
 
+  // Tính kích thước ô thực tế theo cấp độ & mức thu phóng zoom
+  const baseCellSize = difficulty === 'beginner' ? 38 : difficulty === 'intermediate' ? 30 : 28;
+  const cellSize = Math.round((baseCellSize * zoomLevel) / 100);
+
   return (
     <div className="flex flex-col items-center">
       {/* Khung máy trò chơi Dò mìn */}
-      <div className="w-full max-w-2xl bg-[#D4D4D8] border-4 border-zinc-950 p-3 sm:p-5 shadow-[0_8px_0_0_#18181b]">
+      <div className="w-full max-w-4xl bg-[#D4D4D8] border-4 border-zinc-950 p-3 sm:p-5 shadow-[0_8px_0_0_#18181b]">
         {/* Bảng điều khiển */}
         <MinesweeperControls
           difficulty={difficulty}
@@ -206,11 +217,16 @@ export function Minesweeper() {
           onToggleTool={setActiveTool}
           bestTime={bestRecord}
           disabled={false}
+          zoomLevel={zoomLevel}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onZoomReset={handleZoomReset}
         />
 
         {/* Bàn cờ Dò Mìn */}
         <MinesweeperBoard
           board={board}
+          cellSize={cellSize}
           onReveal={handleReveal}
           onToggleFlag={handleToggleFlag}
           onChord={handleChord}

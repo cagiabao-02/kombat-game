@@ -11,7 +11,7 @@ export default function MinesweeperPage() {
   const [showRules, setShowRules] = useState(false);
 
   return (
-    <div className="mx-auto max-w-2xl px-3 py-6 sm:py-8">
+    <div className="mx-auto max-w-4xl px-3 py-6 sm:py-8">
       {/* Header Bar */}
       <div className="mb-4 flex items-center justify-between">
         <Link

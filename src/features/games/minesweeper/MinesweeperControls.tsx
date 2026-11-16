@@ -16,6 +16,10 @@ interface MinesweeperControlsProps {
   onToggleTool: (tool: 'dig' | 'flag') => void;
   bestTime: number | null;
   disabled?: boolean;
+  zoomLevel?: number;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onZoomReset?: () => void;
 }
 
 export function MinesweeperControls({
@@ -29,6 +33,10 @@ export function MinesweeperControls({
   onToggleTool,
   bestTime,
   disabled = false,
+  zoomLevel = 100,
+  onZoomIn,
+  onZoomOut,
+  onZoomReset,
 }: MinesweeperControlsProps) {
   const { language } = useLanguage();
 
@@ -80,13 +88,48 @@ export function MinesweeperControls({
           })}
         </div>
 
-        {/* Kỷ lục tốt nhất của cấp độ hiện tại */}
-        <div className="flex items-center gap-1.5 border-2 border-zinc-900 bg-amber-100 px-2.5 py-1 font-pixel text-xs font-bold text-amber-950 shadow-pixel-xs">
-          <Trophy className="h-3.5 w-3.5 text-amber-700" />
-          <span>{language === 'vi' ? 'Kỷ lục:' : 'Best:'}</span>
-          <span className="font-mono text-zinc-900">
-            {bestTime !== null ? `${bestTime}s` : '--'}
-          </span>
+        <div className="flex items-center gap-2">
+          {/* Nút Thu phóng (Zoom) kích thước ô */}
+          {onZoomIn && onZoomOut && (
+            <div className="flex items-center border-2 border-zinc-900 bg-white px-1.5 py-1 font-pixel text-xs font-bold shadow-pixel-xs">
+              <span className="text-[10px] text-zinc-500 mr-1 hidden sm:inline">
+                {language === 'vi' ? 'Ô:' : 'Size:'}
+              </span>
+              <button
+                type="button"
+                onClick={onZoomOut}
+                className="px-1.5 hover:bg-zinc-100 text-zinc-800 font-bold active:scale-95"
+                title={language === 'vi' ? 'Thu nhỏ ô' : 'Zoom out'}
+              >
+                −
+              </button>
+              <button
+                type="button"
+                onClick={onZoomReset}
+                className="px-1 font-mono text-[11px] text-zinc-700 hover:text-indigo-600"
+                title={language === 'vi' ? 'Đặt lại kích thước' : 'Reset zoom'}
+              >
+                {zoomLevel}%
+              </button>
+              <button
+                type="button"
+                onClick={onZoomIn}
+                className="px-1.5 hover:bg-zinc-100 text-zinc-800 font-bold active:scale-95"
+                title={language === 'vi' ? 'Phóng to ô' : 'Zoom in'}
+              >
+                +
+              </button>
+            </div>
+          )}
+
+          {/* Kỷ lục tốt nhất của cấp độ hiện tại */}
+          <div className="flex items-center gap-1.5 border-2 border-zinc-900 bg-amber-100 px-2.5 py-1 font-pixel text-xs font-bold text-amber-950 shadow-pixel-xs">
+            <Trophy className="h-3.5 w-3.5 text-amber-700" />
+            <span>{language === 'vi' ? 'Kỷ lục:' : 'Best:'}</span>
+            <span className="font-mono text-zinc-900">
+              {bestTime !== null ? `${bestTime}s` : '--'}
+            </span>
+          </div>
         </div>
       </div>
 
