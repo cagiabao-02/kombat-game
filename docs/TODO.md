@@ -10,7 +10,7 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [x] Chốt phạm vi thử nghiệm Sudoku và Cờ vua; ghép ngẫu nhiên để sau MVP.
 - [x] Chốt tài khoản khách vào trước, tài khoản đăng nhập có tính năng riêng; hỗ trợ tiếng Việt và tiếng Anh.
 - [ ] Chốt tên repo/app và phong cách giao diện (có thể để sau).
-- [ ] Chốt nhóm tính năng nào dành riêng cho tài khoản đăng nhập.
+- [x] Chốt nhóm tính năng dành riêng cho tài khoản đăng nhập: Ghi danh vĩnh viễn lên Bảng xếp hạng toàn cầu, Đồng bộ tiến độ đám mây đa thiết bị, Khóa avatar độc quyền.
 - [x] Tạo Git repo và chuẩn bị tài liệu khởi đầu.
 - [x] Tạo ứng dụng Next.js TypeScript, cấu hình lint/format tối thiểu.
 - [x] Tạo `.gitignore`, `.env.example` và hướng dẫn chạy local trong `README.md`.
@@ -237,14 +237,21 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Tích hợp tab Phá Gạch vào Bảng xếp hạng toàn cầu (`LeaderboardModal.tsx`), Hồ sơ cá nhân (`ProfileAuthModal.tsx`) và tự động gộp đám mây (`statsMergeService.ts`).
   - [x] Tạo migration `20261116000000_add_brick_breaker_to_leaderboard.sql`.
   - [x] Tinh gọn Bảng xếp hạng Leaderboard: Bỏ các thông tin chi tiết phụ (số ván chơi, số bàn), chỉ ghi Điểm số và Thời gian theo từng loại game.
+  - [x] Phân chia cấp độ thi đấu trên Bảng xếp hạng Leaderboard: Bổ sung thanh chọn cấp độ con (Dễ, Trung bình, Khó) cho các tựa game có độ khó (Sudoku, Dò Mìn), tạo migration `20261116120000_add_difficulty_levels_to_leaderboard.sql` và đồng bộ thành tích độc lập theo từng cấp độ.
+  - [x] Chính sách Bảng xếp hạng độc quyền cho tài khoản đăng ký: Chỉ tài khoản đã đăng ký (Email/Google) mới được lưu lên BXH Supabase. Khách có thể xem trước thứ hạng (Preview) và có nút 1 chạm đăng nhập để ghi danh vĩnh viễn (`20261116180000_only_allow_registered_users_on_leaderboard.sql`).
 - [x] Kiểm thử kiểu `npx tsc --noEmit` và `npm run build`.
 
 ## Chặng tiếp theo (Đề xuất định hướng mở rộng)
 
-- [ ] **Hướng 1 — Tương tác Xã hội trong phòng chơi (Social & Emotes)**:
-  - Chat nhanh bằng câu thoại pixel và icon biểu cảm (Quick Chat & Emotes) cho các phòng Cờ Vua, Cờ Tướng, Cờ Caro.
-  - Chế độ Khán giả (Spectator Mode): Cho phép bạn bè vào xem trực tiếp ván cờ qua link phòng.
-- [ ] **Hướng 2 — Hệ thống Thành tựu & Huy hiệu Pixel (Achievements & Badges)**:
+- [x] **Trò chuyện nhanh & Biểu cảm tương tác Trong trận (In-Game Quick Chat & Emotes)**:
+  - [x] Bộ câu thoại nhanh song ngữ Việt-Anh kèm icon và 12 biểu cảm Emote Pixel 16-bit (`socialPresets.ts`).
+  - [x] Bóng thoại retro nổi trên avatar người chơi và đối thủ với đuôi định hướng (`ChatBubble.tsx`).
+  - [x] Trình chọn Neo-Arcade 2 tab với bộ đếm cooldown 2 giây chống spam (`InGameSocialPicker.tsx`).
+  - [x] Âm thanh hiệu ứng 8-bit `playSocialPop()` trong Web Audio API.
+  - [x] Tích hợp vào Cờ Vua (`ChessGameView.tsx`), Cờ Caro (`CaroGameView.tsx` & `CaroControls.tsx`) và Cờ Tướng (`XiangqiGameView.tsx` & `XiangqiControls.tsx`).
+  - [x] Tương tác tự động của Bot AI khi chơi offline: Bot có 45% cơ hội phản hồi lại bằng câu chat dí dỏm hoặc biểu cảm sau 900ms.
+- [ ] **Chế độ Khán giả (Spectator Mode)**: Cho phép bạn bè vào xem trực tiếp ván cờ qua link phòng.
+- [ ] **Hệ thống Thành tựu & Huy hiệu Pixel (Achievements & Badges)**:
   - Bổ sung bộ danh hiệu mở khóa khi đạt các cột mốc thú vị (VD: "Phá kỷ lục 500 điểm Rắn", "Tạo ra ô 2048", "Thắng 10 ván Caro", "Giải Sudoku dưới 3 phút", "Phá 1000 khối gạch").
   - Hiển thị huy hiệu đã đạt được trong Hồ sơ cá nhân (Profile Modal).
 

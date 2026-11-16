@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
-import { LeaderboardGame, LeaderboardEntry, UserRankSummary } from './types';
+import { LeaderboardGame, LeaderboardDifficulty, LeaderboardEntry, UserRankSummary } from './types';
 import { getChessStats } from '@/features/games/chess/statsService';
 import { getCaroStats } from '@/features/games/caro/caroStatsService';
 import { getSudokuStats } from '@/features/games/sudoku/sudokuStatsService';
@@ -16,15 +16,35 @@ function formatTime(seconds: number): string {
 }
 
 /**
+ * Định dạng nhãn điểm số chuẩn hóa theo từng bộ môn
+ */
+function formatScoreLabel(game: LeaderboardGame, scoreValue: number): string {
+  if (game === 'chess' || game === 'xiangqi') {
+    return `${scoreValue} Elo`;
+  }
+  if (game === 'sudoku') {
+    return formatTime(scoreValue);
+  }
+  if (game === 'minesweeper') {
+    return scoreValue < 60 ? `${scoreValue}s` : formatTime(scoreValue);
+  }
+  if (game === 'game2048' || game === 'brick_breaker') {
+    return `${scoreValue.toLocaleString()} Điểm`;
+  }
+  // Caro, Snake...
+  return `${scoreValue} Điểm`;
+}
+
+/**
  * Lấy dữ liệu cục bộ tức thì (0ms) của người dùng hiện tại
  */
 export function getLocalLeaderboardData(
   game: LeaderboardGame,
+  difficulty: LeaderboardDifficulty = 'easy',
   currentUserId?: string,
   currentUserName: string = 'Bạn',
   currentUserAvatar: string = '👑'
 ): { list: LeaderboardEntry[]; userSummary: UserRankSummary | null } {
-  const isHigherBetter = game !== 'sudoku';
   let userEntry: LeaderboardEntry | null = null;
 
   if (game === 'chess') {
@@ -62,11 +82,8 @@ export function getLocalLeaderboardData(
     }
   } else if (game === 'sudoku') {
     const stats = getSudokuStats();
-    const bestSec =
-      stats.hard.bestTimeSeconds ||
-      stats.medium.bestTimeSeconds ||
-      stats.easy.bestTimeSeconds ||
-      null;
+    const diffStat = stats[difficulty];
+    const bestSec = diffStat?.bestTimeSeconds ?? null;
 
     if (bestSec !== null) {
       userEntry = {
@@ -79,6 +96,7 @@ export function getLocalLeaderboardData(
         scoreLabel: formatTime(bestSec),
         secondaryInfo: undefined,
         isCurrentUser: true,
+        tierBadge: difficulty === 'hard' ? 'Bậc thầy' : difficulty === 'medium' ? 'Chuyên gia' : 'Tập sự',
       };
     }
   } else if (game === 'xiangqi') {
@@ -139,11 +157,8 @@ export function getLocalLeaderboardData(
     }
   } else if (game === 'minesweeper') {
     const stats = getMinesweeperStats();
-    const bestSec =
-      stats.beginner.bestTimeSeconds ||
-      stats.intermediate.bestTimeSeconds ||
-      stats.expert.bestTimeSeconds ||
-      null;
+    const diffKey = difficulty === 'hard' ? 'expert' : difficulty === 'medium' ? 'intermediate' : 'beginner';
+    const bestSec = stats[diffKey]?.bestTimeSeconds ?? null;
 
     if (bestSec !== null) {
       userEntry = {
@@ -156,7 +171,7 @@ export function getLocalLeaderboardData(
         scoreLabel: bestSec < 60 ? `${bestSec}s` : formatTime(bestSec),
         secondaryInfo: undefined,
         isCurrentUser: true,
-        tierBadge: bestSec <= 30 ? 'Thần tốc' : bestSec <= 60 ? 'Chuyên gia' : 'Kỳ cựu',
+        tierBadge: difficulty === 'hard' ? 'Chuyên gia' : difficulty === 'medium' ? 'Thần tốc' : 'Kỳ cựu',
       };
     }
   } else if (game === 'brick_breaker') {
@@ -198,11 +213,13 @@ export function getLocalLeaderboardData(
  */
 export async function getRealLeaderboardData(
   game: LeaderboardGame,
+  difficulty: LeaderboardDifficulty = 'easy',
   currentUserId?: string,
   currentUserName: string = 'Bạn',
-  currentUserAvatar: string = '👑'
+  currentUserAvatar: string = '👑',
+  isAnonymousUser: boolean = true
 ): Promise<{ list: LeaderboardEntry[]; userSummary: UserRankSummary | null }> {
-  const localResult = getLocalLeaderboardData(game, currentUserId, currentUserName, currentUserAvatar);
+  const localResult = getLocalLeaderboardData(game, difficulty, currentUserId, currentUserName, currentUserAvatar);
   const isHigherBetter = game !== 'sudoku' && game !== 'minesweeper';
   const entriesMap = new Map<string, Omit<LeaderboardEntry, 'rank'>>();
 
@@ -212,17 +229,26 @@ export async function getRealLeaderboardData(
     entriesMap.set(u.userId || u.id, u);
   }
 
-  // 2. Tự động đồng bộ điểm mới nhất của người dùng lên Supabase trước khi truy vấn
-  if (currentUserId) {
+  // 2. Tự động đồng bộ điểm mới nhất của người dùng lên Supabase (chỉ áp dụng cho tài khoản đã đăng ký)
+  if (currentUserId && !isAnonymousUser) {
     await syncLeaderboardScoreForGame(game, currentUserId, currentUserName, currentUserAvatar).catch(() => {});
   }
+
+  const targetGameIds =
+    game === 'sudoku' && difficulty === 'easy'
+      ? ['sudoku_easy', 'sudoku']
+      : game === 'minesweeper' && difficulty === 'easy'
+      ? ['minesweeper_easy', 'minesweeper']
+      : game === 'sudoku' || game === 'minesweeper'
+      ? [`${game}_${difficulty}`]
+      : [game];
 
   // 3. Truy vấn Supabase với timeout an toàn tránh treo nếu chưa tạo bảng
   try {
     const cloudPromise = supabase
       .from('leaderboard_scores')
       .select('*')
-      .eq('game_id', game)
+      .in('game_id', targetGameIds)
       .order('score_value', { ascending: !isHigherBetter })
       .limit(50);
 
@@ -233,26 +259,31 @@ export async function getRealLeaderboardData(
     const res: any = await Promise.race([cloudPromise, timeoutPromise]);
 
     if (!res.error && res.data && Array.isArray(res.data) && res.data.length > 0) {
-      // Xóa fallback id tạm nếu đã có currentUserId
-      if (currentUserId) {
+      // Xóa fallback id tạm nếu tài khoản đã đăng ký và có cloud row
+      if (currentUserId && !isAnonymousUser) {
         entriesMap.delete('current_user');
       }
 
       for (const row of res.data) {
-        const isCurrent = row.user_id === currentUserId;
+        // Bỏ qua các hàng cũ của tài khoản khách vãng lai nếu còn sót trong database
+        if (row.user_name && row.user_name.startsWith('Khách #')) {
+          continue;
+        }
+
+        const isCurrent = currentUserId ? row.user_id === currentUserId : false;
         const existingLocal = currentUserId ? entriesMap.get(currentUserId) : undefined;
 
         let finalScoreValue = Number(row.score_value);
-        let finalScoreLabel = row.score_label;
+        let finalScoreLabel = formatScoreLabel(game, finalScoreValue);
 
         // Nếu là tài khoản hiện tại và local có điểm cao hơn cloud (vừa đạt kỷ lục mới)
         if (isCurrent && existingLocal) {
           if (isHigherBetter && existingLocal.scoreValue > finalScoreValue) {
             finalScoreValue = existingLocal.scoreValue;
-            finalScoreLabel = existingLocal.scoreLabel;
+            finalScoreLabel = formatScoreLabel(game, finalScoreValue);
           } else if (!isHigherBetter && existingLocal.scoreValue < finalScoreValue) {
             finalScoreValue = existingLocal.scoreValue;
-            finalScoreLabel = existingLocal.scoreLabel;
+            finalScoreLabel = formatScoreLabel(game, finalScoreValue);
           }
         }
 
@@ -320,7 +351,76 @@ export async function getRealLeaderboardData(
 }
 
 /**
+ * Trợ thủ upsert một dòng điểm số vào leaderboard_scores
+ */
+async function upsertSingleScore(
+  userId: string,
+  userName: string,
+  userAvatar: string,
+  gameId: string,
+  scoreValue: number,
+  scoreLabel: string,
+  isHigherBetter: boolean
+): Promise<void> {
+  const { data: existingRow } = await supabase
+    .from('leaderboard_scores')
+    .select('score_value')
+    .eq('user_id', userId)
+    .eq('game_id', gameId)
+    .maybeSingle();
+
+  if (existingRow) {
+    const remoteVal = Number(existingRow.score_value);
+    if (isHigherBetter && remoteVal > scoreValue) {
+      return;
+    }
+    if (!isHigherBetter && remoteVal < scoreValue) {
+      return;
+    }
+  }
+
+  const { error: upsertErr } = await supabase.from('leaderboard_scores').upsert(
+    {
+      user_id: userId,
+      user_name: userName,
+      user_avatar: userAvatar,
+      game_id: gameId,
+      score_value: scoreValue,
+      score_label: scoreLabel,
+      secondary_info: null,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id,game_id' }
+  );
+
+  if (upsertErr) {
+    console.warn(`Lỗi upsert leaderboard ${gameId}:`, upsertErr);
+    // Nếu bảng trên Supabase chưa chạy migration cho các key con (ví dụ: minesweeper_easy), fallback lưu key gốc
+    if (gameId === 'minesweeper_easy' || gameId === 'sudoku_easy') {
+      const baseGame = gameId.split('_')[0];
+      try {
+        await supabase.from('leaderboard_scores').upsert(
+          {
+            user_id: userId,
+            user_name: userName,
+            user_avatar: userAvatar,
+            game_id: baseGame,
+            score_value: scoreValue,
+            score_label: scoreLabel,
+            secondary_info: null,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id,game_id' }
+        );
+      } catch {}
+    }
+  }
+}
+
+/**
  * Tự động đồng bộ và upsert thành tích của người chơi vào bảng `leaderboard_scores` trên Supabase.
+ * QUY TẮC: Chỉ tài khoản đã đăng ký (Cloud User) mới được lưu lên Bảng xếp hạng Supabase.
+ * Tài khoản Khách (Anonymous) chỉ lưu thành tích cục bộ trên máy và không đẩy lên đám mây.
  */
 export async function syncLeaderboardScoreForGame(
   game: LeaderboardGame,
@@ -330,18 +430,67 @@ export async function syncLeaderboardScoreForGame(
 ): Promise<void> {
   try {
     const { data: { user } } = await supabase.auth.getUser();
-    const effectiveUserId = customUserId || user?.id;
-    if (!effectiveUserId) return;
+    if (!user) return;
 
-    // Đảm bảo tên người chơi không bị lưu thành "Bạn" hoặc "You" trên cơ sở dữ liệu chung
-    let cleanName = customUserName;
-    if (!cleanName || cleanName === 'Bạn' || cleanName === 'You') {
-      cleanName =
-        user?.user_metadata?.display_name ||
-        (effectiveUserId ? `Khách #${effectiveUserId.slice(-4).toUpperCase()}` : 'Người chơi');
+    // Chặn hoàn toàn tài khoản Khách (Anonymous) lưu vào bảng xếp hạng công khai
+    const isAnonymous = Boolean(user.is_anonymous) || user.app_metadata?.provider === 'anonymous';
+    if (isAnonymous) {
+      return;
     }
 
-    const avatar = customUserAvatar || user?.user_metadata?.avatar || '👑';
+    const effectiveUserId = user.id;
+
+    // Đảm bảo tên người chơi không bị lưu thành "Bạn" hoặc "You" trên cơ sở dữ liệu chung
+    const cleanName: string =
+      user.user_metadata?.display_name ||
+      (customUserName && customUserName !== 'Bạn' && customUserName !== 'You'
+        ? customUserName
+        : 'Người chơi');
+
+    const avatar = user.user_metadata?.avatar || customUserAvatar || '👑';
+
+    if (game === 'sudoku') {
+      const stats = getSudokuStats();
+      const levels: LeaderboardDifficulty[] = ['easy', 'medium', 'hard'];
+      for (const lvl of levels) {
+        const bestSec = stats[lvl]?.bestTimeSeconds;
+        if (bestSec !== null && bestSec !== undefined) {
+          await upsertSingleScore(
+            effectiveUserId,
+            cleanName,
+            avatar,
+            `sudoku_${lvl}`,
+            bestSec,
+            formatTime(bestSec),
+            false
+          );
+        }
+      }
+      return;
+    }
+
+    if (game === 'minesweeper') {
+      const stats = getMinesweeperStats();
+      const levels: { lvl: LeaderboardDifficulty; sec: number | null }[] = [
+        { lvl: 'easy', sec: stats.beginner.bestTimeSeconds },
+        { lvl: 'medium', sec: stats.intermediate.bestTimeSeconds },
+        { lvl: 'hard', sec: stats.expert.bestTimeSeconds },
+      ];
+      for (const item of levels) {
+        if (item.sec !== null && item.sec !== undefined) {
+          await upsertSingleScore(
+            effectiveUserId,
+            cleanName,
+            avatar,
+            `minesweeper_${item.lvl}`,
+            item.sec,
+            item.sec < 60 ? `${item.sec}s` : formatTime(item.sec),
+            false
+          );
+        }
+      }
+      return;
+    }
 
     let scoreValue = 0;
     let scoreLabel = '';
@@ -357,16 +506,6 @@ export async function syncLeaderboardScoreForGame(
       if (stats.totalGames === 0) return;
       scoreValue = stats.wins;
       scoreLabel = `${stats.wins} Điểm`;
-    } else if (game === 'sudoku') {
-      const stats = getSudokuStats();
-      const bestSec =
-        stats.hard.bestTimeSeconds ||
-        stats.medium.bestTimeSeconds ||
-        stats.easy.bestTimeSeconds ||
-        null;
-      if (bestSec === null) return;
-      scoreValue = bestSec;
-      scoreLabel = formatTime(bestSec);
     } else if (game === 'xiangqi') {
       const stats = getXiangqiStats();
       if (stats.totalGames === 0) return;
@@ -383,16 +522,6 @@ export async function syncLeaderboardScoreForGame(
       if (stats.highScore === 0) return;
       scoreValue = stats.highScore;
       scoreLabel = `${stats.highScore.toLocaleString()} Điểm`;
-    } else if (game === 'minesweeper') {
-      const stats = getMinesweeperStats();
-      const bestSec =
-        stats.beginner.bestTimeSeconds ||
-        stats.intermediate.bestTimeSeconds ||
-        stats.expert.bestTimeSeconds ||
-        null;
-      if (bestSec === null) return;
-      scoreValue = bestSec;
-      scoreLabel = bestSec < 60 ? `${bestSec}s` : formatTime(bestSec);
     } else if (game === 'brick_breaker') {
       const stats = getBrickBreakerStats();
       if (stats.highScore === 0) return;
@@ -400,49 +529,22 @@ export async function syncLeaderboardScoreForGame(
       scoreLabel = `${stats.highScore.toLocaleString()} Điểm`;
     }
 
-    // Kiểm tra điểm số hiện tại trên đám mây để không vô tình ghi đè điểm thấp hơn lên điểm cao hơn
-    const isHigherBetter = game !== 'sudoku' && game !== 'minesweeper';
-    const { data: existingRow } = await supabase
-      .from('leaderboard_scores')
-      .select('score_value')
-      .eq('user_id', effectiveUserId)
-      .eq('game_id', game)
-      .maybeSingle();
-
-    if (existingRow) {
-      const remoteVal = Number(existingRow.score_value);
-      if (isHigherBetter && remoteVal > scoreValue) {
-        return; // Đám mây đã lưu điểm cao hơn điểm local hiện tại -> giữ nguyên kỷ lục cao nhất
-      }
-      if (!isHigherBetter && remoteVal < scoreValue) {
-        return; // Sudoku: Đám mây đã lưu thời gian giải nhanh hơn
-      }
-    }
-
-    const { error: upsertErr } = await supabase.from('leaderboard_scores').upsert(
-      {
-        user_id: effectiveUserId,
-        user_name: cleanName,
-        user_avatar: avatar,
-        game_id: game,
-        score_value: scoreValue,
-        score_label: scoreLabel,
-        secondary_info: null,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'user_id,game_id' }
+    await upsertSingleScore(
+      effectiveUserId,
+      cleanName,
+      avatar,
+      game,
+      scoreValue,
+      scoreLabel,
+      true
     );
-
-    if (upsertErr) {
-      console.warn(`Lỗi upsert leaderboard ${game}:`, upsertErr);
-    }
   } catch (err) {
     console.warn(`Lỗi sync leaderboard ${game}:`, err);
   }
 }
 
 /**
- * Đồng bộ tất cả 6 game lên bảng xếp hạng Supabase
+ * Đồng bộ tất cả 8 game lên bảng xếp hạng Supabase
  */
 export async function syncAllLeaderboardScores() {
   await Promise.allSettled([

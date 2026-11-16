@@ -13,6 +13,9 @@ import { useAuth } from '@/features/auth/AuthContext';
 import { getBotMove, simulateBotThinkingDelay } from './ai/chessBot';
 import { recordChessGameResult } from './statsService';
 import { UserAvatar } from '@/components/UserAvatar';
+import { InGameSocialPicker } from '@/features/social/InGameSocialPicker';
+import { ChatBubble } from '@/features/social/ChatBubble';
+import { ActiveSocialMessage, SocialContentType } from '@/features/social/types';
 import { PixelFxOverlay } from '@/components/fx/PixelFxOverlay';
 import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle, Clock, WifiOff, Trophy, Eye, RotateCcw, Bot, Smile } from 'lucide-react';
 
@@ -79,42 +82,36 @@ export function ChessGameView({
   const [showResignConfirm, setShowResignConfirm] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
 
-  // Emoji Reactions State
-  const [activeReactions, setActiveReactions] = useState<{
-    id: string;
-    emoji: string;
-    target: 'me' | 'opponent';
-  }[]>([]);
-  const [showReactionPicker, setShowReactionPicker] = useState(false);
-  const EMOJI_OPTIONS = ['👍', '🔥', '👏', '🤔', '😂', '😭'];
+  // In-Game Social Chat & Reactions State
+  const [activeSocialMessages, setActiveSocialMessages] = useState<ActiveSocialMessage[]>([]);
 
   // Ref to prevent duplicate recording of match stats
   const hasRecordedResultRef = useRef<string | null>(null);
 
-  const handleIncomingReaction = useCallback(
-    (emoji: string, target: 'me' | 'opponent') => {
-      sounds.playClick();
+  const handleIncomingSocial = useCallback(
+    (type: SocialContentType, content: string, target: 'me' | 'opponent') => {
+      sounds.playSocialPop();
       const id = `${Date.now()}_${Math.random()}`;
-      setActiveReactions((prev) => [...prev, { id, emoji, target }]);
+      setActiveSocialMessages((prev) => [...prev, { id, type, content, target, createdAt: Date.now() }]);
       setTimeout(() => {
-        setActiveReactions((prev) => prev.filter((r) => r.id !== id));
-      }, 2500);
+        setActiveSocialMessages((prev) => prev.filter((r) => r.id !== id));
+      }, 3500);
     },
     []
   );
 
-  const handleSendReaction = useCallback(
-    (emoji: string) => {
-      handleIncomingReaction(emoji, 'me');
-      setShowReactionPicker(false);
+  const handleSendSocial = useCallback(
+    (type: SocialContentType, content: string) => {
+      handleIncomingSocial(type, content, 'me');
 
       if (!isBotGame && channelRef.current) {
         channelRef.current.send({
           type: 'broadcast',
-          event: 'chess_reaction',
+          event: 'in_game_social',
           payload: {
             from: currentUserId,
-            emoji,
+            type,
+            content,
           },
         });
       }
@@ -123,15 +120,26 @@ export function ChessGameView({
       if (isBotGame) {
         if (Math.random() < 0.45) {
           setTimeout(() => {
-            const botReplies = ['👍', '🔥', '🤔', '👏'];
-            const randomReply =
-              botReplies[Math.floor(Math.random() * botReplies.length)];
-            handleIncomingReaction(randomReply, 'opponent');
-          }, 850);
+            if (type === 'chat') {
+              const botChatReplies = [
+                '🔥 Nước cờ hay đấy!',
+                '🤔 Đang tính toán một chút...',
+                '⚔️ Chiến thôi bạn ơi!',
+                '👑 Tuyệt vời! Cảm ơn!',
+                '☕ Thong thả uống ngụm trà đã...',
+              ];
+              const randomReply = botChatReplies[Math.floor(Math.random() * botChatReplies.length)];
+              handleIncomingSocial('chat', randomReply, 'opponent');
+            } else {
+              const botReplies = ['👍', '🔥', '🤔', '👏', '😎'];
+              const randomReply = botReplies[Math.floor(Math.random() * botReplies.length)];
+              handleIncomingSocial('emote', randomReply, 'opponent');
+            }
+          }, 900);
         }
       }
     },
-    [currentUserId, isBotGame, handleIncomingReaction]
+    [currentUserId, isBotGame, handleIncomingSocial]
   );
 
   // Auto record match stats in localStorage once when game ends
@@ -564,9 +572,14 @@ export function ChessGameView({
           sounds.playMatchFound();
         }
       })
+      .on('broadcast', { event: 'in_game_social' }, ({ payload }) => {
+        if (payload && payload.from !== currentUserId && payload.content) {
+          handleIncomingSocial(payload.type || 'emote', payload.content, 'opponent');
+        }
+      })
       .on('broadcast', { event: 'chess_reaction' }, ({ payload }) => {
         if (payload && payload.from !== currentUserId && payload.emoji) {
-          handleIncomingReaction(payload.emoji, 'opponent');
+          handleIncomingSocial('emote', payload.emoji, 'opponent');
         }
       })
       .on('presence', { event: 'sync' }, () => {
@@ -825,7 +838,6 @@ export function ChessGameView({
     if (room.status === 'in_progress') {
       setShowLeaveConfirm((prev) => !prev);
       setShowResignConfirm(false);
-      setShowReactionPicker(false);
     } else {
       confirmLeave();
     }
@@ -893,17 +905,12 @@ export function ChessGameView({
 
       {/* Opponent Profile Bar */}
       <div className="relative flex items-center justify-between pixel-box-sm bg-white px-3 py-2.5 sm:px-4 sm:py-3 mb-3 min-w-0">
-        {/* Floating Opponent Reactions */}
-        <div className="absolute -top-7 left-8 flex items-center gap-1.5 pointer-events-none z-30">
-          {activeReactions
-            .filter((r) => r.target === 'opponent')
-            .map((r) => (
-              <span
-                key={r.id}
-                className="inline-block text-2xl animate-bounce filter drop-shadow-md select-none transform transition-all duration-300"
-              >
-                {r.emoji}
-              </span>
+        {/* Floating Opponent Reactions & Quick Chat (Below card pointing up) */}
+        <div className="absolute top-full mt-2 left-3 sm:left-4 flex flex-col items-start gap-1 pointer-events-none z-40">
+          {activeSocialMessages
+            .filter((m) => m.target === 'opponent')
+            .map((m) => (
+              <ChatBubble key={m.id} message={m} align="left" placement="bottom" />
             ))}
         </div>
 
@@ -1018,17 +1025,12 @@ export function ChessGameView({
 
       {/* Player Profile & Controls Bar */}
       <div className="relative mt-3 flex items-center justify-between pixel-box-sm bg-white px-3 py-2.5 sm:px-4 sm:py-3 min-w-0">
-        {/* Floating Player Reactions */}
-        <div className="absolute -top-7 left-8 flex items-center gap-1.5 pointer-events-none z-30">
-          {activeReactions
-            .filter((r) => r.target === 'me')
-            .map((r) => (
-              <span
-                key={r.id}
-                className="inline-block text-2xl animate-bounce filter drop-shadow-md select-none transform transition-all duration-300"
-              >
-                {r.emoji}
-              </span>
+        {/* Floating Player Reactions & Quick Chat (Above card pointing down) */}
+        <div className="absolute bottom-full mb-2 left-3 sm:left-4 flex flex-col items-start gap-1 pointer-events-none z-40">
+          {activeSocialMessages
+            .filter((m) => m.target === 'me')
+            .map((m) => (
+              <ChatBubble key={m.id} message={m} align="left" placement="top" />
             ))}
         </div>
 
@@ -1089,42 +1091,8 @@ export function ChessGameView({
             </span>
           )}
 
-          {/* Reaction Emoji Picker */}
-          <div className="relative shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                setShowReactionPicker((prev) => !prev);
-                setShowResignConfirm(false);
-                setShowLeaveConfirm(false);
-              }}
-              className={`pixel-btn h-9 w-9 sm:h-10 sm:w-10 min-h-[36px] min-w-[36px] flex items-center justify-center outline-none ${
-                showReactionPicker
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-white text-zinc-700 hover:bg-zinc-100'
-              }`}
-              title={t.chess.sendReaction}
-              aria-label="Send Reaction"
-            >
-              <Smile className="h-4 w-4" />
-            </button>
-
-            {/* Reaction Popover */}
-            {showReactionPicker && (
-              <div className="absolute bottom-full right-0 mb-2 flex items-center gap-1.5 pixel-box bg-white p-1.5 z-40">
-                {EMOJI_OPTIONS.map((emoji) => (
-                  <button
-                    key={emoji}
-                    type="button"
-                    onClick={() => handleSendReaction(emoji)}
-                    className="flex h-9 w-9 items-center justify-center border border-transparent hover:border-zinc-900 hover:bg-amber-100 text-lg transition-transform"
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* In-Game Social Chat & Emotes Picker */}
+          <InGameSocialPicker onSendMessage={handleSendSocial} />
 
           {/* Resign Button & Confirmation Popover */}
           {room.status === 'in_progress' && (
@@ -1134,7 +1102,6 @@ export function ChessGameView({
                 onClick={() => {
                   setShowResignConfirm((prev) => !prev);
                   setShowLeaveConfirm(false);
-                  setShowReactionPicker(false);
                 }}
                 className={`pixel-btn h-9 w-9 sm:h-10 sm:w-10 min-h-[36px] min-w-[36px] flex items-center justify-center outline-none ${
                   showResignConfirm

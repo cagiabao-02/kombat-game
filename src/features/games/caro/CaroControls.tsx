@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { CaroPiece, CaroGameMode } from './types';
 import { RotateCcw, Flag, Home, Volume2, VolumeX, AlertCircle } from 'lucide-react';
 import { soundService } from '@/lib/sound/soundService';
+import { InGameSocialPicker } from '@/features/social/InGameSocialPicker';
+import { SocialContentType } from '@/features/social/types';
 
 interface CaroControlsProps {
   currentTurn: CaroPiece;
@@ -18,6 +20,7 @@ interface CaroControlsProps {
   hostName?: string;
   guestName?: string;
   isHost?: boolean;
+  onSendMessage?: (type: SocialContentType, content: string) => void;
 }
 
 export function CaroControls({
@@ -32,6 +35,7 @@ export function CaroControls({
   onLeave,
   hostName = 'Người chơi 1',
   guestName = 'Người chơi 2',
+  onSendMessage,
 }: CaroControlsProps) {
   const [isMuted, setIsMuted] = useState(soundService.isMuted());
   const [confirmDialog, setConfirmDialog] = useState<'reset' | 'resign' | 'leave' | null>(null);
@@ -104,16 +108,19 @@ export function CaroControls({
           </div>
         </div>
 
-        {/* Sound toggle button */}
-        <button
-          type="button"
-          onClick={toggleSound}
-          className="pixel-btn flex h-10 w-10 items-center justify-center bg-white text-zinc-800 hover:bg-amber-100"
-          title={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
-          aria-label={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
-        >
-          {isMuted ? <VolumeX className="h-5 w-5 text-zinc-400" /> : <Volume2 className="h-5 w-5 text-indigo-700" />}
-        </button>
+        {/* Sound toggle & Social buttons */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {onSendMessage && <InGameSocialPicker onSendMessage={onSendMessage} />}
+          <button
+            type="button"
+            onClick={toggleSound}
+            className="pixel-btn flex h-10 w-10 items-center justify-center bg-white text-zinc-800 hover:bg-amber-100"
+            title={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
+            aria-label={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
+          >
+            {isMuted ? <VolumeX className="h-5 w-5 text-zinc-400" /> : <Volume2 className="h-5 w-5 text-indigo-700" />}
+          </button>
+        </div>
       </div>
 
       {/* Control Action Buttons */}

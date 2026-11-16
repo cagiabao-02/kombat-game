@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Side, Move, Piece, PIECE_INFO } from './xiangqiLogic';
 import { RotateCw, Flag, RotateCcw, Home, AlertCircle, ShieldAlert, Languages } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { InGameSocialPicker } from '@/features/social/InGameSocialPicker';
+import { SocialContentType } from '@/features/social/types';
 
 interface XiangqiControlsProps {
   turn: Side;
@@ -23,6 +25,7 @@ interface XiangqiControlsProps {
   onRestart: () => void;
   onResign: () => void;
   onLeave: () => void;
+  onSendMessage?: (type: SocialContentType, content: string) => void;
 }
 
 export function XiangqiControls({
@@ -43,6 +46,7 @@ export function XiangqiControls({
   onRestart,
   onResign,
   onLeave,
+  onSendMessage,
 }: XiangqiControlsProps) {
   const { language } = useLanguage();
   const [confirmDialog, setConfirmDialog] = useState<'restart' | 'resign' | 'leave' | null>(null);
@@ -135,7 +139,9 @@ export function XiangqiControls({
         </div>
 
         {/* Nút thao tác nhanh trên header */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
+          {onSendMessage && <InGameSocialPicker onSendMessage={onSendMessage} />}
+
           {/* Nút Xoay bàn cờ */}
           <button
             type="button"

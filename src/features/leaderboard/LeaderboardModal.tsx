@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/features/auth/AuthContext';
-import { LeaderboardGame, LeaderboardEntry, UserRankSummary } from './types';
+import { LeaderboardGame, LeaderboardDifficulty, LeaderboardEntry, UserRankSummary } from './types';
 import { getRealLeaderboardData, getLocalLeaderboardData } from './leaderboardService';
 import { UserAvatar } from '@/components/UserAvatar';
 import {
@@ -15,6 +16,11 @@ import {
   Sparkles,
   Loader2,
 } from 'lucide-react';
+
+const ProfileAuthModal = dynamic(
+  () => import('@/features/auth/ProfileAuthModal').then((mod) => mod.ProfileAuthModal),
+  { ssr: false }
+);
 
 interface LeaderboardModalProps {
   isOpen: boolean;
@@ -28,12 +34,17 @@ export function LeaderboardModal({
   initialGame = 'chess',
 }: LeaderboardModalProps) {
   const { language } = useLanguage();
-  const { user, guestName, avatar } = useAuth();
+  const { user, guestName, avatar, isAnonymous } = useAuth();
   const [selectedGame, setSelectedGame] = useState<LeaderboardGame>(initialGame);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<LeaderboardDifficulty>('easy');
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  const supportsDifficulty = selectedGame === 'sudoku' || selectedGame === 'minesweeper';
 
   // Initialize with immediate local data (0ms delay)
   const initialData = getLocalLeaderboardData(
     selectedGame,
+    selectedDifficulty,
     user?.id,
     guestName || (language === 'vi' ? 'Bạn' : 'You'),
     avatar
@@ -43,10 +54,11 @@ export function LeaderboardModal({
   const [userSummary, setUserSummary] = useState<UserRankSummary | null>(initialData.userSummary);
   const [isFetchingCloud, setIsFetchingCloud] = useState(false);
 
-  const loadData = useCallback(async (game: LeaderboardGame) => {
+  const loadData = useCallback(async (game: LeaderboardGame, difficulty: LeaderboardDifficulty) => {
     // 1. Instant local load
     const local = getLocalLeaderboardData(
       game,
+      difficulty,
       user?.id,
       guestName || (language === 'vi' ? 'Bạn' : 'You'),
       avatar
@@ -59,9 +71,11 @@ export function LeaderboardModal({
     try {
       const cloud = await getRealLeaderboardData(
         game,
+        difficulty,
         user?.id,
         guestName || (language === 'vi' ? 'Bạn' : 'You'),
-        avatar
+        avatar,
+        isAnonymous
       );
       setList(cloud.list);
       setUserSummary(cloud.userSummary);
@@ -70,13 +84,13 @@ export function LeaderboardModal({
     } finally {
       setIsFetchingCloud(false);
     }
-  }, [user?.id, guestName, avatar, language]);
+  }, [user?.id, guestName, avatar, language, isAnonymous]);
 
   useEffect(() => {
     if (isOpen) {
-      loadData(selectedGame);
+      loadData(selectedGame, selectedDifficulty);
     }
-  }, [isOpen, selectedGame, loadData]);
+  }, [isOpen, selectedGame, selectedDifficulty, loadData]);
 
   if (!isOpen) return null;
 
@@ -106,6 +120,16 @@ export function LeaderboardModal({
     if (game === 'brick_breaker') return language === 'vi' ? 'Phá Gạch' : 'Brick Breaker';
     return 'Sudoku';
   };
+
+  const getDifficultyLabel = (diff: LeaderboardDifficulty) => {
+    if (diff === 'easy') return language === 'vi' ? 'Dễ' : 'Easy';
+    if (diff === 'medium') return language === 'vi' ? 'Trung bình' : 'Medium';
+    return language === 'vi' ? 'Khó' : 'Hard';
+  };
+
+  const fullGameTitle = supportsDifficulty
+    ? `${getGameTitle(selectedGame)} (${getDifficultyLabel(selectedDifficulty)})`
+    : getGameTitle(selectedGame);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4 animate-in fade-in duration-150">
@@ -250,6 +274,48 @@ export function LeaderboardModal({
               <span>{language === 'vi' ? 'Phá Gạch' : 'Bricks'}</span>
             </button>
           </div>
+
+          {/* Difficulty Sub-tabs (Sudoku & Minesweeper) */}
+          {supportsDifficulty && (
+            <div className="mt-3 flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedDifficulty('easy')}
+                className={`pixel-btn flex items-center gap-1 px-3 py-1 text-xs font-bold transition-all ${
+                  selectedDifficulty === 'easy'
+                    ? 'bg-emerald-600 text-white border-2 border-zinc-950 shadow-pixel-xs'
+                    : 'bg-white text-zinc-700 hover:bg-emerald-50'
+                }`}
+              >
+                <span>🟢</span>
+                <span>{language === 'vi' ? 'Dễ' : 'Easy'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedDifficulty('medium')}
+                className={`pixel-btn flex items-center gap-1 px-3 py-1 text-xs font-bold transition-all ${
+                  selectedDifficulty === 'medium'
+                    ? 'bg-amber-500 text-zinc-950 border-2 border-zinc-950 shadow-pixel-xs'
+                    : 'bg-white text-zinc-700 hover:bg-amber-50'
+                }`}
+              >
+                <span>🟡</span>
+                <span>{language === 'vi' ? 'Trung bình' : 'Medium'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedDifficulty('hard')}
+                className={`pixel-btn flex items-center gap-1 px-3 py-1 text-xs font-bold transition-all ${
+                  selectedDifficulty === 'hard'
+                    ? 'bg-rose-600 text-white border-2 border-zinc-950 shadow-pixel-xs'
+                    : 'bg-white text-zinc-700 hover:bg-rose-50'
+                }`}
+              >
+                <span>🔴</span>
+                <span>{language === 'vi' ? 'Khó' : 'Hard'}</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Scrollable Content */}
@@ -262,8 +328,8 @@ export function LeaderboardModal({
               </div>
               <h3 className="font-pixel text-base sm:text-lg font-bold text-zinc-900 mb-1">
                 {language === 'vi'
-                  ? `Chưa có thành tích cho ${getGameTitle(selectedGame)}`
-                  : `No recorded scores for ${getGameTitle(selectedGame)} yet`}
+                  ? `Chưa có thành tích cho ${fullGameTitle}`
+                  : `No recorded scores for ${fullGameTitle} yet`}
               </h3>
               <p className="text-xs sm:text-sm font-mono text-zinc-600 max-w-xs mb-6 leading-relaxed">
                 {language === 'vi'
@@ -305,6 +371,13 @@ export function LeaderboardModal({
                     <span className="max-w-[90px] truncate text-center font-pixel text-xs font-bold text-zinc-900">
                       {top2.name}
                     </span>
+                    {top2.isCurrentUser && (
+                      <span className={`border border-zinc-900 px-1.5 py-0.2 font-pixel text-[8px] font-bold uppercase ${
+                        isAnonymous ? 'bg-amber-300 text-zinc-950' : 'bg-indigo-600 text-amber-300'
+                      }`}>
+                        {isAnonymous ? (language === 'vi' ? 'BẠN (CHƯA LƯU)' : 'YOU (GUEST)') : (language === 'vi' ? 'BẠN' : 'YOU')}
+                      </span>
+                    )}
                     <span className="font-mono text-[11px] font-bold text-slate-700">
                       {top2.scoreLabel}
                     </span>
@@ -329,6 +402,13 @@ export function LeaderboardModal({
                     <span className="max-w-[100px] truncate text-center font-pixel text-xs sm:text-sm font-bold text-zinc-950">
                       {top1.name}
                     </span>
+                    {top1.isCurrentUser && (
+                      <span className={`border border-zinc-900 px-1.5 py-0.2 font-pixel text-[8px] font-bold uppercase ${
+                        isAnonymous ? 'bg-amber-300 text-zinc-950' : 'bg-indigo-600 text-amber-300'
+                      }`}>
+                        {isAnonymous ? (language === 'vi' ? 'BẠN (CHƯA LƯU)' : 'YOU (GUEST)') : (language === 'vi' ? 'BẠN' : 'YOU')}
+                      </span>
+                    )}
                     <span className="font-mono text-xs font-bold text-amber-700">
                       {top1.scoreLabel}
                     </span>
@@ -352,6 +432,13 @@ export function LeaderboardModal({
                     <span className="max-w-[90px] truncate text-center font-pixel text-xs font-bold text-zinc-900">
                       {top3.name}
                     </span>
+                    {top3.isCurrentUser && (
+                      <span className={`border border-zinc-900 px-1.5 py-0.2 font-pixel text-[8px] font-bold uppercase ${
+                        isAnonymous ? 'bg-amber-300 text-zinc-950' : 'bg-indigo-600 text-amber-300'
+                      }`}>
+                        {isAnonymous ? (language === 'vi' ? 'BẠN (CHƯA LƯU)' : 'YOU (GUEST)') : (language === 'vi' ? 'BẠN' : 'YOU')}
+                      </span>
+                    )}
                     <span className="font-mono text-[11px] font-bold text-amber-800">
                       {top3.scoreLabel}
                     </span>
@@ -394,8 +481,16 @@ export function LeaderboardModal({
                               {entry.name}
                             </span>
                             {entry.isCurrentUser && (
-                              <span className="bg-indigo-600 border border-zinc-900 px-1.5 py-0.5 font-pixel text-[9px] font-bold text-amber-300 uppercase">
-                                {language === 'vi' ? 'BẠN' : 'YOU'}
+                              <span
+                                className={`border border-zinc-900 px-1.5 py-0.5 font-pixel text-[9px] font-bold uppercase ${
+                                  isAnonymous
+                                    ? 'bg-amber-300 text-zinc-950'
+                                    : 'bg-indigo-600 text-amber-300'
+                                }`}
+                              >
+                                {isAnonymous
+                                  ? (language === 'vi' ? 'BẠN (CHƯA LƯU)' : 'YOU (GUEST)')
+                                  : (language === 'vi' ? 'BẠN' : 'YOU')}
                               </span>
                             )}
                             {entry.tierBadge && (
@@ -420,6 +515,33 @@ export function LeaderboardModal({
           )}
         </div>
 
+        {/* CTA Banner for Anonymous Guests */}
+        {isAnonymous && (
+          <div className="border-t-2 border-zinc-900 bg-amber-200 px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5 text-left">
+              <span className="text-xl">🏆</span>
+              <p className="text-xs font-mono text-zinc-950 leading-snug">
+                <span className="font-bold text-amber-950">
+                  {language === 'vi' ? 'Chỉ tài khoản đăng ký mới được lưu BXH.' : 'Only registered accounts are saved to Leaderboard.'}
+                </span>{' '}
+                <span className="text-zinc-800">
+                  {language === 'vi'
+                    ? 'Đăng nhập ngay để ghi danh vĩnh viễn thành tích của bạn!'
+                    : 'Sign in now to record your scores permanently!'}
+                </span>
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsAuthModalOpen(true)}
+              className="pixel-btn whitespace-nowrap bg-indigo-600 hover:bg-indigo-500 text-amber-300 font-pixel text-xs font-bold px-3 py-1.5 shadow-pixel-xs flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <span>👑</span>
+              <span>{language === 'vi' ? 'ĐĂNG NHẬP / LƯU ĐIỂM' : 'SIGN IN / SAVE'}</span>
+            </button>
+          </div>
+        )}
+
         {/* Sticky Bottom Bar: Your Rank */}
         {userSummary ? (
           <div className="border-t-2 border-zinc-900 bg-[#ECE8DD] px-4 py-3 sm:px-6">
@@ -431,6 +553,11 @@ export function LeaderboardModal({
                 <div className="flex flex-col">
                   <span className="font-pixel text-xs font-bold text-zinc-900 uppercase">
                     {language === 'vi' ? 'VỊ TRÍ CỦA BẠN' : 'YOUR RANK'}
+                    {isAnonymous && (
+                      <span className="ml-1.5 font-mono text-[10px] text-amber-800 lowercase font-bold">
+                        ({language === 'vi' ? 'xem trước' : 'preview'})
+                      </span>
+                    )}
                   </span>
                   <span className="text-[11px] font-mono text-zinc-600 font-semibold">
                     {userSummary.aheadDiff || userSummary.scoreLabel}
@@ -460,6 +587,18 @@ export function LeaderboardModal({
               {language === 'vi' ? 'CHƠI NGAY →' : 'PLAY NOW →'}
             </Link>
           </div>
+        )}
+
+        {/* Auth Modal triggered from Leaderboard CTA */}
+        {isAuthModalOpen && (
+          <ProfileAuthModal
+            isOpen={isAuthModalOpen}
+            onClose={() => {
+              setIsAuthModalOpen(false);
+              loadData(selectedGame, selectedDifficulty);
+            }}
+            defaultTab="account"
+          />
         )}
       </div>
     </div>
