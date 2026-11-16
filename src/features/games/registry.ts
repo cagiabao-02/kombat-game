@@ -197,8 +197,58 @@ export const GAME_REGISTRY: GameMetadata[] = [
     minPlayers: 1,
     maxPlayers: 1,
     badge: {
+      vi: 'ARCADE',
+      en: 'ARCADE',
+    },
+  },
+  {
+    id: 't_rex_runner',
+    category: 'arcade',
+    name: {
+      vi: 'Khủng Long T-Rex',
+      en: 'T-Rex Runner',
+    },
+    shortDescription: {
+      vi: 'Chạy vượt sa mạc né xương rồng và chim cổ đại',
+      en: 'Dodge desert cacti and prehistoric pterodactyls in classic arcade style',
+    },
+    description: {
+      vi: 'Trò chơi phản xạ 1 chạm huyền thoại. Nhảy qua cây xương rồng, cúi người né chim bay và chinh phục chu kỳ ngày đêm vô tận!',
+      en: 'Legendary one-tap desert runner. Leap over cacti, duck under flying pterodactyls, and survive the endless day-night cycle!',
+    },
+    route: '/games/t-rex-runner',
+    status: 'available',
+    modes: ['single_player'],
+    minPlayers: 1,
+    maxPlayers: 1,
+    badge: {
       vi: 'MỚI RA MẮT',
       en: 'NEW RELEASE',
+    },
+  },
+  {
+    id: 'flappy_bird',
+    category: 'arcade',
+    name: {
+      vi: 'Flappy Bird',
+      en: 'Flappy Bird',
+    },
+    shortDescription: {
+      vi: 'Đập cánh bay qua các khe cột ống nước xanh kinh điển',
+      en: 'Flap wings and navigate between retro green pipes',
+    },
+    description: {
+      vi: 'Trò chơi phản xạ 1 chạm huyền thoại. Vỗ cánh nhịp nhàng đưa chú chim lượn qua các cặp ống nước, đạt các mốc huy chương danh giá!',
+      en: 'Legendary one-tap arcade game. Flap your wings carefully through pipe gaps and unlock prestigious medals!',
+    },
+    route: '/games/flappy-bird',
+    status: 'available',
+    modes: ['single_player'],
+    minPlayers: 1,
+    maxPlayers: 1,
+    badge: {
+      vi: 'HOT',
+      en: 'HOT',
     },
   },
 ];

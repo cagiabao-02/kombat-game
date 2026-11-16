@@ -6,6 +6,8 @@ import { SnakeStats } from '@/features/games/snake/snakeStatsService';
 import { Game2048Stats } from '@/features/games/game2048/game2048StatsService';
 import { MinesweeperStats } from '@/features/games/minesweeper/minesweeperStatsService';
 import { BrickBreakerStats } from '@/features/games/brickBreaker/brickBreakerStatsService';
+import { TRexStats } from '@/features/games/dinoRunner/tRexStatsService';
+import { FlappyStats } from '@/features/games/flappyBird/flappyStatsService';
 
 export const STORAGE_KEYS = {
   CHESS: 'kombat_chess_stats',
@@ -16,6 +18,8 @@ export const STORAGE_KEYS = {
   GAME2048: 'kombat_2048_stats',
   MINESWEEPER: 'kombat_minesweeper_stats',
   BRICK_BREAKER: 'kombat_brick_breaker_stats',
+  T_REX: 'kombat_t_rex_stats',
+  FLAPPY: 'kombat_flappy_stats',
   GUEST_NAME: 'togame_guest_display_name',
   AVATAR: 'kombat_user_avatar',
 } as const;
@@ -181,6 +185,38 @@ export function mergeBrickBreakerStats(
   };
 }
 
+export function mergeTRexStats(
+  local: TRexStats | null,
+  cloud: TRexStats | null
+): TRexStats | null {
+  if (!local && !cloud) return null;
+  if (!local) return cloud;
+  if (!cloud) return local;
+
+  return {
+    highScore: Math.max(local.highScore || 0, cloud.highScore || 0),
+    totalJumps: Math.max(local.totalJumps || 0, cloud.totalJumps || 0),
+    totalDistance: Math.max(local.totalDistance || 0, cloud.totalDistance || 0),
+    totalGames: Math.max(local.totalGames || 0, cloud.totalGames || 0),
+  };
+}
+
+export function mergeFlappyStats(
+  local: FlappyStats | null,
+  cloud: FlappyStats | null
+): FlappyStats | null {
+  if (!local && !cloud) return null;
+  if (!local) return cloud;
+  if (!cloud) return local;
+
+  return {
+    highScore: Math.max(local.highScore || 0, cloud.highScore || 0),
+    totalFlaps: Math.max(local.totalFlaps || 0, cloud.totalFlaps || 0),
+    pipesPassed: Math.max(local.pipesPassed || 0, cloud.pipesPassed || 0),
+    totalGames: Math.max(local.totalGames || 0, cloud.totalGames || 0),
+  };
+}
+
 /**
  * Gộp toàn bộ thành tích từ LocalStorage của máy vào tài khoản Đám mây (Google/Email).
  * Được kích hoạt tự động khi người dùng đăng nhập tài khoản.
@@ -201,6 +237,8 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const local2048 = safeParse<Game2048Stats>(STORAGE_KEYS.GAME2048);
   const localMinesweeper = safeParse<MinesweeperStats>(STORAGE_KEYS.MINESWEEPER);
   const localBrickBreaker = safeParse<BrickBreakerStats>(STORAGE_KEYS.BRICK_BREAKER);
+  const localTRex = safeParse<TRexStats>(STORAGE_KEYS.T_REX);
+  const localFlappy = safeParse<FlappyStats>(STORAGE_KEYS.FLAPPY);
 
   // 2. Gộp thông minh với cloud
   const mergedChess = mergeBoardGameStats(localChess, meta.chess_stats);
@@ -211,6 +249,8 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const merged2048 = mergeGame2048Stats(local2048, meta.game2048_stats);
   const mergedMinesweeper = mergeMinesweeperStats(localMinesweeper, meta.minesweeper_stats);
   const mergedBrickBreaker = mergeBrickBreakerStats(localBrickBreaker, meta.brick_breaker_stats);
+  const mergedTRex = mergeTRexStats(localTRex, meta.t_rex_stats);
+  const mergedFlappy = mergeFlappyStats(localFlappy, meta.flappy_stats);
 
   // 3. Lưu lại vào LocalStorage
   if (mergedChess) safeSet(STORAGE_KEYS.CHESS, mergedChess);
@@ -221,6 +261,8 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   if (merged2048) safeSet(STORAGE_KEYS.GAME2048, merged2048);
   if (mergedMinesweeper) safeSet(STORAGE_KEYS.MINESWEEPER, mergedMinesweeper);
   if (mergedBrickBreaker) safeSet(STORAGE_KEYS.BRICK_BREAKER, mergedBrickBreaker);
+  if (mergedTRex) safeSet(STORAGE_KEYS.T_REX, mergedTRex);
+  if (mergedFlappy) safeSet(STORAGE_KEYS.FLAPPY, mergedFlappy);
 
   // 4. Đẩy bản gộp lên Supabase User Metadata để bảo lưu vĩnh viễn
   const updateData: Record<string, any> = {};
@@ -258,6 +300,14 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
     updateData.brick_breaker_stats = mergedBrickBreaker;
     hasUpdates = true;
   }
+  if (mergedTRex && JSON.stringify(mergedTRex) !== JSON.stringify(meta.t_rex_stats)) {
+    updateData.t_rex_stats = mergedTRex;
+    hasUpdates = true;
+  }
+  if (mergedFlappy && JSON.stringify(mergedFlappy) !== JSON.stringify(meta.flappy_stats)) {
+    updateData.flappy_stats = mergedFlappy;
+    hasUpdates = true;
+  }
 
   if (hasUpdates) {
     try {
@@ -276,5 +326,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
     game2048: merged2048,
     minesweeper: mergedMinesweeper,
     brick_breaker: mergedBrickBreaker,
+    t_rex: mergedTRex,
+    flappy: mergedFlappy,
   };
 }

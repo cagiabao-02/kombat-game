@@ -107,6 +107,8 @@ export function LeaderboardModal({
     if (game === 'game2048') return '/games/game2048';
     if (game === 'minesweeper') return '/games/minesweeper';
     if (game === 'brick_breaker') return '/games/brick-breaker';
+    if (game === 't_rex_runner') return '/games/t-rex-runner';
+    if (game === 'flappy_bird') return '/games/flappy-bird';
     return '/games/sudoku';
   };
 
@@ -118,6 +120,8 @@ export function LeaderboardModal({
     if (game === 'game2048') return '2048';
     if (game === 'minesweeper') return language === 'vi' ? 'Dò Mìn' : 'Minesweeper';
     if (game === 'brick_breaker') return language === 'vi' ? 'Phá Gạch' : 'Brick Breaker';
+    if (game === 't_rex_runner') return language === 'vi' ? 'Khủng Long T-Rex' : 'T-Rex Runner';
+    if (game === 'flappy_bird') return 'Flappy Bird';
     return 'Sudoku';
   };
 
@@ -272,6 +276,32 @@ export function LeaderboardModal({
             >
               <span>🧱</span>
               <span>{language === 'vi' ? 'Phá Gạch' : 'Bricks'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedGame('t_rex_runner')}
+              className={`pixel-btn flex items-center justify-center gap-1 min-h-[40px] text-xs font-bold ${
+                selectedGame === 't_rex_runner'
+                  ? 'bg-indigo-600 text-amber-300'
+                  : 'bg-white text-zinc-800 hover:bg-zinc-100'
+              }`}
+            >
+              <span>🦖</span>
+              <span>T-Rex</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedGame('flappy_bird')}
+              className={`pixel-btn flex items-center justify-center gap-1 min-h-[40px] text-xs font-bold ${
+                selectedGame === 'flappy_bird'
+                  ? 'bg-indigo-600 text-amber-300'
+                  : 'bg-white text-zinc-800 hover:bg-zinc-100'
+              }`}
+            >
+              <span>🐦</span>
+              <span>Flappy</span>
             </button>
           </div>
 

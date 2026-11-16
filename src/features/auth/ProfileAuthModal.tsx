@@ -13,6 +13,8 @@ import { getSnakeStats, SnakeStats } from '@/features/games/snake/snakeStatsServ
 import { getGame2048Stats, Game2048Stats } from '@/features/games/game2048/game2048StatsService';
 import { getMinesweeperStats, MinesweeperStats } from '@/features/games/minesweeper/minesweeperStatsService';
 import { getBrickBreakerStats, BrickBreakerStats } from '@/features/games/brickBreaker/brickBreakerStatsService';
+import { getTRexStats, TRexStats } from '@/features/games/dinoRunner/tRexStatsService';
+import { getFlappyStats, FlappyStats } from '@/features/games/flappyBird/flappyStatsService';
 import {
   X,
   User,
@@ -196,7 +198,9 @@ export function ProfileAuthModal({
   const [game2048Stats, setGame2048Stats] = useState<Game2048Stats | null>(null);
   const [minesweeperStats, setMinesweeperStats] = useState<MinesweeperStats | null>(null);
   const [brickBreakerStats, setBrickBreakerStats] = useState<BrickBreakerStats | null>(null);
-  const [statsGameTab, setStatsGameTab] = useState<'all' | 'chess' | 'caro' | 'xiangqi' | 'sudoku' | 'snake' | 'game2048' | 'minesweeper' | 'brick_breaker'>('all');
+  const [tRexStats, setTRexStats] = useState<TRexStats | null>(null);
+  const [flappyStats, setFlappyStats] = useState<FlappyStats | null>(null);
+  const [statsGameTab, setStatsGameTab] = useState<'all' | 'chess' | 'caro' | 'xiangqi' | 'sudoku' | 'snake' | 'game2048' | 'minesweeper' | 'brick_breaker' | 't_rex' | 'flappy'>('all');
   const wasOpenRef = useRef(false);
 
   useEffect(() => {
@@ -223,6 +227,8 @@ export function ProfileAuthModal({
       setGame2048Stats(meta.game2048_stats || getGame2048Stats());
       setMinesweeperStats(meta.minesweeper_stats || getMinesweeperStats());
       setBrickBreakerStats(meta.brick_breaker_stats || getBrickBreakerStats());
+      setTRexStats(meta.t_rex_stats || getTRexStats());
+      setFlappyStats(meta.flappy_stats || getFlappyStats());
 
       // Kéo dữ liệu mới nhất nếu là tài khoản đám mây (chỉ cập nhật stats nền, không ghi đè form nhập của người dùng)
       if (user && !isAnonymous) {
@@ -237,6 +243,8 @@ export function ProfileAuthModal({
             if (m.game2048_stats) setGame2048Stats(m.game2048_stats);
             if (m.minesweeper_stats) setMinesweeperStats(m.minesweeper_stats);
             if (m.brick_breaker_stats) setBrickBreakerStats(m.brick_breaker_stats);
+            if (m.t_rex_stats) setTRexStats(m.t_rex_stats);
+            if (m.flappy_stats) setFlappyStats(m.flappy_stats);
           }
         }).catch(() => {});
       }
@@ -696,10 +704,108 @@ export function ProfileAuthModal({
                     >
                       {language === 'vi' ? 'Phá Gạch' : 'Bricks'}
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setStatsGameTab('t_rex')}
+                      className={`px-1.5 py-0.5 font-pixel font-bold ${
+                        statsGameTab === 't_rex' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
+                      }`}
+                    >
+                      T-Rex
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStatsGameTab('flappy')}
+                      className={`px-1.5 py-0.5 font-pixel font-bold ${
+                        statsGameTab === 'flappy' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
+                      }`}
+                    >
+                      Flappy
+                    </button>
                   </div>
                 </div>
 
-                {statsGameTab === 'brick_breaker' ? (
+                {statsGameTab === 'flappy' ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between bg-white px-3 py-1.5 border-2 border-zinc-900 text-xs font-mono">
+                      <span className="font-bold text-zinc-700">
+                        {language === 'vi' ? 'Kỷ lục điểm cao:' : 'All-time High Score:'}
+                      </span>
+                      <span className="font-pixel text-xl font-bold text-amber-500">
+                        🐦 {flappyStats?.highScore?.toLocaleString() || 0}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-1.5 text-center">
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-emerald-600">
+                          {flappyStats?.pipesPassed?.toLocaleString() || 0}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Số ống vượt qua' : 'Pipes Passed'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-indigo-600">
+                          🪶 {flappyStats?.totalFlaps?.toLocaleString() || 0}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Tổng lần đập cánh' : 'Total Flaps'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-rose-600">
+                          {flappyStats?.totalGames || 0}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Số ván đã chơi' : 'Games Played'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : statsGameTab === 't_rex' ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between bg-white px-3 py-1.5 border-2 border-zinc-900 text-xs font-mono">
+                      <span className="font-bold text-zinc-700">
+                        {language === 'vi' ? 'Kỷ lục điểm cao:' : 'All-time High Score:'}
+                      </span>
+                      <span className="font-pixel text-xl font-bold text-emerald-600">
+                        🦖 {tRexStats?.highScore?.toLocaleString() || 0}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-1.5 text-center">
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-amber-600">
+                          {tRexStats?.totalDistance?.toLocaleString() || 0}m
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Tổng quãng đường' : 'Total Distance'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-rose-600">
+                          🦘 {tRexStats?.totalJumps?.toLocaleString() || 0}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Tổng lần nhảy' : 'Total Jumps'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-indigo-700">
+                          {tRexStats?.totalGames || 0}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Số ván đã chạy' : 'Games Run'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : statsGameTab === 'brick_breaker' ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between bg-white px-3 py-1.5 border-2 border-zinc-900 text-xs font-mono">
                       <span className="font-bold text-zinc-700">

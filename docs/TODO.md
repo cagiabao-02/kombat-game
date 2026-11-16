@@ -241,7 +241,45 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Chính sách Bảng xếp hạng độc quyền cho tài khoản đăng ký: Chỉ tài khoản đã đăng ký (Email/Google) mới được lưu lên BXH Supabase. Khách có thể xem trước thứ hạng (Preview) và có nút 1 chạm đăng nhập để ghi danh vĩnh viễn (`20261116180000_only_allow_registered_users_on_leaderboard.sql`).
 - [x] Kiểm thử kiểu `npx tsc --noEmit` và `npm run build`.
 
-## Chặng tiếp theo (Đề xuất định hướng mở rộng)
+## Chặng 20 — Trò chơi thứ 9: Khủng Long T-Rex (T-Rex Runner Arcade)
+
+- [x] Động cơ vật lý & Logic chạy vô tận Canvas 2D (`dinoLogic.ts`):
+  - [x] Trọng lực, vận tốc nhảy, gia tốc tiếp đất nhanh khi cúi người (Drop Acceleration).
+  - [x] Chướng ngại vật đa dạng: Xương rồng nhỏ (1, 2, 3 cây), Xương rồng lớn (1, 2 cây) và Chim cổ đại Pterodactyl 3 cao độ (thấp, trung, cao).
+  - [x] Chu kỳ Ngày & Đêm huyền ảo mỗi 700 điểm với mặt trăng khuyết và đàn sao nhấp nháy.
+  - [x] Tốc độ tăng dần theo quãng đường, mốc 100 điểm nhấp nháy kèm âm thanh retro bíp bíp.
+- [x] Dịch vụ lưu trữ thành tích (`tRexStatsService.ts`):
+  - [x] Điểm cao kỷ lục, tổng số lần nhảy, tổng quãng đường chạy, số ván đã chơi, tự động đồng bộ đám mây và Supabase.
+- [x] Giao diện Neo-Arcade 16-bit (`TRexGame.tsx`, `src/app/games/t-rex-runner/page.tsx`):
+  - [x] Điều khiển đa nền tảng: Bàn phím PC (Space, Mũi tên Lên/Xuống), vuốt chạm màn hình (Swipe Up/Down) và cụm phím ảo cảm ứng (Nhảy & Cúi Giữ).
+  - [x] Âm thanh Web Audio chiptune (`playDinoJump`, `playDinoMilestone`, `playDinoHit`).
+  - [x] Modal Game Over kèm pháo hoa khi lập kỷ lục điểm mới.
+- [x] Đăng ký Sảnh chính và Bảng xếp hạng:
+  - [x] Đăng ký `t_rex_runner` vào `GAME_REGISTRY` thuộc thể loại Arcade (`categories.ts`).
+  - [x] Vẽ icon pixel chú khủng long T-Rex và cây xương rồng cho `GameTile.tsx`.
+  - [x] Tích hợp tab T-Rex vào Bảng xếp hạng toàn cầu (`LeaderboardModal.tsx`), Hồ sơ cá nhân (`ProfileAuthModal.tsx`) và tự động gộp đám mây (`statsMergeService.ts`).
+  - [x] Tạo migration `20261116220000_add_t_rex_runner_to_leaderboard.sql`.
+- [x] Kiểm thử kiểu `npx tsc --noEmit` và `npm run build`.
+
+## Chặng 21 — Trò chơi thứ 10: Flappy Bird (Flappy Bird Arcade)
+
+- [x] Động cơ vật lý & Logic vỗ cánh Canvas 2D (`flappyLogic.ts`):
+  - [x] Trọng lực ($0.44$), lực nâng khi đập cánh ($FLAP = -7.8$), vận tốc cực đại và góc xoay mượt mà của chim (hướng lên $-25^\circ$ khi vỗ cánh, chúc đầu xuống $75^\circ$ khi rơi).
+  - [x] Cặp cột ống nước retro green với vành miệng và hiệu ứng sáng bóng, khe hở thông thoáng ($126\text{px}$) cân bằng hoàn hảo cho cả điện thoại và máy tính.
+  - [x] Hệ thống 4 bậc huy chương vinh danh theo mốc điểm: 🥉 Đồng ($10$), 🥈 Bạc ($20$), 🥇 Vàng ($30$), 💎 Bạch Kim ($40+$).
+  - [x] Chu kỳ Ngày & Đêm đổi màu nền trời nhịp nhàng sau mỗi 20 điểm.
+- [x] Dịch vụ lưu trữ thành tích (`flappyStatsService.ts`):
+  - [x] Điểm cao kỷ lục, tổng số lần đập cánh, số cặp ống đã vượt qua, số ván đã chơi, tự động đồng bộ đám mây và Supabase.
+- [x] Giao diện Neo-Arcade 16-bit (`FlappyBirdGame.tsx`, `src/app/games/flappy-bird/page.tsx`):
+  - [x] Điều khiển đa nền tảng: Bàn phím PC (Space, Mũi tên Lên, Phím W), chạm màn hình (Tap anywhere) và nút cảm ứng lớn cho ngón cái trên mobile.
+  - [x] Âm thanh Web Audio chiptune (`playFlappyFlap`, `playFlappyScore`, `playFlappyHit`, `playFlappyDie`).
+  - [x] Modal Game Over với bảng điểm huy chương retro, nút Chơi Lại và nút Về Sảnh Trò Chơi.
+- [x] Đăng ký Sảnh chính và Bảng xếp hạng:
+  - [x] Đăng ký `flappy_bird` vào `GAME_REGISTRY` thuộc thể loại Arcade (`categories.ts`).
+  - [x] Vẽ icon pixel chú chim Flappy Bird vàng và ống nước xanh cho `GameTile.tsx`.
+  - [x] Tích hợp tab Flappy vào Bảng xếp hạng toàn cầu (`LeaderboardModal.tsx`), Hồ sơ cá nhân (`ProfileAuthModal.tsx`) và tự động gộp đám mây (`statsMergeService.ts`).
+  - [x] Tạo migration `20261116230000_add_flappy_bird_to_leaderboard.sql`.
+- [x] Kiểm thử kiểu `npx tsc --noEmit` và `npm run build` (15/15 routes static).
 
 - [x] **Trò chuyện nhanh & Biểu cảm tương tác Trong trận (In-Game Quick Chat & Emotes)**:
   - [x] Bộ câu thoại nhanh song ngữ Việt-Anh kèm icon và 12 biểu cảm Emote Pixel 16-bit (`socialPresets.ts`).
