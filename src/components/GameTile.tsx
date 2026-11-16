@@ -164,6 +164,52 @@ export function GameIcon({ id }: { id: GameId }) {
         </div>
       );
 
+    case 't_rex_runner':
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-[#FDF6E2]">
+          <svg viewBox="0 0 16 16" className="h-[80%] w-[80%] pixelated" shapeRendering="crispEdges">
+            {/* Mặt trời / Mây nhẹ */}
+            <path d="M1 2h3v1H1z" fill="#D4D4D8" />
+            {/* Khủng long T-Rex */}
+            <path d="M7 2h5v4H7z M12 3h3v2h-3z" fill="#27272A" />
+            {/* Mắt T-Rex */}
+            <path d="M9 3h1v1H9z" fill="#FDF6E2" />
+            {/* Thân & đuôi T-Rex */}
+            <path d="M4 6h6v5H4z M2 7h2v3H2z M10 7h2v1h-2z" fill="#27272A" />
+            {/* 2 Chân T-Rex */}
+            <path d="M5 11h2v3H5z M8 11h2v3H8z" fill="#27272A" />
+            {/* Xương rồng */}
+            <path d="M13 9h1v5h-1z M12 10h1v2h-1z M14 11h1v2h-1z" fill="#059669" />
+            {/* Đường đất sa mạc */}
+            <path d="M0 14h16v1H0z" fill="#52525B" />
+          </svg>
+        </div>
+      );
+
+    case 'flappy_bird':
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-[#70C5CE]">
+          <svg viewBox="0 0 16 16" className="h-[80%] w-[80%] pixelated" shapeRendering="crispEdges">
+            {/* Cột ống nước trên & dưới */}
+            <path d="M12 0h3v4h-3z M11 4h5v2h-5z M11 11h5v2h-5z M12 13h3v1h-3z" fill="#15803D" />
+            {/* Thân chim vàng */}
+            <path d="M3 5h6v6H3z M2 6h8v4H2z" fill="#FACC15" />
+            {/* Cánh trắng */}
+            <path d="M3 7h3v2H3z" fill="#FFFFFF" />
+            {/* Mắt to */}
+            <path d="M7 5h3v3H7z" fill="#FFFFFF" />
+            <path d="M8 6h2v2H8z" fill="#000000" />
+            {/* Mỏ cam */}
+            <path d="M10 8h3v2h-3z" fill="#EA580C" />
+            {/* Bụng trắng */}
+            <path d="M4 10h4v1H4z" fill="#FFFFFF" />
+            {/* Đất cỏ */}
+            <path d="M0 14h16v1H0z" fill="#65A30D" />
+            <path d="M0 15h16v1H0z" fill="#CA8A04" />
+          </svg>
+        </div>
+      );
+
     default:
       return null;
   }

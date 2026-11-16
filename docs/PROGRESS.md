@@ -133,13 +133,30 @@
   - **Âm thanh & Tích hợp:** Bổ sung âm thanh Web Audio `playBrickHit`, `playPaddleBounce`, `playPowerupCatch`, `playLifeLost`, `playLaserShot`, `playLevelUp`; dịch vụ lưu trữ [`brickBreakerStatsService.ts`](file:///d:/personal-prj/game/togame/src/features/games/brickBreaker/brickBreakerStatsService.ts), migration `20261116000000_add_brick_breaker_to_leaderboard.sql`, tích hợp vào Bảng xếp hạng toàn cầu (`LeaderboardModal.tsx`), Hồ sơ cá nhân (`ProfileAuthModal.tsx`) và gộp đám mây (`statsMergeService.ts`).
   - **Đăng ký Sảnh chính:** Bổ sung icon pixel thanh trượt, quả bóng và các hàng gạch rực rỡ vào [`GameTile.tsx`](file:///d:/personal-prj/game/togame/src/components/GameTile.tsx) và đăng ký vào nhóm Arcade (`categories.ts`).
 
+- **Hoàn thành Chặng 20 — Trò chơi thứ 9: Khủng Long T-Rex (T-Rex Runner Arcade):**
+  - **Động cơ vật lý & Logic chạy vô tận Canvas 2D:** Xây dựng [`src/features/games/dinoRunner/dinoLogic.ts`](file:///d:/personal-prj/game/togame/src/features/games/dinoRunner/dinoLogic.ts) với tỷ lệ màn hình Arcade ($800 \times 260$), cơ chế nhảy (Space / Lên / Chạm) và cúi người hạ thấp trọng tâm (Xuống / Giữ nút Cúi Né). Cúi người khi đang bay giúp tiếp đất nhanh hơn (fast drop).
+  - **Hệ thống chướng ngại vật phong phú:**
+    - Cây xương rồng nhỏ (cụm 1, 2, 3 cây) và cây xương rồng lớn (cụm 1, 2 cây).
+    - Chim cổ đại Pterodactyl vỗ cánh ở 3 cao độ: Tầm cao (chạy qua an toàn), Tầm trung (buộc phải cúi né), Tầm thấp (buộc phải nhảy qua).
+  - **Chu kỳ Ngày & Đêm huyền ảo:** Cứ mỗi 700 điểm, sa mạc sẽ chuyển dần từ ban ngày ấm áp sang màn đêm đầy sao với mặt trăng khuyết và đàn sao nhấp nháy, sau đó trở lại ban ngày sau 350 điểm.
+  - **Giao diện Neo-Arcade:** Xây dựng [`TRexGame.tsx`](file:///d:/personal-prj/game/togame/src/features/games/dinoRunner/TRexGame.tsx) và trang [`src/app/games/t-rex-runner/page.tsx`](file:///d:/personal-prj/game/togame/src/app/games/t-rex-runner/page.tsx) với đồ họa pixel sắc nét, cụm phím ảo cảm ứng tiện lợi trên điện thoại (Nút Nhảy & Nút Cúi Giữ), hỗ trợ vuốt màn hình (Swipe Up/Down).
+  - **Âm thanh & Tích hợp:** Bổ sung âm thanh Web Audio 8-bit `playDinoJump`, `playDinoMilestone` (tiếng bíp bíp 2 âm mỗi 100 điểm) và `playDinoHit` (tiếng crash khi va chạm); dịch vụ lưu trữ [`tRexStatsService.ts`](file:///d:/personal-prj/game/togame/src/features/games/dinoRunner/tRexStatsService.ts), migration `20261116220000_add_t_rex_runner_to_leaderboard.sql`, tích hợp vào Bảng xếp hạng toàn cầu (`LeaderboardModal.tsx`), Hồ sơ cá nhân (`ProfileAuthModal.tsx`) và gộp đám mây (`statsMergeService.ts`).
+  - **Đăng ký Sảnh chính:** Bổ sung icon pixel chú khủng long T-Rex và cây xương rồng sa mạc vào [`GameTile.tsx`](file:///d:/personal-prj/game/togame/src/components/GameTile.tsx) và đăng ký vào nhóm Arcade (`registry.ts`, `categories.ts`).
+- **Triển khai Flappy Bird Arcade (Chặng 21 - Trò chơi thứ 10):**
+  - **Động cơ vật lý & Logic vỗ cánh Canvas 2D:** Xây dựng [`flappyLogic.ts`](file:///d:/personal-prj/game/togame/src/features/games/flappyBird/flappyLogic.ts) chuẩn xác với Canvas $360 \times 580$. Chuẩn hóa delta time 60 FPS đồng đều trên cả màn hình 60Hz/120Hz/144Hz. Tinh chỉnh trọng lực mềm dịu ($0.26$), lực nâng đập cánh bồng bềnh ($-5.6$), giới hạn rơi cực đại ($6.2$), chim không bị rớt như đá và có thời gian phản xạ thoải mái.
+  - **Cột ống nước Retro & Khoảng cách thoáng đãng:** Giãn rộng khoảng cách ngang giữa các cặp cột lên $215\text{px}$ (khoảng trống lọt thỏm $>159\text{px}$), nới rộng khe hở đứng lên $140\text{px}$, tốc độ trôi cột êm ái ($1.9\text{px/frame}$) và đường băng xuất phát $260\text{px}$ giúp người chơi kịp làm quen nhịp vỗ trước khi gặp cột đầu tiên; hitbox dung sai an toàn $5\text{px}$. Hệ thống 4 cấp huy chương (🥉 Đồng $\ge 10$, 🥈 Bạc $\ge 20$, 🥇 Vàng $\ge 30$, 💎 Bạch Kim $\ge 40$).
+  - **Chu kỳ Ngày & Đêm:** Nền trời và thành phố tự động chuyển từ ban ngày sang đêm trăng sao huyền ảo sau mỗi 20 điểm.
+  - **Giao diện & Điều khiển:** Xây dựng [`FlappyBirdGame.tsx`](file:///d:/personal-prj/game/togame/src/features/games/flappyBird/FlappyBirdGame.tsx) và trang [`src/app/games/flappy-bird/page.tsx`](file:///d:/personal-prj/game/togame/src/app/games/flappy-bird/page.tsx) hỗ trợ chạm bất kỳ đâu trên màn hình, bàn phím PC (Space, ⬆️, W) và nút bấm lớn ngón cái. Modal kết thúc có huy chương, pháo hoa kỷ lục, nút Chơi Lại và nút Về Sảnh.
+  - **Âm thanh & Tích hợp:** Âm thanh 8-bit `playFlappyFlap`, `playFlappyScore`, `playFlappyHit`, `playFlappyDie`; dịch vụ [`flappyStatsService.ts`](file:///d:/personal-prj/game/togame/src/features/games/flappyBird/flappyStatsService.ts), migration `20261116230000_add_flappy_bird_to_leaderboard.sql`, tích hợp Bảng xếp hạng, Hồ sơ cá nhân và gộp tài khoản đám mây.
+  - **Đăng ký Sảnh chính:** Icon pixel chim vàng và ống nước trong [`GameTile.tsx`](file:///d:/personal-prj/game/togame/src/components/GameTile.tsx), đăng ký trong `registry.ts`.
+
 ## Đang làm
 
-- Toàn bộ 8 trò chơi (Cờ Vua, Cờ Tướng, Cờ Caro, Sudoku, 2048, Dò Mìn, Rắn Săn Mồi, Phá Gạch) đã hoàn thành và sẵn sàng phục vụ người chơi trên cả điện thoại và máy tính.
+- Toàn bộ 10 trò chơi (Cờ Vua, Cờ Tướng, Cờ Caro, Sudoku, 2048, Dò Mìn, Rắn Săn Mồi, Phá Gạch, Khủng Long T-Rex, Flappy Bird) đã hoàn thành và sẵn sàng phục vụ người chơi trên cả điện thoại và máy tính.
 
 ## Việc kế tiếp
 
-1. Trải nghiệm trực tiếp trò chơi Phá Gạch tại sảnh chính (`/games/brick-breaker`), thử thách phá gạch, nhặt vật phẩm và cày điểm kỷ lục.
+1. Trải nghiệm trực tiếp trò chơi Flappy Bird tại sảnh chính (`/games/flappy-bird`), vỗ cánh qua các cặp ống và chinh phục huy chương Bạch Kim.
 2. Hướng dẫn commit và tạo Pull Request (PR) theo chuẩn Rule 8 trong `AGENTS.md` khi người dùng yêu cầu.
 
 ## Quyết định còn mở
