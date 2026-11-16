@@ -149,6 +149,11 @@
   - **Giao diện & Điều khiển:** Xây dựng [`FlappyBirdGame.tsx`](file:///d:/personal-prj/game/togame/src/features/games/flappyBird/FlappyBirdGame.tsx) và trang [`src/app/games/flappy-bird/page.tsx`](file:///d:/personal-prj/game/togame/src/app/games/flappy-bird/page.tsx) hỗ trợ chạm bất kỳ đâu trên màn hình, bàn phím PC (Space, ⬆️, W) và nút bấm lớn ngón cái. Modal kết thúc có huy chương, pháo hoa kỷ lục, nút Chơi Lại và nút Về Sảnh.
   - **Âm thanh & Tích hợp:** Âm thanh 8-bit `playFlappyFlap`, `playFlappyScore`, `playFlappyHit`, `playFlappyDie`; dịch vụ [`flappyStatsService.ts`](file:///d:/personal-prj/game/togame/src/features/games/flappyBird/flappyStatsService.ts), migration `20261116230000_add_flappy_bird_to_leaderboard.sql`, tích hợp Bảng xếp hạng, Hồ sơ cá nhân và gộp tài khoản đám mây.
   - **Đăng ký Sảnh chính:** Icon pixel chim vàng và ống nước trong [`GameTile.tsx`](file:///d:/personal-prj/game/togame/src/components/GameTile.tsx), đăng ký trong `registry.ts`.
+- **Triển khai Hệ thống Thành tựu & Huy hiệu Pixel (Chặng 22):**
+  - **Bộ sưu tập 24 huy hiệu độc quyền:** Phân bố qua 4 nhóm (Chung, Cờ đối kháng, Trí tuệ, Arcade) và 4 bậc vinh danh (🥉 Đồng, 🥈 Bạc, 🥇 Vàng, 💎 Bạch Kim) với điều kiện mở khóa hấp dẫn trong [`achievementsConfig.ts`](file:///d:/personal-prj/game/togame/src/features/achievements/achievementsConfig.ts).
+  - **Âm thanh Fanfare & Thông báo In-Game:** Bổ sung âm thanh 4 nốt arpeggio `playAchievementUnlock()`; toast pop-up Neo-Arcade nổi bật [`AchievementToast.tsx`](file:///d:/personal-prj/game/togame/src/features/achievements/AchievementToast.tsx) tự động hiển thị trên toàn sảnh khi mở khóa thành tựu mới.
+  - **Tủ trưng bày trong Hồ sơ cá nhân:** Tab "HUY HIỆU" trong [`ProfileAuthModal.tsx`](file:///d:/personal-prj/game/togame/src/features/auth/ProfileAuthModal.tsx) hiển thị thanh tiến độ, bộ đếm badge theo bậc và danh sách huy hiệu rực rỡ kèm ngày mở khóa.
+  - **Tự động mở khóa & Đồng bộ Đám mây:** Hệ thống tự động quét mở khóa sau mỗi ván chơi của cả 10 game và gộp bảo lưu vĩnh viễn trên Supabase Cloud qua [`statsMergeService.ts`](file:///d:/personal-prj/game/togame/src/features/stats/statsMergeService.ts).
 
 ## Đang làm
 

@@ -288,10 +288,14 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Âm thanh hiệu ứng 8-bit `playSocialPop()` trong Web Audio API.
   - [x] Tích hợp vào Cờ Vua (`ChessGameView.tsx`), Cờ Caro (`CaroGameView.tsx` & `CaroControls.tsx`) và Cờ Tướng (`XiangqiGameView.tsx` & `XiangqiControls.tsx`).
   - [x] Tương tác tự động của Bot AI khi chơi offline: Bot có 45% cơ hội phản hồi lại bằng câu chat dí dỏm hoặc biểu cảm sau 900ms.
+- [x] **Hệ thống Thành tựu & Huy hiệu Pixel (Achievements & Badges)**:
+  - [x] Bộ 24 huy hiệu pixel độc quyền phân chia 4 bậc: 🥉 Đồng, 🥈 Bạc, 🥇 Vàng, 💎 Bạch Kim (`achievementsConfig.ts`).
+  - [x] Tự động kiểm tra điều kiện sau mỗi ván chơi của cả 10 tựa game (`achievementService.ts`).
+  - [x] Âm thanh fanfare arpeggio `playAchievementUnlock()` khi mở khóa huy hiệu.
+  - [x] Toast pop-up thông báo Neo-Arcade trượt xuống đầu màn hình (`AchievementToast.tsx`).
+  - [x] Tủ trưng bày trong Hồ sơ cá nhân với thanh tiến độ, bộ đếm huy chương 4 bậc và bộ lọc danh mục (`ProfileAuthModal.tsx`).
+  - [x] Đồng bộ dữ liệu thành tựu lên Supabase Cloud khi người dùng đăng nhập (`statsMergeService.ts`).
 - [ ] **Chế độ Khán giả (Spectator Mode)**: Cho phép bạn bè vào xem trực tiếp ván cờ qua link phòng.
-- [ ] **Hệ thống Thành tựu & Huy hiệu Pixel (Achievements & Badges)**:
-  - Bổ sung bộ danh hiệu mở khóa khi đạt các cột mốc thú vị (VD: "Phá kỷ lục 500 điểm Rắn", "Tạo ra ô 2048", "Thắng 10 ván Caro", "Giải Sudoku dưới 3 phút", "Phá 1000 khối gạch").
-  - Hiển thị huy hiệu đã đạt được trong Hồ sơ cá nhân (Profile Modal).
 
 
 

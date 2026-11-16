@@ -15,6 +15,12 @@ import { getMinesweeperStats, MinesweeperStats } from '@/features/games/mineswee
 import { getBrickBreakerStats, BrickBreakerStats } from '@/features/games/brickBreaker/brickBreakerStatsService';
 import { getTRexStats, TRexStats } from '@/features/games/dinoRunner/tRexStatsService';
 import { getFlappyStats, FlappyStats } from '@/features/games/flappyBird/flappyStatsService';
+import { ACHIEVEMENTS } from '@/features/achievements/achievementsConfig';
+import {
+  getUnlockedAchievements,
+  checkAllEligibleAchievements,
+} from '@/features/achievements/achievementService';
+import { UnlockedAchievementsMap, AchievementCategory } from '@/features/achievements/types';
 import {
   X,
   User,
@@ -31,12 +37,13 @@ import {
   Upload,
   Camera,
   Trash2,
+  Award,
 } from 'lucide-react';
 
 interface ProfileAuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  defaultTab?: 'profile' | 'account';
+  defaultTab?: 'profile' | 'account' | 'achievements';
 }
 
 function formatAuthError(rawMsg: string, lang: 'vi' | 'en'): string {
@@ -111,8 +118,10 @@ export function ProfileAuthModal({
   } = useAuth();
   const { language } = useLanguage();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'account'>(defaultTab);
+  const [activeTab, setActiveTab] = useState<'profile' | 'account' | 'achievements'>(defaultTab);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [unlockedAchievements, setUnlockedAchievements] = useState<UnlockedAchievementsMap>({});
+  const [achievementCategory, setAchievementCategory] = useState<'all' | 'general' | 'board' | 'puzzle' | 'arcade'>('all');
 
   // Profile Form State
   const [tempName, setTempName] = useState(guestName);
@@ -230,6 +239,26 @@ export function ProfileAuthModal({
       setTRexStats(meta.t_rex_stats || getTRexStats());
       setFlappyStats(meta.flappy_stats || getFlappyStats());
 
+      // Lấy danh sách thành tựu đã mở và tự động đánh giá
+      const currentAchievements = meta.achievements || getUnlockedAchievements();
+      setUnlockedAchievements(currentAchievements);
+
+      // Đánh giá thành tựu dựa trên dữ liệu hiện tại
+      const allCurrentStats = {
+        chess: meta.chess_stats || getChessStats(),
+        caro: meta.caro_stats || getCaroStats(),
+        xiangqi: meta.xiangqi_stats || getXiangqiStats(),
+        sudoku: meta.sudoku_stats || getSudokuStats(),
+        snake: meta.snake_stats || getSnakeStats(),
+        game2048: meta.game2048_stats || getGame2048Stats(),
+        minesweeper: meta.minesweeper_stats || getMinesweeperStats(),
+        brick_breaker: meta.brick_breaker_stats || getBrickBreakerStats(),
+        t_rex: meta.t_rex_stats || getTRexStats(),
+        flappy: meta.flappy_stats || getFlappyStats(),
+      };
+      checkAllEligibleAchievements(allCurrentStats);
+      setUnlockedAchievements(getUnlockedAchievements());
+
       // Kéo dữ liệu mới nhất nếu là tài khoản đám mây (chỉ cập nhật stats nền, không ghi đè form nhập của người dùng)
       if (user && !isAnonymous) {
         refreshUser().then((freshUser) => {
@@ -245,6 +274,7 @@ export function ProfileAuthModal({
             if (m.brick_breaker_stats) setBrickBreakerStats(m.brick_breaker_stats);
             if (m.t_rex_stats) setTRexStats(m.t_rex_stats);
             if (m.flappy_stats) setFlappyStats(m.flappy_stats);
+            if (m.achievements) setUnlockedAchievements(m.achievements);
           }
         }).catch(() => {});
       }
@@ -448,7 +478,7 @@ export function ProfileAuthModal({
           </div>
 
           {/* Navigation Tabs */}
-          <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="mt-4 grid grid-cols-3 gap-1.5">
             <button
               type="button"
               onClick={() => setActiveTab('profile')}
@@ -457,7 +487,22 @@ export function ProfileAuthModal({
                   : 'bg-indigo-900 text-indigo-200 hover:bg-indigo-800'
                 }`}
             >
-              {language === 'vi' ? 'HỒ SƠ & AVATAR' : 'PLAYER CARD'}
+              {language === 'vi' ? 'HỒ SƠ' : 'PROFILE'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('achievements')}
+              className={`pixel-btn py-1.5 text-xs font-bold flex items-center justify-center gap-1 ${activeTab === 'achievements'
+                  ? 'bg-amber-300 text-zinc-950'
+                  : 'bg-indigo-900 text-indigo-200 hover:bg-indigo-800'
+                }`}
+            >
+              <span>{language === 'vi' ? 'HUY HIỆU' : 'BADGES'}</span>
+              <span className={`text-[10px] px-1 py-0.2 rounded font-pixel ${
+                activeTab === 'achievements' ? 'bg-zinc-950 text-amber-300' : 'bg-amber-400 text-zinc-950'
+              }`}>
+                {Object.keys(unlockedAchievements).length}
+              </span>
             </button>
             <button
               type="button"
@@ -467,7 +512,7 @@ export function ProfileAuthModal({
                   : 'bg-indigo-900 text-indigo-200 hover:bg-indigo-800'
                 }`}
             >
-              {language === 'vi' ? 'TÀI KHOẢN CLOUD' : 'CLOUD SAVE'}
+              {language === 'vi' ? 'TÀI KHOẢN' : 'ACCOUNT'}
             </button>
           </div>
         </div>
@@ -1082,6 +1127,172 @@ export function ProfileAuthModal({
                 </button>
               </div>
             </form>
+          ) : activeTab === 'achievements' ? (
+            /* Achievements & Badges Showcase View */
+            <div className="space-y-4">
+              {/* Progress & Overview Card */}
+              <div className="border-2 border-zinc-900 bg-white p-3.5 shadow-pixel-sm">
+                <div className="flex items-center justify-between text-xs font-mono font-bold text-zinc-700 mb-1.5">
+                  <span className="flex items-center gap-1.5 font-pixel text-zinc-900">
+                    <Award className="h-4 w-4 text-amber-500" />
+                    <span>{language === 'vi' ? 'TIẾN ĐỘ THÀNH TỰU' : 'ACHIEVEMENTS PROGRESS'}</span>
+                  </span>
+                  <span className="font-pixel text-amber-600 text-sm">
+                    {Object.keys(unlockedAchievements).length} / {ACHIEVEMENTS.length} (
+                    {Math.round((Object.keys(unlockedAchievements).length / ACHIEVEMENTS.length) * 100)}%)
+                  </span>
+                </div>
+
+                {/* Pixel Progress Bar */}
+                <div className="w-full h-3 bg-zinc-200 border-2 border-zinc-900 overflow-hidden p-0.5 mb-2.5">
+                  <div
+                    className="h-full bg-emerald-500 transition-all duration-500 ease-out"
+                    style={{
+                      width: `${Math.max(4, Math.round((Object.keys(unlockedAchievements).length / ACHIEVEMENTS.length) * 100))}%`,
+                    }}
+                  />
+                </div>
+
+                {/* Tier Counts Pill Bar */}
+                <div className="grid grid-cols-4 gap-1 text-center font-pixel text-[10px] font-bold">
+                  <div className="bg-[#b08d57]/15 border border-[#b08d57] p-1 text-[#8c6527]">
+                    🥉 {ACHIEVEMENTS.filter((a) => a.tier === 'bronze' && unlockedAchievements[a.id]).length}
+                    <span className="block text-[8px] font-mono text-zinc-500">{language === 'vi' ? 'Đồng' : 'Bronze'}</span>
+                  </div>
+                  <div className="bg-slate-100 border border-slate-400 p-1 text-slate-700">
+                    🥈 {ACHIEVEMENTS.filter((a) => a.tier === 'silver' && unlockedAchievements[a.id]).length}
+                    <span className="block text-[8px] font-mono text-zinc-500">{language === 'vi' ? 'Bạc' : 'Silver'}</span>
+                  </div>
+                  <div className="bg-amber-100 border border-amber-400 p-1 text-amber-800">
+                    🥇 {ACHIEVEMENTS.filter((a) => a.tier === 'gold' && unlockedAchievements[a.id]).length}
+                    <span className="block text-[8px] font-mono text-zinc-500">{language === 'vi' ? 'Vàng' : 'Gold'}</span>
+                  </div>
+                  <div className="bg-indigo-100 border border-indigo-400 p-1 text-indigo-700">
+                    💎 {ACHIEVEMENTS.filter((a) => a.tier === 'platinum' && unlockedAchievements[a.id]).length}
+                    <span className="block text-[8px] font-mono text-zinc-500">{language === 'vi' ? 'Bạch Kim' : 'Platinum'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Category Filter Chips */}
+              <div className="flex flex-wrap items-center gap-1">
+                {(
+                  [
+                    { id: 'all', vi: 'Tất cả', en: 'All' },
+                    { id: 'general', vi: 'Chung', en: 'General' },
+                    { id: 'board', vi: 'Cờ (Đối kháng)', en: 'Board' },
+                    { id: 'puzzle', vi: 'Trí tuệ', en: 'Puzzle' },
+                    { id: 'arcade', vi: 'Arcade', en: 'Arcade' },
+                  ] as const
+                ).map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setAchievementCategory(cat.id)}
+                    className={`px-2 py-1 border-2 border-zinc-900 font-pixel text-[10px] font-bold shadow-pixel-xs transition-transform active:scale-95 ${
+                      achievementCategory === cat.id
+                        ? 'bg-amber-300 text-zinc-950'
+                        : 'bg-white text-zinc-700 hover:bg-zinc-100'
+                    }`}
+                  >
+                    {cat[language]}
+                  </button>
+                ))}
+              </div>
+
+              {/* Achievements Grid List */}
+              <div className="space-y-2 max-h-[46vh] overflow-y-auto pr-1">
+                {ACHIEVEMENTS.filter(
+                  (a) => achievementCategory === 'all' || a.category === achievementCategory
+                ).map((ach) => {
+                  const unlocked = unlockedAchievements[ach.id];
+                  const unlockDate = unlocked?.unlockedAt
+                    ? new Date(unlocked.unlockedAt).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')
+                    : null;
+
+                  return (
+                    <div
+                      key={ach.id}
+                      className={`relative flex items-start gap-3 p-2.5 border-2 transition-all ${
+                        unlocked
+                          ? ach.tier === 'platinum'
+                            ? 'border-indigo-600 bg-indigo-50/70 shadow-pixel-xs'
+                            : ach.tier === 'gold'
+                            ? 'border-amber-500 bg-amber-50/70 shadow-pixel-xs'
+                            : ach.tier === 'silver'
+                            ? 'border-slate-400 bg-slate-50 shadow-pixel-xs'
+                            : 'border-[#b08d57] bg-[#fffbf0] shadow-pixel-xs'
+                          : 'border-zinc-300 bg-zinc-100/70 opacity-60'
+                      }`}
+                    >
+                      {/* Icon */}
+                      <div
+                        className={`flex-shrink-0 w-11 h-11 border-2 border-zinc-900 flex items-center justify-center text-2xl shadow-pixel-xs ${
+                          unlocked ? 'bg-white' : 'bg-zinc-200 text-zinc-400 grayscale'
+                        }`}
+                      >
+                        {unlocked ? ach.icon : <Lock className="w-5 h-5 text-zinc-500" />}
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span
+                            className={`px-1 py-0.2 font-pixel text-[8px] font-bold uppercase rounded-none border border-zinc-900 ${
+                              ach.tier === 'platinum'
+                                ? 'bg-indigo-600 text-white'
+                                : ach.tier === 'gold'
+                                ? 'bg-amber-400 text-zinc-950'
+                                : ach.tier === 'silver'
+                                ? 'bg-slate-300 text-zinc-900'
+                                : 'bg-[#b08d57] text-white'
+                            }`}
+                          >
+                            {ach.tier}
+                          </span>
+                          <h4
+                            className={`font-pixel text-xs font-bold truncate ${
+                              unlocked ? 'text-zinc-900' : 'text-zinc-600'
+                            }`}
+                          >
+                            {ach.title[language]}
+                          </h4>
+                        </div>
+
+                        <p className="text-[11px] font-mono text-zinc-600 leading-snug">
+                          {ach.description[language]}
+                        </p>
+
+                        {/* Status Footer */}
+                        <div className="mt-1 flex items-center gap-1 text-[10px] font-mono font-bold">
+                          {unlocked ? (
+                            <span className="text-emerald-700 flex items-center gap-1">
+                              <span>✓</span>
+                              <span>
+                                {language === 'vi' ? 'Đã mở:' : 'Unlocked:'} {unlockDate}
+                              </span>
+                            </span>
+                          ) : (
+                            <span className="text-zinc-500">
+                              🔒 {language === 'vi' ? 'Chưa mở khóa' : 'Locked'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={onClose}
+                className="pixel-btn w-full bg-white py-2.5 text-xs font-bold text-zinc-800 hover:bg-zinc-100 border-2 border-zinc-900"
+              >
+                {language === 'vi' ? 'ĐÓNG' : 'CLOSE'}
+              </button>
+            </div>
           ) : (
             <div className="space-y-4">
               {/* Authenticated Account View */}

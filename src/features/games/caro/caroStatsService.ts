@@ -112,6 +112,12 @@ export function recordCaroGameResult(
 
   saveCaroStatsLocally(updatedStats);
   syncCaroStatsToCloud(updatedStats).catch(() => {});
+
+  // Tự động kiểm tra và mở khóa huy hiệu thành tựu
+  try {
+    import('@/features/achievements/achievementService').then((m) => m.checkLocalAchievements()).catch(() => {});
+  } catch {}
+
   import('@/features/leaderboard/leaderboardService')
     .then((mod) => mod.syncLeaderboardScoreForGame('caro'))
     .catch(() => {});

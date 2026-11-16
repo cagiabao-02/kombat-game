@@ -87,6 +87,11 @@ export function recordMinesweeperWin(
   saveMinesweeperStats(nextStats);
   syncMinesweeperCloudAndLeaderboard(nextStats);
 
+  // Tự động kiểm tra và mở khóa huy hiệu thành tựu
+  try {
+    import('@/features/achievements/achievementService').then((m) => m.checkLocalAchievements()).catch(() => {});
+  } catch {}
+
   return { isNewRecord, prevRecord, stats: nextStats };
 }
 
