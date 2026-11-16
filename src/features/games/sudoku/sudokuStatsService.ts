@@ -104,6 +104,11 @@ export function recordSudokuVictory(
   saveSudokuStatsLocally(updatedStats);
   syncSudokuStatsToCloud(updatedStats).catch(() => {});
 
+  // Tự động kiểm tra và mở khóa huy hiệu thành tựu
+  try {
+    import('@/features/achievements/achievementService').then((m) => m.checkLocalAchievements()).catch(() => {});
+  } catch {}
+
   // Tự động đẩy kỷ lục lên bảng xếp hạng Supabase
   import('@/features/leaderboard/leaderboardService')
     .then((mod) => mod.syncLeaderboardScoreForGame('sudoku'))

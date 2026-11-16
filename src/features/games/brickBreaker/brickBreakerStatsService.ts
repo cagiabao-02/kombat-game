@@ -64,6 +64,11 @@ export function recordBrickBreakerGame(
   saveBrickBreakerStats(nextStats);
   syncBrickBreakerCloudAndLeaderboard(nextStats);
 
+  // Tự động kiểm tra và mở khóa huy hiệu thành tựu
+  try {
+    import('@/features/achievements/achievementService').then((m) => m.checkLocalAchievements()).catch(() => {});
+  } catch {}
+
   return { isNewHighScore, isNewHighestLevel, stats: nextStats };
 }
 

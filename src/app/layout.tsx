@@ -3,6 +3,7 @@ import './globals.css';
 import { LanguageProvider } from '@/i18n/LanguageContext';
 import { AuthProvider } from '@/features/auth/AuthContext';
 import { Header } from '@/components/Header';
+import { AchievementToast } from '@/features/achievements/AchievementToast';
 
 export const metadata: Metadata = {
   title: 'Kombat - Sảnh Mini-Game Indie (Neo-Arcade 16-Bit)',
@@ -52,6 +53,7 @@ export default function RootLayout({
       <body suppressHydrationWarning className="min-h-screen flex flex-col bg-[#F4F1EA] text-[#18181B] antialiased">
         <AuthProvider>
           <LanguageProvider>
+            <AchievementToast />
             <Header />
             <main className="flex-1">{children}</main>
             <footer className="border-t-2 border-zinc-900 bg-zinc-900 py-6 text-center text-xs text-zinc-300 font-pixel">

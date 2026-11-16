@@ -8,6 +8,12 @@ import { MinesweeperStats } from '@/features/games/minesweeper/minesweeperStatsS
 import { BrickBreakerStats } from '@/features/games/brickBreaker/brickBreakerStatsService';
 import { TRexStats } from '@/features/games/dinoRunner/tRexStatsService';
 import { FlappyStats } from '@/features/games/flappyBird/flappyStatsService';
+import {
+  mergeAchievements,
+  checkAllEligibleAchievements,
+  ACHIEVEMENTS_STORAGE_KEY,
+} from '@/features/achievements/achievementService';
+import { UnlockedAchievementsMap } from '@/features/achievements/types';
 
 export const STORAGE_KEYS = {
   CHESS: 'kombat_chess_stats',
@@ -20,6 +26,7 @@ export const STORAGE_KEYS = {
   BRICK_BREAKER: 'kombat_brick_breaker_stats',
   T_REX: 'kombat_t_rex_stats',
   FLAPPY: 'kombat_flappy_stats',
+  ACHIEVEMENTS: ACHIEVEMENTS_STORAGE_KEY,
   GUEST_NAME: 'togame_guest_display_name',
   AVATAR: 'kombat_user_avatar',
 } as const;
@@ -239,6 +246,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const localBrickBreaker = safeParse<BrickBreakerStats>(STORAGE_KEYS.BRICK_BREAKER);
   const localTRex = safeParse<TRexStats>(STORAGE_KEYS.T_REX);
   const localFlappy = safeParse<FlappyStats>(STORAGE_KEYS.FLAPPY);
+  const localAchievements = safeParse<UnlockedAchievementsMap>(STORAGE_KEYS.ACHIEVEMENTS);
 
   // 2. Gộp thông minh với cloud
   const mergedChess = mergeBoardGameStats(localChess, meta.chess_stats);
@@ -251,6 +259,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const mergedBrickBreaker = mergeBrickBreakerStats(localBrickBreaker, meta.brick_breaker_stats);
   const mergedTRex = mergeTRexStats(localTRex, meta.t_rex_stats);
   const mergedFlappy = mergeFlappyStats(localFlappy, meta.flappy_stats);
+  const mergedAchievements = mergeAchievements(localAchievements, meta.achievements);
 
   // 3. Lưu lại vào LocalStorage
   if (mergedChess) safeSet(STORAGE_KEYS.CHESS, mergedChess);
@@ -263,6 +272,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   if (mergedBrickBreaker) safeSet(STORAGE_KEYS.BRICK_BREAKER, mergedBrickBreaker);
   if (mergedTRex) safeSet(STORAGE_KEYS.T_REX, mergedTRex);
   if (mergedFlappy) safeSet(STORAGE_KEYS.FLAPPY, mergedFlappy);
+  if (mergedAchievements) safeSet(STORAGE_KEYS.ACHIEVEMENTS, mergedAchievements);
 
   // 4. Đẩy bản gộp lên Supabase User Metadata để bảo lưu vĩnh viễn
   const updateData: Record<string, any> = {};
@@ -308,6 +318,10 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
     updateData.flappy_stats = mergedFlappy;
     hasUpdates = true;
   }
+  if (mergedAchievements && JSON.stringify(mergedAchievements) !== JSON.stringify(meta.achievements)) {
+    updateData.achievements = mergedAchievements;
+    hasUpdates = true;
+  }
 
   if (hasUpdates) {
     try {
@@ -317,7 +331,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
     }
   }
 
-  return {
+  const allMergedStats = {
     chess: mergedChess,
     caro: mergedCaro,
     xiangqi: mergedXiangqi,
@@ -329,4 +343,11 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
     t_rex: mergedTRex,
     flappy: mergedFlappy,
   };
+
+  // 5. Kiểm tra và mở khóa các huy hiệu nếu thành tích gộp đạt mốc
+  try {
+    checkAllEligibleAchievements(allMergedStats);
+  } catch {}
+
+  return allMergedStats;
 }

@@ -118,6 +118,11 @@ export function recordChessGameResult(
 
   saveChessStatsLocally(updatedStats);
 
+  // Tự động kiểm tra và mở khóa huy hiệu thành tựu
+  try {
+    import('@/features/achievements/achievementService').then((m) => m.checkLocalAchievements()).catch(() => {});
+  } catch {}
+
   // Asynchronously sync to cloud & leaderboard
   syncChessStatsToCloud(updatedStats).catch(() => {});
   import('@/features/leaderboard/leaderboardService')

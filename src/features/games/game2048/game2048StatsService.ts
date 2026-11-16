@@ -64,6 +64,11 @@ export function recordGame2048Finish(
 
   saveGame2048Stats(nextStats);
 
+  // Tự động kiểm tra và mở khóa huy hiệu thành tựu
+  try {
+    import('@/features/achievements/achievementService').then((m) => m.checkLocalAchievements()).catch(() => {});
+  } catch {}
+
   // Background sync
   syncGame2048CloudAndLeaderboard(nextStats);
 
