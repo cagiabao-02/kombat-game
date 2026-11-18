@@ -17,11 +17,22 @@ export const BlockBlastScoreBar: React.FC<BlockBlastScoreBarProps> = ({
   comboStreak,
   onResetGame,
 }) => {
-  const [muted, setMuted] = React.useState(sounds.isMuted());
+  const [muted, setMuted] = React.useState(sounds.isSfxMuted());
+
+  React.useEffect(() => {
+    setMuted(sounds.isSfxMuted());
+    const handleVolumeChange = (e: Event) => {
+      const custom = e as CustomEvent<{ sfxMuted: boolean }>;
+      if (custom.detail !== undefined) {
+        setMuted(custom.detail.sfxMuted);
+      }
+    };
+    window.addEventListener('kombat:volume_change', handleVolumeChange);
+    return () => window.removeEventListener('kombat:volume_change', handleVolumeChange);
+  }, []);
 
   const handleToggleSound = () => {
-    const nextMuted = !muted;
-    sounds.setVolume(nextMuted ? 0 : 0.7);
+    const nextMuted = sounds.toggleSfxMute();
     setMuted(nextMuted);
   };
 

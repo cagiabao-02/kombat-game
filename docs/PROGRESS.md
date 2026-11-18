@@ -180,14 +180,27 @@
   - **Điều khiển linh hoạt:** Hỗ trợ Kéo - Thả (Drag & Drop) với cơ chế bù khoảng cách ngón tay (touch offset nhấc khối lên ~75px để ngón tay không che tầm nhìn bàn cờ) kèm Ghost Preview bóng mờ; **tự động phát sáng nhấp nháy toàn bộ 8 ô của hàng hoặc cột sắp nổ** khi kéo khối vào vị trí phá gạch; và Chạm chọn $\rightarrow$ Chạm đặt (Tap to Place) thân thiện với màn hình nhỏ.
   - **Âm thanh Web Audio 8-bit:** Nhấc khối, đặt khối (thud chắc nịch), nổ hàng với cao độ tăng dần theo combo streak, nhạc hiệu combo lớn và âm thanh game over.
   - **Tích hợp hệ thống:** Đăng ký vào Sảnh chính (thể loại Giải đố - `puzzle`), Bảng xếp hạng (Leaderboard), Menu Thành tích trong Profile cá nhân và tự động đồng bộ đám mây Supabase.
+- **Hoàn thành toàn diện Chặng 20 — Hệ thống Nhạc nền 8-bit Chiptune BGM & Bộ điều chỉnh âm lượng kép SFX / BGM độc lập:**
+  - **Công nghệ Procedural Web Audio API Synthesis:** 100% tự sinh nhạc nền bằng mã nguồn trình duyệt, không tải bất kỳ file mp3/wav nào (0MB dung lượng, 0 độ trễ mạng, tiết kiệm tối đa pin thiết bị). Bộ lọc Low-pass Filter 2200Hz giúp âm sắc ấm áp, du dương chuẩn phong cách Game Boy / NES, không chói gắt.
+  - **3 chủ đề nhạc nền độc quyền theo thể loại:**
+    - `Lobby Theme ("Chiptune Cafe")`: Tiết tấu 104 BPM vui tươi, thư giãn và ngập tràn năng lượng retro cho sảnh chính và các trang chọn màn.
+    - `Arcade Theme ("Pixel Rush")`: Tiết tấu 128 BPM sôi động, dồn dập với bè bass và arpeggio lôi cuốn dành cho Block Blast, Rắn săn mồi, Flappy Bird, Phá gạch, 2048.
+    - `Strategy Theme ("Zen Focus")`: Tiết tấu 76 BPM êm đềm, thanh bình mang phong cách lo-fi chiptune giúp người chơi tập trung suy nghĩ khi chơi Cờ vua, Cờ caro, Cờ tướng, Sudoku.
+  - **BgmController thông minh:** Tự động phát hiện chuyển tuyến đường Next.js App Router (`usePathname`) để chuyển đổi bài hát mượt mà; tự động tạm dừng khi người dùng chuyển sang tab khác (`visibilitychange`); tuân thủ chính sách Autoplay của trình duyệt và tự động kích hoạt ngay từ thao tác chạm đầu tiên.
+  - **Bộ điều chỉnh âm lượng kép độc lập (Dual Volume Controls):**
+    - Tách biệt hoàn toàn kênh **Hiệu ứng (SFX)** và **Nhạc nền (BGM)**.
+    - Hỗ trợ thanh trượt âm lượng $0 - 100\%$ riêng biệt kèm nút Bật/Tắt (Mute) độc lập cho từng kênh.
+    - Các nút thiết lập nhanh (Preset: Tắt, 25%, 50%, 80%, 100%) và âm thanh nghe thử (Preview Chime / Arpeggio) khi kéo thanh trượt.
+    - Hiển thị nhãn bài hát đang phát kèm hiệu ứng nốt nhạc pixel nhấp nháy trên Header và Mobile Menu Drawer.
+    - Lưu độc lập cấu hình vào `localStorage` (`kombat_sound_volume`, `togame_sound_muted`, `kombat_bgm_volume`, `kombat_bgm_muted`).
 
 ## Đang làm
 
-- Toàn bộ 11 trò chơi (Cờ Vua, Cờ Tướng, Cờ Caro, Sudoku, 2048, Dò Mìn, Rắn Săn Mồi, Phá Gạch, Khủng Long T-Rex, Flappy Bird, Block Blast) đã hoàn thành và sẵn sàng phục vụ người chơi trên cả điện thoại và máy tính.
+- Toàn bộ 11 trò chơi và hệ thống nhạc nền / hiệu ứng âm thanh 8-bit đã hoàn thành và sẵn sàng phục vụ người chơi trên cả điện thoại và máy tính.
 
 ## Việc kế tiếp
 
-1. Trải nghiệm trực tiếp trò chơi Block Blast tại sảnh chính (`/games/block-blast`), xếp khối nổ dòng và cày kỷ lục combo.
+1. Trải nghiệm hệ thống nhạc nền BGM và điều chỉnh thanh âm lượng kép tại Header hoặc Mobile Menu.
 2. Hướng dẫn commit và tạo Pull Request (PR) theo chuẩn Rule 8 trong `AGENTS.md` khi người dùng yêu cầu.
 
 ## Quyết định còn mở
