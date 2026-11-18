@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { BoardSize, GoAiDifficulty, GoColor, GoGameMode } from './types';
+import { useLanguage } from '@/i18n/LanguageContext';
 import { Bot, Users, Play, History } from 'lucide-react';
 
 interface GoLobbyProps {
@@ -20,6 +21,7 @@ export const GoLobby: React.FC<GoLobbyProps> = ({
   onResumeSavedGame,
   onStartNewGame,
 }) => {
+  const { language } = useLanguage();
   const [boardSize, setBoardSize] = useState<BoardSize>(9);
   const [mode, setMode] = useState<GoGameMode>('ai');
   const [aiDifficulty, setAiDifficulty] = useState<GoAiDifficulty>('easy');
@@ -42,8 +44,12 @@ export const GoLobby: React.FC<GoLobbyProps> = ({
           <div className="flex items-center gap-2">
             <History className="w-5 h-5 text-amber-800" />
             <div>
-              <p className="font-pixel text-xs font-bold text-amber-950">VÁN CỜ ĐANG DANG DỞ</p>
-              <p className="text-[11px] font-mono text-amber-800">Bạn có 1 ván cờ chưa hoàn tất</p>
+              <p className="font-pixel text-xs font-bold text-amber-950">
+                {language === 'vi' ? 'VÁN CỜ ĐANG DANG DỞ' : 'GAME IN PROGRESS'}
+              </p>
+              <p className="text-[11px] font-mono text-amber-800">
+                {language === 'vi' ? 'Bạn có 1 ván cờ chưa hoàn tất' : 'You have an unfinished game'}
+              </p>
             </div>
           </div>
           <button
@@ -51,7 +57,7 @@ export const GoLobby: React.FC<GoLobbyProps> = ({
             onClick={onResumeSavedGame}
             className="pixel-btn bg-amber-400 hover:bg-amber-300 text-zinc-950 px-3 py-1.5 font-pixel text-xs font-bold"
           >
-            TIẾP TỤC
+            {language === 'vi' ? 'TIẾP TỤC' : 'RESUME'}
           </button>
         </div>
       )}
@@ -60,21 +66,37 @@ export const GoLobby: React.FC<GoLobbyProps> = ({
       <div className="pixel-box bg-[#FFFDF8] border-3 border-zinc-900 p-4 space-y-4 shadow-[4px_4px_0px_#000]">
         <div className="text-center border-b-2 border-zinc-900 pb-2">
           <h2 className="font-pixel text-xl font-bold uppercase text-zinc-900">
-            THIẾT LẬP BÀN CỜ VÂY
+            {language === 'vi' ? 'THIẾT LẬP BÀN CỜ VÂY' : 'GO GAME SETUP'}
           </h2>
-          <p className="text-xs font-mono text-zinc-600">Chọn kích thước & chế độ đối đầu</p>
+          <p className="text-xs font-mono text-zinc-600">
+            {language === 'vi'
+              ? 'Chọn kích thước & chế độ đối đầu'
+              : 'Select board size & game mode'}
+          </p>
         </div>
 
         {/* 1. Chọn kích thước bàn cờ */}
         <div className="space-y-1.5">
           <label className="font-pixel text-xs font-bold text-zinc-900 block">
-            1. KÍCH THƯỚC BÀN CỜ
+            {language === 'vi' ? '1. KÍCH THƯỚC BÀN CỜ' : '1. BOARD SIZE'}
           </label>
           <div className="grid grid-cols-3 gap-2">
             {[
-              { size: 9 as BoardSize, label: '9x9', sub: 'Chơi nhanh (Mobile)' },
-              { size: 13 as BoardSize, label: '13x13', sub: 'Tiêu chuẩn' },
-              { size: 19 as BoardSize, label: '19x19', sub: 'Kinh điển' },
+              {
+                size: 9 as BoardSize,
+                label: '9x9',
+                sub: language === 'vi' ? 'Chơi nhanh (Mobile)' : 'Fast (Mobile)',
+              },
+              {
+                size: 13 as BoardSize,
+                label: '13x13',
+                sub: language === 'vi' ? 'Tiêu chuẩn' : 'Standard',
+              },
+              {
+                size: 19 as BoardSize,
+                label: '19x19',
+                sub: language === 'vi' ? 'Kinh điển' : 'Classic',
+              },
             ].map((item) => (
               <button
                 key={item.size}
@@ -96,7 +118,7 @@ export const GoLobby: React.FC<GoLobbyProps> = ({
         {/* 2. Chọn chế độ chơi */}
         <div className="space-y-1.5">
           <label className="font-pixel text-xs font-bold text-zinc-900 block">
-            2. CHẾ ĐỘ ĐỐI ĐẦU
+            {language === 'vi' ? '2. CHẾ ĐỘ ĐỐI ĐẦU' : '2. GAME MODE'}
           </label>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -109,7 +131,9 @@ export const GoLobby: React.FC<GoLobbyProps> = ({
               }`}
             >
               <Bot className="w-4 h-4 text-zinc-950" />
-              <span className="font-pixel text-xs font-bold text-zinc-950">ĐẤU VỚI MÁY</span>
+              <span className="font-pixel text-xs font-bold text-zinc-950">
+                {language === 'vi' ? 'ĐẤU VỚI MÁY' : 'VS BOT AI'}
+              </span>
             </button>
 
             <button
@@ -122,7 +146,9 @@ export const GoLobby: React.FC<GoLobbyProps> = ({
               }`}
             >
               <Users className="w-4 h-4 text-zinc-950" />
-              <span className="font-pixel text-xs font-bold text-zinc-950">CHƠI ĐÔI</span>
+              <span className="font-pixel text-xs font-bold text-zinc-950">
+                {language === 'vi' ? 'CHƠI ĐÔI' : 'PASS & PLAY'}
+              </span>
             </button>
           </div>
         </div>
@@ -133,7 +159,7 @@ export const GoLobby: React.FC<GoLobbyProps> = ({
             {/* Độ khó */}
             <div className="space-y-1">
               <label className="font-pixel text-[11px] font-bold text-zinc-700 block">
-                ĐỘ KHÓ CỦA BOT:
+                {language === 'vi' ? 'ĐỘ KHÓ CỦA BOT:' : 'BOT DIFFICULTY:'}
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -143,7 +169,7 @@ export const GoLobby: React.FC<GoLobbyProps> = ({
                     aiDifficulty === 'easy' ? 'bg-emerald-300 text-emerald-950' : 'bg-white text-zinc-700'
                   }`}
                 >
-                  🟢 TẬP SỰ (DỄ)
+                  {language === 'vi' ? '🟢 TẬP SỰ (DỄ)' : '🟢 NOVICE (EASY)'}
                 </button>
                 <button
                   type="button"
@@ -152,7 +178,7 @@ export const GoLobby: React.FC<GoLobbyProps> = ({
                     aiDifficulty === 'medium' ? 'bg-amber-300 text-amber-950' : 'bg-white text-zinc-700'
                   }`}
                 >
-                  🟡 KỲ THỦ (VỪA)
+                  {language === 'vi' ? '🟡 KỲ THỦ (VỪA)' : '🟡 MASTER (MED)'}
                 </button>
               </div>
             </div>
@@ -160,7 +186,7 @@ export const GoLobby: React.FC<GoLobbyProps> = ({
             {/* Màu quân */}
             <div className="space-y-1">
               <label className="font-pixel text-[11px] font-bold text-zinc-700 block">
-                BẠN CẦM QUÂN:
+                {language === 'vi' ? 'BẠN CẦM QUÂN:' : 'YOUR STONES:'}
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -171,7 +197,7 @@ export const GoLobby: React.FC<GoLobbyProps> = ({
                   }`}
                 >
                   <span className="w-3 h-3 rounded-full bg-black border border-white inline-block" />
-                  <span>ĐEN (ĐI TRƯỚC)</span>
+                  <span>{language === 'vi' ? 'ĐEN (ĐI TRƯỚC)' : 'BLACK (FIRST)'}</span>
                 </button>
                 <button
                   type="button"
@@ -181,7 +207,7 @@ export const GoLobby: React.FC<GoLobbyProps> = ({
                   }`}
                 >
                   <span className="w-3 h-3 rounded-full bg-white border border-black inline-block" />
-                  <span>TRẮNG (ĐI SAU)</span>
+                  <span>{language === 'vi' ? 'TRẮNG (ĐI SAU)' : 'WHITE (SECOND)'}</span>
                 </button>
               </div>
             </div>
@@ -195,7 +221,7 @@ export const GoLobby: React.FC<GoLobbyProps> = ({
           className="w-full pixel-btn bg-emerald-400 hover:bg-emerald-300 text-zinc-950 py-3.5 font-pixel text-sm font-bold flex items-center justify-center gap-2 shadow-[2px_2px_0px_#000]"
         >
           <Play className="w-4 h-4 fill-current" />
-          <span>BẮT ĐẦU VÁN CỜ</span>
+          <span>{language === 'vi' ? 'BẮT ĐẦU VÁN CỜ' : 'START GAME'}</span>
         </button>
       </div>
     </div>
