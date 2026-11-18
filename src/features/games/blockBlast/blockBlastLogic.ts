@@ -160,32 +160,56 @@ export function clearLinesFromBoard(
 
 /**
  * Tính điểm cho lượt đặt:
- * - Điểm đặt khối = số ô của khối (cellsCount)
- * - Điểm nổ hàng/cột = 10 điểm mỗi dòng * tổng số dòng nổ * hệ số combo streak
- * - Thưởng nhiều dòng cùng lúc (Multi-line bonus: 2 dòng x 2, 3 dòng x 3...)
+ * - Điểm đặt khối = số ô của khối (shapeCellsCount)
+ * - Điểm nổ hàng/cột:
+ *   + 1 dòng: 10 điểm
+ *   + 2 dòng (kép): 30 điểm
+ *   + 3 dòng: 60 điểm
+ *   + 4 dòng: 100 điểm
+ *   + Mỗi dòng tiếp theo: +50 điểm
+ * - Hệ số nhân chuỗi Combo: Nhân toàn bộ điểm nổ dòng với nextCombo!
+ * - Thưởng Chuỗi Combo Lũy Tiến Khổng Lồ (Exponential Combo Bonus):
+ *   Càng duy trì chuỗi combo dài, điểm thưởng cộng thêm càng tăng vọt theo hàm bậc hai (x2: +40, x3: +90, x4: +160, x5: +260, x6: +390, x7: +560, x8+: 14 * combo^2)!
  */
 export function calculateMoveScore(
   shapeCellsCount: number,
   linesClearedCount: number,
   comboStreak: number
-): { earnedScore: number; nextCombo: number } {
+): { earnedScore: number; nextCombo: number; comboBonus: number } {
   let earned = shapeCellsCount;
 
   if (linesClearedCount > 0) {
     const nextCombo = comboStreak + 1;
-    // Điểm cơ bản: 10 ô x lines
-    const baseLineScore = linesClearedCount * 10;
-    // Thưởng nổ nhiều dòng đồng thời
-    const multiLineMultiplier = linesClearedCount >= 2 ? linesClearedCount * 1.5 : 1;
-    // Hệ số chuỗi combo liên tiếp (Combo 1: x1, Combo 2: x1.5, Combo 3: x2...)
-    const comboMultiplier = 1 + (nextCombo - 1) * 0.5;
 
-    const linePoints = Math.round(baseLineScore * multiLineMultiplier * comboMultiplier);
-    earned += linePoints;
+    // 1. Điểm cơ bản theo số dòng nổ đồng thời
+    let baseLinePoints = 10;
+    if (linesClearedCount === 2) {
+      baseLinePoints = 30; // Thưởng nổ kép
+    } else if (linesClearedCount === 3) {
+      baseLinePoints = 60; // Thưởng nổ 3 dòng
+    } else if (linesClearedCount === 4) {
+      baseLinePoints = 100; // Thưởng nổ 4 dòng
+    } else if (linesClearedCount > 4) {
+      baseLinePoints = 100 + (linesClearedCount - 4) * 50;
+    }
+
+    // 2. Nhân điểm dòng với bậc combo
+    const multipliedLineScore = baseLinePoints * nextCombo;
+
+    // 3. Thưởng Chuỗi Combo Lũy Tiến (Càng combo cao điểm càng tăng vọt)
+    let comboBonus = 0;
+    if (nextCombo >= 2) {
+      // Công thức hàm mũ: x2 -> 40, x3 -> 90, x4 -> 160, x5 -> 260, x6 -> 390, x7 -> 560...
+      comboBonus = Math.round(nextCombo * nextCombo * 10) + (nextCombo - 1) * 5;
+    }
+
+    const totalLinePoints = multipliedLineScore + comboBonus;
+    earned += totalLinePoints;
 
     return {
       earnedScore: earned,
       nextCombo,
+      comboBonus,
     };
   }
 
@@ -193,6 +217,7 @@ export function calculateMoveScore(
   return {
     earnedScore: earned,
     nextCombo: 0,
+    comboBonus: 0,
   };
 }
 

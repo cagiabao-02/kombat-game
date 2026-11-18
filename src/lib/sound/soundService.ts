@@ -1133,7 +1133,7 @@ class SoundService {
   }
 
   /**
-   * Sound: Block Blast - Nổ hàng / cột (Blast ngân vang, cao dần theo combo)
+   * Sound: Block Blast - Nổ hàng / cột (Blast ngân vang, cao dần và rộn rã theo combo streak)
    */
   public playBlockClearLine(comboStreak: number = 1): void {
     if (this.isMuted()) return;
@@ -1141,27 +1141,48 @@ class SoundService {
     if (!ctx) return;
 
     try {
-      // Tần số cơ bản tăng dần theo chuỗi combo
-      const baseFreq = Math.min(900, 380 + (comboStreak - 1) * 75);
-      const notes = [baseFreq, baseFreq * 1.25, baseFreq * 1.5];
+      // Tần số cơ bản tăng vọt theo chuỗi combo (từ 320Hz lên hơn 1000Hz)
+      const baseFreq = Math.min(1100, 320 + (comboStreak - 1) * 85);
+
+      // Số nốt arpeggio dày dần theo cấp combo (combo càng cao âm thanh càng rộn rã)
+      const notesCount = Math.min(6, 3 + Math.floor(comboStreak / 2));
+      const intervals = [1, 1.25, 1.5, 1.75, 2.0, 2.25];
+      const notes = intervals.slice(0, notesCount).map((factor) => baseFreq * factor);
 
       notes.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.04);
-        osc.frequency.exponentialRampToValueAtTime(freq * 1.3, ctx.currentTime + idx * 0.04 + 0.12);
+        // Combo cao chuyển sang square/sawtooth tạo cảm giác arcade kịch tính
+        osc.type = comboStreak >= 4 ? 'square' : 'triangle';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.045);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.2, ctx.currentTime + idx * 0.045 + 0.14);
 
-        gain.gain.setValueAtTime(0.25, ctx.currentTime + idx * 0.04);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.04 + 0.14);
+        const vol = Math.min(0.35, 0.22 + comboStreak * 0.02);
+        gain.gain.setValueAtTime(vol, ctx.currentTime + idx * 0.045);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.045 + 0.16);
 
         osc.connect(gain);
         gain.connect(this.getDestination(ctx));
 
-        osc.start(ctx.currentTime + idx * 0.04);
-        osc.stop(ctx.currentTime + idx * 0.04 + 0.15);
+        osc.start(ctx.currentTime + idx * 0.045);
+        osc.stop(ctx.currentTime + idx * 0.045 + 0.17);
       });
+
+      // Thêm tiếng Bass Sub-hit uy lực cho Combo từ 4 trở lên
+      if (comboStreak >= 4) {
+        const subOsc = ctx.createOscillator();
+        const subGain = ctx.createGain();
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(140, ctx.currentTime);
+        subOsc.frequency.exponentialRampToValueAtTime(45, ctx.currentTime + 0.22);
+        subGain.gain.setValueAtTime(0.35, ctx.currentTime);
+        subGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+        subOsc.connect(subGain);
+        subGain.connect(this.getDestination(ctx));
+        subOsc.start();
+        subOsc.stop(ctx.currentTime + 0.23);
+      }
     } catch {}
   }
 

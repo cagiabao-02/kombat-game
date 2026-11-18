@@ -56,6 +56,8 @@ export const BlockBlastGame: React.FC = () => {
 
   // Animation State
   const [clearingCoords, setClearingCoords] = useState<Set<string>>(new Set());
+  const [comboBanner, setComboBanner] = useState<{ text: string; points: number; combo: number } | null>(null);
+  const comboBannerTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Refs để hit-testing và xử lý drag mượt mà không delay
   const gridRef = useRef<HTMLDivElement>(null);
@@ -197,7 +199,32 @@ export const BlockBlastGame: React.FC = () => {
         const coordsSet = new Set(clearInfo.clearedCellCoords.map((c) => `${c.r},${c.c}`));
         setClearingCoords(coordsSet);
 
-        if (nextCombo > 2 || clearInfo.totalLines >= 2) {
+        // Hiển thị Floating Combo Banner nếu đạt Combo >= 2
+        if (nextCombo >= 2) {
+          if (comboBannerTimerRef.current) clearTimeout(comboBannerTimerRef.current);
+          const bannerTitle =
+            nextCombo === 2
+              ? 'COMBO x2!'
+              : nextCombo === 3
+              ? 'SUPER COMBO x3!'
+              : nextCombo === 4
+              ? 'MEGA COMBO x4!'
+              : nextCombo === 5
+              ? 'ULTRA COMBO x5!'
+              : `UNSTOPPABLE x${nextCombo}!`;
+
+          setComboBanner({
+            text: bannerTitle,
+            points: earnedScore,
+            combo: nextCombo,
+          });
+
+          comboBannerTimerRef.current = setTimeout(() => {
+            setComboBanner(null);
+          }, 1200);
+        }
+
+        if (nextCombo >= 4 || clearInfo.totalLines >= 2) {
           sounds.playBlockComboFanfare();
         } else {
           sounds.playBlockClearLine(nextCombo);
@@ -403,7 +430,7 @@ export const BlockBlastGame: React.FC = () => {
       />
 
       {/* 2. Board Container 8x8 */}
-      <div className="my-auto py-2">
+      <div className="my-auto py-2 relative">
         <BlockBlastBoard
           board={board}
           ghostCells={ghostCells}
@@ -415,6 +442,28 @@ export const BlockBlastGame: React.FC = () => {
           onCellClick={handleCellClick}
           onCellMouseEnter={handleCellMouseEnter}
         />
+
+        {/* Floating Combo Popup khi đạt chuỗi Combo */}
+        {comboBanner && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 animate-in zoom-in-75 fade-in duration-150">
+            <div
+              className={`px-4 py-2 border-4 border-black shadow-[6px_6px_0px_#000] text-center transform -rotate-2 animate-bounce ${
+                comboBanner.combo >= 5
+                  ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-yellow-200 ring-4 ring-yellow-400'
+                  : comboBanner.combo >= 4
+                  ? 'bg-gradient-to-r from-rose-600 to-amber-500 text-white ring-2 ring-yellow-300'
+                  : 'bg-amber-400 text-zinc-950'
+              }`}
+            >
+              <div className="font-pixel text-lg sm:text-2xl font-black uppercase tracking-wider drop-shadow-[2px_2px_0px_#000]">
+                {comboBanner.text}
+              </div>
+              <div className="font-mono text-xs sm:text-sm font-bold text-white drop-shadow-[1px_1px_0px_#000] mt-0.5">
+                +{comboBanner.points} Điểm!
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 3. Piece Tray (Khay 3 khối) */}

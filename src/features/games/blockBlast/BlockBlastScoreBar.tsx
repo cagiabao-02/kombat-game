@@ -31,8 +31,18 @@ export const BlockBlastScoreBar: React.FC<BlockBlastScoreBarProps> = ({
       <div className="flex items-center justify-between min-h-[32px]">
         {/* Combo Badge nếu có */}
         {comboStreak > 1 ? (
-          <div className="flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-amber-500 to-rose-500 text-white font-pixel text-xs font-bold border-2 border-black shadow-[2px_2px_0px_#000] animate-bounce">
-            <Flame className="w-3.5 h-3.5 text-yellow-200 fill-yellow-200" />
+          <div
+            className={`flex items-center gap-1 px-2.5 py-1 text-white font-pixel text-xs font-bold border-2 border-black shadow-[2px_2px_0px_#000] animate-bounce ${
+              comboStreak >= 5
+                ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-amber-400 text-yellow-100 ring-2 ring-yellow-300'
+                : comboStreak >= 4
+                ? 'bg-gradient-to-r from-rose-600 to-amber-500'
+                : comboStreak >= 3
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500'
+                : 'bg-gradient-to-r from-yellow-500 to-amber-500 text-zinc-950'
+            }`}
+          >
+            <Flame className="w-3.5 h-3.5 text-yellow-200 fill-yellow-200 animate-pulse" />
             <span>COMBO x{comboStreak}!</span>
           </div>
         ) : (

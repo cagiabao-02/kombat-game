@@ -310,7 +310,7 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Tối giản hóa ô "Sắp có" tại sảnh chính: Bỏ gợi ý tên game cụ thể, chỉ hiển thị nhãn "Sắp có" / "Coming soon" tinh gọn.
   - [x] Tự động ghi ván và nút "Xem lại ván này" ngay sau khi trận đấu kết thúc trong Cờ Vua (`ChessGameView.tsx`), Cờ Caro (`CaroGameView.tsx`) và Cờ Tướng (`XiangqiGameView.tsx`).
 - [x] **Trò chơi thứ 11 — Block Blast (Xếp khối nổ dòng 8x8)**:
-  - [x] Động cơ xếp khối polyomino trên bàn cờ 8x8 (`blockBlastLogic.ts`, `blockShapes.ts`): kiểm tra hợp lệ, đặt khối, quét nổ hàng và cột dọc, hệ số combo streak liên hoàn.
+  - [x] Động cơ xếp khối polyomino trên bàn cờ 8x8 (`blockBlastLogic.ts`, `blockShapes.ts`): kiểm tra hợp lệ, đặt khối, quét nổ hàng và cột dọc, hệ thống tính điểm Combo lũy tiến hàm bậc hai (Combo càng cao điểm thưởng càng bùng nổ khổng lồ).
   - [x] Thuật toán chia 3 khối đảm bảo có ít nhất 1 đường sống (Solvable & Fair RNG): không bao giờ chia bộ 3 khối mà người chơi bị bế tắc ngay lập tức; ưu tiên khối cứu tinh (rescue shapes) khi bàn cờ hẹp.
   - [x] Cơ chế Tự động lưu & Khôi phục khi thoát game (Auto-save & Resume - `blockBlastStorage.ts`): bảo lưu bàn cờ, 3 khối khay, điểm số và combo khi người chơi thoát ra sảnh hoặc đóng tab; chỉ reset khi Game Over hoặc chủ động bấm Chơi lại.
   - [x] Dịch vụ quản lý thành tích và đồng bộ đám mây (`blockBlastStatsService.ts`, `statsMergeService.ts`).
