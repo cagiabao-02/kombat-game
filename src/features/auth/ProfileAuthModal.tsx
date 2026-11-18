@@ -16,6 +16,7 @@ import { getBrickBreakerStats, BrickBreakerStats } from '@/features/games/brickB
 import { getTRexStats, TRexStats } from '@/features/games/dinoRunner/tRexStatsService';
 import { getFlappyStats, FlappyStats } from '@/features/games/flappyBird/flappyStatsService';
 import { getBlockBlastStats, BlockBlastStats } from '@/features/games/blockBlast/blockBlastStatsService';
+import { getGoStats, GoStats } from '@/features/games/go/goStatsService';
 import { ACHIEVEMENTS } from '@/features/achievements/achievementsConfig';
 import {
   getUnlockedAchievements,
@@ -214,6 +215,7 @@ export function ProfileAuthModal({
   const [chessStats, setChessStats] = useState<ChessStats | null>(null);
   const [caroStats, setCaroStats] = useState<CaroStats | null>(null);
   const [xiangqiStats, setXiangqiStats] = useState<XiangqiStats | null>(null);
+  const [goStats, setGoStats] = useState<GoStats | null>(null);
   const [sudokuStats, setSudokuStats] = useState<SudokuStats | null>(null);
   const [snakeStats, setSnakeStats] = useState<SnakeStats | null>(null);
   const [game2048Stats, setGame2048Stats] = useState<Game2048Stats | null>(null);
@@ -222,7 +224,7 @@ export function ProfileAuthModal({
   const [tRexStats, setTRexStats] = useState<TRexStats | null>(null);
   const [flappyStats, setFlappyStats] = useState<FlappyStats | null>(null);
   const [blockBlastStats, setBlockBlastStats] = useState<BlockBlastStats | null>(null);
-  const [statsGameTab, setStatsGameTab] = useState<'all' | 'chess' | 'caro' | 'xiangqi' | 'sudoku' | 'snake' | 'game2048' | 'minesweeper' | 'brick_breaker' | 't_rex' | 'flappy' | 'block_blast'>('all');
+  const [statsGameTab, setStatsGameTab] = useState<'all' | 'chess' | 'caro' | 'xiangqi' | 'go' | 'sudoku' | 'snake' | 'game2048' | 'minesweeper' | 'brick_breaker' | 't_rex' | 'flappy' | 'block_blast'>('all');
   const wasOpenRef = useRef(false);
 
   useEffect(() => {
@@ -244,6 +246,7 @@ export function ProfileAuthModal({
       setChessStats(meta.chess_stats || getChessStats());
       setCaroStats(meta.caro_stats || getCaroStats());
       setXiangqiStats(meta.xiangqi_stats || getXiangqiStats());
+      setGoStats(meta.go_stats || getGoStats());
       setSudokuStats(meta.sudoku_stats || getSudokuStats());
       setSnakeStats(meta.snake_stats || getSnakeStats());
       setGame2048Stats(meta.game2048_stats || getGame2048Stats());
@@ -265,6 +268,7 @@ export function ProfileAuthModal({
         chess: meta.chess_stats || getChessStats(),
         caro: meta.caro_stats || getCaroStats(),
         xiangqi: meta.xiangqi_stats || getXiangqiStats(),
+        go: meta.go_stats || getGoStats(),
         sudoku: meta.sudoku_stats || getSudokuStats(),
         snake: meta.snake_stats || getSnakeStats(),
         game2048: meta.game2048_stats || getGame2048Stats(),
@@ -285,6 +289,7 @@ export function ProfileAuthModal({
             if (m.caro_stats) setCaroStats(m.caro_stats);
             if (m.chess_stats) setChessStats(m.chess_stats);
             if (m.xiangqi_stats) setXiangqiStats(m.xiangqi_stats);
+            if (m.go_stats) setGoStats(m.go_stats);
             if (m.sudoku_stats) setSudokuStats(m.sudoku_stats);
             if (m.snake_stats) setSnakeStats(m.snake_stats);
             if (m.game2048_stats) setGame2048Stats(m.game2048_stats);
@@ -442,24 +447,34 @@ export function ProfileAuthModal({
       const elo = Math.max(800, 1200 + (xiangqiStats?.pvp?.wins || 0) * 25 - (xiangqiStats?.pvp?.losses || 0) * 15);
       return { wins, losses, draws, total, rate, streak: xiangqiStats?.currentStreak || 0, elo };
     }
-    // all (tổng hợp cả 3 game cờ)
-    const wins = (chessStats?.wins || 0) + (caroStats?.wins || 0) + (xiangqiStats?.wins || 0);
-    const losses = (chessStats?.losses || 0) + (caroStats?.losses || 0) + (xiangqiStats?.losses || 0);
+    if (statsGameTab === 'go') {
+      const wins = goStats?.wins || 0;
+      const losses = goStats?.losses || 0;
+      const total = wins + losses;
+      const rate = total > 0 ? Math.round((wins / total) * 100) : 0;
+      const elo = Math.max(800, 1200 + wins * 25 - losses * 15);
+      return { wins, losses, draws: 0, total, rate, streak: goStats?.currentStreak || 0, elo };
+    }
+    // all (tổng hợp các game cờ)
+    const wins = (chessStats?.wins || 0) + (caroStats?.wins || 0) + (xiangqiStats?.wins || 0) + (goStats?.wins || 0);
+    const losses = (chessStats?.losses || 0) + (caroStats?.losses || 0) + (xiangqiStats?.losses || 0) + (goStats?.losses || 0);
     const draws = (chessStats?.draws || 0) + (caroStats?.draws || 0) + (xiangqiStats?.draws || 0);
     const total = wins + losses + draws;
     const rate = total > 0 ? Math.round((wins / total) * 100) : 0;
     const streak = Math.max(
       chessStats?.streak || 0,
       caroStats?.currentStreak || 0,
-      xiangqiStats?.currentStreak || 0
+      xiangqiStats?.currentStreak || 0,
+      goStats?.currentStreak || 0
     );
     return { wins, losses, draws, total, rate, streak };
-  }, [statsGameTab, chessStats, caroStats, xiangqiStats]);
+  }, [statsGameTab, chessStats, caroStats, xiangqiStats, goStats]);
 
   const globalSummary = React.useMemo(() => {
     const chessGames = chessStats?.totalGames || ((chessStats?.wins || 0) + (chessStats?.losses || 0) + (chessStats?.draws || 0));
     const caroGames = (caroStats?.wins || 0) + (caroStats?.losses || 0) + (caroStats?.draws || 0);
     const xiangqiGames = (xiangqiStats?.wins || 0) + (xiangqiStats?.losses || 0) + (xiangqiStats?.draws || 0);
+    const goGames = (goStats?.wins || 0) + (goStats?.losses || 0);
     const sudokuGames = sudokuStats?.totalSolved || 0;
     const snakeGames = snakeStats?.totalGames || (snakeStats?.highScore ? 1 : 0);
     const game2048Games = game2048Stats?.totalGames || (game2048Stats?.highScore ? 1 : 0);
@@ -473,6 +488,7 @@ export function ProfileAuthModal({
       chessGames +
       caroGames +
       xiangqiGames +
+      goGames +
       sudokuGames +
       snakeGames +
       game2048Games +
@@ -486,6 +502,7 @@ export function ProfileAuthModal({
       (chessStats?.wins || 0) +
       (caroStats?.wins || 0) +
       (xiangqiStats?.wins || 0) +
+      (goStats?.wins || 0) +
       (sudokuStats?.totalSolved || 0) +
       (minesweeperStats?.totalWins || 0) +
       ((brickBreakerStats?.highestLevel && brickBreakerStats.highestLevel > 1) ? brickBreakerStats.highestLevel - 1 : 0) +
@@ -496,6 +513,7 @@ export function ProfileAuthModal({
       { name: language === 'vi' ? 'Cờ Vua' : 'Chess', icon: '♟️', count: chessGames },
       { name: language === 'vi' ? 'Cờ Caro' : 'Caro', icon: '⭕', count: caroGames },
       { name: language === 'vi' ? 'Cờ Tướng' : 'Xiangqi', icon: '帥', count: xiangqiGames },
+      { name: language === 'vi' ? 'Cờ Vây' : 'Go', icon: '⚫', count: goGames },
       { name: 'Sudoku', icon: '🔢', count: sudokuGames },
       { name: language === 'vi' ? 'Rắn' : 'Snake', icon: '🐍', count: snakeGames },
       { name: '2048', icon: '🔢', count: game2048Games },
@@ -519,6 +537,7 @@ export function ProfileAuthModal({
     chessStats,
     caroStats,
     xiangqiStats,
+    goStats,
     sudokuStats,
     snakeStats,
     game2048Stats,
@@ -810,6 +829,7 @@ export function ProfileAuthModal({
                         <option value="chess">♟️ {language === 'vi' ? 'Cờ Vua' : 'Chess'}</option>
                         <option value="caro">⭕ {language === 'vi' ? 'Cờ Caro' : 'Caro'}</option>
                         <option value="xiangqi">帥 {language === 'vi' ? 'Cờ Tướng' : 'Xiangqi'}</option>
+                        <option value="go">⚫ {language === 'vi' ? 'Cờ Vây' : 'Go'}</option>
                       </optgroup>
                       <optgroup label={language === 'vi' ? '🧩 Trí Tuệ & Giải Đố' : '🧩 Puzzle'}>
                         <option value="sudoku">🔢 Sudoku</option>
@@ -1239,7 +1259,7 @@ export function ProfileAuthModal({
                       </div>
                     </div>
 
-                    {(statsGameTab === 'chess' || statsGameTab === 'xiangqi') && currentStatData.elo && (
+                    {(statsGameTab === 'chess' || statsGameTab === 'xiangqi' || statsGameTab === 'go') && currentStatData.elo && (
                       <div className="mt-2 flex items-center justify-between bg-white px-3 py-1 border-2 border-zinc-900 text-xs font-mono">
                         <span className="font-bold text-zinc-600">Elo Online:</span>
                         <span className="font-pixel text-sm font-bold text-amber-600">{currentStatData.elo} Elo</span>

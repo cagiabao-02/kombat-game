@@ -193,14 +193,27 @@
     - Các nút thiết lập nhanh (Preset: Tắt, 25%, 50%, 80%, 100%) và âm thanh nghe thử (Preview Chime / Arpeggio) khi kéo thanh trượt.
     - Hiển thị nhãn bài hát đang phát kèm hiệu ứng nốt nhạc pixel nhấp nháy trên Header và Mobile Menu Drawer.
     - Lưu độc lập cấu hình vào `localStorage` (`kombat_sound_volume`, `togame_sound_muted`, `kombat_bgm_volume`, `kombat_bgm_muted`).
+- **Hoàn thành toàn diện Chặng 21 — Trò chơi thứ 12: Cờ Vây (Go / Weiqi / Baduk):**
+  - **Động cơ luật Cờ Vây chuẩn quốc tế (`goLogic.ts`, `types.ts`):**
+    - Hỗ trợ 3 kích thước bàn cờ: **9x9** (chơi nhanh, cực tối ưu cho điện thoại), **13x13** (tiêu chuẩn), và **19x19** (chuẩn thi đấu chuyên nghiệp).
+    - Thuật toán tìm kiếm đám quân liên kết (Connected group flood-fill), đếm khí (Liberties), tự động nhấc quân bắt tù binh (Captures) khi đám quân bị vây kín 0 khí.
+    - Kiểm tra cấm tự sát (Suicide check) và luật Kiếp (Ko rule) chống lặp trạng thái ván cờ.
+    - Chức năng Bỏ lượt (Pass) và Xin thua (Resign). Hai lượt Bỏ lượt liên tiếp sẽ kích hoạt tính điểm lãnh thổ (Territory Scoring) + số tù binh + $6.5$ điểm chấp Komi cho quân Trắng.
+  - **Trí tuệ nhân tạo Bot AI Cờ Vây (`goBot.ts`):** 2 cấp độ Dễ (Tập sự) và Trung bình (Kỳ thủ) tính toán đòn dọa bắt quân (Atari), giải cứu quân nguy cấp, chiếm các điểm sao (Hoshi/Tengen) và góc/cạnh vàng khai cuộc.
+  - **Giao diện bàn cờ gỗ Kaya Neo-Arcade (`GoBoard.tsx`, `GoScoreBar.tsx`, `GoGameOverModal.tsx`, `GoLobby.tsx`):**
+    - Lưới SVG co giãn vô cực siêu sắc nét, sao định vị tengen/hoshi, nhãn tọa độ mép, bóng mờ đặt thử (hover/touch preview) và vết đánh dấu nước đi gần nhất.
+    - Bảng thông tin đếm tù binh 2 bên, lượt đi động, cảnh báo bỏ lượt và popover xác nhận đặt cờ chống chạm nhầm trên điện thoại.
+    - Tự động lưu và khôi phục khi thoát game (Auto-save & Resume via `goStorage.ts`).
+  - **Âm thanh Web Audio xúc giác:** Tiếng gõ quân cờ đá lách cách thanh thoát lên bàn gỗ (`playGoStonePlace`) và tiếng bắt tù binh (`playGoStoneCapture`), tự động kết hợp với nhạc nền thiền tĩnh tâm Strategy Theme ("Zen Focus").
+  - **Tích hợp toàn diện:** Đăng ký vào Sảnh chính (`GAME_REGISTRY`), thể loại Cờ chiến thuật (`strategy`), Bảng xếp hạng (Leaderboard), Hồ sơ cá nhân (Profile) và đồng bộ tài khoản đám mây Supabase (`statsMergeService.ts`).
 
 ## Đang làm
 
-- Toàn bộ 11 trò chơi và hệ thống nhạc nền / hiệu ứng âm thanh 8-bit đã hoàn thành và sẵn sàng phục vụ người chơi trên cả điện thoại và máy tính.
+- Toàn bộ 12 trò chơi (Cờ Vua, Cờ Tướng, Cờ Caro, Cờ Vây, Sudoku, 2048, Dò Mìn, Rắn Săn Mồi, Phá Gạch, Khủng Long T-Rex, Flappy Bird, Block Blast) và hệ thống âm thanh / nhạc nền kép đã sẵn sàng phục vụ người chơi.
 
 ## Việc kế tiếp
 
-1. Trải nghiệm hệ thống nhạc nền BGM và điều chỉnh thanh âm lượng kép tại Header hoặc Mobile Menu.
+1. Trải nghiệm trực tiếp trò chơi Cờ Vây tại sảnh chính (`/games/go`).
 2. Hướng dẫn commit và tạo Pull Request (PR) theo chuẩn Rule 8 trong `AGENTS.md` khi người dùng yêu cầu.
 
 ## Quyết định còn mở

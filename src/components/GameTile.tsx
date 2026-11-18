@@ -32,6 +32,28 @@ export function GameIcon({ id }: { id: GameId }) {
         </div>
       );
 
+    case 'go':
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-[#DE9F56]">
+          <svg viewBox="0 0 16 16" className="h-[80%] w-[80%] pixelated" shapeRendering="crispEdges">
+            {/* Lưới bàn cờ Cờ Vây */}
+            <path d="M0 4h16v1H0z M0 8h16v1H0z M0 12h16v1H0z" fill="#784719" />
+            <path d="M4 0h1v16H4z M8 0h1v16H8z M12 0h1v16h-1z" fill="#784719" />
+            {/* Điểm sao Tengen */}
+            <rect x="8" y="8" width="1" height="1" fill="#3D2008" />
+
+            {/* Quân Cờ Đen tròn pixel ở góc (4,4) */}
+            <circle cx="4.5" cy="4.5" r="3" fill="#000000" />
+            <circle cx="3.5" cy="3.5" r="0.8" fill="#555555" />
+
+            {/* Quân Cờ Trắng tròn pixel ở góc (10.5, 9.5) */}
+            <circle cx="10.5" cy="9.5" r="3.2" fill="#D1CFC4" />
+            <circle cx="10.5" cy="9.5" r="2.8" fill="#FFFFFF" />
+            <circle cx="9.5" cy="8.5" r="0.8" fill="#FFFFFF" />
+          </svg>
+        </div>
+      );
+
     case 'caro':
       return (
         <div className="flex h-full w-full items-center justify-center bg-rose-100">

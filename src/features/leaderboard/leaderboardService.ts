@@ -11,6 +11,7 @@ import { getBrickBreakerStats } from '@/features/games/brickBreaker/brickBreaker
 import { getTRexStats } from '@/features/games/dinoRunner/tRexStatsService';
 import { getFlappyStats } from '@/features/games/flappyBird/flappyStatsService';
 import { getBlockBlastStats } from '@/features/games/blockBlast/blockBlastStatsService';
+import { getGoStats } from '@/features/games/go/goStatsService';
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -22,7 +23,7 @@ function formatTime(seconds: number): string {
  * Định dạng nhãn điểm số chuẩn hóa theo từng bộ môn
  */
 function formatScoreLabel(game: LeaderboardGame, scoreValue: number): string {
-  if (game === 'chess' || game === 'xiangqi') {
+  if (game === 'chess' || game === 'xiangqi' || game === 'go') {
     return `${scoreValue} Elo`;
   }
   if (game === 'sudoku') {
@@ -239,6 +240,23 @@ export function getLocalLeaderboardData(
         secondaryInfo: undefined,
         isCurrentUser: true,
         tierBadge: stats.highScore >= 5000 ? 'Bậc Thầy Nổ Khối' : stats.highScore >= 2000 ? 'Xếp Gạch Cừ Khôi' : 'Tập Sự',
+      };
+    }
+  } else if (game === 'go') {
+    const stats = getGoStats();
+    if (stats.totalGames > 0) {
+      const elo = Math.max(800, 1200 + stats.wins * 25 - stats.losses * 15);
+      userEntry = {
+        id: currentUserId || 'current_user',
+        userId: currentUserId,
+        name: currentUserName,
+        avatar: currentUserAvatar,
+        rank: 1,
+        scoreValue: elo,
+        scoreLabel: `${elo} Elo`,
+        secondaryInfo: `${stats.wins} Thắng / ${stats.losses} Thua`,
+        isCurrentUser: true,
+        tierBadge: elo >= 1600 ? 'Kỳ Thánh' : elo >= 1400 ? 'Kỳ Thủ' : 'Tập Sự',
       };
     }
   }
@@ -593,6 +611,11 @@ export async function syncLeaderboardScoreForGame(
       if (stats.highScore === 0) return;
       scoreValue = stats.highScore;
       scoreLabel = `${stats.highScore.toLocaleString()} Điểm`;
+    } else if (game === 'go') {
+      const stats = getGoStats();
+      if (stats.totalGames === 0) return;
+      scoreValue = Math.max(800, 1200 + stats.wins * 25 - stats.losses * 15);
+      scoreLabel = `${scoreValue} Elo`;
     }
 
     await upsertSingleScore(

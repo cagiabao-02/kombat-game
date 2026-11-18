@@ -97,8 +97,33 @@ export const GAME_REGISTRY: GameMetadata[] = [
     minPlayers: 1,
     maxPlayers: 2,
     badge: {
-      vi: 'Mới ra mắt',
-      en: 'New Release',
+      vi: 'Trí tuệ',
+      en: 'Strategy',
+    },
+  },
+  {
+    id: 'go',
+    category: 'strategy',
+    name: {
+      vi: 'Cờ Vây',
+      en: 'Go (Weiqi)',
+    },
+    shortDescription: {
+      vi: 'Đỉnh cao trí tuệ Á Đông - bao vây chiếm đất 9x9/13x13/19x19',
+      en: 'Ancient game of strategy & territory 9x9/13x13/19x19',
+    },
+    description: {
+      vi: 'Trò chơi cờ vây kinh điển ngàn năm tuổi. Tính toán khí, bắt tù binh và bao vây chiếm lĩnh đất đai. Đấu với Bot AI hoặc chơi đôi trên cùng máy.',
+      en: 'Timeless ancient game of Go. Manage liberties, capture stones and secure surrounding territory. Battle smart Bot AI or pass & play locally.',
+    },
+    route: '/games/go',
+    status: 'available',
+    modes: ['single_player', 'multiplayer_room'],
+    minPlayers: 1,
+    maxPlayers: 2,
+    badge: {
+      vi: 'MỚI RA MẮT',
+      en: 'NEW RELEASE',
     },
   },
   {

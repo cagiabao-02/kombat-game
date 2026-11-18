@@ -1753,6 +1753,76 @@ class SoundService {
       });
     } catch {}
   }
+
+  /**
+   * Sound: Cờ Vây - Gõ quân cờ đá lên bàn gỗ (Tactile stone placement clack)
+   */
+  public playGoStonePlace(): void {
+    if (this.isSfxMuted()) return;
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+
+    try {
+      const t = ctx.currentTime;
+
+      // 1. Sharp high-frequency click (stone contact)
+      const oscClick = ctx.createOscillator();
+      const gainClick = ctx.createGain();
+      oscClick.type = 'triangle';
+      oscClick.frequency.setValueAtTime(880, t);
+      oscClick.frequency.exponentialRampToValueAtTime(320, t + 0.035);
+      gainClick.gain.setValueAtTime(0.3, t);
+      gainClick.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
+      oscClick.connect(gainClick);
+      gainClick.connect(this.getDestination(ctx));
+      oscClick.start(t);
+      oscClick.stop(t + 0.04);
+
+      // 2. Resonant warm wood body thump
+      const oscWood = ctx.createOscillator();
+      const gainWood = ctx.createGain();
+      oscWood.type = 'sine';
+      oscWood.frequency.setValueAtTime(220, t);
+      oscWood.frequency.exponentialRampToValueAtTime(110, t + 0.07);
+      gainWood.gain.setValueAtTime(0.25, t);
+      gainWood.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+      oscWood.connect(gainWood);
+      gainWood.connect(this.getDestination(ctx));
+      oscWood.start(t);
+      oscWood.stop(t + 0.08);
+    } catch {}
+  }
+
+  /**
+   * Sound: Cờ Vây - Bắt tù binh (Stones captured double clack)
+   */
+  public playGoStoneCapture(): void {
+    if (this.isSfxMuted()) return;
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+
+    try {
+      const t = ctx.currentTime;
+      // Two quick stone clacks in rapid succession
+      [0, 0.07].forEach((delay, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        const baseFreq = idx === 0 ? 540 : 720;
+        osc.frequency.setValueAtTime(baseFreq, t + delay);
+        osc.frequency.exponentialRampToValueAtTime(280, t + delay + 0.05);
+
+        gain.gain.setValueAtTime(0.22, t + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.05);
+
+        osc.connect(gain);
+        gain.connect(this.getDestination(ctx));
+
+        osc.start(t + delay);
+        osc.stop(t + delay + 0.06);
+      });
+    } catch {}
+  }
 }
 
 export const sounds = new SoundService();

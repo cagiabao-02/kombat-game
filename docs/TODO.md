@@ -319,6 +319,17 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
     - [x] Hỗ trợ Chạm chọn khay $\rightarrow$ Chạm đặt bàn cờ (Tap-to-place) tối ưu chơi 1 tay trên điện thoại.
     - [x] Hiệu ứng âm thanh procedural Web Audio API (`playBlockPickup`, `playBlockPlace`, `playBlockClearLine`, `playBlockComboFanfare`, `playBlockGameOver`).
   - [x] Đăng ký Sảnh chính (thể loại Giải đố - Puzzle), Bảng xếp hạng Leaderboard (`LeaderboardModal.tsx`), Hồ sơ cá nhân (`ProfileAuthModal.tsx`) và vẽ icon pixel cho `GameTile.tsx`.
+- [x] **Hệ thống Nhạc nền 8-bit Procedural Chiptune BGM & Điều chỉnh âm lượng kép (SFX / BGM)**:
+  - [x] Tích hợp bộ tổng hợp nhạc Web Audio API 0MB, bộ lọc ấm 2200Hz và 3 chủ đề độc quyền (Lobby, Arcade, Strategy).
+  - [x] Tách 2 kênh âm lượng độc lập (SFX & BGM) với thanh trượt $0-100\%$, nút mute riêng, presets và live track badge trên Header và Mobile Drawer.
+  - [x] `BgmController` tự động chuyển bài theo URL và tự dừng khi chuyển tab.
+- [x] **Trò chơi thứ 12 — Cờ Vây (Go / Weiqi / Baduk)**:
+  - [x] Động cơ luật cờ Vây chuẩn quốc tế (`goLogic.ts`, `types.ts`): hỗ trợ kích thước 9x9 (nhanh/mobile), 13x13 (vừa) và 19x19 (chuẩn thi đấu); thuật toán tìm đám quân liên kết (group flood-fill), đếm khí (liberties), bắt tù binh (capture), cấm tự sát (suicide check), luật kiếp (Ko rule), bỏ lượt (Pass) và tính điểm lãnh thổ + tù binh + điểm chấp Komi 6.5.
+  - [x] Trí tuệ nhân tạo Bot AI Cờ Vây (`goBot.ts`): 2 cấp độ Dễ (Tập sự) và Trung bình (Kỳ thủ) tính toán dọa bắt quân (Atari), bảo vệ đám quân nguy cấp, chiếm góc/cạnh và bao vây lãnh thổ.
+  - [x] Dịch vụ lưu trữ điểm số & khôi phục ván đấu (`goStorage.ts`, `goStatsService.ts`).
+  - [x] Giao diện bàn cờ gỗ Neo-Arcade responsive (`GoBoard.tsx`, `GoScoreBar.tsx`, `GoLobby.tsx`, `GoGame.tsx`): điểm sao định vị (Hoshi/Tengen), bóng mờ đặt thử (preview hover/touch), cờ đánh dấu nước đi mới nhất, bảng đếm tù binh 2 bên và modal kết thúc tính điểm.
+  - [x] Âm thanh xúc giác gõ cờ đá thanh thoát (`playGoStonePlace`, `playGoStoneCapture`) trong `soundService.ts`.
+  - [x] Đăng ký Sảnh chính (`GAME_REGISTRY`), thể loại Cờ chiến thuật (`strategy`), đồng bộ Bảng xếp hạng, Hồ sơ cá nhân và bản dịch Việt/Anh.
 - [ ] **Chế độ Khán giả (Spectator Mode)**: Cho phép bạn bè vào xem trực tiếp ván cờ qua link phòng.
 
 
