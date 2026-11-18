@@ -147,8 +147,8 @@ export default function LobbyPage() {
                   {games.map((game) => (
                     <GameTile key={game.id} game={game} />
                   ))}
-                  {/* Ô đại diện cho game dự kiến tiếp theo */}
-                  <UpcomingTile label={cat.upcoming[language]} />
+                  {/* Ô đại diện cho game sắp có */}
+                  <UpcomingTile />
                 </div>
               </div>
             );

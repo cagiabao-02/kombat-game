@@ -14,6 +14,11 @@ import {
   ACHIEVEMENTS_STORAGE_KEY,
 } from '@/features/achievements/achievementService';
 import { UnlockedAchievementsMap } from '@/features/achievements/types';
+import {
+  mergeMatchHistory,
+  MATCH_HISTORY_STORAGE_KEY,
+} from '@/features/matchHistory/matchHistoryService';
+import { MatchRecord } from '@/features/matchHistory/types';
 
 export const STORAGE_KEYS = {
   CHESS: 'kombat_chess_stats',
@@ -27,6 +32,7 @@ export const STORAGE_KEYS = {
   T_REX: 'kombat_t_rex_stats',
   FLAPPY: 'kombat_flappy_stats',
   ACHIEVEMENTS: ACHIEVEMENTS_STORAGE_KEY,
+  MATCH_HISTORY: MATCH_HISTORY_STORAGE_KEY,
   GUEST_NAME: 'togame_guest_display_name',
   AVATAR: 'kombat_user_avatar',
 } as const;
@@ -247,6 +253,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const localTRex = safeParse<TRexStats>(STORAGE_KEYS.T_REX);
   const localFlappy = safeParse<FlappyStats>(STORAGE_KEYS.FLAPPY);
   const localAchievements = safeParse<UnlockedAchievementsMap>(STORAGE_KEYS.ACHIEVEMENTS);
+  const localMatchHistory = safeParse<MatchRecord[]>(STORAGE_KEYS.MATCH_HISTORY);
 
   // 2. Gộp thông minh với cloud
   const mergedChess = mergeBoardGameStats(localChess, meta.chess_stats);
@@ -260,6 +267,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const mergedTRex = mergeTRexStats(localTRex, meta.t_rex_stats);
   const mergedFlappy = mergeFlappyStats(localFlappy, meta.flappy_stats);
   const mergedAchievements = mergeAchievements(localAchievements, meta.achievements);
+  const mergedMatchHistory = mergeMatchHistory(localMatchHistory, meta.match_history);
 
   // 3. Lưu lại vào LocalStorage
   if (mergedChess) safeSet(STORAGE_KEYS.CHESS, mergedChess);
@@ -273,6 +281,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   if (mergedTRex) safeSet(STORAGE_KEYS.T_REX, mergedTRex);
   if (mergedFlappy) safeSet(STORAGE_KEYS.FLAPPY, mergedFlappy);
   if (mergedAchievements) safeSet(STORAGE_KEYS.ACHIEVEMENTS, mergedAchievements);
+  if (mergedMatchHistory) safeSet(STORAGE_KEYS.MATCH_HISTORY, mergedMatchHistory);
 
   // 4. Đẩy bản gộp lên Supabase User Metadata để bảo lưu vĩnh viễn
   const updateData: Record<string, any> = {};
@@ -320,6 +329,10 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   }
   if (mergedAchievements && JSON.stringify(mergedAchievements) !== JSON.stringify(meta.achievements)) {
     updateData.achievements = mergedAchievements;
+    hasUpdates = true;
+  }
+  if (mergedMatchHistory && JSON.stringify(mergedMatchHistory) !== JSON.stringify(meta.match_history)) {
+    updateData.match_history = mergedMatchHistory;
     hasUpdates = true;
   }
 

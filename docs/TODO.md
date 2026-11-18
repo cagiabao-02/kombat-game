@@ -301,6 +301,14 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Khối điều khiển âm lượng trực tiếp trong Menu ngăn kéo Mobile (Hamburger Drawer).
   - [x] Âm thanh thử nghiệm (`playVolumePreview()`) phản hồi tức thì khi kéo thanh trượt.
   - [x] Lưu trữ cục bộ (`kombat_sound_volume`) và đồng bộ thời gian thực qua CustomEvent `kombat:volume_change`.
+- [x] **Lịch sử Thi đấu & Trình Xem lại Ván cờ (Match History & Replay Viewer)**:
+  - [x] Cố định giới hạn lưu trữ tối đa **20 trận gần nhất** (`MAX_MATCH_HISTORY = 20`) chống phình to dữ liệu LocalStorage và Supabase.
+  - [x] Định nghĩa cấu trúc ván đấu, dịch vụ quản lý và đồng bộ đám mây (`types.ts`, `matchHistoryService.ts`, `statsMergeService.ts`).
+  - [x] Xây dựng Trình xem lại tương tác Neo-Arcade hỗ trợ tua từng nước đi, tự động phát lại và tái tạo trạng thái bàn cờ Cờ Vua, Cờ Caro, Cờ Tướng (`MatchReplayModal.tsx`).
+  - [x] Tab "LỊCH SỬ" trong Hồ sơ cá nhân với bộ lọc game dropdown gọn gàng, bỏ hiển thị `Lưu 0/20 ván`, nút xóa lịch sử và mở trình xem lại (`ProfileAuthModal.tsx`).
+  - [x] Tối ưu hóa UI/UX mục "Thành tích" trong Hồ sơ cá nhân: Thay thế cụm nút chọn game dễ phình to bằng Menu Dropdown phân nhóm chuẩn mực (Board / Puzzle / Arcade) và bảng "Tổng quan" chuyển thành chỉ số tài khoản bất biến với bố cục 3 thẻ số liệu + 1 thanh game chơi nhiều nhất rộng rãi không bị cắt chữ.
+  - [x] Tối giản hóa ô "Sắp có" tại sảnh chính: Bỏ gợi ý tên game cụ thể, chỉ hiển thị nhãn "Sắp có" / "Coming soon" tinh gọn.
+  - [x] Tự động ghi ván và nút "Xem lại ván này" ngay sau khi trận đấu kết thúc trong Cờ Vua (`ChessGameView.tsx`), Cờ Caro (`CaroGameView.tsx`) và Cờ Tướng (`XiangqiGameView.tsx`).
 - [ ] **Chế độ Khán giả (Spectator Mode)**: Cho phép bạn bè vào xem trực tiếp ván cờ qua link phòng.
 
 

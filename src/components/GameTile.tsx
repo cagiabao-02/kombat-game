@@ -264,7 +264,7 @@ export function GameTile({ game }: { game: GameMetadata }) {
 }
 
 /** Ô "Sắp có" cho thể loại chưa đủ game. */
-export function UpcomingTile({ label }: { label: string }) {
+export function UpcomingTile({ label }: { label?: string }) {
   const { language } = useLanguage();
   return (
     <div className="group relative flex w-20 sm:w-24 flex-col items-center" tabIndex={0}>
@@ -278,14 +278,13 @@ export function UpcomingTile({ label }: { label: string }) {
         className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-3 hidden -translate-x-1/2 whitespace-nowrap sm:group-hover:block sm:group-focus-visible:block"
       >
         <div className="pixel-box-sm bg-zinc-900 px-3 py-1.5 text-center">
-          <p className="font-pixel text-sm font-bold text-amber-300">
+          <p className="font-pixel text-xs sm:text-sm font-bold text-amber-300">
             {language === 'vi' ? 'SẮP CÓ' : 'COMING SOON'}
           </p>
-          <p className="font-mono text-[10px] font-bold text-zinc-300">{label}</p>
         </div>
         <div className="mx-auto h-2 w-3 bg-zinc-900 [clip-path:polygon(0_0,100%_0,50%_100%)]" />
       </div>
-      <span className="mt-2 w-full truncate text-center font-pixel text-[11px] font-bold text-zinc-500 sm:hidden">
+      <span className="mt-2 w-full truncate text-center font-pixel text-[11px] font-bold text-zinc-400">
         {language === 'vi' ? 'Sắp có' : 'Soon'}
       </span>
     </div>

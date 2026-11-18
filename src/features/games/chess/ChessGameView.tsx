@@ -17,7 +17,10 @@ import { InGameSocialPicker } from '@/features/social/InGameSocialPicker';
 import { ChatBubble } from '@/features/social/ChatBubble';
 import { ActiveSocialMessage, SocialContentType } from '@/features/social/types';
 import { PixelFxOverlay } from '@/components/fx/PixelFxOverlay';
-import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle, Clock, WifiOff, Trophy, Eye, RotateCcw, Bot, Smile } from 'lucide-react';
+import { Copy, Check, Users, Flag, LogOut, Sparkles, AlertCircle, Clock, WifiOff, Trophy, Eye, RotateCcw, Bot, Smile, Play } from 'lucide-react';
+import { recordMatch } from '@/features/matchHistory/matchHistoryService';
+import { MatchRecord } from '@/features/matchHistory/types';
+import { MatchReplayModal } from '@/features/matchHistory/MatchReplayModal';
 
 interface ChessGameViewProps {
   initialRoom: ChessRoom;
@@ -81,6 +84,10 @@ export function ChessGameView({
   const [rematchOfferedByOpponent, setRematchOfferedByOpponent] = useState(false);
   const [showResignConfirm, setShowResignConfirm] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+
+  // Match Replay State
+  const [lastRecordedMatch, setLastRecordedMatch] = useState<MatchRecord | null>(null);
+  const [showReplayModal, setShowReplayModal] = useState(false);
 
   // In-Game Social Chat & Reactions State
   const [activeSocialMessages, setActiveSocialMessages] = useState<ActiveSocialMessage[]>([]);
@@ -154,9 +161,53 @@ export function ChessGameView({
             ? 'draw'
             : 'loss';
         recordChessGameResult(result, isBotGame);
+
+        // Ghi lại lịch sử ván đấu để xem lại từng nước đi
+        const opponentDisplayName = isBotGame
+          ? 'Kombat Bot'
+          : isLocalGame
+          ? (language === 'vi' ? 'Người chơi 2' : 'Player 2')
+          : (isHost ? (room.guest_name || 'Đối thủ') : (room.host_name || 'Chủ phòng'));
+
+        const reason = room.game_state.isCheckmate
+          ? (language === 'vi' ? 'Chiếu bí' : 'Checkmate')
+          : room.game_state.isTimeout
+          ? (language === 'vi' ? 'Hết giờ' : 'Timeout')
+          : room.game_state.isResigned
+          ? (language === 'vi' ? 'Đầu hàng' : 'Resigned')
+          : undefined;
+
+        const rec = recordMatch({
+          gameId: 'chess',
+          mode: isBotGame ? 'bot' : isLocalGame ? 'local' : 'pvp',
+          result,
+          opponentName: opponentDisplayName,
+          opponentAvatar,
+          totalMoves: room.game_state.history.length,
+          playerColor: myColor === 'white' ? 'w' : 'b',
+          moves: room.game_state.history,
+          reason,
+        });
+        setLastRecordedMatch(rec);
       }
     }
-  }, [room.status, room.game_state.winner, room.id, myColor, isBotGame]);
+  }, [
+    room.status,
+    room.game_state.winner,
+    room.id,
+    myColor,
+    isBotGame,
+    isLocalGame,
+    isHost,
+    room.guest_name,
+    room.host_name,
+    room.game_state.history,
+    room.game_state.isCheckmate,
+    room.game_state.isTimeout,
+    room.game_state.isResigned,
+    opponentAvatar,
+    language,
+  ]);
 
   const timeControl = room.game_state.timeControl ?? 0;
   const [whiteSeconds, setWhiteSeconds] = useState<number>(
@@ -1317,6 +1368,18 @@ export function ChessGameView({
                   <span>{language === 'vi' ? 'Xem lại bàn cờ' : 'Review Board'}</span>
                 </button>
 
+                {/* Replay Moves Button */}
+                {lastRecordedMatch && (
+                  <button
+                    type="button"
+                    onClick={() => setShowReplayModal(true)}
+                    className="pixel-btn inline-flex w-full items-center justify-center gap-1.5 bg-amber-300 py-2.5 font-pixel text-xs font-bold uppercase tracking-wider text-zinc-950 hover:bg-amber-400"
+                  >
+                    <Play className="h-4 w-4 fill-current" />
+                    <span>{language === 'vi' ? 'Xem lại ván này' : 'Replay Match'}</span>
+                  </button>
+                )}
+
                 {/* Back to Lobby Button */}
                 <button
                   type="button"
@@ -1392,6 +1455,17 @@ export function ChessGameView({
               </button>
             )}
 
+            {lastRecordedMatch && (
+              <button
+                type="button"
+                onClick={() => setShowReplayModal(true)}
+                className="pixel-btn inline-flex items-center gap-1.5 bg-amber-300 px-3.5 py-2 font-pixel text-xs font-bold uppercase text-zinc-950 hover:bg-amber-400"
+              >
+                <Play className="h-3.5 w-3.5 fill-current" />
+                <span>{language === 'vi' ? 'Xem lại' : 'Replay'}</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={onExitRoom}
@@ -1425,6 +1499,15 @@ export function ChessGameView({
             </button>
           </div>
         </div>
+      )}
+
+      {/* Replay Modal */}
+      {lastRecordedMatch && (
+        <MatchReplayModal
+          match={lastRecordedMatch}
+          isOpen={showReplayModal}
+          onClose={() => setShowReplayModal(false)}
+        />
       )}
     </div>
   );
