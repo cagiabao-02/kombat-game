@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { GoColor, TerritoryScore } from './types';
+import { useLanguage } from '@/i18n/LanguageContext';
 import { Trophy, RotateCcw, ArrowLeft } from 'lucide-react';
 
 interface GoGameOverModalProps {
@@ -21,6 +22,7 @@ export const GoGameOverModal: React.FC<GoGameOverModalProps> = ({
   onPlayAgain,
   onBackToLobby,
 }) => {
+  const { language } = useLanguage();
   if (!isOpen) return null;
 
   const isResignation = !!resignedBy;
@@ -35,14 +37,22 @@ export const GoGameOverModal: React.FC<GoGameOverModalProps> = ({
             <Trophy className="w-8 h-8 text-zinc-950" />
           </div>
           <h2 className="font-pixel text-xl sm:text-2xl font-bold uppercase text-zinc-950">
-            {isBlackWinner ? 'QUÂN ĐEN CHIẾN THẮNG!' : 'QUÂN TRẮNG CHIẾN THẮNG!'}
+            {isBlackWinner
+              ? language === 'vi' ? 'QUÂN ĐEN CHIẾN THẮNG!' : 'BLACK WINS!'
+              : language === 'vi' ? 'QUÂN TRẮNG CHIẾN THẮNG!' : 'WHITE WINS!'}
           </h2>
           <p className="text-xs font-mono text-zinc-600">
             {isResignation
-              ? `Đối phương (${resignedBy === 'black' ? 'Đen' : 'Trắng'}) đã xin thua.`
+              ? language === 'vi'
+                ? `Đối phương (${resignedBy === 'black' ? 'Đen' : 'Trắng'}) đã xin thua.`
+                : `Opponent (${resignedBy === 'black' ? 'Black' : 'White'}) resigned.`
               : score
-              ? `Thắng cách biệt ${score.margin} điểm theo luật tính đất chuẩn!`
-              : 'Ván cờ đã kết thúc!'}
+              ? language === 'vi'
+                ? `Thắng cách biệt ${score.margin} điểm theo luật tính đất chuẩn!`
+                : `Won by ${score.margin} points (standard territory scoring)!`
+              : language === 'vi'
+              ? 'Ván cờ đã kết thúc!'
+              : 'Game over!'}
           </p>
         </div>
 
@@ -50,17 +60,21 @@ export const GoGameOverModal: React.FC<GoGameOverModalProps> = ({
         {score && !isResignation && (
           <div className="space-y-2 bg-zinc-50 p-3 border-2 border-zinc-900 text-xs font-mono">
             <div className="font-pixel font-bold text-center text-zinc-900 border-b border-zinc-300 pb-1 mb-2">
-              CHI TIẾT TÍNH ĐIỂM (TERRITORY SCORING)
+              {language === 'vi'
+                ? 'CHI TIẾT TÍNH ĐIỂM (TERRITORY SCORING)'
+                : 'TERRITORY SCORING BREAKDOWN'}
             </div>
 
             {/* Hàng Quân Đen */}
             <div className="flex items-center justify-between py-1 border-b border-zinc-200">
               <span className="flex items-center gap-1.5 font-bold">
                 <span className="w-3.5 h-3.5 rounded-full bg-black inline-block" />
-                ĐEN:
+                {language === 'vi' ? 'ĐEN:' : 'BLACK:'}
               </span>
               <span>
-                {score.blackTerritory} đất + {score.blackCaptures} tù binh ={' '}
+                {score.blackTerritory}{' '}
+                {language === 'vi' ? 'đất' : 'territory'} + {score.blackCaptures}{' '}
+                {language === 'vi' ? 'tù binh' : 'captures'} ={' '}
                 <b className="font-pixel text-sm text-zinc-950">{score.blackTotal}</b>
               </span>
             </div>
@@ -69,16 +83,20 @@ export const GoGameOverModal: React.FC<GoGameOverModalProps> = ({
             <div className="flex items-center justify-between py-1 border-b border-zinc-200">
               <span className="flex items-center gap-1.5 font-bold">
                 <span className="w-3.5 h-3.5 rounded-full bg-white border border-black inline-block" />
-                TRẮNG:
+                {language === 'vi' ? 'TRẮNG:' : 'WHITE:'}
               </span>
               <span>
-                {score.whiteTerritory} đất + {score.whiteCaptures} tù binh + {score.komi} Komi ={' '}
+                {score.whiteTerritory}{' '}
+                {language === 'vi' ? 'đất' : 'territory'} + {score.whiteCaptures}{' '}
+                {language === 'vi' ? 'tù binh' : 'captures'} + {score.komi} Komi ={' '}
                 <b className="font-pixel text-sm text-zinc-950">{score.whiteTotal}</b>
               </span>
             </div>
 
             <div className="text-[11px] text-zinc-500 text-center pt-1">
-              * Điểm chấp (Komi 6.5) cộng cho Trắng để cân bằng lợi thế đi trước của Đen.
+              {language === 'vi'
+                ? '* Điểm chấp (Komi 6.5) cộng cho Trắng để cân bằng lợi thế đi trước của Đen.'
+                : '* Komi (6.5 pts) is added to White to balance Black playing first.'}
             </div>
           </div>
         )}
@@ -91,7 +109,7 @@ export const GoGameOverModal: React.FC<GoGameOverModalProps> = ({
             className="flex-1 pixel-btn bg-emerald-400 hover:bg-emerald-300 text-zinc-950 py-3 flex items-center justify-center gap-1.5"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>CHƠI LẠI VÁN MỚI</span>
+            <span>{language === 'vi' ? 'CHƠI LẠI VÁN MỚI' : 'PLAY AGAIN'}</span>
           </button>
           <button
             type="button"
@@ -99,7 +117,7 @@ export const GoGameOverModal: React.FC<GoGameOverModalProps> = ({
             className="pixel-btn bg-zinc-200 hover:bg-zinc-300 text-zinc-800 py-3 px-4 flex items-center justify-center gap-1.5"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>CHỌN BÀN CỜ</span>
+            <span>{language === 'vi' ? 'CHỌN BÀN CỜ' : 'SELECT BOARD'}</span>
           </button>
         </div>
       </div>
