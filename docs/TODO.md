@@ -295,6 +295,12 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Toast pop-up thông báo Neo-Arcade trượt xuống đầu màn hình (`AchievementToast.tsx`).
   - [x] Tủ trưng bày trong Hồ sơ cá nhân với thanh tiến độ, bộ đếm huy chương 4 bậc và bộ lọc danh mục (`ProfileAuthModal.tsx`).
   - [x] Đồng bộ dữ liệu thành tựu lên Supabase Cloud khi người dùng đăng nhập (`statsMergeService.ts`).
+- [x] **Bộ điều khiển âm lượng đa mức (Master Volume Slider & Quick Presets)**:
+  - [x] Tích hợp Master Gain Node vào `SoundService` (`soundService.ts`), điều khiển âm lượng chung $0-100\%$ cho toàn bộ 10 trò chơi.
+  - [x] Popover điều chỉnh âm lượng trên Desktop Header với thanh trượt pixel `.pixel-range` và 4 nút chọn nhanh (0%, 30%, 70%, 100%) (`VolumeControl.tsx`).
+  - [x] Khối điều khiển âm lượng trực tiếp trong Menu ngăn kéo Mobile (Hamburger Drawer).
+  - [x] Âm thanh thử nghiệm (`playVolumePreview()`) phản hồi tức thì khi kéo thanh trượt.
+  - [x] Lưu trữ cục bộ (`kombat_sound_volume`) và đồng bộ thời gian thực qua CustomEvent `kombat:volume_change`.
 - [ ] **Chế độ Khán giả (Spectator Mode)**: Cho phép bạn bè vào xem trực tiếp ván cờ qua link phòng.
 
 
