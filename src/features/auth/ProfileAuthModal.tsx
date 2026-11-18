@@ -1350,6 +1350,7 @@ export function ProfileAuthModal({
                       <option value="chess">♟️ {language === 'vi' ? 'Cờ Vua' : 'Chess'}</option>
                       <option value="caro">⭕ {language === 'vi' ? 'Cờ Caro' : 'Caro'}</option>
                       <option value="xiangqi">帥 {language === 'vi' ? 'Cờ Tướng' : 'Xiangqi'}</option>
+                      <option value="go">⚪ {language === 'vi' ? 'Cờ Vây' : 'Go'}</option>
                     </select>
                     <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-700" />
                   </div>
@@ -1378,14 +1379,18 @@ export function ProfileAuthModal({
                         ? language === 'vi' ? 'Cờ Vua' : 'Chess'
                         : match.gameId === 'caro'
                         ? language === 'vi' ? 'Cờ Caro' : 'Caro'
-                        : language === 'vi' ? 'Cờ Tướng' : 'Xiangqi';
+                        : match.gameId === 'xiangqi'
+                        ? language === 'vi' ? 'Cờ Tướng' : 'Xiangqi'
+                        : language === 'vi' ? 'Cờ Vây' : 'Go';
 
                     const gameIcon =
                       match.gameId === 'chess'
                         ? '♟️'
                         : match.gameId === 'caro'
                         ? '⭕'
-                        : '帥';
+                        : match.gameId === 'xiangqi'
+                        ? '帥'
+                        : '⚪';
 
                     return (
                       <div

@@ -34,8 +34,10 @@ export interface TerritoryScore {
   margin: number;
 }
 
-export type GoGameMode = 'ai' | 'pass_and_play';
+export type GoGameMode = 'ai' | 'pass_and_play' | 'online';
 export type GoAiDifficulty = 'easy' | 'medium';
+export type RoomStatus = 'waiting' | 'in_progress' | 'completed' | 'abandoned';
+export type GoOnlineRole = 'host' | 'guest';
 
 export interface GoGameState {
   boardSize: BoardSize;
@@ -49,6 +51,7 @@ export interface GoGameState {
   consecutivePasses: number; // Đếm số lần bỏ lượt liên tiếp (2 lần = kết thúc)
   isGameOver: boolean;
   winner: GoColor | null;
+  resignedBy?: GoColor | null;
   score: TerritoryScore | null;
   mode: GoGameMode;
   aiDifficulty: GoAiDifficulty;
@@ -59,4 +62,21 @@ export interface GoGameState {
     point: Point | null; // null nếu Pass
     capturesCount: number;
   }>;
+}
+
+export interface GoRoom {
+  id: string;
+  code: string;
+  game_id: string;
+  status: RoomStatus;
+  host_id: string;
+  guest_id: string | null;
+  host_name: string;
+  guest_name: string | null;
+  game_state: GoGameState & {
+    hostAvatar?: string;
+    guestAvatar?: string;
+  };
+  created_at: string;
+  updated_at: string;
 }

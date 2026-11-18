@@ -330,7 +330,26 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Giao diện bàn cờ gỗ Neo-Arcade responsive (`GoBoard.tsx`, `GoScoreBar.tsx`, `GoLobby.tsx`, `GoGame.tsx`): điểm sao định vị (Hoshi/Tengen), bóng mờ đặt thử (preview hover/touch), cờ đánh dấu nước đi mới nhất, bảng đếm tù binh 2 bên và modal kết thúc tính điểm.
   - [x] Âm thanh xúc giác gõ cờ đá thanh thoát (`playGoStonePlace`, `playGoStoneCapture`) trong `soundService.ts`.
   - [x] Đăng ký Sảnh chính (`GAME_REGISTRY`), thể loại Cờ chiến thuật (`strategy`), đồng bộ Bảng xếp hạng, Hồ sơ cá nhân và bản dịch Việt/Anh.
+- [x] **Đấu Online 1v1 & Ghép Nhanh Thời Gian Thực cho Cờ Vây (Realtime Multiplayer Go Room)**:
+  - [x] Dịch vụ quản lý phòng Supabase Realtime (`goRoomService.ts`): Tạo phòng 6 ký tự ngẫu nhiên, tìm và ghép phòng tự động (Quick Match), tham gia bằng mã phòng hoặc link chia sẻ trực tiếp (`/games/go?room=CODE`).
+  - [x] Đồng bộ nước đi, lượt bỏ lượt (Pass), đầu hàng (Resign) và tính điểm lãnh thổ qua Supabase Realtime Channel (`postgres_changes` + `broadcast`).
+  - [x] Màn hình chờ phòng đấu trực quan: hiển thị mã phòng lớn, nút 1-chạm sao chép link mời bạn bè và spinner đợi đối thủ.
+  - [x] Tính năng Tái đấu (Rematch) trong modal kết thúc ván, tự động đảo phe (Đen $\leftrightarrow$ Trắng).
+  - [x] Tích hợp Biểu cảm tương tác Emotes và Tin nhắn nhanh Quick Chat thời gian thực.
+  - [x] Hỗ trợ song ngữ 100% Việt / Anh cho toàn bộ giao diện và luồng phòng đấu online.
+- [x] **Lịch sử Thi đấu & Trình Xem Lại Ván Cờ (Match History & Replay Viewer) cho Cờ Vây**:
+  - [x] Định nghĩa kiểu `GoMatchRecord`, `GoMoveRecord` (`types.ts`) và tích hợp lưu trữ tối đa 20 ván vào `matchHistoryService.ts`.
+  - [x] Tích hợp tái tạo bàn cờ Cờ Vây từng nước đi trong `MatchReplayModal.tsx` với đầy đủ nút tua, thanh kéo, tự động phát (Auto Play).
+  - [x] Tự động ghi ván khi kết thúc trận và bổ sung nút "XEM LẠI VÁN ĐẤU NÀY" trong `GoGameOverModal.tsx`.
+  - [x] Bổ sung bộ lọc Cờ Vây (`⚪ Cờ Vây / Go`) trong tab Lịch sử tại `ProfileAuthModal.tsx`.
 - [ ] **Chế độ Khán giả (Spectator Mode)**: Cho phép bạn bè vào xem trực tiếp ván cờ qua link phòng.
+- [ ] **Chặng kế tiếp — Thử thách Hàng ngày (Daily Challenges) & Chuỗi ngày chơi (Daily Streak 🔥)**:
+  - [ ] Hệ thống tạo 3 nhiệm vụ ngẫu nhiên mỗi ngày từ 12 trò chơi hiện có.
+  - [ ] Bộ đếm chuỗi ngày vào chơi liên tiếp (Login Streak) kèm huy hiệu vinh danh độc quyền.
+  - [ ] Modal pop-up nhận thưởng nhiệm vụ ngày trên Header.
+- [ ] **Trò chơi thứ 13: Tetris (Xếp gạch cổ điển 10x20)**:
+  - [ ] Khung chuẩn 10x20, 7 khối tetromino, cơ chế drop, hold piece, xoay khối và xóa 4 dòng (Tetris).
+
 
 
 

@@ -14,6 +14,7 @@ export interface GoStats {
   bestStreak: number;
   bot: ModeStats;
   passAndPlay: ModeStats;
+  pvp?: ModeStats;
   totalCaptures: number;
   lastUpdated?: number;
 }
@@ -28,6 +29,7 @@ const DEFAULT_STATS: GoStats = {
   bestStreak: 0,
   bot: { total: 0, wins: 0, losses: 0 },
   passAndPlay: { total: 0, wins: 0, losses: 0 },
+  pvp: { total: 0, wins: 0, losses: 0 },
   totalCaptures: 0,
 };
 
@@ -42,6 +44,7 @@ export function getGoStats(): GoStats {
       ...parsed,
       bot: { ...DEFAULT_STATS.bot, ...(parsed.bot || {}) },
       passAndPlay: { ...DEFAULT_STATS.passAndPlay, ...(parsed.passAndPlay || {}) },
+      pvp: { ...(DEFAULT_STATS.pvp || { total: 0, wins: 0, losses: 0 }), ...(parsed.pvp || {}) },
     };
   } catch {
     return DEFAULT_STATS;
@@ -56,7 +59,7 @@ export function saveGoStatsLocally(stats: GoStats): void {
 }
 
 export async function recordGoGameResult(
-  mode: 'ai' | 'pass_and_play',
+  mode: 'ai' | 'pass_and_play' | 'online',
   result: 'win' | 'loss',
   captures: number
 ): Promise<GoStats> {
@@ -81,6 +84,13 @@ export async function recordGoGameResult(
       total: current.bot.total + 1,
       wins: isWin ? current.bot.wins + 1 : current.bot.wins,
       losses: !isWin ? current.bot.losses + 1 : current.bot.losses,
+    };
+  } else if (mode === 'online') {
+    const curPvp = current.pvp || { total: 0, wins: 0, losses: 0 };
+    newStats.pvp = {
+      total: curPvp.total + 1,
+      wins: isWin ? curPvp.wins + 1 : curPvp.wins,
+      losses: !isWin ? curPvp.losses + 1 : curPvp.losses,
     };
   } else {
     newStats.passAndPlay = {

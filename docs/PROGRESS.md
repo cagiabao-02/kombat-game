@@ -206,15 +206,33 @@
     - Tự động lưu và khôi phục khi thoát game (Auto-save & Resume via `goStorage.ts`).
   - **Âm thanh Web Audio xúc giác:** Tiếng gõ quân cờ đá lách cách thanh thoát lên bàn gỗ (`playGoStonePlace`) và tiếng bắt tù binh (`playGoStoneCapture`), tự động kết hợp với nhạc nền thiền tĩnh tâm Strategy Theme ("Zen Focus").
   - **Tích hợp toàn diện:** Đăng ký vào Sảnh chính (`GAME_REGISTRY`), thể loại Cờ chiến thuật (`strategy`), Bảng xếp hạng (Leaderboard), Hồ sơ cá nhân (Profile) và đồng bộ tài khoản đám mây Supabase (`statsMergeService.ts`).
+- **Hoàn thành toàn diện Chặng 22 — Đấu Online Realtime 1v1 & Ghép Nhanh cho Cờ Vây:**
+  - **Dịch vụ phòng Supabase Realtime (`goRoomService.ts`):** Tạo phòng với mã 6 ký tự ngẫu nhiên, tìm hoặc ghép phòng tự động (Quick Match), tham gia bằng mã phòng hoặc link chia sẻ trực tiếp (`/games/go?room=CODE`), đồng bộ nước đi, số tù binh, bỏ lượt, xin thua và kết quả lên bảng `rooms` với RLS bảo mật.
+  - **Giao diện Sảnh chờ & Trong trận hoàn chỉnh (`GoLobby.tsx`, `GoGame.tsx`, `page.tsx`):**
+    - 3 chế độ đối đầu: 🤖 Đấu với Máy (Bot AI), 👥 Chơi Đôi (Pass & Play), 🌐 Đấu Online (Phòng riêng & Ghép nhanh).
+    - Hỗ trợ chọn kích thước bàn cờ (9x9, 13x13, 19x19) khi tạo phòng hoặc ghép trận.
+    - Màn hình phòng chờ hiển thị mã phòng lớn, nút 1-chạm sao chép liên kết mời bạn bè và vòng xoay chờ đối thủ.
+    - Thanh điều khiển trận đấu tích hợp mã phòng, nút chép link nhanh và hiển thị tên/avatar 2 người chơi theo thời gian thực.
+    - Tính năng Tái đấu (Rematch) trong modal chiến thắng, tự động đảo phe (Đen $\leftrightarrow$ Trắng).
+    - Tích hợp Biểu cảm tương tác (Emotes) và Chat nhanh (Quick Chat) thời gian thực qua kênh Broadcast.
+    - Hỗ trợ song ngữ 100% Việt / Anh cho toàn bộ giao diện cờ vây.
+- **Hoàn thành toàn diện Chặng 23 — Lịch sử Đấu & Trình Xem Lại (Replay Viewer) cho Cờ Vây:**
+  - **Mở rộng hệ thống Lịch sử đấu (`types.ts`, `matchHistoryService.ts`):** Định nghĩa `GoMatchRecord`, `GoMoveRecord` lưu lại toàn bộ danh sách nước đi, kích thước bàn cờ (9x9, 13x13, 19x19), điểm số lãnh thổ, số tù binh và lý do kết thúc.
+  - **Trình xem lại ván đấu tương tác (`MatchReplayModal.tsx`):** Tái tạo bàn cờ Cờ Vây qua từng nước đi, hỗ trợ tua tới/lùi, thanh kéo slider, chế độ tự động phát (Auto Play) và hiển thị vết đánh dấu nước đi mới nhất.
+  - **Tích hợp trong trận & Hồ sơ cá nhân (`GoGame.tsx`, `GoGameOverModal.tsx`, `ProfileAuthModal.tsx`):**
+    - Tự động ghi nhận ván cờ vào Lịch sử khi kết thúc (Tính điểm đất, Xin thua hoặc Đối thủ rời phòng).
+    - Nút "XEM LẠI VÁN ĐẤU NÀY" ngay trong modal kết thúc trận.
+    - Bổ sung bộ lọc Cờ Vây (⚪ Cờ Vây / Go) trong tab Lịch sử tại Hồ sơ cá nhân.
 
 ## Đang làm
 
-- Toàn bộ 12 trò chơi (Cờ Vua, Cờ Tướng, Cờ Caro, Cờ Vây, Sudoku, 2048, Dò Mìn, Rắn Săn Mồi, Phá Gạch, Khủng Long T-Rex, Flappy Bird, Block Blast) và hệ thống âm thanh / nhạc nền kép đã sẵn sàng phục vụ người chơi.
+- Toàn bộ 12 trò chơi, hệ thống âm thanh / nhạc nền kép, chế độ Online Realtime và Lịch sử thi đấu / Xem lại ván cờ (Cờ Vua, Cờ Tướng, Cờ Caro, Cờ Vây) đã hoàn tất.
 
 ## Việc kế tiếp
 
-1. Trải nghiệm trực tiếp trò chơi Cờ Vây tại sảnh chính (`/games/go`).
-2. Hướng dẫn commit và tạo Pull Request (PR) theo chuẩn Rule 8 trong `AGENTS.md` khi người dùng yêu cầu.
+1. **Hướng 1 — Thử thách Hàng ngày (Daily Challenges) & Chuỗi ngày chơi (Daily Streak 🔥):** Nhiệm vụ ngẫu nhiên mỗi ngày (ví dụ: giải 1 ván Sudoku, phá gạch đạt 1000 điểm, thắng Bot Cờ Vây) kèm bộ đếm chuỗi ngày đăng nhập và huy hiệu độc quyền để giữ chân người chơi (Retention).
+2. **Hướng 2 — Trò chơi thứ 13:** Bổ sung **Tetris (Xếp gạch cổ điển 10x20)** với cơ chế xoay khối, hold piece, hard drop hoặc **Othello / Reversi (Cờ lật 8x8)**.
+3. **Hướng 3 — Trải nghiệm PWA Offline 100% & Cài đặt App 1-Chạm:** Tối ưu hóa Service Worker cache tài nguyên để chơi mượt mà khi mất mạng/ngắt wifi và hiển thị banner cài đặt PWA về màn hình chính điện thoại.
 
 ## Quyết định còn mở
 

@@ -7,7 +7,15 @@ import { ChessBoard } from '@/features/games/chess/ChessBoard';
 import { CaroBoard } from '@/features/games/caro/CaroBoard';
 import { CaroBoard as CaroBoardType } from '@/features/games/caro/types';
 import { XiangqiBoard } from '@/features/games/xiangqi/XiangqiBoard';
-import { Board as XiangqiBoardType, createInitialBoard, cloneBoard, isSideInCheck } from '@/features/games/xiangqi/xiangqiLogic';
+import {
+  Board as XiangqiBoardType,
+  createInitialBoard,
+  cloneBoard,
+  isSideInCheck,
+} from '@/features/games/xiangqi/xiangqiLogic';
+import { GoBoardComponent } from '@/features/games/go/GoBoard';
+import { createEmptyBoard, playMove } from '@/features/games/go/goLogic';
+import { BoardSize, GoBoard, Point } from '@/features/games/go/types';
 import { sounds } from '@/lib/sound/soundService';
 import { useLanguage } from '@/i18n/LanguageContext';
 import {
@@ -18,10 +26,7 @@ import {
   SkipForward,
   ChevronLeft,
   ChevronRight,
-  Trophy,
   Calendar,
-  Users,
-  Clock,
 } from 'lucide-react';
 
 interface MatchReplayModalProps {
@@ -101,7 +106,7 @@ export function MatchReplayModal({ match, isOpen, onClose }: MatchReplayModalPro
     let lm: { row: number; col: number } | null = null;
 
     for (let i = 0; i < currentStep; i++) {
-      const m = match.moves[i];
+      const m = match.moves[i] as any;
       if (m && m.row >= 0 && m.row < 15 && m.col >= 0 && m.col < 15) {
         b[m.row][m.col] = m.player;
         lm = { row: m.row, col: m.col };
@@ -121,7 +126,7 @@ export function MatchReplayModal({ match, isOpen, onClose }: MatchReplayModalPro
     let lm = null;
 
     for (let i = 0; i < currentStep; i++) {
-      const m = match.moves[i];
+      const m = match.moves[i] as any;
       if (m && m.from && m.to) {
         const nextB = cloneBoard(b);
         nextB[m.to.row][m.to.col] = nextB[m.from.row][m.from.col];
@@ -135,6 +140,45 @@ export function MatchReplayModal({ match, isOpen, onClose }: MatchReplayModalPro
     const inCheck = b.length > 0 ? isSideInCheck(b, currentTurn) : false;
 
     return { board: b, lastMove: lm, isCheck: inCheck };
+  }, [match, currentStep]);
+
+  // --- RECONSTRUCT GO BOARD ---
+  const goState = useMemo(() => {
+    if (!match || match.gameId !== 'go') {
+      return {
+        board: [] as GoBoard,
+        lastMove: null as Point | null,
+        captures: { black: 0, white: 0 },
+        boardSize: 9 as BoardSize,
+      };
+    }
+
+    const bSize: BoardSize = (match as any).boardSize || 9;
+    let b = createEmptyBoard(bSize);
+    let curKo: Point | null = null;
+    let lm: Point | null = null;
+    const caps = { black: 0, white: 0 };
+
+    for (let i = 0; i < currentStep; i++) {
+      const m = match.moves[i] as any;
+      if (m && m.point) {
+        const res = playMove(b, m.point, m.turn, curKo);
+        if (res.valid) {
+          b = res.newBoard;
+          curKo = res.newKoPoint;
+          lm = m.point;
+          if (res.captures.length > 0) {
+            if (m.turn === 'black') caps.black += res.captures.length;
+            else caps.white += res.captures.length;
+          }
+        }
+      } else {
+        // Nước Bỏ lượt (Pass)
+        curKo = null;
+      }
+    }
+
+    return { board: b, lastMove: lm, captures: caps, boardSize: bSize };
   }, [match, currentStep]);
 
   if (!isOpen || !match) return null;
@@ -179,13 +223,19 @@ export function MatchReplayModal({ match, isOpen, onClose }: MatchReplayModalPro
   const badge = getResultBadge();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-2 sm:p-4 animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-2 sm:p-4 animate-in fade-in duration-150 select-none">
       <div className="pixel-box-lg relative flex flex-col w-full max-w-2xl max-h-[96vh] bg-[#FFFDF8] border-4 border-zinc-900 shadow-pixel-lg overflow-hidden">
         {/* Header Bar */}
         <div className="flex items-center justify-between bg-indigo-700 px-4 py-3 text-white border-b-2 border-zinc-900">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center bg-amber-300 text-zinc-950 font-pixel text-lg border-2 border-zinc-900 shadow-pixel-xs">
-              {match.gameId === 'chess' ? '♟️' : match.gameId === 'caro' ? '❌' : '帥'}
+              {match.gameId === 'chess'
+                ? '♟️'
+                : match.gameId === 'caro'
+                ? '⭕'
+                : match.gameId === 'xiangqi'
+                ? '帥'
+                : '⚪'}
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -194,7 +244,9 @@ export function MatchReplayModal({ match, isOpen, onClose }: MatchReplayModalPro
                     ? language === 'vi' ? 'XEM LẠI CỜ VUA' : 'CHESS REPLAY'
                     : match.gameId === 'caro'
                     ? language === 'vi' ? 'XEM LẠI CỜ CARO' : 'CARO REPLAY'
-                    : language === 'vi' ? 'XEM LẠI CỜ TƯỚNG' : 'XIANGQI REPLAY'}
+                    : match.gameId === 'xiangqi'
+                    ? language === 'vi' ? 'XEM LẠI CỜ TƯỚNG' : 'XIANGQI REPLAY'
+                    : language === 'vi' ? 'XEM LẠI CỜ VÂY' : 'GO REPLAY'}
                 </h3>
                 <span className={`px-1.5 py-0.2 font-pixel text-[10px] font-bold border ${badge.bg}`}>
                   {badge.text}
@@ -263,6 +315,22 @@ export function MatchReplayModal({ match, isOpen, onClose }: MatchReplayModalPro
                   disabled={true}
                   onSelectPiece={() => {}}
                   onMakeMove={() => {}}
+                />
+              </div>
+            )}
+
+            {match.gameId === 'go' && (
+              <div className="w-full max-w-[340px] sm:max-w-[420px]">
+                <GoBoardComponent
+                  board={goState.board}
+                  boardSize={goState.boardSize}
+                  currentTurn={currentStep % 2 === 0 ? 'black' : 'white'}
+                  koPoint={null}
+                  lastMove={goState.lastMove}
+                  selectedPoint={null}
+                  onSelectPoint={() => {}}
+                  onConfirmMove={() => {}}
+                  disabled={true}
                 />
               </div>
             )}
