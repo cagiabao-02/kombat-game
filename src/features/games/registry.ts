@@ -251,6 +251,31 @@ export const GAME_REGISTRY: GameMetadata[] = [
       en: 'HOT',
     },
   },
+  {
+    id: 'block_blast',
+    category: 'puzzle',
+    name: {
+      vi: 'Block Blast',
+      en: 'Block Blast',
+    },
+    shortDescription: {
+      vi: 'Xếp khối nổ dòng 8x8 cực đã - cày combo phá kỷ lục',
+      en: '8x8 block puzzle blast - smash combos & chase records',
+    },
+    description: {
+      vi: 'Trò chơi xếp khối gây nghiện đỉnh cao. Đặt các khối polyomino lên bàn cờ 8x8, nổ tung các hàng và cột để tạo chuỗi Combo hoành tráng!',
+      en: 'Addictive block puzzle hit. Place polyomino blocks on an 8x8 board, clear rows and columns to unleash mega Combos!',
+    },
+    route: '/games/block-blast',
+    status: 'available',
+    modes: ['single_player'],
+    minPlayers: 1,
+    maxPlayers: 1,
+    badge: {
+      vi: 'MỚI RA MẮT',
+      en: 'NEW RELEASE',
+    },
+  },
 ];
 
 export function getGameById(id: string): GameMetadata | undefined {

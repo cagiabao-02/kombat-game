@@ -10,6 +10,7 @@ import { getMinesweeperStats } from '@/features/games/minesweeper/minesweeperSta
 import { getBrickBreakerStats } from '@/features/games/brickBreaker/brickBreakerStatsService';
 import { getTRexStats } from '@/features/games/dinoRunner/tRexStatsService';
 import { getFlappyStats } from '@/features/games/flappyBird/flappyStatsService';
+import { getBlockBlastStats } from '@/features/games/blockBlast/blockBlastStatsService';
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -30,7 +31,7 @@ function formatScoreLabel(game: LeaderboardGame, scoreValue: number): string {
   if (game === 'minesweeper') {
     return scoreValue < 60 ? `${scoreValue}s` : formatTime(scoreValue);
   }
-  if (game === 'game2048' || game === 'brick_breaker' || game === 't_rex_runner') {
+  if (game === 'game2048' || game === 'brick_breaker' || game === 't_rex_runner' || game === 'block_blast') {
     return `${scoreValue.toLocaleString()} Điểm`;
   }
   // Caro, Snake...
@@ -222,6 +223,22 @@ export function getLocalLeaderboardData(
         secondaryInfo: undefined,
         isCurrentUser: true,
         tierBadge: stats.highScore >= 40 ? 'Bạch Kim' : stats.highScore >= 30 ? 'Vàng' : stats.highScore >= 20 ? 'Bạc' : stats.highScore >= 10 ? 'Đồng' : 'Tập Sự',
+      };
+    }
+  } else if (game === 'block_blast') {
+    const stats = getBlockBlastStats();
+    if (stats.highScore > 0) {
+      userEntry = {
+        id: currentUserId || 'current_user',
+        userId: currentUserId,
+        name: currentUserName,
+        avatar: currentUserAvatar,
+        rank: 1,
+        scoreValue: stats.highScore,
+        scoreLabel: `${stats.highScore.toLocaleString()} Điểm`,
+        secondaryInfo: undefined,
+        isCurrentUser: true,
+        tierBadge: stats.highScore >= 5000 ? 'Bậc Thầy Nổ Khối' : stats.highScore >= 2000 ? 'Xếp Gạch Cừ Khôi' : 'Tập Sự',
       };
     }
   }
@@ -571,6 +588,11 @@ export async function syncLeaderboardScoreForGame(
       if (stats.highScore === 0) return;
       scoreValue = stats.highScore;
       scoreLabel = `${stats.highScore} Điểm`;
+    } else if (game === 'block_blast') {
+      const stats = getBlockBlastStats();
+      if (stats.highScore === 0) return;
+      scoreValue = stats.highScore;
+      scoreLabel = `${stats.highScore.toLocaleString()} Điểm`;
     }
 
     await upsertSingleScore(
@@ -588,7 +610,7 @@ export async function syncLeaderboardScoreForGame(
 }
 
 /**
- * Đồng bộ tất cả 10 game lên bảng xếp hạng Supabase
+ * Đồng bộ tất cả 11 game lên bảng xếp hạng Supabase
  */
 export async function syncAllLeaderboardScores() {
   await Promise.allSettled([
@@ -602,5 +624,6 @@ export async function syncAllLeaderboardScores() {
     syncLeaderboardScoreForGame('brick_breaker'),
     syncLeaderboardScoreForGame('t_rex_runner'),
     syncLeaderboardScoreForGame('flappy_bird'),
+    syncLeaderboardScoreForGame('block_blast'),
   ]);
 }

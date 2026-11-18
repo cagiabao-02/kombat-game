@@ -15,6 +15,7 @@ import { getMinesweeperStats, MinesweeperStats } from '@/features/games/mineswee
 import { getBrickBreakerStats, BrickBreakerStats } from '@/features/games/brickBreaker/brickBreakerStatsService';
 import { getTRexStats, TRexStats } from '@/features/games/dinoRunner/tRexStatsService';
 import { getFlappyStats, FlappyStats } from '@/features/games/flappyBird/flappyStatsService';
+import { getBlockBlastStats, BlockBlastStats } from '@/features/games/blockBlast/blockBlastStatsService';
 import { ACHIEVEMENTS } from '@/features/achievements/achievementsConfig';
 import {
   getUnlockedAchievements,
@@ -220,7 +221,8 @@ export function ProfileAuthModal({
   const [brickBreakerStats, setBrickBreakerStats] = useState<BrickBreakerStats | null>(null);
   const [tRexStats, setTRexStats] = useState<TRexStats | null>(null);
   const [flappyStats, setFlappyStats] = useState<FlappyStats | null>(null);
-  const [statsGameTab, setStatsGameTab] = useState<'all' | 'chess' | 'caro' | 'xiangqi' | 'sudoku' | 'snake' | 'game2048' | 'minesweeper' | 'brick_breaker' | 't_rex' | 'flappy'>('all');
+  const [blockBlastStats, setBlockBlastStats] = useState<BlockBlastStats | null>(null);
+  const [statsGameTab, setStatsGameTab] = useState<'all' | 'chess' | 'caro' | 'xiangqi' | 'sudoku' | 'snake' | 'game2048' | 'minesweeper' | 'brick_breaker' | 't_rex' | 'flappy' | 'block_blast'>('all');
   const wasOpenRef = useRef(false);
 
   useEffect(() => {
@@ -249,6 +251,7 @@ export function ProfileAuthModal({
       setBrickBreakerStats(meta.brick_breaker_stats || getBrickBreakerStats());
       setTRexStats(meta.t_rex_stats || getTRexStats());
       setFlappyStats(meta.flappy_stats || getFlappyStats());
+      setBlockBlastStats(meta.block_blast_stats || getBlockBlastStats());
 
       // Lấy danh sách thành tựu đã mở và tự động đánh giá
       const currentAchievements = meta.achievements || getUnlockedAchievements();
@@ -269,6 +272,7 @@ export function ProfileAuthModal({
         brick_breaker: meta.brick_breaker_stats || getBrickBreakerStats(),
         t_rex: meta.t_rex_stats || getTRexStats(),
         flappy: meta.flappy_stats || getFlappyStats(),
+        block_blast: meta.block_blast_stats || getBlockBlastStats(),
       };
       checkAllEligibleAchievements(allCurrentStats);
       setUnlockedAchievements(getUnlockedAchievements());
@@ -288,6 +292,7 @@ export function ProfileAuthModal({
             if (m.brick_breaker_stats) setBrickBreakerStats(m.brick_breaker_stats);
             if (m.t_rex_stats) setTRexStats(m.t_rex_stats);
             if (m.flappy_stats) setFlappyStats(m.flappy_stats);
+            if (m.block_blast_stats) setBlockBlastStats(m.block_blast_stats);
             if (m.achievements) setUnlockedAchievements(m.achievements);
           }
         }).catch(() => {});
@@ -462,6 +467,7 @@ export function ProfileAuthModal({
     const brickBreakerGames = brickBreakerStats?.totalGames || (brickBreakerStats?.highScore ? 1 : 0);
     const tRexGames = tRexStats?.totalGames || (tRexStats?.highScore ? 1 : 0);
     const flappyGames = flappyStats?.totalGames || (flappyStats?.highScore ? 1 : 0);
+    const blockBlastGames = blockBlastStats?.totalGames || (blockBlastStats?.highScore ? 1 : 0);
 
     const totalPlayed =
       chessGames +
@@ -473,7 +479,8 @@ export function ProfileAuthModal({
       minesweeperGames +
       brickBreakerGames +
       tRexGames +
-      flappyGames;
+      flappyGames +
+      blockBlastGames;
 
     const totalWins =
       (chessStats?.wins || 0) +
@@ -482,7 +489,8 @@ export function ProfileAuthModal({
       (sudokuStats?.totalSolved || 0) +
       (minesweeperStats?.totalWins || 0) +
       ((brickBreakerStats?.highestLevel && brickBreakerStats.highestLevel > 1) ? brickBreakerStats.highestLevel - 1 : 0) +
-      ((game2048Stats?.maxTile && game2048Stats.maxTile >= 2048) ? 1 : 0);
+      ((game2048Stats?.maxTile && game2048Stats.maxTile >= 2048) ? 1 : 0) +
+      ((blockBlastStats?.highScore && blockBlastStats.highScore >= 1000) ? 1 : 0);
 
     const gameCounts = [
       { name: language === 'vi' ? 'Cờ Vua' : 'Chess', icon: '♟️', count: chessGames },
@@ -495,6 +503,7 @@ export function ProfileAuthModal({
       { name: language === 'vi' ? 'Phá Gạch' : 'Bricks', icon: '🧱', count: brickBreakerGames },
       { name: 'T-Rex', icon: '🦖', count: tRexGames },
       { name: 'Flappy', icon: '🐤', count: flappyGames },
+      { name: 'Block Blast', icon: '🧱', count: blockBlastGames },
     ];
 
     const topGame = gameCounts.reduce((prev, curr) => (curr.count > prev.count ? curr : prev), gameCounts[0]);
@@ -517,6 +526,7 @@ export function ProfileAuthModal({
     brickBreakerStats,
     tRexStats,
     flappyStats,
+    blockBlastStats,
     unlockedAchievements,
     language,
   ]);
@@ -805,6 +815,7 @@ export function ProfileAuthModal({
                         <option value="sudoku">🔢 Sudoku</option>
                         <option value="game2048">🔢 2048</option>
                         <option value="minesweeper">💣 {language === 'vi' ? 'Dò Mìn' : 'Minesweeper'}</option>
+                        <option value="block_blast">🧱 Block Blast</option>
                       </optgroup>
                       <optgroup label={language === 'vi' ? '🕹️ Arcade Kinh Điển' : '🕹️ Classic Arcade'}>
                         <option value="snake">🐍 {language === 'vi' ? 'Rắn Săn Mồi' : 'Snake'}</option>
@@ -817,7 +828,47 @@ export function ProfileAuthModal({
                   </div>
                 </div>
 
-                {statsGameTab === 'flappy' ? (
+                {statsGameTab === 'block_blast' ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between bg-white px-3 py-1.5 border-2 border-zinc-900 text-xs font-mono">
+                      <span className="font-bold text-zinc-700">
+                        {language === 'vi' ? 'Kỷ lục điểm cao:' : 'All-time High Score:'}
+                      </span>
+                      <span className="font-pixel text-xl font-bold text-amber-500">
+                        🧱 {blockBlastStats?.highScore?.toLocaleString() || 0}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-1.5 text-center">
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-emerald-600">
+                          {blockBlastStats?.totalLinesCleared?.toLocaleString() || 0}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Số hàng đã nổ' : 'Lines Cleared'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-amber-600">
+                          🔥 x{blockBlastStats?.maxCombo || 0}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Combo tối đa' : 'Max Combo'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900">
+                        <p className="font-pixel text-base font-bold text-rose-600">
+                          {blockBlastStats?.totalGames || 0}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold">
+                          {language === 'vi' ? 'Số ván đã chơi' : 'Games Played'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : statsGameTab === 'flappy' ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between bg-white px-3 py-1.5 border-2 border-zinc-900 text-xs font-mono">
                       <span className="font-bold text-zinc-700">

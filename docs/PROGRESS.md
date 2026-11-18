@@ -173,14 +173,21 @@
     - Lược bỏ hoàn toàn dòng thông tin số ván `Lưu 0/20 ván` trong tab Lịch sử đấu theo yêu cầu người dùng, chuyển nút xóa lịch sử lên góc trên phải thanh tiêu đề.
     - Tối ưu hóa mục "Tổng quan" thành **Bảng chỉ số tài khoản bất biến (Global Account Summary)**: 3 thẻ số liệu chính (Tổng ván đấu, Tổng chiến thắng, Huy hiệu) kết hợp thanh ngang rộng rãi cho "Chơi nhiều nhất" (hiển thị đầy đủ 100% tên game không bị cắt chữ `...` và số ván), không bao giờ bị phình to.
     - Đơn giản hóa các ô "Sắp có" (Upcoming Tile) tại Sảnh chính: Bỏ gợi ý tên game cụ thể (như "Cờ vây, Othello"), chỉ hiển thị thống nhất dòng chữ "SẮP CÓ" / "COMING SOON" ngắn gọn, sạch sẽ.
+- **Hoàn thành toàn diện Chặng 19 — Trò chơi thứ 11: Block Blast (Xếp khối nổ dòng 8x8):**
+  - **Gameplay cốt lõi:** Bàn cờ 8x8 retro pixel, cơ chế nổ hàng ngang và cột dọc khi đủ 8 ô, giải phóng không gian và **hệ thống tính điểm Combo lũy tiến hàm bậc hai** cực đã tay (càng duy trì combo cao, điểm thưởng càng tăng vọt bùng nổ, kèm floating banner và âm thanh chiptune arpeggio dồn dập).
+  - **Lưu điểm số & trạng thái khi thoát (Auto-save & Resume):** Tự động lưu toàn bộ bàn cờ, 3 khối trong khay, điểm số và combo streak vào `localStorage` sau mỗi nước đi; khi người chơi thoát ra sảnh hoặc tắt tab rồi quay lại vẫn tiếp tục đúng ván đấu đang chơi dở. Chỉ reset khi Game Over hoặc bấm chơi lại.
+  - **Thuật toán chia 3 khối có đường sống (Solvable & Fair RNG):** Khi chia 3 khối mới, thuật toán đảm bảo khối đầu tiên luôn có ít nhất 1 vị trí đặt hợp lệ trên bàn cờ hiện tại, đồng thời mô phỏng đặt khối và nổ dòng để đảm bảo các khối tiếp theo luôn có đường giải, không bao giờ rơi vào cảnh vừa nhận khối là bế tắc thua ngay.
+  - **Điều khiển linh hoạt:** Hỗ trợ Kéo - Thả (Drag & Drop) với cơ chế bù khoảng cách ngón tay (touch offset nhấc khối lên ~75px để ngón tay không che tầm nhìn bàn cờ) kèm Ghost Preview bóng mờ; **tự động phát sáng nhấp nháy toàn bộ 8 ô của hàng hoặc cột sắp nổ** khi kéo khối vào vị trí phá gạch; và Chạm chọn $\rightarrow$ Chạm đặt (Tap to Place) thân thiện với màn hình nhỏ.
+  - **Âm thanh Web Audio 8-bit:** Nhấc khối, đặt khối (thud chắc nịch), nổ hàng với cao độ tăng dần theo combo streak, nhạc hiệu combo lớn và âm thanh game over.
+  - **Tích hợp hệ thống:** Đăng ký vào Sảnh chính (thể loại Giải đố - `puzzle`), Bảng xếp hạng (Leaderboard), Menu Thành tích trong Profile cá nhân và tự động đồng bộ đám mây Supabase.
 
 ## Đang làm
 
-- Toàn bộ 10 trò chơi (Cờ Vua, Cờ Tướng, Cờ Caro, Sudoku, 2048, Dò Mìn, Rắn Săn Mồi, Phá Gạch, Khủng Long T-Rex, Flappy Bird) đã hoàn thành và sẵn sàng phục vụ người chơi trên cả điện thoại và máy tính.
+- Toàn bộ 11 trò chơi (Cờ Vua, Cờ Tướng, Cờ Caro, Sudoku, 2048, Dò Mìn, Rắn Săn Mồi, Phá Gạch, Khủng Long T-Rex, Flappy Bird, Block Blast) đã hoàn thành và sẵn sàng phục vụ người chơi trên cả điện thoại và máy tính.
 
 ## Việc kế tiếp
 
-1. Trải nghiệm trực tiếp trò chơi Flappy Bird tại sảnh chính (`/games/flappy-bird`), vỗ cánh qua các cặp ống và chinh phục huy chương Bạch Kim.
+1. Trải nghiệm trực tiếp trò chơi Block Blast tại sảnh chính (`/games/block-blast`), xếp khối nổ dòng và cày kỷ lục combo.
 2. Hướng dẫn commit và tạo Pull Request (PR) theo chuẩn Rule 8 trong `AGENTS.md` khi người dùng yêu cầu.
 
 ## Quyết định còn mở
