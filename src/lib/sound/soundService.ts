@@ -1,29 +1,202 @@
 'use client';
 
+export type BgmTheme = 'lobby' | 'arcade' | 'strategy' | 'none';
+
+// Frequencies for procedural 8-bit chiptune synthesis (Hz)
+const N = {
+  _: 0, // Rest
+  // Octave 2
+  C2: 65.41, D2: 73.42, E2: 82.41, F2: 87.31, G2: 98.00, A2: 110.00, B2: 123.47,
+  // Octave 3
+  C3: 130.81, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196.00, A3: 220.00, B3: 246.94,
+  // Octave 4
+  C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88,
+  // Octave 5
+  C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, A5: 880.00, B5: 987.77,
+  // Octave 6
+  C6: 1046.50, D6: 1174.66, E6: 1318.51, G6: 1567.98,
+};
+
+interface BgmPattern {
+  bpm: number;
+  leadWave: OscillatorType;
+  bassWave: OscillatorType;
+  lead: number[];
+  bass: number[];
+  percussion?: number[]; // 1 = hat, 2 = snare
+}
+
+const BGM_PATTERNS: Record<Exclude<BgmTheme, 'none'>, BgmPattern> = {
+  // Theme 1: Lobby - Cheerful, relaxing 8-bit groove (104 BPM)
+  lobby: {
+    bpm: 104,
+    leadWave: 'triangle',
+    bassWave: 'triangle',
+    lead: [
+      N.C5, N._,  N.E5, N._,  N.G5, N._,  N.A5, N.G5,
+      N._,  N.E5, N.D5, N._,  N.C5, N._,  N.D5, N._,
+      N.E5, N._,  N.G5, N._,  N.A5, N._,  N.C6, N.A5,
+      N.G5, N._,  N.E5, N.D5, N.C5, N._,  N._,  N._,
+    ],
+    bass: [
+      N.C3, N._,  N.C3, N._,  N.G2, N._,  N.G2, N._,
+      N.A2, N._,  N.A2, N._,  N.F2, N._,  N.G2, N._,
+      N.C3, N._,  N.C3, N._,  N.G2, N._,  N.G2, N._,
+      N.F2, N._,  N.F2, N._,  N.G2, N._,  N.C3, N._,
+    ],
+    percussion: [
+      1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 0, 0, 2, 0, 1, 0,
+      1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 0, 0, 2, 0, 1, 1,
+    ],
+  },
+
+  // Theme 2: Arcade - Upbeat, energetic, driving chiptune (128 BPM)
+  arcade: {
+    bpm: 128,
+    leadWave: 'triangle',
+    bassWave: 'triangle',
+    lead: [
+      N.D5, N.D5, N.F5, N._,  N.A5, N._,  N.G5, N.F5,
+      N.E5, N._,  N.D5, N.F5, N.E5, N.C5, N.D5, N._,
+      N.D5, N.F5, N.A5, N._,  N.C6, N._,  N.D6, N.C6,
+      N.A5, N._,  N.F5, N.G5, N.A5, N.F5, N.D5, N._,
+    ],
+    bass: [
+      N.D2, N.D3, N.D2, N.D3, N.F2, N.F3, N.F2, N.F3,
+      N.G2, N.G3, N.G2, N.G3, N.A2, N.A3, N.A2, N.A3,
+      N.D2, N.D3, N.D2, N.D3, N.C2, N.C3, N.C2, N.C3,
+      N.B2, N.B3, N.B2, N.B3, N.A2, N.G2, N.F2, N.E2,
+    ],
+    percussion: [
+      2, 0, 1, 0, 2, 0, 1, 1, 2, 0, 1, 0, 2, 0, 1, 1,
+      2, 0, 1, 0, 2, 0, 1, 1, 2, 0, 1, 0, 2, 1, 2, 1,
+    ],
+  },
+
+  // Theme 3: Strategy - Ambient, calm, thoughtful lo-fi chiptune (76 BPM)
+  strategy: {
+    bpm: 76,
+    leadWave: 'sine',
+    bassWave: 'triangle',
+    lead: [
+      N.E4, N._,  N._,  N._,  N.G4, N._,  N.B4, N._,
+      N.D5, N._,  N.C5, N._,  N.B4, N._,  N._,  N._,
+      N.A4, N._,  N._,  N._,  N.G4, N._,  N.E4, N._,
+      N.F4, N._,  N.E4, N._,  N.D4, N._,  N.E4, N._,
+    ],
+    bass: [
+      N.E2, N._,  N._,  N._,  N.E2, N._,  N._,  N._,
+      N.C2, N._,  N._,  N._,  N.C2, N._,  N._,  N._,
+      N.G2, N._,  N._,  N._,  N.G2, N._,  N._,  N._,
+      N.D2, N._,  N._,  N._,  N.D2, N._,  N.E2, N._,
+    ],
+  },
+};
+
 class SoundService {
   private audioCtx: AudioContext | null = null;
   private masterGain: GainNode | null = null;
-  private volume: number = 0.7; // Mặc định 70% âm lượng (0.0 đến 1.0)
-  private muted: boolean = false;
+  private sfxGain: GainNode | null = null;
+  private bgmGain: GainNode | null = null;
+  private bgmFilter: BiquadFilterNode | null = null;
+
+  // Sound Effects (SFX) state
+  private sfxVolume: number = 0.7; // 0.0 -> 1.0
+  private sfxMuted: boolean = false;
+
+  // Background Music (BGM) state
+  private bgmVolume: number = 0.45; // 0.0 -> 1.0
+  private bgmMuted: boolean = false;
+
+  // BGM Sequencer state
+  private currentBgmTheme: BgmTheme = 'none';
+  private targetBgmTheme: BgmTheme = 'none';
+  private bgmTimer: ReturnType<typeof setInterval> | null = null;
+  private bgmStepIndex: number = 0;
+  private bgmNextStepTime: number = 0;
+  private isDocumentVisible: boolean = true;
+  private autoplayUnlocked: boolean = false;
 
   constructor() {
     if (typeof window !== 'undefined') {
       try {
-        const savedMuted = localStorage.getItem('togame_sound_muted');
-        this.muted = savedMuted === 'true';
+        // Load SFX preferences
+        const savedSfxMuted = localStorage.getItem('togame_sound_muted');
+        this.sfxMuted = savedSfxMuted === 'true';
 
-        const savedVol = localStorage.getItem('kombat_sound_volume');
-        if (savedVol !== null) {
-          const parsed = parseFloat(savedVol);
+        const savedSfxVol = localStorage.getItem('kombat_sound_volume');
+        if (savedSfxVol !== null) {
+          const parsed = parseFloat(savedSfxVol);
           if (!isNaN(parsed) && parsed >= 0 && parsed <= 1) {
-            this.volume = parsed;
+            this.sfxVolume = parsed;
+          }
+        }
+
+        // Load BGM preferences
+        const savedBgmMuted = localStorage.getItem('kombat_bgm_muted');
+        this.bgmMuted = savedBgmMuted === 'true';
+
+        const savedBgmVol = localStorage.getItem('kombat_bgm_volume');
+        if (savedBgmVol !== null) {
+          const parsed = parseFloat(savedBgmVol);
+          if (!isNaN(parsed) && parsed >= 0 && parsed <= 1) {
+            this.bgmVolume = parsed;
           }
         }
       } catch {
-        this.muted = false;
-        this.volume = 0.7;
+        this.sfxMuted = false;
+        this.sfxVolume = 0.7;
+        this.bgmMuted = false;
+        this.bgmVolume = 0.45;
       }
+
+      // Pause audio processing when switching browser tabs
+      document.addEventListener('visibilitychange', () => {
+        this.isDocumentVisible = !document.hidden;
+        if (document.hidden) {
+          if (this.audioCtx && this.audioCtx.state === 'running') {
+            this.audioCtx.suspend().catch(() => {});
+          }
+        } else {
+          if (this.audioCtx && this.audioCtx.state === 'suspended' && this.currentBgmTheme !== 'none') {
+            this.audioCtx.resume().catch(() => {});
+          }
+        }
+      });
+
+      // Browser autoplay unlock listeners
+      this.setupAutoplayUnlock();
     }
+  }
+
+  private setupAutoplayUnlock(): void {
+    if (typeof window === 'undefined' || this.autoplayUnlocked) return;
+
+    const unlock = () => {
+      if (this.autoplayUnlocked) return;
+      this.autoplayUnlocked = true;
+
+      const ctx = this.getAudioContext();
+      if (ctx && ctx.state === 'suspended') {
+        ctx.resume().then(() => {
+          if (this.targetBgmTheme && this.targetBgmTheme !== 'none' && this.currentBgmTheme === 'none') {
+            this.playBgm(this.targetBgmTheme);
+          }
+        }).catch(() => {});
+      } else if (this.targetBgmTheme && this.targetBgmTheme !== 'none' && this.currentBgmTheme === 'none') {
+        this.playBgm(this.targetBgmTheme);
+      }
+
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
+      window.removeEventListener('touchstart', unlock);
+      window.removeEventListener('click', unlock);
+    };
+
+    window.addEventListener('pointerdown', unlock, { passive: true });
+    window.addEventListener('keydown', unlock, { passive: true });
+    window.addEventListener('touchstart', unlock, { passive: true });
+    window.addEventListener('click', unlock, { passive: true });
   }
 
   private getAudioContext(): AudioContext | null {
@@ -37,20 +210,48 @@ class SoundService {
     }
 
     if (this.audioCtx && this.audioCtx.state === 'suspended') {
-      this.audioCtx.resume();
+      this.audioCtx.resume().catch(() => {});
     }
 
     return this.audioCtx;
   }
 
+  private initGainNodes(ctx: AudioContext): void {
+    if (this.masterGain) return;
+
+    // Master bus
+    this.masterGain = ctx.createGain();
+    this.masterGain.gain.setValueAtTime(1.0, ctx.currentTime);
+    this.masterGain.connect(ctx.destination);
+
+    // SFX channel
+    this.sfxGain = ctx.createGain();
+    const effSfx = this.isSfxMuted() ? 0 : this.sfxVolume;
+    this.sfxGain.gain.setValueAtTime(effSfx, ctx.currentTime);
+    this.sfxGain.connect(this.masterGain);
+
+    // BGM channel with warm 8-bit low-pass filter
+    this.bgmFilter = ctx.createBiquadFilter();
+    this.bgmFilter.type = 'lowpass';
+    this.bgmFilter.frequency.setValueAtTime(2200, ctx.currentTime);
+    this.bgmFilter.Q.setValueAtTime(1.0, ctx.currentTime);
+
+    this.bgmGain = ctx.createGain();
+    const effBgm = this.isBgmMuted() ? 0 : this.bgmVolume;
+    this.bgmGain.gain.setValueAtTime(effBgm, ctx.currentTime);
+
+    this.bgmFilter.connect(this.bgmGain);
+    this.bgmGain.connect(this.masterGain);
+  }
+
   private getDestination(ctx: AudioContext): AudioNode {
-    if (!this.masterGain) {
-      this.masterGain = ctx.createGain();
-      const effectiveGain = this.isMuted() ? 0 : this.volume;
-      this.masterGain.gain.setValueAtTime(effectiveGain, ctx.currentTime);
-      this.masterGain.connect(ctx.destination);
-    }
-    return this.masterGain;
+    this.initGainNodes(ctx);
+    return this.sfxGain!;
+  }
+
+  private getBgmDestination(ctx: AudioContext): AudioNode {
+    this.initGainNodes(ctx);
+    return this.bgmFilter!;
   }
 
   private notifyChange(): void {
@@ -58,77 +259,370 @@ class SoundService {
       window.dispatchEvent(
         new CustomEvent('kombat:volume_change', {
           detail: {
-            volume: this.volume,
-            muted: this.muted,
+            volume: this.sfxVolume, // Backward compatibility
+            muted: this.sfxMuted,   // Backward compatibility
+            sfxVolume: this.sfxVolume,
+            sfxMuted: this.sfxMuted,
+            bgmVolume: this.bgmVolume,
+            bgmMuted: this.bgmMuted,
+            theme: this.currentBgmTheme,
+            isPlaying: this.isBgmPlaying(),
           },
         })
       );
     }
   }
 
-  public isMuted(): boolean {
-    return this.muted || this.volume <= 0.001;
+  // ==========================================
+  // SFX (Sound Effects) Volume Controls
+  // ==========================================
+  public isSfxMuted(): boolean {
+    return this.sfxMuted || this.sfxVolume <= 0.001;
   }
 
-  public getVolume(): number {
-    return this.volume;
+  public getSfxVolume(): number {
+    return this.sfxVolume;
   }
 
-  public setVolume(val: number): void {
+  public setSfxVolume(val: number): void {
     const clamped = Math.max(0, Math.min(1, Math.round(val * 100) / 100));
-    this.volume = clamped;
+    this.sfxVolume = clamped;
     if (clamped <= 0.001) {
-      this.muted = true;
-    } else if (this.muted && clamped > 0.001) {
-      this.muted = false;
+      this.sfxMuted = true;
+    } else if (this.sfxMuted && clamped > 0.001) {
+      this.sfxMuted = false;
     }
 
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem('kombat_sound_volume', clamped.toString());
-        localStorage.setItem('togame_sound_muted', this.muted ? 'true' : 'false');
+        localStorage.setItem('togame_sound_muted', this.sfxMuted ? 'true' : 'false');
       } catch {}
     }
 
-    if (this.masterGain && this.audioCtx) {
-      const effectiveGain = this.isMuted() ? 0 : this.volume;
-      this.masterGain.gain.setValueAtTime(effectiveGain, this.audioCtx.currentTime);
+    if (this.sfxGain && this.audioCtx) {
+      const eff = this.isSfxMuted() ? 0 : this.sfxVolume;
+      this.sfxGain.gain.setValueAtTime(eff, this.audioCtx.currentTime);
     }
 
     this.notifyChange();
   }
 
-  public setMuted(muted: boolean): boolean {
-    this.muted = muted;
-    if (!this.muted && this.volume <= 0.05) {
-      this.volume = 0.7; // Khôi phục về 70% nếu trước đó âm lượng bằng 0
+  public setSfxMuted(muted: boolean): boolean {
+    this.sfxMuted = muted;
+    if (!this.sfxMuted && this.sfxVolume <= 0.05) {
+      this.sfxVolume = 0.7;
     }
 
     if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem('togame_sound_muted', this.muted ? 'true' : 'false');
-        localStorage.setItem('kombat_sound_volume', this.volume.toString());
+        localStorage.setItem('togame_sound_muted', this.sfxMuted ? 'true' : 'false');
+        localStorage.setItem('kombat_sound_volume', this.sfxVolume.toString());
       } catch {}
     }
 
-    if (this.masterGain && this.audioCtx) {
-      const effectiveGain = this.isMuted() ? 0 : this.volume;
-      this.masterGain.gain.setValueAtTime(effectiveGain, this.audioCtx.currentTime);
+    if (this.sfxGain && this.audioCtx) {
+      const eff = this.isSfxMuted() ? 0 : this.sfxVolume;
+      this.sfxGain.gain.setValueAtTime(eff, this.audioCtx.currentTime);
     }
 
     this.notifyChange();
-    return this.muted;
+    return this.sfxMuted;
+  }
+
+  public toggleSfxMute(): boolean {
+    return this.setSfxMuted(!this.sfxMuted);
+  }
+
+  // Backward compatibility alias methods
+  public isMuted(): boolean {
+    return this.isSfxMuted();
+  }
+
+  public getVolume(): number {
+    return this.getSfxVolume();
+  }
+
+  public setVolume(val: number): void {
+    this.setSfxVolume(val);
+  }
+
+  public setMuted(muted: boolean): boolean {
+    return this.setSfxMuted(muted);
   }
 
   public toggleMute(): boolean {
-    return this.setMuted(!this.muted);
+    return this.toggleSfxMute();
+  }
+
+  // ==========================================
+  // BGM (Background Music) Volume Controls
+  // ==========================================
+  public isBgmMuted(): boolean {
+    return this.bgmMuted || this.bgmVolume <= 0.001;
+  }
+
+  public getBgmVolume(): number {
+    return this.bgmVolume;
+  }
+
+  public setBgmVolume(val: number): void {
+    const clamped = Math.max(0, Math.min(1, Math.round(val * 100) / 100));
+    this.bgmVolume = clamped;
+    if (clamped <= 0.001) {
+      this.bgmMuted = true;
+    } else if (this.bgmMuted && clamped > 0.001) {
+      this.bgmMuted = false;
+    }
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('kombat_bgm_volume', clamped.toString());
+        localStorage.setItem('kombat_bgm_muted', this.bgmMuted ? 'true' : 'false');
+      } catch {}
+    }
+
+    if (this.bgmGain && this.audioCtx) {
+      const eff = this.isBgmMuted() ? 0 : this.bgmVolume;
+      this.bgmGain.gain.setValueAtTime(eff, this.audioCtx.currentTime);
+    }
+
+    this.notifyChange();
+  }
+
+  public setBgmMuted(muted: boolean): boolean {
+    this.bgmMuted = muted;
+    if (!this.bgmMuted && this.bgmVolume <= 0.05) {
+      this.bgmVolume = 0.45;
+    }
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('kombat_bgm_muted', this.bgmMuted ? 'true' : 'false');
+        localStorage.setItem('kombat_bgm_volume', this.bgmVolume.toString());
+      } catch {}
+    }
+
+    if (this.bgmGain && this.audioCtx) {
+      const eff = this.isBgmMuted() ? 0 : this.bgmVolume;
+      this.bgmGain.gain.setValueAtTime(eff, this.audioCtx.currentTime);
+    }
+
+    this.notifyChange();
+    return this.bgmMuted;
+  }
+
+  public toggleBgmMute(): boolean {
+    return this.setBgmMuted(!this.bgmMuted);
+  }
+
+  // ==========================================
+  // BGM Procedural Sequencer Engine
+  // ==========================================
+  private scheduleBgmNote(
+    ctx: AudioContext,
+    freq: number,
+    time: number,
+    duration: number,
+    waveType: OscillatorType,
+    maxGain: number
+  ): void {
+    if (freq <= 0) return;
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = waveType;
+      osc.frequency.setValueAtTime(freq, time);
+
+      const attack = 0.015;
+      const decay = duration * 0.85;
+
+      gain.gain.setValueAtTime(0.0001, time);
+      gain.gain.linearRampToValueAtTime(maxGain, time + attack);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + attack + decay);
+
+      osc.connect(gain);
+      gain.connect(this.getBgmDestination(ctx));
+
+      osc.start(time);
+      osc.stop(time + attack + decay + 0.02);
+    } catch {}
+  }
+
+  private scheduleBgmPercussion(ctx: AudioContext, type: number, time: number): void {
+    if (!type) return;
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      if (type === 1) {
+        // Soft 8-bit hi-hat tick
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(1400, time);
+        osc.frequency.exponentialRampToValueAtTime(400, time + 0.025);
+        gain.gain.setValueAtTime(0.03, time);
+        gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.025);
+        osc.connect(gain);
+        gain.connect(this.getBgmDestination(ctx));
+        osc.start(time);
+        osc.stop(time + 0.03);
+      } else {
+        // Soft 8-bit snare pop
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(280, time);
+        osc.frequency.exponentialRampToValueAtTime(80, time + 0.05);
+        gain.gain.setValueAtTime(0.06, time);
+        gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.05);
+        osc.connect(gain);
+        gain.connect(this.getBgmDestination(ctx));
+        osc.start(time);
+        osc.stop(time + 0.06);
+      }
+    } catch {}
+  }
+
+  private startSequencer(theme: Exclude<BgmTheme, 'none'>): void {
+    this.stopSequencer();
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+
+    this.initGainNodes(ctx);
+    const pattern = BGM_PATTERNS[theme];
+    if (!pattern) return;
+
+    this.currentBgmTheme = theme;
+    this.bgmStepIndex = 0;
+    this.bgmNextStepTime = ctx.currentTime + 0.05;
+
+    const stepDuration = 60 / pattern.bpm / 4; // 16th note in seconds
+    const scheduleAhead = 0.25; // 250ms lookahead window
+
+    const scheduler = () => {
+      if (!this.audioCtx || this.currentBgmTheme !== theme) return;
+      if (!this.isDocumentVisible) return;
+
+      while (this.bgmNextStepTime < this.audioCtx.currentTime + scheduleAhead) {
+        const step = this.bgmStepIndex % 32;
+        const time = this.bgmNextStepTime;
+
+        // Schedule Lead Melody
+        const leadFreq = pattern.lead[step];
+        if (leadFreq > 0) {
+          this.scheduleBgmNote(
+            this.audioCtx,
+            leadFreq,
+            time,
+            stepDuration * 1.5,
+            pattern.leadWave,
+            0.11
+          );
+        }
+
+        // Schedule Bassline
+        const bassFreq = pattern.bass[step];
+        if (bassFreq > 0) {
+          this.scheduleBgmNote(
+            this.audioCtx,
+            bassFreq,
+            time,
+            stepDuration * 1.8,
+            pattern.bassWave,
+            0.14
+          );
+        }
+
+        // Schedule Percussion
+        if (pattern.percussion) {
+          const percType = pattern.percussion[step];
+          if (percType) {
+            this.scheduleBgmPercussion(this.audioCtx, percType, time);
+          }
+        }
+
+        this.bgmStepIndex++;
+        this.bgmNextStepTime += stepDuration;
+      }
+    };
+
+    scheduler();
+    this.bgmTimer = setInterval(scheduler, 50);
+    this.notifyChange();
+  }
+
+  private stopSequencer(): void {
+    if (this.bgmTimer) {
+      clearInterval(this.bgmTimer);
+      this.bgmTimer = null;
+    }
   }
 
   /**
-   * Âm thanh thử nghiệm khi kéo thanh âm lượng (8-bit chime nhẹ)
+   * Bật nhạc nền theo chủ đề.
+   * Nếu đã đang chạy theme đó, giữ nguyên không ngắt quãng.
+   */
+  public playBgm(theme: BgmTheme): void {
+    this.targetBgmTheme = theme;
+    if (theme === 'none') {
+      this.stopBgm();
+      return;
+    }
+
+    if (this.currentBgmTheme === theme && this.bgmTimer) {
+      return; // Đang chạy bài này rồi
+    }
+
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+
+    if (ctx.state === 'suspended') {
+      this.setupAutoplayUnlock();
+      return;
+    }
+
+    this.startSequencer(theme);
+  }
+
+  /**
+   * Dừng hẳn nhạc nền
+   */
+  public stopBgm(): void {
+    this.targetBgmTheme = 'none';
+    this.currentBgmTheme = 'none';
+    this.stopSequencer();
+    this.notifyChange();
+  }
+
+  /**
+   * Tạm dừng nhạc nền
+   */
+  public pauseBgm(): void {
+    this.stopSequencer();
+    this.notifyChange();
+  }
+
+  /**
+   * Tiếp tục nhạc nền
+   */
+  public resumeBgm(): void {
+    if (this.targetBgmTheme && this.targetBgmTheme !== 'none') {
+      this.playBgm(this.targetBgmTheme);
+    }
+  }
+
+  public getCurrentBgm(): BgmTheme {
+    return this.currentBgmTheme;
+  }
+
+  public isBgmPlaying(): boolean {
+    return this.currentBgmTheme !== 'none' && this.bgmTimer !== null && !this.isBgmMuted();
+  }
+
+  /**
+   * Âm thanh thử nghiệm khi kéo thanh âm lượng SFX (8-bit chime nhẹ)
    */
   public playVolumePreview(): void {
-    if (this.isMuted()) return;
+    if (this.isSfxMuted()) return;
     const ctx = this.getAudioContext();
     if (!ctx) return;
 
@@ -148,6 +642,21 @@ class SoundService {
 
       osc.start();
       osc.stop(ctx.currentTime + 0.08);
+    } catch {}
+  }
+
+  /**
+   * Âm thanh thử nghiệm khi kéo thanh âm lượng BGM (hợp âm 8-bit đôi nhẹ nhàng)
+   */
+  public playBgmVolumePreview(): void {
+    if (this.isBgmMuted()) return;
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+
+    try {
+      const t = ctx.currentTime;
+      this.scheduleBgmNote(ctx, N.C5, t, 0.12, 'triangle', 0.14);
+      this.scheduleBgmNote(ctx, N.G5, t + 0.07, 0.15, 'triangle', 0.14);
     } catch {}
   }
 

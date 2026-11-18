@@ -1,29 +1,58 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { sounds } from '@/lib/sound/soundService';
+import { sounds, BgmTheme } from '@/lib/sound/soundService';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { PixelVolumeOn, PixelVolumeOff } from '@/components/PixelIcons';
+import {
+  PixelVolumeOn,
+  PixelVolumeOff,
+  PixelMusic,
+  PixelMusicOff,
+} from '@/components/PixelIcons';
+
+const THEME_NAMES: Record<BgmTheme, { vi: string; en: string }> = {
+  lobby: { vi: 'Sảnh chờ (Chill)', en: 'Lobby Lounge' },
+  arcade: { vi: 'Arcade (Sôi động)', en: 'Pixel Rush' },
+  strategy: { vi: 'Chiến thuật (Zen)', en: 'Zen Focus' },
+  none: { vi: 'Tạm dừng', en: 'Paused' },
+};
 
 /**
- * Volume Popover dành cho Desktop Header
+ * Volume Popover dành cho Desktop Header với 2 kênh độc lập: Hiệu ứng (SFX) & Nhạc nền (BGM)
  */
 export function VolumePopover() {
   const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
-  const [volume, setVolume] = useState(sounds.getVolume());
-  const [isMuted, setIsMuted] = useState(sounds.isMuted());
+  const [sfxVolume, setSfxVolume] = useState(sounds.getSfxVolume());
+  const [isSfxMuted, setIsSfxMuted] = useState(sounds.isSfxMuted());
+  const [bgmVolume, setBgmVolume] = useState(sounds.getBgmVolume());
+  const [isBgmMuted, setIsBgmMuted] = useState(sounds.isBgmMuted());
+  const [currentTheme, setCurrentTheme] = useState<BgmTheme>(sounds.getCurrentBgm());
   const popoverRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setVolume(sounds.getVolume());
-    setIsMuted(sounds.isMuted());
+    setSfxVolume(sounds.getSfxVolume());
+    setIsSfxMuted(sounds.isSfxMuted());
+    setBgmVolume(sounds.getBgmVolume());
+    setIsBgmMuted(sounds.isBgmMuted());
+    setCurrentTheme(sounds.getCurrentBgm());
 
     const handleVolumeChange = (e: Event) => {
-      const custom = e as CustomEvent<{ volume: number; muted: boolean }>;
+      const custom = e as CustomEvent<{
+        sfxVolume: number;
+        sfxMuted: boolean;
+        bgmVolume: number;
+        bgmMuted: boolean;
+        theme: BgmTheme;
+      }>;
       if (custom.detail) {
-        setVolume(custom.detail.volume);
-        setIsMuted(custom.detail.muted);
+        setSfxVolume(custom.detail.sfxVolume);
+        setIsSfxMuted(custom.detail.sfxMuted);
+        setBgmVolume(custom.detail.bgmVolume);
+        setIsBgmMuted(custom.detail.bgmMuted);
+        if (custom.detail.theme) {
+          setCurrentTheme(custom.detail.theme);
+        }
       }
     };
 
@@ -33,7 +62,7 @@ export function VolumePopover() {
     };
   }, []);
 
-  // Đóng popover khi bấm ra ngoài
+  // Đóng popover khi click ra ngoài
   useEffect(() => {
     if (!isOpen) return;
 
@@ -49,26 +78,29 @@ export function VolumePopover() {
     };
   }, [isOpen]);
 
-  const handleToggleMute = (e: React.MouseEvent) => {
+  const handleToggleSfxMute = (e: React.MouseEvent) => {
     e.stopPropagation();
-    sounds.toggleMute();
+    sounds.toggleSfxMute();
   };
 
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleToggleBgmMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    sounds.toggleBgmMute();
+  };
+
+  const handleSfxSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value) / 100;
-    sounds.setVolume(val);
+    sounds.setSfxVolume(val);
   };
 
-  const handleSliderCommit = () => {
-    sounds.playVolumePreview();
+  const handleBgmSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.target.value) / 100;
+    sounds.setBgmVolume(val);
   };
 
-  const handlePreset = (val: number) => {
-    sounds.setVolume(val);
-    sounds.playVolumePreview();
-  };
-
-  const percent = isMuted ? 0 : Math.round(volume * 100);
+  const sfxPercent = isSfxMuted ? 0 : Math.round(sfxVolume * 100);
+  const bgmPercent = isBgmMuted ? 0 : Math.round(bgmVolume * 100);
+  const allMuted = isSfxMuted && isBgmMuted;
 
   return (
     <div className="relative inline-block" ref={popoverRef}>
@@ -77,127 +109,204 @@ export function VolumePopover() {
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`pixel-btn flex h-10 min-h-[40px] items-center gap-1.5 px-2.5 text-xs outline-none transition-colors ${
-          isMuted
+          allMuted
             ? 'bg-zinc-100 text-zinc-400 border-zinc-400'
             : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border-zinc-900'
         }`}
         title={
           language === 'vi'
-            ? `Âm lượng: ${isMuted ? 'Tắt' : `${percent}%`} (Bấm để chỉnh)`
-            : `Volume: ${isMuted ? 'Muted' : `${percent}%`} (Click to adjust)`
+            ? `Âm thanh: SFX ${sfxPercent}% | BGM ${bgmPercent}% (Bấm để chỉnh)`
+            : `Audio: SFX ${sfxPercent}% | BGM ${bgmPercent}% (Click to adjust)`
         }
         aria-label="Sound Settings"
       >
-        {isMuted ? (
+        {allMuted ? (
           <PixelVolumeOff className="h-4 w-4 text-zinc-500" />
         ) : (
-          <PixelVolumeOn className="h-4 w-4 text-emerald-800" />
+          <div className="flex items-center gap-1">
+            <PixelVolumeOn className="h-4 w-4 text-emerald-800" />
+            {!isBgmMuted && bgmPercent > 0 && (
+              <PixelMusic className="h-3.5 w-3.5 text-indigo-700 animate-pulse" />
+            )}
+          </div>
         )}
         <span className="font-pixel text-[11px] font-bold">
-          {isMuted ? 'OFF' : `${percent}%`}
+          {allMuted ? 'OFF' : `${sfxPercent}%`}
         </span>
       </button>
 
       {/* Retro Popover Box */}
       {isOpen && (
-        <div className="pixel-box absolute right-0 top-12 z-50 w-64 bg-[#FFFDF8] p-3.5 border-2 border-zinc-900 shadow-pixel-lg animate-in fade-in zoom-in-95 duration-100">
-          {/* Header Row */}
+        <div className="pixel-box absolute right-0 top-12 z-50 w-80 bg-[#FFFDF8] p-3.5 border-2 border-zinc-900 shadow-pixel-lg animate-in fade-in zoom-in-95 duration-100">
+          {/* Header Title */}
           <div className="flex items-center justify-between border-b-2 border-zinc-900 pb-2 mb-3">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleToggleMute}
-                className={`p-1.5 border-2 border-zinc-900 shadow-pixel-xs transition-transform active:scale-95 ${
-                  isMuted ? 'bg-zinc-200 text-zinc-600' : 'bg-amber-300 text-zinc-950'
-                }`}
-                title={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
-              >
-                {isMuted ? (
-                  <PixelVolumeOff className="h-4 w-4" />
-                ) : (
-                  <PixelVolumeOn className="h-4 w-4" />
-                )}
-              </button>
-              <span className="font-pixel text-xs font-bold text-zinc-900 uppercase">
-                {language === 'vi' ? 'ÂM LƯỢNG' : 'VOLUME'}
-              </span>
-            </div>
-
-            <span
-              className={`font-pixel text-xs font-bold px-2 py-0.5 border border-zinc-900 ${
-                isMuted
-                  ? 'bg-zinc-200 text-zinc-500'
-                  : 'bg-emerald-300 text-emerald-950'
-              }`}
-            >
-              {isMuted ? (language === 'vi' ? 'TẮT' : 'MUTE') : `${percent}%`}
+            <span className="font-pixel text-xs font-bold text-zinc-900 uppercase tracking-wide">
+              {language === 'vi' ? 'ĐIỀU CHỈNH ÂM THANH' : 'AUDIO SETTINGS'}
+            </span>
+            <span className="font-pixel text-[10px] text-zinc-600 bg-zinc-200 px-2 py-0.5 border border-zinc-800">
+              8-BIT CHIPTUNE
             </span>
           </div>
 
-          {/* Slider Row */}
-          <div className="mb-3 space-y-1">
-            <div className="relative flex items-center">
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="5"
-                value={isMuted ? 0 : percent}
-                onChange={handleSliderChange}
-                onMouseUp={handleSliderCommit}
-                onTouchEnd={handleSliderCommit}
-                className="pixel-range"
-                aria-label="Điều chỉnh âm lượng"
-              />
-            </div>
-          </div>
+          <div className="space-y-3.5">
+            {/* CHANNEL 1: SFX (Hiệu ứng) */}
+            <div className="border border-zinc-800 bg-white p-2.5 shadow-pixel-xs">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleToggleSfxMute}
+                    className={`p-1 border border-zinc-900 shadow-pixel-xs transition-transform active:scale-95 ${
+                      isSfxMuted ? 'bg-zinc-200 text-zinc-500' : 'bg-emerald-300 text-emerald-950'
+                    }`}
+                    title={isSfxMuted ? 'Bật hiệu ứng' : 'Tắt hiệu ứng'}
+                  >
+                    {isSfxMuted ? (
+                      <PixelVolumeOff className="h-3.5 w-3.5" />
+                    ) : (
+                      <PixelVolumeOn className="h-3.5 w-3.5" />
+                    )}
+                  </button>
+                  <span className="font-pixel text-xs font-bold text-zinc-900">
+                    {language === 'vi' ? 'HIỆU ỨNG (SFX)' : 'EFFECTS (SFX)'}
+                  </span>
+                </div>
 
-          {/* Quick Presets Buttons */}
-          <div className="grid grid-cols-4 gap-1.5 font-pixel text-[10px] font-bold">
-            <button
-              type="button"
-              onClick={() => handlePreset(0)}
-              className={`py-1 border border-zinc-900 transition-colors ${
-                isMuted || percent === 0
-                  ? 'bg-zinc-900 text-amber-300'
-                  : 'bg-white hover:bg-zinc-100 text-zinc-700'
-              }`}
-            >
-              {language === 'vi' ? 'TẮT' : '0%'}
-            </button>
-            <button
-              type="button"
-              onClick={() => handlePreset(0.3)}
-              className={`py-1 border border-zinc-900 transition-colors ${
-                !isMuted && percent === 30
-                  ? 'bg-zinc-900 text-amber-300'
-                  : 'bg-white hover:bg-zinc-100 text-zinc-700'
-              }`}
-            >
-              30%
-            </button>
-            <button
-              type="button"
-              onClick={() => handlePreset(0.7)}
-              className={`py-1 border border-zinc-900 transition-colors ${
-                !isMuted && percent === 70
-                  ? 'bg-zinc-900 text-amber-300'
-                  : 'bg-white hover:bg-zinc-100 text-zinc-700'
-              }`}
-            >
-              70%
-            </button>
-            <button
-              type="button"
-              onClick={() => handlePreset(1.0)}
-              className={`py-1 border border-zinc-900 transition-colors ${
-                !isMuted && percent === 100
-                  ? 'bg-zinc-900 text-amber-300'
-                  : 'bg-white hover:bg-zinc-100 text-zinc-700'
-              }`}
-            >
-              100%
-            </button>
+                <span
+                  className={`font-pixel text-[11px] font-bold px-1.5 py-0.5 border border-zinc-900 ${
+                    isSfxMuted ? 'bg-zinc-200 text-zinc-500' : 'bg-emerald-200 text-emerald-950'
+                  }`}
+                >
+                  {isSfxMuted ? (language === 'vi' ? 'TẮT' : 'MUTE') : `${sfxPercent}%`}
+                </span>
+              </div>
+
+              {/* Slider SFX */}
+              <div className="mb-2">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={isSfxMuted ? 0 : sfxPercent}
+                  onChange={handleSfxSliderChange}
+                  onMouseUp={() => sounds.playVolumePreview()}
+                  onTouchEnd={() => sounds.playVolumePreview()}
+                  className="pixel-range w-full"
+                  aria-label="SFX volume"
+                />
+              </div>
+
+              {/* Quick Presets SFX */}
+              <div className="grid grid-cols-4 gap-1 font-pixel text-[10px] font-bold">
+                {[0, 0.3, 0.7, 1.0].map((val) => {
+                  const p = Math.round(val * 100);
+                  const isSel = !isSfxMuted && sfxPercent === p;
+                  return (
+                    <button
+                      key={`sfx-${val}`}
+                      type="button"
+                      onClick={() => {
+                        sounds.setSfxVolume(val);
+                        sounds.playVolumePreview();
+                      }}
+                      className={`py-0.5 border border-zinc-900 transition-colors ${
+                        isSel
+                          ? 'bg-zinc-900 text-amber-300'
+                          : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700'
+                      }`}
+                    >
+                      {p === 0 ? (language === 'vi' ? 'TẮT' : '0%') : `${p}%`}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* CHANNEL 2: BGM (Nhạc nền) */}
+            <div className="border border-zinc-800 bg-white p-2.5 shadow-pixel-xs">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleToggleBgmMute}
+                    className={`p-1 border border-zinc-900 shadow-pixel-xs transition-transform active:scale-95 ${
+                      isBgmMuted ? 'bg-zinc-200 text-zinc-500' : 'bg-indigo-300 text-indigo-950'
+                    }`}
+                    title={isBgmMuted ? 'Bật nhạc nền' : 'Tắt nhạc nền'}
+                  >
+                    {isBgmMuted ? (
+                      <PixelMusicOff className="h-3.5 w-3.5" />
+                    ) : (
+                      <PixelMusic className="h-3.5 w-3.5 text-indigo-950" />
+                    )}
+                  </button>
+                  <span className="font-pixel text-xs font-bold text-zinc-900">
+                    {language === 'vi' ? 'NHẠC NỀN (BGM)' : 'MUSIC (BGM)'}
+                  </span>
+                </div>
+
+                <span
+                  className={`font-pixel text-[11px] font-bold px-1.5 py-0.5 border border-zinc-900 ${
+                    isBgmMuted ? 'bg-zinc-200 text-zinc-500' : 'bg-indigo-200 text-indigo-950'
+                  }`}
+                >
+                  {isBgmMuted ? (language === 'vi' ? 'TẮT' : 'MUTE') : `${bgmPercent}%`}
+                </span>
+              </div>
+
+              {/* Track Name Badge */}
+              <div className="flex items-center gap-1.5 mb-2 text-[10px] font-mono text-zinc-600 bg-zinc-50 px-2 py-0.5 border border-zinc-300">
+                <span className="text-indigo-600 font-bold">♫</span>
+                <span>
+                  {language === 'vi' ? 'Giai điệu: ' : 'Track: '}
+                  <b className="text-zinc-900">
+                    {THEME_NAMES[currentTheme]?.[language === 'vi' ? 'vi' : 'en'] || currentTheme}
+                  </b>
+                </span>
+              </div>
+
+              {/* Slider BGM */}
+              <div className="mb-2">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={isBgmMuted ? 0 : bgmPercent}
+                  onChange={handleBgmSliderChange}
+                  onMouseUp={() => sounds.playBgmVolumePreview()}
+                  onTouchEnd={() => sounds.playBgmVolumePreview()}
+                  className="pixel-range w-full"
+                  aria-label="BGM volume"
+                />
+              </div>
+
+              {/* Quick Presets BGM */}
+              <div className="grid grid-cols-4 gap-1 font-pixel text-[10px] font-bold">
+                {[0, 0.25, 0.5, 0.8].map((val) => {
+                  const p = Math.round(val * 100);
+                  const isSel = !isBgmMuted && bgmPercent === p;
+                  return (
+                    <button
+                      key={`bgm-${val}`}
+                      type="button"
+                      onClick={() => {
+                        sounds.setBgmVolume(val);
+                        sounds.playBgmVolumePreview();
+                      }}
+                      className={`py-0.5 border border-zinc-900 transition-colors ${
+                        isSel
+                          ? 'bg-zinc-900 text-amber-300'
+                          : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700'
+                      }`}
+                    >
+                      {p === 0 ? (language === 'vi' ? 'TẮT' : '0%') : `${p}%`}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -206,22 +315,39 @@ export function VolumePopover() {
 }
 
 /**
- * Volume Slider hiển thị trực tiếp trong Mobile Hamburger Menu
+ * Volume Controls hiển thị trực tiếp trong Mobile Hamburger Menu
  */
 export function VolumeSliderInline() {
   const { language } = useLanguage();
-  const [volume, setVolume] = useState(sounds.getVolume());
-  const [isMuted, setIsMuted] = useState(sounds.isMuted());
+  const [sfxVolume, setSfxVolume] = useState(sounds.getSfxVolume());
+  const [isSfxMuted, setIsSfxMuted] = useState(sounds.isSfxMuted());
+  const [bgmVolume, setBgmVolume] = useState(sounds.getBgmVolume());
+  const [isBgmMuted, setIsBgmMuted] = useState(sounds.isBgmMuted());
+  const [currentTheme, setCurrentTheme] = useState<BgmTheme>(sounds.getCurrentBgm());
 
   useEffect(() => {
-    setVolume(sounds.getVolume());
-    setIsMuted(sounds.isMuted());
+    setSfxVolume(sounds.getSfxVolume());
+    setIsSfxMuted(sounds.isSfxMuted());
+    setBgmVolume(sounds.getBgmVolume());
+    setIsBgmMuted(sounds.isBgmMuted());
+    setCurrentTheme(sounds.getCurrentBgm());
 
     const handleVolumeChange = (e: Event) => {
-      const custom = e as CustomEvent<{ volume: number; muted: boolean }>;
+      const custom = e as CustomEvent<{
+        sfxVolume: number;
+        sfxMuted: boolean;
+        bgmVolume: number;
+        bgmMuted: boolean;
+        theme: BgmTheme;
+      }>;
       if (custom.detail) {
-        setVolume(custom.detail.volume);
-        setIsMuted(custom.detail.muted);
+        setSfxVolume(custom.detail.sfxVolume);
+        setIsSfxMuted(custom.detail.sfxMuted);
+        setBgmVolume(custom.detail.bgmVolume);
+        setIsBgmMuted(custom.detail.bgmMuted);
+        if (custom.detail.theme) {
+          setCurrentTheme(custom.detail.theme);
+        }
       }
     };
 
@@ -231,134 +357,99 @@ export function VolumeSliderInline() {
     };
   }, []);
 
-  const handleToggleMute = () => {
-    sounds.toggleMute();
-  };
-
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value) / 100;
-    sounds.setVolume(val);
-  };
-
-  const handleSliderCommit = () => {
-    sounds.playVolumePreview();
-  };
-
-  const handlePreset = (val: number) => {
-    sounds.setVolume(val);
-    sounds.playVolumePreview();
-  };
-
-  const percent = isMuted ? 0 : Math.round(volume * 100);
+  const sfxPercent = isSfxMuted ? 0 : Math.round(sfxVolume * 100);
+  const bgmPercent = isBgmMuted ? 0 : Math.round(bgmVolume * 100);
 
   return (
-    <div className="pixel-box w-full bg-white p-3 border-2 border-zinc-900">
-      {/* Top row */}
-      <div className="flex items-center justify-between mb-2.5">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={handleToggleMute}
-            className={`flex h-10 w-10 items-center justify-center border-2 border-zinc-900 shadow-pixel-xs transition-transform active:scale-95 ${
-              isMuted ? 'bg-zinc-200 text-zinc-600' : 'bg-indigo-100 text-indigo-700'
-            }`}
-            title={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
-          >
-            {isMuted ? (
-              <PixelVolumeOff className="h-5 w-5 text-zinc-500" />
-            ) : (
-              <PixelVolumeOn className="h-5 w-5 text-indigo-700" />
-            )}
-          </button>
-          <div>
-            <p className="font-pixel text-sm font-bold text-zinc-900">
-              {language === 'vi' ? 'ÂM LƯỢNG 8-BIT' : '8-BIT AUDIO'}
-            </p>
-            <p className="text-xs font-mono text-zinc-600">
-              {isMuted
-                ? language === 'vi'
-                  ? 'Đang tắt âm thanh'
-                  : 'Sound muted'
-                : language === 'vi'
-                ? `Mức âm lượng: ${percent}%`
-                : `Volume level: ${percent}%`}
-            </p>
-          </div>
-        </div>
-
-        <span
-          className={`pixel-badge px-2.5 py-1 text-xs font-bold ${
-            isMuted
-              ? 'bg-zinc-200 text-zinc-600'
-              : 'bg-emerald-300 text-zinc-900'
-          }`}
-        >
-          {isMuted ? (language === 'vi' ? 'TẮT' : 'OFF') : `${percent}%`}
+    <div className="pixel-box w-full bg-white p-3 border-2 border-zinc-900 space-y-3">
+      {/* Title */}
+      <div className="flex items-center justify-between border-b border-zinc-300 pb-1.5">
+        <p className="font-pixel text-xs font-bold text-zinc-900 uppercase">
+          {language === 'vi' ? 'ÂM THANH & NHẠC NỀN' : 'AUDIO & MUSIC'}
+        </p>
+        <span className="text-[10px] font-mono text-zinc-500">
+          ♫ {THEME_NAMES[currentTheme]?.[language === 'vi' ? 'vi' : 'en'] || currentTheme}
         </span>
       </div>
 
-      {/* Slider */}
-      <div className="mb-2 px-1">
+      {/* SFX Channel */}
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => sounds.toggleSfxMute()}
+              className={`p-1.5 border border-zinc-900 transition-transform active:scale-95 ${
+                isSfxMuted ? 'bg-zinc-200 text-zinc-500' : 'bg-emerald-300 text-emerald-950'
+              }`}
+            >
+              {isSfxMuted ? (
+                <PixelVolumeOff className="h-4 w-4" />
+              ) : (
+                <PixelVolumeOn className="h-4 w-4" />
+              )}
+            </button>
+            <span className="font-pixel text-xs font-bold text-zinc-900">
+              {language === 'vi' ? 'HIỆU ỨNG (SFX)' : 'EFFECTS (SFX)'}
+            </span>
+          </div>
+          <span className="font-pixel text-xs font-bold px-1.5 py-0.5 border border-zinc-800 bg-zinc-100">
+            {isSfxMuted ? (language === 'vi' ? 'TẮT' : 'OFF') : `${sfxPercent}%`}
+          </span>
+        </div>
+
         <input
           type="range"
           min="0"
           max="100"
           step="5"
-          value={isMuted ? 0 : percent}
-          onChange={handleSliderChange}
-          onMouseUp={handleSliderCommit}
-          onTouchEnd={handleSliderCommit}
+          value={isSfxMuted ? 0 : sfxPercent}
+          onChange={(e) => sounds.setSfxVolume(parseFloat(e.target.value) / 100)}
+          onMouseUp={() => sounds.playVolumePreview()}
+          onTouchEnd={() => sounds.playVolumePreview()}
           className="pixel-range w-full"
-          aria-label="Thanh trượt âm lượng"
+          aria-label="SFX volume slider"
         />
       </div>
 
-      {/* Presets */}
-      <div className="grid grid-cols-4 gap-1.5 font-pixel text-xs font-bold mt-2">
-        <button
-          type="button"
-          onClick={() => handlePreset(0)}
-          className={`py-1 border border-zinc-900 ${
-            isMuted || percent === 0
-              ? 'bg-zinc-900 text-amber-300'
-              : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700'
-          }`}
-        >
-          {language === 'vi' ? 'TẮT' : '0%'}
-        </button>
-        <button
-          type="button"
-          onClick={() => handlePreset(0.3)}
-          className={`py-1 border border-zinc-900 ${
-            !isMuted && percent === 30
-              ? 'bg-zinc-900 text-amber-300'
-              : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700'
-          }`}
-        >
-          30%
-        </button>
-        <button
-          type="button"
-          onClick={() => handlePreset(0.7)}
-          className={`py-1 border border-zinc-900 ${
-            !isMuted && percent === 70
-              ? 'bg-zinc-900 text-amber-300'
-              : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700'
-          }`}
-        >
-          70%
-        </button>
-        <button
-          type="button"
-          onClick={() => handlePreset(1.0)}
-          className={`py-1 border border-zinc-900 ${
-            !isMuted && percent === 100
-              ? 'bg-zinc-900 text-amber-300'
-              : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700'
-          }`}
-        >
-          100%
-        </button>
+      {/* BGM Channel */}
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => sounds.toggleBgmMute()}
+              className={`p-1.5 border border-zinc-900 transition-transform active:scale-95 ${
+                isBgmMuted ? 'bg-zinc-200 text-zinc-500' : 'bg-indigo-300 text-indigo-950'
+              }`}
+            >
+              {isBgmMuted ? (
+                <PixelMusicOff className="h-4 w-4" />
+              ) : (
+                <PixelMusic className="h-4 w-4 text-indigo-950" />
+              )}
+            </button>
+            <span className="font-pixel text-xs font-bold text-zinc-900">
+              {language === 'vi' ? 'NHẠC NỀN (BGM)' : 'MUSIC (BGM)'}
+            </span>
+          </div>
+          <span className="font-pixel text-xs font-bold px-1.5 py-0.5 border border-zinc-800 bg-zinc-100">
+            {isBgmMuted ? (language === 'vi' ? 'TẮT' : 'OFF') : `${bgmPercent}%`}
+          </span>
+        </div>
+
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="5"
+          value={isBgmMuted ? 0 : bgmPercent}
+          onChange={(e) => sounds.setBgmVolume(parseFloat(e.target.value) / 100)}
+          onMouseUp={() => sounds.playBgmVolumePreview()}
+          onTouchEnd={() => sounds.playBgmVolumePreview()}
+          className="pixel-range w-full"
+          aria-label="BGM volume slider"
+        />
       </div>
     </div>
   );

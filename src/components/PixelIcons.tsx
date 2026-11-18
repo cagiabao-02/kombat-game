@@ -68,6 +68,35 @@ export function PixelVolumeOff({ className = 'h-4 w-4' }: PixelIconProps) {
   );
 }
 
+export function PixelMusic({ className = 'h-4 w-4' }: PixelIconProps) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      className={`pixelated shrink-0 ${className}`}
+      shapeRendering="crispEdges"
+      fill="currentColor"
+    >
+      {/* 8-bit musical eighth notes */}
+      <path d="M5 2h8v3H6v7H4v2H2v-2h1v-1h2V2zm7 2v6h-1v1h-2v2H7v-2h1v-1h3V4h1z" />
+    </svg>
+  );
+}
+
+export function PixelMusicOff({ className = 'h-4 w-4' }: PixelIconProps) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      className={`pixelated shrink-0 ${className}`}
+      shapeRendering="crispEdges"
+      fill="currentColor"
+    >
+      {/* 8-bit musical note with slash */}
+      <path d="M5 2h8v3H6v7H4v2H2v-2h1v-1h2V2zm7 2v6h-1v1h-2v2H7v-2h1v-1h3V4h1z" />
+      <path d="M14 2h2v2h-2v2h-2v2h-2v2H8v2H6v2H4v2H2v-2h2v-2h2v-2h2V8h2V6h2V4h2V2z" fill="#EF4444" opacity="0.9" />
+    </svg>
+  );
+}
+
 export function PixelGlobe({ className = 'h-4 w-4' }: PixelIconProps) {
   return (
     <svg
