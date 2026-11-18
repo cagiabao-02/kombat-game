@@ -8,6 +8,7 @@ import { MinesweeperStats } from '@/features/games/minesweeper/minesweeperStatsS
 import { BrickBreakerStats } from '@/features/games/brickBreaker/brickBreakerStatsService';
 import { TRexStats } from '@/features/games/dinoRunner/tRexStatsService';
 import { FlappyStats } from '@/features/games/flappyBird/flappyStatsService';
+import { BlockBlastStats, BLOCK_BLAST_STATS_KEY } from '@/features/games/blockBlast/blockBlastStatsService';
 import {
   mergeAchievements,
   checkAllEligibleAchievements,
@@ -31,6 +32,7 @@ export const STORAGE_KEYS = {
   BRICK_BREAKER: 'kombat_brick_breaker_stats',
   T_REX: 'kombat_t_rex_stats',
   FLAPPY: 'kombat_flappy_stats',
+  BLOCK_BLAST: BLOCK_BLAST_STATS_KEY,
   ACHIEVEMENTS: ACHIEVEMENTS_STORAGE_KEY,
   MATCH_HISTORY: MATCH_HISTORY_STORAGE_KEY,
   GUEST_NAME: 'togame_guest_display_name',
@@ -230,6 +232,23 @@ export function mergeFlappyStats(
   };
 }
 
+export function mergeBlockBlastStats(
+  local: BlockBlastStats | null,
+  cloud: BlockBlastStats | null
+): BlockBlastStats | null {
+  if (!local && !cloud) return null;
+  if (!local) return cloud;
+  if (!cloud) return local;
+
+  return {
+    highScore: Math.max(local.highScore || 0, cloud.highScore || 0),
+    totalLinesCleared: Math.max(local.totalLinesCleared || 0, cloud.totalLinesCleared || 0),
+    maxCombo: Math.max(local.maxCombo || 0, cloud.maxCombo || 0),
+    totalGames: Math.max(local.totalGames || 0, cloud.totalGames || 0),
+    lastUpdated: Math.max(local.lastUpdated || 0, cloud.lastUpdated || 0),
+  };
+}
+
 /**
  * Gộp toàn bộ thành tích từ LocalStorage của máy vào tài khoản Đám mây (Google/Email).
  * Được kích hoạt tự động khi người dùng đăng nhập tài khoản.
@@ -252,6 +271,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const localBrickBreaker = safeParse<BrickBreakerStats>(STORAGE_KEYS.BRICK_BREAKER);
   const localTRex = safeParse<TRexStats>(STORAGE_KEYS.T_REX);
   const localFlappy = safeParse<FlappyStats>(STORAGE_KEYS.FLAPPY);
+  const localBlockBlast = safeParse<BlockBlastStats>(STORAGE_KEYS.BLOCK_BLAST);
   const localAchievements = safeParse<UnlockedAchievementsMap>(STORAGE_KEYS.ACHIEVEMENTS);
   const localMatchHistory = safeParse<MatchRecord[]>(STORAGE_KEYS.MATCH_HISTORY);
 
@@ -266,6 +286,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const mergedBrickBreaker = mergeBrickBreakerStats(localBrickBreaker, meta.brick_breaker_stats);
   const mergedTRex = mergeTRexStats(localTRex, meta.t_rex_stats);
   const mergedFlappy = mergeFlappyStats(localFlappy, meta.flappy_stats);
+  const mergedBlockBlast = mergeBlockBlastStats(localBlockBlast, meta.block_blast_stats);
   const mergedAchievements = mergeAchievements(localAchievements, meta.achievements);
   const mergedMatchHistory = mergeMatchHistory(localMatchHistory, meta.match_history);
 
@@ -280,6 +301,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   if (mergedBrickBreaker) safeSet(STORAGE_KEYS.BRICK_BREAKER, mergedBrickBreaker);
   if (mergedTRex) safeSet(STORAGE_KEYS.T_REX, mergedTRex);
   if (mergedFlappy) safeSet(STORAGE_KEYS.FLAPPY, mergedFlappy);
+  if (mergedBlockBlast) safeSet(STORAGE_KEYS.BLOCK_BLAST, mergedBlockBlast);
   if (mergedAchievements) safeSet(STORAGE_KEYS.ACHIEVEMENTS, mergedAchievements);
   if (mergedMatchHistory) safeSet(STORAGE_KEYS.MATCH_HISTORY, mergedMatchHistory);
 
@@ -327,6 +349,10 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
     updateData.flappy_stats = mergedFlappy;
     hasUpdates = true;
   }
+  if (mergedBlockBlast && JSON.stringify(mergedBlockBlast) !== JSON.stringify(meta.block_blast_stats)) {
+    updateData.block_blast_stats = mergedBlockBlast;
+    hasUpdates = true;
+  }
   if (mergedAchievements && JSON.stringify(mergedAchievements) !== JSON.stringify(meta.achievements)) {
     updateData.achievements = mergedAchievements;
     hasUpdates = true;
@@ -355,6 +381,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
     brick_breaker: mergedBrickBreaker,
     t_rex: mergedTRex,
     flappy: mergedFlappy,
+    block_blast: mergedBlockBlast,
   };
 
   // 5. Kiểm tra và mở khóa các huy hiệu nếu thành tích gộp đạt mốc

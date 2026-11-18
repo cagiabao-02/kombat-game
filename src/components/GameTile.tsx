@@ -210,6 +210,29 @@ export function GameIcon({ id }: { id: GameId }) {
         </div>
       );
 
+    case 'block_blast':
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-[#1e232a]">
+          <svg viewBox="0 0 16 16" className="h-[80%] w-[80%] pixelated" shapeRendering="crispEdges">
+            {/* Khối L xanh dương */}
+            <path d="M2 2h3v6H2z M5 5h3v3H5z" fill="#3B82F6" />
+            <path d="M2 2h1v6H2z M3 2h2v1H3z" fill="#93C5FD" />
+
+            {/* Khối vuông 2x2 vàng */}
+            <path d="M8 2h6v6H8z" fill="#EAB308" />
+            <path d="M8 2h1v6H8z M9 2h5v1H9z" fill="#FEF08A" />
+
+            {/* Khối chữ T hồng/tím */}
+            <path d="M2 10h9v3H2z M5 13h3v2H5z" fill="#EC4899" />
+            <path d="M2 10h1v3H2z M3 10h8v1H3z" fill="#FBCFE8" />
+
+            {/* Tia nổ Blast lấp lánh ở góc phải */}
+            <path d="M13 10h1v1h-1z M12 11h3v1h-3z M13 12h1v1h-1z" fill="#FACC15" />
+            <path d="M14 9h1v1h-1z M11 13h1v1h-1z" fill="#FFFFFF" />
+          </svg>
+        </div>
+      );
+
     default:
       return null;
   }

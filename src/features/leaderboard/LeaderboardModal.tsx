@@ -109,6 +109,7 @@ export function LeaderboardModal({
     if (game === 'brick_breaker') return '/games/brick-breaker';
     if (game === 't_rex_runner') return '/games/t-rex-runner';
     if (game === 'flappy_bird') return '/games/flappy-bird';
+    if (game === 'block_blast') return '/games/block-blast';
     return '/games/sudoku';
   };
 
@@ -122,6 +123,7 @@ export function LeaderboardModal({
     if (game === 'brick_breaker') return language === 'vi' ? 'Phá Gạch' : 'Brick Breaker';
     if (game === 't_rex_runner') return language === 'vi' ? 'Khủng Long T-Rex' : 'T-Rex Runner';
     if (game === 'flappy_bird') return 'Flappy Bird';
+    if (game === 'block_blast') return 'Block Blast';
     return 'Sudoku';
   };
 
@@ -302,6 +304,19 @@ export function LeaderboardModal({
             >
               <span>🐦</span>
               <span>Flappy</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedGame('block_blast')}
+              className={`pixel-btn flex items-center justify-center gap-1 min-h-[40px] text-xs font-bold ${
+                selectedGame === 'block_blast'
+                  ? 'bg-indigo-600 text-amber-300'
+                  : 'bg-white text-zinc-800 hover:bg-zinc-100'
+              }`}
+            >
+              <span>🧱</span>
+              <span>Block Blast</span>
             </button>
           </div>
 
