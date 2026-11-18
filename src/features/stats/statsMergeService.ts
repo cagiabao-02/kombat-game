@@ -1,6 +1,7 @@
 import { ChessStats } from '@/features/games/chess/statsService';
 import { CaroStats } from '@/features/games/caro/caroStatsService';
 import { XiangqiStats } from '@/features/games/xiangqi/xiangqiStatsService';
+import { GoStats } from '@/features/games/go/goStatsService';
 import { SudokuStats } from '@/features/games/sudoku/sudokuStatsService';
 import { SnakeStats } from '@/features/games/snake/snakeStatsService';
 import { Game2048Stats } from '@/features/games/game2048/game2048StatsService';
@@ -25,6 +26,7 @@ export const STORAGE_KEYS = {
   CHESS: 'kombat_chess_stats',
   CARO: 'kombat_caro_stats',
   XIANGQI: 'kombat_xiangqi_stats',
+  GO: 'kombat_go_stats',
   SUDOKU: 'kombat_sudoku_stats',
   SNAKE: 'kombat_snake_stats',
   GAME2048: 'kombat_2048_stats',
@@ -84,6 +86,35 @@ export function mergeBoardGameStats<T extends ChessStats | CaroStats | XiangqiSt
     bot: mergeMode(local.bot, cloud.bot),
     lastUpdated: Math.max(local.lastUpdated || 0, cloud.lastUpdated || 0, Date.now()),
   } as T;
+}
+
+export function mergeGoStats(
+  local: GoStats | null,
+  cloud: GoStats | null
+): GoStats | null {
+  if (!local && !cloud) return null;
+  if (!local) return cloud;
+  if (!cloud) return local;
+
+  const mergeMode = (lm: any = {}, cm: any = {}) => ({
+    total: Math.max(lm.total || 0, cm.total || 0),
+    wins: Math.max(lm.wins || 0, cm.wins || 0),
+    losses: Math.max(lm.losses || 0, cm.losses || 0),
+  });
+
+  return {
+    ...cloud,
+    ...local,
+    totalGames: Math.max(local.totalGames || 0, cloud.totalGames || 0),
+    wins: Math.max(local.wins || 0, cloud.wins || 0),
+    losses: Math.max(local.losses || 0, cloud.losses || 0),
+    currentStreak: Math.max(local.currentStreak || 0, cloud.currentStreak || 0),
+    bestStreak: Math.max(local.bestStreak || 0, cloud.bestStreak || 0),
+    totalCaptures: Math.max(local.totalCaptures || 0, cloud.totalCaptures || 0),
+    passAndPlay: mergeMode(local.passAndPlay, cloud.passAndPlay),
+    bot: mergeMode(local.bot, cloud.bot),
+    lastUpdated: Math.max(local.lastUpdated || 0, cloud.lastUpdated || 0, Date.now()),
+  };
 }
 
 export function mergeSudokuStats(
@@ -264,6 +295,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const localChess = safeParse<ChessStats>(STORAGE_KEYS.CHESS);
   const localCaro = safeParse<CaroStats>(STORAGE_KEYS.CARO);
   const localXiangqi = safeParse<XiangqiStats>(STORAGE_KEYS.XIANGQI);
+  const localGo = safeParse<GoStats>(STORAGE_KEYS.GO);
   const localSudoku = safeParse<SudokuStats>(STORAGE_KEYS.SUDOKU);
   const localSnake = safeParse<SnakeStats>(STORAGE_KEYS.SNAKE);
   const local2048 = safeParse<Game2048Stats>(STORAGE_KEYS.GAME2048);
@@ -279,6 +311,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const mergedChess = mergeBoardGameStats(localChess, meta.chess_stats);
   const mergedCaro = mergeBoardGameStats(localCaro, meta.caro_stats);
   const mergedXiangqi = mergeBoardGameStats(localXiangqi, meta.xiangqi_stats);
+  const mergedGo = mergeGoStats(localGo, meta.go_stats);
   const mergedSudoku = mergeSudokuStats(localSudoku, meta.sudoku_stats);
   const mergedSnake = mergeSnakeStats(localSnake, meta.snake_stats);
   const merged2048 = mergeGame2048Stats(local2048, meta.game2048_stats);
@@ -294,6 +327,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   if (mergedChess) safeSet(STORAGE_KEYS.CHESS, mergedChess);
   if (mergedCaro) safeSet(STORAGE_KEYS.CARO, mergedCaro);
   if (mergedXiangqi) safeSet(STORAGE_KEYS.XIANGQI, mergedXiangqi);
+  if (mergedGo) safeSet(STORAGE_KEYS.GO, mergedGo);
   if (mergedSudoku) safeSet(STORAGE_KEYS.SUDOKU, mergedSudoku);
   if (mergedSnake) safeSet(STORAGE_KEYS.SNAKE, mergedSnake);
   if (merged2048) safeSet(STORAGE_KEYS.GAME2048, merged2048);
@@ -319,6 +353,10 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   }
   if (mergedXiangqi && JSON.stringify(mergedXiangqi) !== JSON.stringify(meta.xiangqi_stats)) {
     updateData.xiangqi_stats = mergedXiangqi;
+    hasUpdates = true;
+  }
+  if (mergedGo && JSON.stringify(mergedGo) !== JSON.stringify(meta.go_stats)) {
+    updateData.go_stats = mergedGo;
     hasUpdates = true;
   }
   if (mergedSudoku && JSON.stringify(mergedSudoku) !== JSON.stringify(meta.sudoku_stats)) {
@@ -374,6 +412,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
     chess: mergedChess,
     caro: mergedCaro,
     xiangqi: mergedXiangqi,
+    go: mergedGo,
     sudoku: mergedSudoku,
     snake: mergedSnake,
     game2048: merged2048,

@@ -103,6 +103,7 @@ export function LeaderboardModal({
     if (game === 'chess') return '/games/chess';
     if (game === 'caro') return '/games/caro';
     if (game === 'xiangqi') return '/games/xiangqi';
+    if (game === 'go') return '/games/go';
     if (game === 'snake') return '/games/snake';
     if (game === 'game2048') return '/games/game2048';
     if (game === 'minesweeper') return '/games/minesweeper';
@@ -117,6 +118,7 @@ export function LeaderboardModal({
     if (game === 'chess') return language === 'vi' ? 'Cờ vua' : 'Chess';
     if (game === 'caro') return language === 'vi' ? 'Cờ Caro' : 'Caro';
     if (game === 'xiangqi') return language === 'vi' ? 'Cờ Tướng' : 'Xiangqi';
+    if (game === 'go') return language === 'vi' ? 'Cờ Vây' : 'Go';
     if (game === 'snake') return language === 'vi' ? 'Rắn săn mồi' : 'Snake';
     if (game === 'game2048') return '2048';
     if (game === 'minesweeper') return language === 'vi' ? 'Dò Mìn' : 'Minesweeper';
@@ -213,6 +215,19 @@ export function LeaderboardModal({
             >
               <span className={selectedGame === 'xiangqi' ? 'text-amber-300 font-bold' : 'text-rose-600 font-bold'}>帥</span>
               <span>{language === 'vi' ? 'Tướng' : 'Xiangqi'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedGame('go')}
+              className={`pixel-btn flex items-center justify-center gap-1 min-h-[40px] text-xs font-bold ${
+                selectedGame === 'go'
+                  ? 'bg-indigo-600 text-amber-300'
+                  : 'bg-white text-zinc-800 hover:bg-zinc-100'
+              }`}
+            >
+              <span className="text-sm">⚫</span>
+              <span>{language === 'vi' ? 'Cờ Vây' : 'Go'}</span>
             </button>
 
             <button

@@ -156,6 +156,28 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 - Đa dạng loại gạch: Gạch thường nhiều tầng màu tính điểm, gạch thép cần 2 lần va chạm và gạch bom phát nổ lan truyền.
 - Hệ thống màn chơi nối tiếp (Stages), bộ đếm chuỗi Combo và đồng bộ điểm kỷ lục lên Bảng xếp hạng toàn cầu (`leaderboard_scores`).
 
+### FR-16 — Block Blast (Xếp khối nổ dòng 8x8)
+
+- Bàn cờ 8x8 cơ chế nổ hàng ngang và cột dọc khi lấp đầy 8 ô.
+- Hệ thống tính điểm Combo lũy tiến hàm bậc hai (càng giữ chuỗi combo cao điểm thưởng càng bùng nổ).
+- Thuật toán chia 3 khối luôn đảm bảo có ít nhất 1 đường sống (Solvable & Fair RNG).
+- Hỗ trợ Kéo-thả với touch offset 75px, phát sáng hàng/cột sắp nổ, và chế độ chạm chọn - chạm đặt.
+- Tự động lưu và khôi phục ván chơi khi thoát (Auto-save & Resume).
+
+### FR-17 — Cờ Vây (Go / Weiqi / Baduk)
+
+- Bàn cờ gỗ Neo-Arcade hỗ trợ 3 kích thước: 9x9 (nhanh / mobile), 13x13 (vừa) và 19x19 (chuẩn thi đấu).
+- Động cơ luật cờ Vây chuẩn quốc tế:
+  - Thuật toán tìm đám quân liên kết (Connected group flood-fill) và đếm khí (Liberties).
+  - Tự động bắt tù binh (Captures) khi đám quân bị bao vây mất hết khí (0 khí).
+  - Cấm tự sát (Suicide rule) trừ khi ăn được quân đối phương để tạo khí.
+  - Luật Kiếp (Ko rule) chống lặp trạng thái ván cờ vĩnh viễn.
+  - Chức năng Bỏ lượt (Pass) và Xin thua (Resign). Kết thúc khi cả 2 người liên tiếp Pass.
+  - Tính điểm lãnh thổ (Territory) + số tù binh bị bắt (Captures) + điểm chấp Komi 6.5 cho quân Trắng.
+- Chế độ chơi: Đấu với Bot AI 2 cấp độ (Dễ, Trung bình) và Chơi đôi chuyền tay (Pass & Play).
+- Thao tác thân thiện: Chạm xem trước bóng mờ $\rightarrow$ Bấm xác nhận, hoặc chạm đặt 1 lần.
+- Âm thanh gõ cờ đá thanh thoát kết hợp cùng nhạc nền Strategy Theme ("Zen Focus").
+
 ## 5. Yêu cầu phi chức năng
 
 - Mobile-first, phù hợp màn hình nhỏ và lớn; hỗ trợ xoay/ngang nếu bàn cờ cần.
