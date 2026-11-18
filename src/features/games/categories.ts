@@ -4,8 +4,6 @@ export interface GameCategory {
   id: GameCategoryId;
   name: LocalizedString;
   tagline: LocalizedString;
-  /** Gợi ý các game dự kiến, hiển thị trong ô "Sắp có" khi thể loại chưa có game. */
-  upcoming: LocalizedString;
   /** Lớp màu Tailwind cho nhãn/biểu tượng của thể loại. */
   accentClass: string;
 }
@@ -22,7 +20,6 @@ export const GAME_CATEGORIES: GameCategory[] = [
       vi: 'Đối kháng theo lượt — đấu Bot hoặc so tài với bạn bè',
       en: 'Turn-based duels — vs Bot or friends',
     },
-    upcoming: { vi: 'Cờ vây, Othello', en: 'Go, Othello' },
     accentClass: 'bg-indigo-600 text-amber-300',
   },
   {
@@ -32,7 +29,6 @@ export const GAME_CATEGORIES: GameCategory[] = [
       vi: 'Chơi một mình, rèn tư duy logic, không áp lực',
       en: 'Solo brain teasers, no pressure',
     },
-    upcoming: { vi: 'Nonogram, Trượt số', en: 'Nonogram, Sliding Puzzle' },
     accentClass: 'bg-emerald-500 text-zinc-950',
   },
   {
@@ -42,7 +38,6 @@ export const GAME_CATEGORIES: GameCategory[] = [
       vi: 'Nhịp nhanh, tính điểm, cày kỷ lục',
       en: 'Fast-paced, score chasing, tryhard',
     },
-    upcoming: { vi: 'Đua xe pixel, Flappy', en: 'Retro Racer, Flappy' },
     accentClass: 'bg-rose-500 text-white',
   },
 ];

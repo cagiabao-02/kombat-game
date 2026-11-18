@@ -35,7 +35,11 @@ import {
   Sparkles,
   Bot,
   Zap,
+  Play,
 } from 'lucide-react';
+import { recordMatch } from '@/features/matchHistory/matchHistoryService';
+import { MatchRecord } from '@/features/matchHistory/types';
+import { MatchReplayModal } from '@/features/matchHistory/MatchReplayModal';
 
 interface CaroGameViewProps {
   initialRoom: CaroRoom;
@@ -55,6 +59,9 @@ export function CaroGameView({
   const [rematchOfferedByOpponent, setRematchOfferedByOpponent] = useState(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [isBotThinking, setIsBotThinking] = useState(false);
+  const [lastRecordedMatch, setLastRecordedMatch] = useState<MatchRecord | null>(null);
+  const [showReplayModal, setShowReplayModal] = useState(false);
+  const hasRecordedResultRef = useRef<string | null>(null);
 
   const gameState = room.game_state;
   const isOnline = gameState.gameMode === 'pvp';
@@ -144,12 +151,74 @@ export function CaroGameView({
       ? gameState.winner !== 'draw'
       : gameState.winner === myPiece;
 
-  // Sync state when game ends
+  // Sync state & record match when game ends
   useEffect(() => {
     if (gameState.isGameOver) {
       setShowGameOverModal(true);
+
+      if (gameState.winner) {
+        const matchKey = `${room.id}_${gameState.history.length}_${gameState.winner}`;
+        if (hasRecordedResultRef.current !== matchKey) {
+          hasRecordedResultRef.current = matchKey;
+
+          const result: 'win' | 'loss' | 'draw' =
+            gameState.winner === 'draw'
+              ? 'draw'
+              : isLocalGame
+              ? 'win'
+              : gameState.winner === myPiece
+              ? 'win'
+              : 'loss';
+
+          const opponentAvatar = isBotGame
+            ? '🤖'
+            : isLocalGame
+            ? (myPiece === 'X' ? '⭕' : '❌')
+            : isHost
+            ? room.game_state.guestAvatar || '⭕'
+            : room.game_state.hostAvatar || '❌';
+
+          const opponentDisplayName = isBotGame
+            ? 'Kombat Bot'
+            : isLocalGame
+            ? (language === 'vi' ? 'Người chơi 2' : 'Player 2')
+            : (isHost ? (room.game_state.guestAvatar ? 'Khách' : 'Đối thủ') : (room.game_state.hostAvatar ? 'Chủ phòng' : 'Đối thủ'));
+
+          const reason = gameState.winner === 'draw'
+            ? (language === 'vi' ? 'Bàn cờ kín ô' : 'Board full')
+            : gameState.isResigned
+            ? (language === 'vi' ? 'Đầu hàng' : 'Resigned')
+            : (language === 'vi' ? '5 quân liên tiếp' : '5 in a row');
+
+          const rec = recordMatch({
+            gameId: 'caro',
+            mode: isBotGame ? 'bot' : isLocalGame ? 'local' : 'pvp',
+            result,
+            opponentName: opponentDisplayName,
+            opponentAvatar,
+            totalMoves: gameState.history.length,
+            playerPiece: myPiece,
+            moves: gameState.history,
+            reason,
+          });
+          setLastRecordedMatch(rec);
+        }
+      }
     }
-  }, [gameState.isGameOver]);
+  }, [
+    gameState.isGameOver,
+    gameState.winner,
+    gameState.history,
+    gameState.isResigned,
+    room.id,
+    myPiece,
+    isBotGame,
+    isLocalGame,
+    isHost,
+    room.game_state.guestAvatar,
+    room.game_state.hostAvatar,
+    language,
+  ]);
 
   // Online Realtime Supabase Channel
   useEffect(() => {
@@ -688,6 +757,17 @@ export function CaroGameView({
             </p>
 
             <div className="flex flex-col gap-2.5">
+              {lastRecordedMatch && (
+                <button
+                  type="button"
+                  onClick={() => setShowReplayModal(true)}
+                  className="pixel-btn min-h-[44px] w-full flex items-center justify-center gap-1.5 bg-amber-300 px-4 py-2 text-sm font-bold text-zinc-950 hover:bg-amber-400"
+                >
+                  <Play className="h-4 w-4 fill-current" />
+                  <span>{language === 'vi' ? 'XEM LẠI VÁN NÀY' : 'REPLAY MATCH'}</span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={handleRematch}
@@ -715,6 +795,15 @@ export function CaroGameView({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Replay Modal */}
+      {lastRecordedMatch && (
+        <MatchReplayModal
+          match={lastRecordedMatch}
+          isOpen={showReplayModal}
+          onClose={() => setShowReplayModal(false)}
+        />
       )}
     </div>
   );

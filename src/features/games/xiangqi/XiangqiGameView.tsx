@@ -35,7 +35,11 @@ import {
   Users,
   Wifi,
   Handshake,
+  Play,
 } from 'lucide-react';
+import { recordMatch } from '@/features/matchHistory/matchHistoryService';
+import { MatchRecord } from '@/features/matchHistory/types';
+import { MatchReplayModal } from '@/features/matchHistory/MatchReplayModal';
 
 interface XiangqiGameViewProps {
   gameMode?: 'local' | 'bot' | 'online';
@@ -87,6 +91,8 @@ export function XiangqiGameView({
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
   const [rematchRequestedByMe, setRematchRequestedByMe] = useState<boolean>(false);
   const [rematchOfferedByOpponent, setRematchOfferedByOpponent] = useState<boolean>(false);
+  const [lastRecordedMatch, setLastRecordedMatch] = useState<MatchRecord | null>(null);
+  const [showReplayModal, setShowReplayModal] = useState<boolean>(false);
 
   // In-Game Social Chat & Reactions State
   const [activeSocialMessages, setActiveSocialMessages] = useState<ActiveSocialMessage[]>([]);
@@ -335,20 +341,69 @@ export function XiangqiGameView({
     };
   }, [isOnline, room?.id, currentUserId, myOnlineSide, gameState.winner]);
 
-  // Ghi nhận chỉ số thắng/thua khi kết thúc ván
+  // Ghi nhận chỉ số thắng/thua & lưu lịch sử đấu khi kết thúc ván
   useEffect(() => {
     if (!gameState.winner || statsRecordedRef.current) return;
     statsRecordedRef.current = true;
 
+    let result: 'win' | 'loss' | 'draw' = 'loss';
+    let mySide: Side = 'red';
+    let opponentName = '';
+    let opponentAvatar = '';
+
     if (isOnline && myOnlineSide) {
-      const isWin = gameState.winner === myOnlineSide;
-      recordXiangqiGameResult(isWin ? 'win' : 'loss', false);
+      mySide = myOnlineSide;
+      result = gameState.winner === myOnlineSide ? 'win' : 'loss';
+      recordXiangqiGameResult(result, false);
+      const isHost = room?.host_id === currentUserId;
+      opponentName = isHost ? (room?.guest_name || 'Khách') : (room?.host_name || 'Chủ phòng');
+      opponentAvatar = isHost ? (room?.game_state?.guestAvatar || '帥') : (room?.game_state?.hostAvatar || '帥');
     } else if (gameMode === 'bot') {
       const humanSide: Side = botSide === 'red' ? 'black' : 'red';
-      const isWin = gameState.winner === humanSide;
-      recordXiangqiGameResult(isWin ? 'win' : 'loss', true);
+      mySide = humanSide;
+      result = gameState.winner === humanSide ? 'win' : 'loss';
+      recordXiangqiGameResult(result, true);
+      opponentName = 'Kombat Bot';
+      opponentAvatar = '🤖';
+    } else {
+      // Local
+      mySide = gameState.winner;
+      result = 'win';
+      opponentName = language === 'vi' ? 'Người chơi 2' : 'Player 2';
+      opponentAvatar = '帥';
     }
-  }, [gameState.winner, isOnline, myOnlineSide, gameMode, botSide]);
+
+    const reason = gameState.isCheckmate
+      ? (language === 'vi' ? 'Chiếu bí' : 'Checkmate')
+      : gameState.isStalemate
+      ? (language === 'vi' ? 'Hết nước đi' : 'Stalemate')
+      : (language === 'vi' ? 'Đầu hàng' : 'Resigned');
+
+    const rec = recordMatch({
+      gameId: 'xiangqi',
+      mode: isOnline ? 'pvp' : gameMode === 'bot' ? 'bot' : 'local',
+      result,
+      opponentName,
+      opponentAvatar,
+      totalMoves: gameState.moveHistory.length,
+      playerColor: mySide,
+      moves: gameState.moveHistory,
+      reason,
+    });
+    setLastRecordedMatch(rec);
+  }, [
+    gameState.winner,
+    gameState.isCheckmate,
+    gameState.isStalemate,
+    gameState.moveHistory,
+    isOnline,
+    myOnlineSide,
+    gameMode,
+    botSide,
+    room,
+    currentUserId,
+    language,
+  ]);
 
   // Đi cờ (thực hiện nước đi)
   const handleMakeMove = async (from: Position, to: Position) => {
@@ -784,6 +839,17 @@ export function XiangqiGameView({
                   : `Match completed after ${gameState.moveHistory.length} moves.`}
               </p>
 
+              {lastRecordedMatch && (
+                <button
+                  type="button"
+                  onClick={() => setShowReplayModal(true)}
+                  className="pixel-btn w-full flex items-center justify-center gap-1.5 bg-amber-300 py-3 font-pixel text-xs font-bold uppercase tracking-wider text-zinc-950 hover:bg-amber-400 mb-3"
+                >
+                  <Play className="h-4 w-4 fill-current" />
+                  <span>{language === 'vi' ? 'XEM LẠI VÁN NÀY' : 'REPLAY MATCH'}</span>
+                </button>
+              )}
+
               <div className="flex gap-2.5">
                 <button
                   type="button"
@@ -829,6 +895,15 @@ export function XiangqiGameView({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Replay Modal */}
+      {lastRecordedMatch && (
+        <MatchReplayModal
+          match={lastRecordedMatch}
+          isOpen={showReplayModal}
+          onClose={() => setShowReplayModal(false)}
+        />
       )}
     </div>
   );

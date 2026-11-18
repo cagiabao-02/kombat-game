@@ -160,6 +160,20 @@
   - **Trải nghiệm xúc giác:** Nút bấm bật/tắt nhanh, thanh trượt `.pixel-range` kèm 4 nút bấm chọn nhanh (0%, 30%, 70%, 100%) và âm thanh thử nghiệm `playVolumePreview()` phản hồi tức thì.
   - **Đồng bộ trạng thái:** Lưu trữ `kombat_sound_volume` trong LocalStorage và đồng bộ thời gian thực qua event `kombat:volume_change`.
 
+- **Triển khai Lịch sử Thi đấu & Trình Xem lại Ván cờ Tương tác (Chặng 23 - Match History & Replay Viewer):**
+  - **Giới hạn lưu trữ tối ưu dữ liệu:** Cố định tối đa **20 ván đấu gần nhất** (`MAX_MATCH_HISTORY = 20`) nhằm ngăn chặn phình to LocalStorage và Supabase User Metadata theo đúng yêu cầu người dùng.
+  - **Dịch vụ Lịch sử đấu & Đồng bộ Đám mây:** Xây dựng [`types.ts`](file:///d:/personal-prj/game/togame/src/features/matchHistory/types.ts) và [`matchHistoryService.ts`](file:///d:/personal-prj/game/togame/src/features/matchHistory/matchHistoryService.ts) hỗ trợ ghi ván đấu mới, xóa lịch sử, lọc theo game (`chess`, `caro`, `xiangqi`) và đồng bộ hai chiều với tài khoản đám mây Supabase Auth qua [`statsMergeService.ts`](file:///d:/personal-prj/game/togame/src/features/stats/statsMergeService.ts).
+  - **Trình phát lại Tương tác Neo-Arcade:** Xây dựng [`MatchReplayModal.tsx`](file:///d:/personal-prj/game/togame/src/features/matchHistory/MatchReplayModal.tsx) tái hiện bàn cờ sống động theo từng nước đi với đầy đủ bộ điều khiển: Về đầu ván (`|◀`), Lùi 1 nước (`◀`), Tự động phát/Tạm dừng (`▶/⏸`), Tiến 1 nước (`▶`), Đến hết ván (`▶|`), thanh trượt tiến độ (scrubber) và âm thanh click cờ chân thực. Tái tạo chính xác thế cờ cho cả 3 môn cờ: Cờ Vua (chuẩn SAN qua `chess.js`), Cờ Caro (15x15) và Cờ Tướng (luật chiếu tướng và đi cờ).
+  - **Tích hợp Tự động Ghi ván & Nút Xem Lại Ngay Sau Trận:**
+    - Cờ Vua ([`ChessGameView.tsx`](file:///d:/personal-prj/game/togame/src/features/games/chess/ChessGameView.tsx)): Tự động lưu ván đấu và bổ sung nút "Xem lại ván này" ở cả Modal kết thúc lẫn thanh banner dưới bàn cờ.
+    - Cờ Caro ([`CaroGameView.tsx`](file:///d:/personal-prj/game/togame/src/features/games/caro/CaroGameView.tsx)): Tự động ghi nhận khi thắng/thua/hòa/đối thủ xin thua và nút "Xem lại ván này" trong Game Over Modal.
+    - Cờ Tướng ([`XiangqiGameView.tsx`](file:///d:/personal-prj/game/togame/src/features/games/xiangqi/XiangqiGameView.tsx)): Tự động lưu nước đi khi chiếu bí/hết nước/xin thua và nút "Xem lại ván này" trong Victory Modal.
+  - **Tủ trưng bày Lịch sử & Tối ưu hóa Giao diện Khả năng Mở rộng (Scalable UI):**
+    - Thay thế cụm nút chọn trò chơi dạng wrap dễ vỡ bằng **Menu thả xuống Pixel (Dropdown Select)** có phân nhóm rõ ràng (Cờ đối kháng, Trí tuệ, Arcade), giúp giao diện luôn gọn gàng 1 dòng duy nhất dù tương lai có thêm hàng chục game mới.
+    - Lược bỏ hoàn toàn dòng thông tin số ván `Lưu 0/20 ván` trong tab Lịch sử đấu theo yêu cầu người dùng, chuyển nút xóa lịch sử lên góc trên phải thanh tiêu đề.
+    - Tối ưu hóa mục "Tổng quan" thành **Bảng chỉ số tài khoản bất biến (Global Account Summary)**: 3 thẻ số liệu chính (Tổng ván đấu, Tổng chiến thắng, Huy hiệu) kết hợp thanh ngang rộng rãi cho "Chơi nhiều nhất" (hiển thị đầy đủ 100% tên game không bị cắt chữ `...` và số ván), không bao giờ bị phình to.
+    - Đơn giản hóa các ô "Sắp có" (Upcoming Tile) tại Sảnh chính: Bỏ gợi ý tên game cụ thể (như "Cờ vây, Othello"), chỉ hiển thị thống nhất dòng chữ "SẮP CÓ" / "COMING SOON" ngắn gọn, sạch sẽ.
+
 ## Đang làm
 
 - Toàn bộ 10 trò chơi (Cờ Vua, Cờ Tướng, Cờ Caro, Sudoku, 2048, Dò Mìn, Rắn Săn Mồi, Phá Gạch, Khủng Long T-Rex, Flappy Bird) đã hoàn thành và sẵn sàng phục vụ người chơi trên cả điện thoại và máy tính.

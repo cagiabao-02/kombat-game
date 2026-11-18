@@ -38,12 +38,18 @@ import {
   Camera,
   Trash2,
   Award,
+  History,
+  Play,
+  ChevronDown,
 } from 'lucide-react';
+import { getMatchHistory, clearMatchHistory } from '@/features/matchHistory/matchHistoryService';
+import { MatchRecord, BoardGameId, MAX_MATCH_HISTORY } from '@/features/matchHistory/types';
+import { MatchReplayModal } from '@/features/matchHistory/MatchReplayModal';
 
 interface ProfileAuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  defaultTab?: 'profile' | 'account' | 'achievements';
+  defaultTab?: 'profile' | 'account' | 'achievements' | 'history';
 }
 
 function formatAuthError(rawMsg: string, lang: 'vi' | 'en'): string {
@@ -118,10 +124,15 @@ export function ProfileAuthModal({
   } = useAuth();
   const { language } = useLanguage();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'account' | 'achievements'>(defaultTab);
+  const [activeTab, setActiveTab] = useState<'profile' | 'account' | 'achievements' | 'history'>(defaultTab);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [unlockedAchievements, setUnlockedAchievements] = useState<UnlockedAchievementsMap>({});
   const [achievementCategory, setAchievementCategory] = useState<'all' | 'general' | 'board' | 'puzzle' | 'arcade'>('all');
+
+  // Match History & Replay State
+  const [matchHistory, setMatchHistory] = useState<MatchRecord[]>([]);
+  const [replayMatch, setReplayMatch] = useState<MatchRecord | null>(null);
+  const [historyFilter, setHistoryFilter] = useState<'all' | BoardGameId>('all');
 
   // Profile Form State
   const [tempName, setTempName] = useState(guestName);
@@ -243,6 +254,9 @@ export function ProfileAuthModal({
       const currentAchievements = meta.achievements || getUnlockedAchievements();
       setUnlockedAchievements(currentAchievements);
 
+      // Lấy lịch sử đấu gần nhất (tối đa 20 ván)
+      setMatchHistory(getMatchHistory());
+
       // Đánh giá thành tựu dựa trên dữ liệu hiện tại
       const allCurrentStats = {
         chess: meta.chess_stats || getChessStats(),
@@ -281,6 +295,15 @@ export function ProfileAuthModal({
     }
     wasOpenRef.current = isOpen;
   }, [isOpen, guestName, avatar, user, isAnonymous, refreshUser]);
+
+  // Lắng nghe cập nhật lịch sử đấu
+  useEffect(() => {
+    const handleUpdate = () => {
+      setMatchHistory(getMatchHistory());
+    };
+    window.addEventListener('kombat:match_history_updated', handleUpdate);
+    return () => window.removeEventListener('kombat:match_history_updated', handleUpdate);
+  }, []);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -428,6 +451,76 @@ export function ProfileAuthModal({
     return { wins, losses, draws, total, rate, streak };
   }, [statsGameTab, chessStats, caroStats, xiangqiStats]);
 
+  const globalSummary = React.useMemo(() => {
+    const chessGames = chessStats?.totalGames || ((chessStats?.wins || 0) + (chessStats?.losses || 0) + (chessStats?.draws || 0));
+    const caroGames = (caroStats?.wins || 0) + (caroStats?.losses || 0) + (caroStats?.draws || 0);
+    const xiangqiGames = (xiangqiStats?.wins || 0) + (xiangqiStats?.losses || 0) + (xiangqiStats?.draws || 0);
+    const sudokuGames = sudokuStats?.totalSolved || 0;
+    const snakeGames = snakeStats?.totalGames || (snakeStats?.highScore ? 1 : 0);
+    const game2048Games = game2048Stats?.totalGames || (game2048Stats?.highScore ? 1 : 0);
+    const minesweeperGames = minesweeperStats?.totalWins || 0;
+    const brickBreakerGames = brickBreakerStats?.totalGames || (brickBreakerStats?.highScore ? 1 : 0);
+    const tRexGames = tRexStats?.totalGames || (tRexStats?.highScore ? 1 : 0);
+    const flappyGames = flappyStats?.totalGames || (flappyStats?.highScore ? 1 : 0);
+
+    const totalPlayed =
+      chessGames +
+      caroGames +
+      xiangqiGames +
+      sudokuGames +
+      snakeGames +
+      game2048Games +
+      minesweeperGames +
+      brickBreakerGames +
+      tRexGames +
+      flappyGames;
+
+    const totalWins =
+      (chessStats?.wins || 0) +
+      (caroStats?.wins || 0) +
+      (xiangqiStats?.wins || 0) +
+      (sudokuStats?.totalSolved || 0) +
+      (minesweeperStats?.totalWins || 0) +
+      ((brickBreakerStats?.highestLevel && brickBreakerStats.highestLevel > 1) ? brickBreakerStats.highestLevel - 1 : 0) +
+      ((game2048Stats?.maxTile && game2048Stats.maxTile >= 2048) ? 1 : 0);
+
+    const gameCounts = [
+      { name: language === 'vi' ? 'Cờ Vua' : 'Chess', icon: '♟️', count: chessGames },
+      { name: language === 'vi' ? 'Cờ Caro' : 'Caro', icon: '⭕', count: caroGames },
+      { name: language === 'vi' ? 'Cờ Tướng' : 'Xiangqi', icon: '帥', count: xiangqiGames },
+      { name: 'Sudoku', icon: '🔢', count: sudokuGames },
+      { name: language === 'vi' ? 'Rắn' : 'Snake', icon: '🐍', count: snakeGames },
+      { name: '2048', icon: '🔢', count: game2048Games },
+      { name: language === 'vi' ? 'Dò Mìn' : 'Mines', icon: '💣', count: minesweeperGames },
+      { name: language === 'vi' ? 'Phá Gạch' : 'Bricks', icon: '🧱', count: brickBreakerGames },
+      { name: 'T-Rex', icon: '🦖', count: tRexGames },
+      { name: 'Flappy', icon: '🐤', count: flappyGames },
+    ];
+
+    const topGame = gameCounts.reduce((prev, curr) => (curr.count > prev.count ? curr : prev), gameCounts[0]);
+
+    return {
+      totalPlayed,
+      totalWins,
+      unlockedBadges: Object.keys(unlockedAchievements).length,
+      totalBadges: ACHIEVEMENTS.length,
+      topGame: topGame.count > 0 ? topGame : null,
+    };
+  }, [
+    chessStats,
+    caroStats,
+    xiangqiStats,
+    sudokuStats,
+    snakeStats,
+    game2048Stats,
+    minesweeperStats,
+    brickBreakerStats,
+    tRexStats,
+    flappyStats,
+    unlockedAchievements,
+    language,
+  ]);
+
   if (!isOpen) return null;
 
   return (
@@ -478,39 +571,66 @@ export function ProfileAuthModal({
           </div>
 
           {/* Navigation Tabs */}
-          <div className="mt-4 grid grid-cols-3 gap-1.5">
+          <div className="mt-4 grid grid-cols-4 gap-1">
             <button
               type="button"
               onClick={() => setActiveTab('profile')}
-              className={`pixel-btn py-1.5 text-xs font-bold ${activeTab === 'profile'
+              className={`pixel-btn py-1.5 text-[10px] sm:text-xs font-bold ${
+                activeTab === 'profile'
                   ? 'bg-amber-300 text-zinc-950'
                   : 'bg-indigo-900 text-indigo-200 hover:bg-indigo-800'
-                }`}
+              }`}
             >
               {language === 'vi' ? 'HỒ SƠ' : 'PROFILE'}
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('achievements')}
-              className={`pixel-btn py-1.5 text-xs font-bold flex items-center justify-center gap-1 ${activeTab === 'achievements'
+              onClick={() => setActiveTab('history')}
+              className={`pixel-btn py-1.5 text-[10px] sm:text-xs font-bold flex items-center justify-center gap-1 ${
+                activeTab === 'history'
                   ? 'bg-amber-300 text-zinc-950'
                   : 'bg-indigo-900 text-indigo-200 hover:bg-indigo-800'
+              }`}
+            >
+              <span>{language === 'vi' ? 'LỊCH SỬ' : 'HISTORY'}</span>
+              <span
+                className={`text-[9px] px-1 py-0.2 rounded font-pixel ${
+                  activeTab === 'history'
+                    ? 'bg-zinc-950 text-amber-300'
+                    : 'bg-amber-400 text-zinc-950'
                 }`}
+              >
+                {matchHistory.length}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('achievements')}
+              className={`pixel-btn py-1.5 text-[10px] sm:text-xs font-bold flex items-center justify-center gap-1 ${
+                activeTab === 'achievements'
+                  ? 'bg-amber-300 text-zinc-950'
+                  : 'bg-indigo-900 text-indigo-200 hover:bg-indigo-800'
+              }`}
             >
               <span>{language === 'vi' ? 'HUY HIỆU' : 'BADGES'}</span>
-              <span className={`text-[10px] px-1 py-0.2 rounded font-pixel ${
-                activeTab === 'achievements' ? 'bg-zinc-950 text-amber-300' : 'bg-amber-400 text-zinc-950'
-              }`}>
+              <span
+                className={`text-[9px] px-1 py-0.2 rounded font-pixel ${
+                  activeTab === 'achievements'
+                    ? 'bg-zinc-950 text-amber-300'
+                    : 'bg-amber-400 text-zinc-950'
+                }`}
+              >
                 {Object.keys(unlockedAchievements).length}
               </span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('account')}
-              className={`pixel-btn py-1.5 text-xs font-bold ${activeTab === 'account'
+              className={`pixel-btn py-1.5 text-[10px] sm:text-xs font-bold ${
+                activeTab === 'account'
                   ? 'bg-amber-300 text-zinc-950'
                   : 'bg-indigo-900 text-indigo-200 hover:bg-indigo-800'
-                }`}
+              }`}
             >
               {language === 'vi' ? 'TÀI KHOẢN' : 'ACCOUNT'}
             </button>
@@ -667,106 +787,33 @@ export function ProfileAuthModal({
                     <Trophy className="h-3.5 w-3.5 text-amber-600" />
                     <span>{language === 'vi' ? 'THÀNH TÍCH' : 'STATS'}</span>
                   </span>
-                  <div className="flex flex-wrap items-center gap-1 bg-zinc-900 p-0.5 text-[10px]">
-                    <button
-                      type="button"
-                      onClick={() => setStatsGameTab('all')}
-                      className={`px-1.5 py-0.5 font-pixel font-bold ${
-                        statsGameTab === 'all' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
-                      }`}
+                  {/* Scalable Game Selector Dropdown */}
+                  <div className="relative">
+                    <select
+                      value={statsGameTab}
+                      onChange={(e) => setStatsGameTab(e.target.value as any)}
+                      aria-label={language === 'vi' ? 'Chọn trò chơi xem thành tích' : 'Select game for stats'}
+                      className="pixel-btn bg-white text-zinc-900 font-pixel text-[10px] sm:text-[11px] font-bold py-1 pl-2 pr-6 border-2 border-zinc-900 shadow-pixel-xs cursor-pointer focus:outline-none focus:bg-amber-100 appearance-none max-w-[200px] truncate"
                     >
-                      {language === 'vi' ? 'Tất cả' : 'All'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setStatsGameTab('chess')}
-                      className={`px-1.5 py-0.5 font-pixel font-bold ${
-                        statsGameTab === 'chess' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
-                      }`}
-                    >
-                      {language === 'vi' ? 'Cờ vua' : 'Chess'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setStatsGameTab('caro')}
-                      className={`px-1.5 py-0.5 font-pixel font-bold ${
-                        statsGameTab === 'caro' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
-                      }`}
-                    >
-                      {language === 'vi' ? 'Caro' : 'Caro'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setStatsGameTab('xiangqi')}
-                      className={`px-1.5 py-0.5 font-pixel font-bold ${
-                        statsGameTab === 'xiangqi' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
-                      }`}
-                    >
-                      {language === 'vi' ? 'Cờ tướng' : 'Xiangqi'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setStatsGameTab('sudoku')}
-                      className={`px-1.5 py-0.5 font-pixel font-bold ${
-                        statsGameTab === 'sudoku' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
-                      }`}
-                    >
-                      {language === 'vi' ? 'Sudoku' : 'Sudoku'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setStatsGameTab('snake')}
-                      className={`px-1.5 py-0.5 font-pixel font-bold ${
-                        statsGameTab === 'snake' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
-                      }`}
-                    >
-                      {language === 'vi' ? 'Rắn' : 'Snake'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setStatsGameTab('game2048')}
-                      className={`px-1.5 py-0.5 font-pixel font-bold ${
-                        statsGameTab === 'game2048' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
-                      }`}
-                    >
-                      2048
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setStatsGameTab('minesweeper')}
-                      className={`px-1.5 py-0.5 font-pixel font-bold ${
-                        statsGameTab === 'minesweeper' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
-                      }`}
-                    >
-                      {language === 'vi' ? 'Dò Mìn' : 'Mines'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setStatsGameTab('brick_breaker')}
-                      className={`px-1.5 py-0.5 font-pixel font-bold ${
-                        statsGameTab === 'brick_breaker' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
-                      }`}
-                    >
-                      {language === 'vi' ? 'Phá Gạch' : 'Bricks'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setStatsGameTab('t_rex')}
-                      className={`px-1.5 py-0.5 font-pixel font-bold ${
-                        statsGameTab === 't_rex' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
-                      }`}
-                    >
-                      T-Rex
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setStatsGameTab('flappy')}
-                      className={`px-1.5 py-0.5 font-pixel font-bold ${
-                        statsGameTab === 'flappy' ? 'bg-amber-300 text-zinc-950' : 'text-zinc-300 hover:text-white'
-                      }`}
-                    >
-                      Flappy
-                    </button>
+                      <option value="all">{language === 'vi' ? '📊 Tổng Quan' : '📊 Overview'}</option>
+                      <optgroup label={language === 'vi' ? '⚔️ Cờ Đối Kháng' : '⚔️ Board Games'}>
+                        <option value="chess">♟️ {language === 'vi' ? 'Cờ Vua' : 'Chess'}</option>
+                        <option value="caro">⭕ {language === 'vi' ? 'Cờ Caro' : 'Caro'}</option>
+                        <option value="xiangqi">帥 {language === 'vi' ? 'Cờ Tướng' : 'Xiangqi'}</option>
+                      </optgroup>
+                      <optgroup label={language === 'vi' ? '🧩 Trí Tuệ & Giải Đố' : '🧩 Puzzle'}>
+                        <option value="sudoku">🔢 Sudoku</option>
+                        <option value="game2048">🔢 2048</option>
+                        <option value="minesweeper">💣 {language === 'vi' ? 'Dò Mìn' : 'Minesweeper'}</option>
+                      </optgroup>
+                      <optgroup label={language === 'vi' ? '🕹️ Arcade Kinh Điển' : '🕹️ Classic Arcade'}>
+                        <option value="snake">🐍 {language === 'vi' ? 'Rắn Săn Mồi' : 'Snake'}</option>
+                        <option value="brick_breaker">🧱 {language === 'vi' ? 'Phá Gạch' : 'Brick Breaker'}</option>
+                        <option value="t_rex">🦖 {language === 'vi' ? 'Khủng Long T-Rex' : 'T-Rex Runner'}</option>
+                        <option value="flappy">🐤 Flappy Bird</option>
+                      </optgroup>
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-700" />
                   </div>
                 </div>
 
@@ -1041,7 +1088,75 @@ export function ProfileAuthModal({
                       </div>
                     </div>
                   </div>
+                ) : statsGameTab === 'all' ? (
+                  /* Global Account Summary - Fixed layout with ample space */
+                  <div className="space-y-2">
+                    {/* 3 Thẻ Chỉ số chính */}
+                    <div className="grid grid-cols-3 gap-1.5 text-center">
+                      <div className="bg-white p-2 border-2 border-zinc-900 shadow-pixel-xs">
+                        <p className="font-pixel text-base font-bold text-indigo-700">
+                          {globalSummary.totalPlayed.toLocaleString()}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold uppercase mt-0.5">
+                          {language === 'vi' ? 'Tổng Ván Đấu' : 'Total Played'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900 shadow-pixel-xs">
+                        <p className="font-pixel text-base font-bold text-emerald-600">
+                          {globalSummary.totalWins.toLocaleString()}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold uppercase mt-0.5">
+                          {language === 'vi' ? 'Tổng Thắng' : 'Total Wins'}
+                        </p>
+                      </div>
+
+                      <div className="bg-white p-2 border-2 border-zinc-900 shadow-pixel-xs">
+                        <p className="font-pixel text-base font-bold text-amber-500">
+                          {globalSummary.unlockedBadges} / {globalSummary.totalBadges}
+                        </p>
+                        <p className="text-[10px] font-mono text-zinc-600 font-bold uppercase mt-0.5">
+                          {language === 'vi' ? 'Huy Hiệu' : 'Badges'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Hàng riêng cho Game Chơi Nhiều Nhất - Rộng rãi, không bao giờ bị cắt chữ */}
+                    <div className="flex items-center justify-between bg-white border-2 border-zinc-900 px-3 py-1.5 shadow-pixel-xs">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-xl shrink-0">
+                          {globalSummary.topGame ? globalSummary.topGame.icon : '🎮'}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-[9px] font-mono font-bold text-zinc-500 uppercase leading-none mb-0.5">
+                            {language === 'vi' ? 'CHƠI NHIỀU NHẤT' : 'FAVORITE GAME'}
+                          </p>
+                          <p className="font-pixel text-xs sm:text-sm font-bold text-zinc-900 truncate">
+                            {globalSummary.topGame ? globalSummary.topGame.name : (language === 'vi' ? 'Chưa có' : 'None')}
+                          </p>
+                        </div>
+                      </div>
+
+                      {globalSummary.topGame && globalSummary.topGame.count > 0 && (
+                        <span className="shrink-0 font-pixel text-[11px] font-bold text-indigo-800 bg-indigo-50 border border-indigo-200 px-2 py-0.5">
+                          {globalSummary.topGame.count} {language === 'vi' ? 'ván' : 'games'}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Gợi ý chọn menu trên */}
+                    <div className="flex items-center justify-between bg-amber-50/80 border-2 border-zinc-900 px-3 py-1.5 text-xs font-mono">
+                      <span className="font-bold text-zinc-700 flex items-center gap-1.5 text-[11px]">
+                        <Sparkles className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                        <span>{language === 'vi' ? 'Xem chi tiết từng trò chơi:' : 'View individual game stats:'}</span>
+                      </span>
+                      <span className="text-[10px] font-pixel text-indigo-700 font-bold">
+                        {language === 'vi' ? 'Chọn ở Menu trên ↗' : 'Select menu ↗'}
+                      </span>
+                    </div>
+                  </div>
                 ) : (
+                  /* Board games: Chess / Caro / Xiangqi */
                   <>
                     <div className="grid grid-cols-4 gap-1.5 text-center">
                       <div className="bg-white p-2 border-2 border-zinc-900">
@@ -1079,19 +1194,6 @@ export function ProfileAuthModal({
                         <span className="font-pixel text-sm font-bold text-amber-600">{currentStatData.elo} Elo</span>
                       </div>
                     )}
-
-                    {statsGameTab === 'all' && (
-                      <div className="mt-2 grid grid-cols-2 gap-1.5 text-xs font-mono">
-                        <div className="flex items-center justify-between bg-white px-2.5 py-1 border-2 border-zinc-900">
-                          <span className="text-zinc-600 font-bold">Sudoku:</span>
-                          <span className="font-pixel font-bold text-indigo-700">{sudokuStats?.totalSolved || 0} bảng</span>
-                        </div>
-                        <div className="flex items-center justify-between bg-white px-2.5 py-1 border-2 border-zinc-900">
-                          <span className="text-zinc-600 font-bold">Snake:</span>
-                          <span className="font-pixel font-bold text-amber-600">{snakeStats?.highScore || 0} đ</span>
-                        </div>
-                      </div>
-                    )}
                   </>
                 )}
               </div>
@@ -1127,6 +1229,193 @@ export function ProfileAuthModal({
                 </button>
               </div>
             </form>
+          ) : activeTab === 'history' ? (
+            /* Match History Tab View */
+            <div className="space-y-4">
+              {/* Header & Filter Controls */}
+              <div className="border-2 border-zinc-900 bg-white p-3 shadow-pixel-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5 font-pixel text-xs font-bold text-zinc-900">
+                    <History className="h-4 w-4 text-indigo-600" />
+                    <span>{language === 'vi' ? 'LỊCH SỬ ĐẤU' : 'MATCH HISTORY'}</span>
+                  </div>
+
+                  {matchHistory.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const confirmed = window.confirm(
+                          language === 'vi'
+                            ? 'Bạn có chắc chắn muốn xóa toàn bộ lịch sử đấu?'
+                            : 'Are you sure you want to delete all match history?'
+                        );
+                        if (confirmed) {
+                          clearMatchHistory();
+                          setMatchHistory([]);
+                        }
+                      }}
+                      className="px-2 py-0.5 text-[10px] font-pixel font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 hover:text-rose-900 inline-flex items-center gap-1 border-2 border-zinc-900 shadow-pixel-xs transition-transform active:scale-95"
+                      title={language === 'vi' ? 'Xóa toàn bộ lịch sử đấu' : 'Clear match history'}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      <span>{language === 'vi' ? 'Xóa lịch sử' : 'Clear all'}</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Scalable Game Filter Dropdown */}
+                <div className="flex items-center justify-between gap-2 pt-2 border-t border-zinc-200">
+                  <span className="font-pixel text-[10px] font-bold text-zinc-600 uppercase">
+                    {language === 'vi' ? 'LỌC TRÒ CHƠI:' : 'FILTER GAME:'}
+                  </span>
+                  <div className="relative">
+                    <select
+                      value={historyFilter}
+                      onChange={(e) => setHistoryFilter(e.target.value as any)}
+                      aria-label={language === 'vi' ? 'Lọc lịch sử theo trò chơi' : 'Filter match history by game'}
+                      className="pixel-btn bg-white text-zinc-900 font-pixel text-[10px] sm:text-[11px] font-bold py-1 pl-2 pr-6 border-2 border-zinc-900 shadow-pixel-xs cursor-pointer focus:outline-none focus:bg-amber-100 appearance-none max-w-[190px] truncate"
+                    >
+                      <option value="all">{language === 'vi' ? '🎮 Tất Cả Ván Đấu' : '🎮 All Matches'}</option>
+                      <option value="chess">♟️ {language === 'vi' ? 'Cờ Vua' : 'Chess'}</option>
+                      <option value="caro">⭕ {language === 'vi' ? 'Cờ Caro' : 'Caro'}</option>
+                      <option value="xiangqi">帥 {language === 'vi' ? 'Cờ Tướng' : 'Xiangqi'}</option>
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-700" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Match Cards List */}
+              <div className="space-y-2.5 max-h-[48vh] overflow-y-auto pr-1">
+                {matchHistory
+                  .filter((m) => historyFilter === 'all' || m.gameId === historyFilter)
+                  .map((match) => {
+                    const isWin = match.result === 'win';
+                    const isDraw = match.result === 'draw';
+                    const matchDate = new Date(match.playedAt).toLocaleDateString(
+                      language === 'vi' ? 'vi-VN' : 'en-US',
+                      {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        day: '2-digit',
+                        month: '2-digit',
+                      }
+                    );
+
+                    const gameTitle =
+                      match.gameId === 'chess'
+                        ? language === 'vi' ? 'Cờ Vua' : 'Chess'
+                        : match.gameId === 'caro'
+                        ? language === 'vi' ? 'Cờ Caro' : 'Caro'
+                        : language === 'vi' ? 'Cờ Tướng' : 'Xiangqi';
+
+                    const gameIcon =
+                      match.gameId === 'chess'
+                        ? '♟️'
+                        : match.gameId === 'caro'
+                        ? '⭕'
+                        : '帥';
+
+                    return (
+                      <div
+                        key={match.id}
+                        className={`relative flex items-center justify-between gap-3 p-3 border-2 transition-all shadow-pixel-xs ${
+                          isWin
+                            ? 'border-emerald-600 bg-emerald-50/70'
+                            : isDraw
+                            ? 'border-amber-500 bg-amber-50/70'
+                            : 'border-rose-400 bg-rose-50/70'
+                        }`}
+                      >
+                        {/* Info Left */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                            <span className="font-pixel text-[11px] font-bold text-zinc-900 flex items-center gap-1">
+                              <span>{gameIcon}</span>
+                              <span>{gameTitle}</span>
+                            </span>
+
+                            {/* Mode Tag */}
+                            <span className="px-1 py-0.2 font-pixel text-[8px] font-bold uppercase border border-zinc-900 bg-zinc-100 text-zinc-700">
+                              {match.mode === 'bot'
+                                ? 'BOT'
+                                : match.mode === 'pvp'
+                                ? 'PVP'
+                                : language === 'vi' ? '2 NGƯỜI' : 'LOCAL'}
+                            </span>
+
+                            {/* Result Tag */}
+                            <span
+                              className={`px-1.5 py-0.2 font-pixel text-[8px] font-bold uppercase border border-zinc-900 ${
+                                isWin
+                                  ? 'bg-emerald-600 text-white'
+                                  : isDraw
+                                  ? 'bg-amber-400 text-zinc-950'
+                                  : 'bg-rose-600 text-white'
+                              }`}
+                            >
+                              {isWin
+                                ? language === 'vi' ? 'THẮNG' : 'WIN'
+                                : isDraw
+                                ? language === 'vi' ? 'HÒA' : 'DRAW'
+                                : language === 'vi' ? 'THUA' : 'LOSS'}
+                            </span>
+                          </div>
+
+                          <div className="text-xs font-mono font-bold text-zinc-800 truncate">
+                            vs {match.opponentAvatar ? `${match.opponentAvatar} ` : ''}{match.opponentName}
+                          </div>
+
+                          <div className="mt-1 flex items-center gap-1.5 text-[10px] font-mono text-zinc-500">
+                            <span>
+                              {match.totalMoves} {language === 'vi' ? 'nước' : 'moves'}
+                            </span>
+                            {match.reason && <span>• {match.reason}</span>}
+                            <span>• {matchDate}</span>
+                          </div>
+                        </div>
+
+                        {/* Replay Button Right */}
+                        <button
+                          type="button"
+                          onClick={() => setReplayMatch(match)}
+                          className="pixel-btn shrink-0 inline-flex items-center gap-1.5 bg-indigo-600 px-3 py-2 text-xs font-bold text-amber-300 hover:bg-indigo-500 border-2 border-zinc-900 shadow-pixel-xs transition-transform active:scale-95"
+                        >
+                          <Play className="h-3.5 w-3.5 fill-current" />
+                          <span>{language === 'vi' ? 'Xem lại' : 'Replay'}</span>
+                        </button>
+                      </div>
+                    );
+                  })}
+
+                {matchHistory.filter(
+                  (m) => historyFilter === 'all' || m.gameId === historyFilter
+                ).length === 0 && (
+                  <div className="border-2 border-dashed border-zinc-300 bg-white p-8 text-center">
+                    <History className="h-10 w-10 text-zinc-400 mx-auto mb-2" />
+                    <p className="font-pixel text-xs text-zinc-700 font-bold mb-1">
+                      {language === 'vi'
+                        ? 'Chưa có ván đấu nào được ghi lại'
+                        : 'No match history recorded yet'}
+                    </p>
+                    <p className="font-mono text-[11px] text-zinc-500">
+                      {language === 'vi'
+                        ? 'Hãy đấu một ván Cờ Vua, Caro hoặc Cờ Tướng để xem lại từng nước đi nhé!'
+                        : 'Play a match of Chess, Caro, or Xiangqi to replay your games!'}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={onClose}
+                className="pixel-btn w-full bg-white py-2.5 text-xs font-bold text-zinc-800 hover:bg-zinc-100 border-2 border-zinc-900"
+              >
+                {language === 'vi' ? 'ĐÓNG' : 'CLOSE'}
+              </button>
+            </div>
           ) : activeTab === 'achievements' ? (
             /* Achievements & Badges Showcase View */
             <div className="space-y-4">
@@ -1507,6 +1796,15 @@ export function ProfileAuthModal({
           )}
         </div>
       </div>
+
+      {/* Replay Modal */}
+      {replayMatch && (
+        <MatchReplayModal
+          match={replayMatch}
+          isOpen={Boolean(replayMatch)}
+          onClose={() => setReplayMatch(null)}
+        />
+      )}
     </div>
   );
 }
