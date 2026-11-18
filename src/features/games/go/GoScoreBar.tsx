@@ -4,7 +4,7 @@ import React from 'react';
 import { GoColor, Point } from './types';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { sounds } from '@/lib/sound/soundService';
-import { Volume2, VolumeX, RotateCcw, Flag, SkipForward, Check, X } from 'lucide-react';
+import { Volume2, VolumeX, RotateCcw, Flag, SkipForward, Check, X, Copy } from 'lucide-react';
 
 interface GoScoreBarProps {
   currentTurn: GoColor;
@@ -18,6 +18,12 @@ interface GoScoreBarProps {
   onResign: () => void;
   onReset: () => void;
   disabled?: boolean;
+  blackPlayerName?: string;
+  whitePlayerName?: string;
+  isOnline?: boolean;
+  roomCode?: string;
+  onCopyRoomLink?: () => void;
+  copiedLink?: boolean;
 }
 
 export const GoScoreBar: React.FC<GoScoreBarProps> = ({
@@ -32,6 +38,12 @@ export const GoScoreBar: React.FC<GoScoreBarProps> = ({
   onResign,
   onReset,
   disabled = false,
+  blackPlayerName,
+  whitePlayerName,
+  isOnline = false,
+  roomCode,
+  onCopyRoomLink,
+  copiedLink = false,
 }) => {
   const { language } = useLanguage();
   const [muted, setMuted] = React.useState(sounds.isSfxMuted());
@@ -49,7 +61,30 @@ export const GoScoreBar: React.FC<GoScoreBarProps> = ({
   }, []);
 
   return (
-    <div className="w-full max-w-[540px] flex flex-col gap-2.5 mx-auto">
+    <div className="w-full max-w-[540px] flex flex-col gap-2.5 mx-auto select-none">
+      {/* Online Room Code Bar nếu đang đấu online */}
+      {isOnline && roomCode && (
+        <div className="flex items-center justify-between bg-zinc-900 text-amber-300 px-3 py-1.5 border-2 border-zinc-950 font-pixel text-xs shadow-[2px_2px_0px_#000]">
+          <div className="flex items-center gap-2">
+            <span className="text-zinc-400 uppercase font-mono text-[10px]">
+              {language === 'vi' ? 'PHÒNG:' : 'ROOM:'}
+            </span>
+            <span className="font-bold tracking-widest text-amber-300">{roomCode}</span>
+          </div>
+
+          {onCopyRoomLink && (
+            <button
+              type="button"
+              onClick={onCopyRoomLink}
+              className="inline-flex items-center gap-1 bg-amber-400 hover:bg-amber-300 text-zinc-950 px-2 py-0.5 text-[10px] font-bold rounded"
+            >
+              {copiedLink ? <Check className="w-3 h-3 text-emerald-800" /> : <Copy className="w-3 h-3" />}
+              <span>{copiedLink ? (language === 'vi' ? 'ĐÃ CHÉP LINK' : 'COPIED') : (language === 'vi' ? 'CHÉP LINK' : 'COPY LINK')}</span>
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Hàng 1: Thẻ thông tin 2 bên & Tù binh */}
       <div className="grid grid-cols-2 gap-2">
         {/* Quân Đen */}
@@ -60,11 +95,11 @@ export const GoScoreBar: React.FC<GoScoreBarProps> = ({
               : 'bg-zinc-100 text-zinc-800 border border-zinc-300 opacity-80'
           }`}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-hidden">
             <span className="w-5 h-5 rounded-full bg-black border border-zinc-600 shadow-sm shrink-0 inline-block" />
-            <div className="flex flex-col">
-              <span className="font-pixel text-xs font-bold leading-none">
-                {language === 'vi' ? 'QUÂN ĐEN' : 'BLACK'}
+            <div className="flex flex-col min-w-0">
+              <span className="font-pixel text-xs font-bold leading-none truncate">
+                {blackPlayerName || (language === 'vi' ? 'QUÂN ĐEN' : 'BLACK')}
               </span>
               <span className="text-[10px] font-mono text-zinc-400">
                 {currentTurn === 'black'
@@ -75,7 +110,7 @@ export const GoScoreBar: React.FC<GoScoreBarProps> = ({
               </span>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-right shrink-0">
             <span className="text-[10px] uppercase font-pixel text-zinc-400 block leading-none">
               {language === 'vi' ? 'BẮT ĐƯỢC' : 'CAPTURES'}
             </span>
@@ -91,11 +126,11 @@ export const GoScoreBar: React.FC<GoScoreBarProps> = ({
               : 'bg-zinc-100 text-zinc-800 border border-zinc-300 opacity-80'
           }`}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-hidden">
             <span className="w-5 h-5 rounded-full bg-white border border-zinc-400 shadow-sm shrink-0 inline-block" />
-            <div className="flex flex-col">
-              <span className="font-pixel text-xs font-bold leading-none">
-                {language === 'vi' ? 'QUÂN TRẮNG' : 'WHITE'}
+            <div className="flex flex-col min-w-0">
+              <span className="font-pixel text-xs font-bold leading-none truncate">
+                {whitePlayerName || (language === 'vi' ? 'QUÂN TRẮNG' : 'WHITE')}
               </span>
               <span className="text-[10px] font-mono text-zinc-400">
                 {currentTurn === 'white'
@@ -106,7 +141,7 @@ export const GoScoreBar: React.FC<GoScoreBarProps> = ({
               </span>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-right shrink-0">
             <span className="text-[10px] uppercase font-pixel text-zinc-400 block leading-none">
               {language === 'vi' ? 'BẮT ĐƯỢC' : 'CAPTURES'}
             </span>
@@ -129,7 +164,7 @@ export const GoScoreBar: React.FC<GoScoreBarProps> = ({
         {selectedPoint ? (
           /* Khối nút xác nhận nước đi đang chọn */
           <div className="flex-1 flex items-center gap-2 bg-emerald-50 border-2 border-emerald-600 px-3 py-1.5 shadow-[2px_2px_0px_#000]">
-            <span className="text-xs font-pixel font-bold text-emerald-950 flex-1">
+            <span className="text-xs font-pixel font-bold text-emerald-950 flex-1 truncate">
               {language === 'vi'
                 ? `ĐẶT TẠI [${selectedPoint.row + 1},${selectedPoint.col + 1}]?`
                 : `PLAY AT [${selectedPoint.row + 1},${selectedPoint.col + 1}]?`}
@@ -138,7 +173,7 @@ export const GoScoreBar: React.FC<GoScoreBarProps> = ({
               type="button"
               onClick={onConfirmSelectedPoint}
               disabled={disabled}
-              className="pixel-btn bg-emerald-500 hover:bg-emerald-400 text-white px-3 py-1 text-xs font-pixel flex items-center gap-1"
+              className="pixel-btn bg-emerald-500 hover:bg-emerald-400 text-white px-3 py-1 text-xs font-pixel flex items-center gap-1 shrink-0"
             >
               <Check className="w-3.5 h-3.5" />
               <span>{language === 'vi' ? 'ĐẶT' : 'PLAY'}</span>
@@ -146,7 +181,7 @@ export const GoScoreBar: React.FC<GoScoreBarProps> = ({
             <button
               type="button"
               onClick={onCancelSelectedPoint}
-              className="pixel-btn bg-zinc-200 hover:bg-zinc-300 text-zinc-800 px-2 py-1 text-xs font-pixel"
+              className="pixel-btn bg-zinc-200 hover:bg-zinc-300 text-zinc-800 px-2 py-1 text-xs font-pixel shrink-0"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -182,15 +217,17 @@ export const GoScoreBar: React.FC<GoScoreBarProps> = ({
 
         {/* Nút tiện ích: Chơi lại & Loa */}
         <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            type="button"
-            onClick={onReset}
-            className="pixel-btn bg-zinc-100 hover:bg-zinc-200 text-zinc-800 p-2 text-xs"
-            title={language === 'vi' ? 'Chơi lại ván mới' : 'Restart game'}
-            aria-label="Chơi lại"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
+          {!isOnline && (
+            <button
+              type="button"
+              onClick={onReset}
+              className="pixel-btn bg-zinc-100 hover:bg-zinc-200 text-zinc-800 p-2 text-xs"
+              title={language === 'vi' ? 'Chơi lại ván mới' : 'Restart game'}
+              aria-label="Chơi lại"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          )}
           <button
             type="button"
             onClick={() => {

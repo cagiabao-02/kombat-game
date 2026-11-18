@@ -3,13 +3,18 @@
 import React from 'react';
 import { GoColor, TerritoryScore } from './types';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Trophy, RotateCcw, ArrowLeft } from 'lucide-react';
+import { Trophy, RotateCcw, ArrowLeft, RefreshCw, Handshake, Eye } from 'lucide-react';
 
 interface GoGameOverModalProps {
   isOpen: boolean;
   winner: GoColor | null;
   resignedBy?: GoColor | null;
   score: TerritoryScore | null;
+  isOnline?: boolean;
+  rematchRequestedByMe?: boolean;
+  rematchOfferedByOpponent?: boolean;
+  onRematch?: () => void;
+  onReplayMatch?: () => void;
   onPlayAgain: () => void;
   onBackToLobby: () => void;
 }
@@ -19,6 +24,11 @@ export const GoGameOverModal: React.FC<GoGameOverModalProps> = ({
   winner,
   resignedBy,
   score,
+  isOnline = false,
+  rematchRequestedByMe = false,
+  rematchOfferedByOpponent = false,
+  onRematch,
+  onReplayMatch,
   onPlayAgain,
   onBackToLobby,
 }) => {
@@ -29,7 +39,7 @@ export const GoGameOverModal: React.FC<GoGameOverModalProps> = ({
   const isBlackWinner = winner === 'black';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 select-none">
       <div className="pixel-box w-full max-w-md bg-[#FFFDF8] border-4 border-zinc-950 p-5 shadow-[8px_8px_0px_#000] space-y-4">
         {/* Tiêu đề & Cúp vinh danh */}
         <div className="text-center space-y-1 border-b-2 border-zinc-900 pb-3">
@@ -101,16 +111,71 @@ export const GoGameOverModal: React.FC<GoGameOverModalProps> = ({
           </div>
         )}
 
-        {/* Nút hành động */}
-        <div className="flex flex-col sm:flex-row gap-2 pt-1 font-pixel text-xs font-bold">
+        {/* Thông báo trạng thái Tái đấu nếu là Online */}
+        {isOnline && (
+          <div className="text-center font-mono text-xs">
+            {rematchOfferedByOpponent && !rematchRequestedByMe && (
+              <p className="text-emerald-700 font-bold bg-emerald-50 border border-emerald-300 p-2">
+                🤝 {language === 'vi' ? 'Đối thủ đã gửi lời mời tái đấu!' : 'Opponent invited you to rematch!'}
+              </p>
+            )}
+            {rematchRequestedByMe && !rematchOfferedByOpponent && (
+              <p className="text-amber-700 font-bold bg-amber-50 border border-amber-300 p-2 flex items-center justify-center gap-1.5">
+                <span className="w-3 h-3 border-2 border-amber-600 border-t-transparent animate-spin rounded-full" />
+                {language === 'vi' ? 'Đang đợi đối thủ chấp nhận tái đấu...' : 'Waiting for opponent to accept rematch...'}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Nút Xem lại ván đấu (Replay) nếu có */}
+        {onReplayMatch && (
           <button
             type="button"
-            onClick={onPlayAgain}
-            className="flex-1 pixel-btn bg-emerald-400 hover:bg-emerald-300 text-zinc-950 py-3 flex items-center justify-center gap-1.5"
+            onClick={onReplayMatch}
+            className="w-full pixel-btn bg-amber-400 hover:bg-amber-300 text-zinc-950 py-2.5 flex items-center justify-center gap-1.5 font-pixel text-xs font-bold shadow-[2px_2px_0px_#000]"
           >
-            <RotateCcw className="w-4 h-4" />
-            <span>{language === 'vi' ? 'CHƠI LẠI VÁN MỚI' : 'PLAY AGAIN'}</span>
+            <Eye className="w-4 h-4" />
+            <span>{language === 'vi' ? 'XEM LẠI VÁN ĐẤU NÀY' : 'REPLAY THIS MATCH'}</span>
           </button>
+        )}
+
+        {/* Nút hành động */}
+        <div className="flex flex-col sm:flex-row gap-2 pt-1 font-pixel text-xs font-bold">
+          {isOnline ? (
+            <button
+              type="button"
+              onClick={onRematch}
+              disabled={rematchRequestedByMe && !rematchOfferedByOpponent}
+              className="flex-1 pixel-btn bg-emerald-400 hover:bg-emerald-300 text-zinc-950 py-3 flex items-center justify-center gap-1.5 disabled:opacity-50"
+            >
+              {rematchOfferedByOpponent ? (
+                <>
+                  <Handshake className="w-4 h-4" />
+                  <span>{language === 'vi' ? 'CHẤP NHẬN TÁI ĐẤU' : 'ACCEPT REMATCH'}</span>
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4" />
+                  <span>
+                    {rematchRequestedByMe
+                      ? language === 'vi' ? 'ĐÃ GỬI LỜI MỜI...' : 'REQUESTED...'
+                      : language === 'vi' ? 'TÁI ĐẤU (ĐỔI BÊN)' : 'REMATCH (SWAP)'}
+                  </span>
+                </>
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onPlayAgain}
+              className="flex-1 pixel-btn bg-emerald-400 hover:bg-emerald-300 text-zinc-950 py-3 flex items-center justify-center gap-1.5"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>{language === 'vi' ? 'CHƠI LẠI VÁN MỚI' : 'PLAY AGAIN'}</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={onBackToLobby}
