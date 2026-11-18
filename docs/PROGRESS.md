@@ -154,6 +154,11 @@
   - **Âm thanh Fanfare & Thông báo In-Game:** Bổ sung âm thanh 4 nốt arpeggio `playAchievementUnlock()`; toast pop-up Neo-Arcade nổi bật [`AchievementToast.tsx`](file:///d:/personal-prj/game/togame/src/features/achievements/AchievementToast.tsx) tự động hiển thị trên toàn sảnh khi mở khóa thành tựu mới.
   - **Tủ trưng bày trong Hồ sơ cá nhân:** Tab "HUY HIỆU" trong [`ProfileAuthModal.tsx`](file:///d:/personal-prj/game/togame/src/features/auth/ProfileAuthModal.tsx) hiển thị thanh tiến độ, bộ đếm badge theo bậc và danh sách huy hiệu rực rỡ kèm ngày mở khóa.
   - **Tự động mở khóa & Đồng bộ Đám mây:** Hệ thống tự động quét mở khóa sau mỗi ván chơi của cả 10 game và gộp bảo lưu vĩnh viễn trên Supabase Cloud qua [`statsMergeService.ts`](file:///d:/personal-prj/game/togame/src/features/stats/statsMergeService.ts).
+- **Nâng cấp Hệ thống Âm thanh: Bộ điều chỉnh âm lượng đa mức (Master Volume Control):**
+  - **Master Gain Node trong Web Audio API:** Xây dựng nút tổng quản âm lượng trong [`soundService.ts`](file:///d:/personal-prj/game/togame/src/lib/sound/soundService.ts) kiểm soát độ to/nhỏ từ 0% đến 100% cho toàn bộ 10 tựa game trên nền tảng.
+  - **Giao diện điều khiển Retro Pixel:** Xây dựng [`VolumeControl.tsx`](file:///d:/personal-prj/game/togame/src/components/VolumeControl.tsx) gồm Popover thả xuống trên Desktop Header và thanh trượt trực quan trong Mobile Drawer.
+  - **Trải nghiệm xúc giác:** Nút bấm bật/tắt nhanh, thanh trượt `.pixel-range` kèm 4 nút bấm chọn nhanh (0%, 30%, 70%, 100%) và âm thanh thử nghiệm `playVolumePreview()` phản hồi tức thì.
+  - **Đồng bộ trạng thái:** Lưu trữ `kombat_sound_volume` trong LocalStorage và đồng bộ thời gian thực qua event `kombat:volume_change`.
 
 ## Đang làm
 

@@ -1,20 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/features/auth/AuthContext';
 import { Menu, X } from 'lucide-react';
-import { sounds } from '@/lib/sound/soundService';
 import { UserAvatar } from '@/components/UserAvatar';
 import {
   PixelTrophy,
-  PixelVolumeOn,
-  PixelVolumeOff,
   PixelGlobe,
   PixelShieldCheck,
 } from '@/components/PixelIcons';
+import { VolumePopover, VolumeSliderInline } from '@/components/VolumeControl';
 
 const ProfileAuthModal = dynamic(
   () => import('@/features/auth/ProfileAuthModal').then((mod) => mod.ProfileAuthModal),
@@ -32,16 +30,6 @@ export function Header() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-
-  useEffect(() => {
-    setIsMuted(sounds.isMuted());
-  }, []);
-
-  const toggleSound = () => {
-    const next = sounds.toggleMute();
-    setIsMuted(next);
-  };
 
   const toggleLanguage = () => {
     setLanguage(language === 'vi' ? 'en' : 'vi');
@@ -105,22 +93,8 @@ export function Header() {
                 <PixelTrophy className="h-4 w-4" />
               </button>
 
-              {/* Sound Toggle */}
-              <button
-                type="button"
-                onClick={toggleSound}
-                className={`pixel-btn flex h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center text-xs outline-none ${
-                  isMuted ? 'bg-zinc-100 text-zinc-400' : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-900'
-                }`}
-                title={isMuted ? 'Bật âm thanh / Unmute' : 'Tắt âm thanh / Mute'}
-                aria-label="Toggle Sound"
-              >
-                {isMuted ? (
-                  <PixelVolumeOff className="h-4 w-4 text-zinc-500" />
-                ) : (
-                  <PixelVolumeOn className="h-4 w-4 text-emerald-800" />
-                )}
-              </button>
+              {/* Sound & Volume Control Popover */}
+              <VolumePopover />
 
               {/* Language Switcher */}
               <button
@@ -221,41 +195,8 @@ export function Header() {
                 </span>
               </button>
 
-              {/* Sound Toggle Item */}
-              <button
-                type="button"
-                onClick={toggleSound}
-                className="pixel-btn flex w-full items-center justify-between bg-white hover:bg-zinc-50 p-3 text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center bg-indigo-100 text-indigo-700 border-2 border-zinc-900">
-                    {isMuted ? (
-                      <PixelVolumeOff className="h-5 w-5 text-zinc-500" />
-                    ) : (
-                      <PixelVolumeOn className="h-5 w-5 text-indigo-700" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-pixel text-sm font-bold text-zinc-900">
-                      {language === 'vi' ? 'ÂM THANH 8-BIT' : '8-BIT AUDIO'}
-                    </p>
-                    <p className="text-xs font-mono text-zinc-600">
-                      {isMuted
-                        ? (language === 'vi' ? 'Đang tắt âm thanh' : 'Sound muted')
-                        : (language === 'vi' ? 'Đang bật âm thanh' : 'Sound active')}
-                    </p>
-                  </div>
-                </div>
-                <span
-                  className={`pixel-badge px-2.5 py-1 text-xs font-bold ${
-                    isMuted
-                      ? 'bg-zinc-200 text-zinc-600'
-                      : 'bg-emerald-300 text-zinc-900'
-                  }`}
-                >
-                  {isMuted ? 'OFF' : 'ON'}
-                </span>
-              </button>
+              {/* Interactive Volume Slider Item */}
+              <VolumeSliderInline />
 
               {/* Language Switcher Item */}
               <button

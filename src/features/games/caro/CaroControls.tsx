@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CaroPiece, CaroGameMode } from './types';
 import { RotateCcw, Flag, Home, Volume2, VolumeX, AlertCircle } from 'lucide-react';
 import { soundService } from '@/lib/sound/soundService';
@@ -39,6 +39,17 @@ export function CaroControls({
 }: CaroControlsProps) {
   const [isMuted, setIsMuted] = useState(soundService.isMuted());
   const [confirmDialog, setConfirmDialog] = useState<'reset' | 'resign' | 'leave' | null>(null);
+
+  useEffect(() => {
+    const handleVolume = (e: Event) => {
+      const custom = e as CustomEvent<{ volume: number; muted: boolean }>;
+      if (custom.detail) {
+        setIsMuted(custom.detail.muted);
+      }
+    };
+    window.addEventListener('kombat:volume_change', handleVolume);
+    return () => window.removeEventListener('kombat:volume_change', handleVolume);
+  }, []);
 
   const toggleSound = () => {
     const nextMuted = soundService.toggleMute();

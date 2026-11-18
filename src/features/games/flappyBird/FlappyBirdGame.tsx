@@ -65,6 +65,17 @@ export function FlappyBirdGame() {
     setIsMuted(sounds.isMuted());
   };
 
+  useEffect(() => {
+    const handleVolume = (e: Event) => {
+      const custom = e as CustomEvent<{ volume: number; muted: boolean }>;
+      if (custom.detail) {
+        setIsMuted(custom.detail.muted);
+      }
+    };
+    window.addEventListener('kombat:volume_change', handleVolume);
+    return () => window.removeEventListener('kombat:volume_change', handleVolume);
+  }, []);
+
   // Flap Action
   const handleFlap = useCallback(() => {
     const s = stateRef.current;
