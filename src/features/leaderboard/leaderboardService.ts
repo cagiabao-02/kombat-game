@@ -11,6 +11,7 @@ import { getBrickBreakerStats } from '@/features/games/brickBreaker/brickBreaker
 import { getTRexStats } from '@/features/games/dinoRunner/tRexStatsService';
 import { getFlappyStats } from '@/features/games/flappyBird/flappyStatsService';
 import { getBlockBlastStats } from '@/features/games/blockBlast/blockBlastStatsService';
+import { getTetrisStats } from '@/features/games/tetris/tetrisStatsService';
 import { getGoStats } from '@/features/games/go/goStatsService';
 
 function formatTime(seconds: number): string {
@@ -32,7 +33,7 @@ function formatScoreLabel(game: LeaderboardGame, scoreValue: number): string {
   if (game === 'minesweeper') {
     return scoreValue < 60 ? `${scoreValue}s` : formatTime(scoreValue);
   }
-  if (game === 'game2048' || game === 'brick_breaker' || game === 't_rex_runner' || game === 'block_blast') {
+  if (game === 'game2048' || game === 'brick_breaker' || game === 't_rex_runner' || game === 'block_blast' || game === 'tetris') {
     return `${scoreValue.toLocaleString()} Điểm`;
   }
   // Caro, Snake...
@@ -240,6 +241,22 @@ export function getLocalLeaderboardData(
         secondaryInfo: undefined,
         isCurrentUser: true,
         tierBadge: stats.highScore >= 5000 ? 'Bậc Thầy Nổ Khối' : stats.highScore >= 2000 ? 'Xếp Gạch Cừ Khôi' : 'Tập Sự',
+      };
+    }
+  } else if (game === 'tetris') {
+    const stats = getTetrisStats();
+    if (stats.highScore > 0) {
+      userEntry = {
+        id: currentUserId || 'current_user',
+        userId: currentUserId,
+        name: currentUserName,
+        avatar: currentUserAvatar,
+        rank: 1,
+        scoreValue: stats.highScore,
+        scoreLabel: `${stats.highScore.toLocaleString()} Điểm`,
+        secondaryInfo: undefined,
+        isCurrentUser: true,
+        tierBadge: stats.highScore >= 10000 ? 'Đại Sư Tetris' : stats.highScore >= 3000 ? 'Cao Thủ Xếp Gạch' : 'Tập Sự',
       };
     }
   } else if (game === 'go') {
@@ -611,6 +628,11 @@ export async function syncLeaderboardScoreForGame(
       if (stats.highScore === 0) return;
       scoreValue = stats.highScore;
       scoreLabel = `${stats.highScore.toLocaleString()} Điểm`;
+    } else if (game === 'tetris') {
+      const stats = getTetrisStats();
+      if (stats.highScore === 0) return;
+      scoreValue = stats.highScore;
+      scoreLabel = `${stats.highScore.toLocaleString()} Điểm`;
     } else if (game === 'go') {
       const stats = getGoStats();
       if (stats.totalGames === 0) return;
@@ -648,5 +670,6 @@ export async function syncAllLeaderboardScores() {
     syncLeaderboardScoreForGame('t_rex_runner'),
     syncLeaderboardScoreForGame('flappy_bird'),
     syncLeaderboardScoreForGame('block_blast'),
+    syncLeaderboardScoreForGame('tetris'),
   ]);
 }

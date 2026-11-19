@@ -18,7 +18,8 @@ function getThemeForPath(pathname: string): BgmTheme {
     pathname.startsWith('/games/snake') ||
     pathname.startsWith('/games/flappy-bird') ||
     pathname.startsWith('/games/brick-breaker') ||
-    pathname.startsWith('/games/2048')
+    pathname.startsWith('/games/2048') ||
+    pathname.startsWith('/games/tetris')
   ) {
     return 'arcade';
   }
