@@ -250,47 +250,66 @@ export function FlappyBirdGame() {
       }
 
       // ==========================================
-      // 2. RENDER GRAPHICS ON CANVAS
+      // 2. RENDER PIXEL ART GRAPHICS ON CANVAS
       // ==========================================
+      ctx.imageSmoothingEnabled = false;
       ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-      // --- A. Bầu trời (Day / Night) ---
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+      // --- A. Bầu trời phân dải màu Pixel (Pixel Sky Bands) ---
       if (s.isNight) {
-        skyGrad.addColorStop(0, '#0d1b2a');
-        skyGrad.addColorStop(0.7, '#1b263b');
-        skyGrad.addColorStop(1, '#415a77');
-      } else {
-        skyGrad.addColorStop(0, '#4ec0ca');
-        skyGrad.addColorStop(0.7, '#70c5ce');
-        skyGrad.addColorStop(1, '#b8e3e9');
-      }
-      ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, CANVAS_WIDTH, GROUND_Y);
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, 220);
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(0, 220, CANVAS_WIDTH, 160);
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(0, 380, CANVAS_WIDTH, GROUND_Y - 380);
 
-      // Mặt trăng / Mặt trời
-      if (s.isNight) {
-        // Mặt trăng lưỡi liềm pixel
-        ctx.fillStyle = '#fdf0cd';
-        ctx.beginPath();
-        ctx.arc(290, 75, 18, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#0d1b2a';
-        ctx.beginPath();
-        ctx.arc(283, 72, 16, 0, Math.PI * 2);
-        ctx.fill();
+        // Mặt trăng lưỡi liềm Pixel (khối 4x4)
+        const mx = 276;
+        const my = 56;
+        const mp = 4;
+        ctx.fillStyle = '#fef08a';
+        [
+          [2, 0], [3, 0], [4, 0],
+          [1, 1], [2, 1], [3, 1],
+          [0, 2], [1, 2], [2, 2],
+          [0, 3], [1, 3], [2, 3],
+          [0, 4], [1, 4], [2, 4],
+          [1, 5], [2, 5], [3, 5],
+          [2, 6], [3, 6], [4, 6],
+        ].forEach(([dx, dy]) => {
+          ctx.fillRect(mx + dx * mp, my + dy * mp, mp, mp);
+        });
 
-        // Những vì sao lấp lánh
+        // Những vì sao pixel lấp lánh
         ctx.fillStyle = '#ffffff';
-        [[40, 50], [90, 85], [140, 40], [210, 65], [320, 110], [180, 105]].forEach(([sx, sy]) => {
-          ctx.fillRect(sx, sy, 2, 2);
+        [[40, 50], [92, 84], [140, 40], [212, 64], [320, 112], [180, 104]].forEach(([sx, sy]) => {
+          ctx.fillRect(sx, sy, 3, 3);
+        });
+        ctx.fillStyle = '#fde047';
+        [[64, 120], [236, 36]].forEach(([sx, sy]) => {
+          ctx.fillRect(sx - 2, sy, 6, 2);
+          ctx.fillRect(sx, sy - 2, 2, 6);
         });
       } else {
-        // Mặt trời dịu dàng góc xa
-        ctx.fillStyle = '#fff4a3';
-        ctx.beginPath();
-        ctx.arc(285, 75, 22, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillStyle = '#4ec0ca';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, 260);
+        ctx.fillStyle = '#70c5ce';
+        ctx.fillRect(0, 260, CANVAS_WIDTH, 130);
+        ctx.fillStyle = '#a5e1e9';
+        ctx.fillRect(0, 390, CANVAS_WIDTH, GROUND_Y - 390);
+
+        // Mặt trời Pixel 8-bit nhiều lớp (khối 4x4)
+        const sx = 268;
+        const sy = 52;
+        const sp = 4;
+        ctx.fillStyle = '#fef9c3';
+        ctx.fillRect(sx + 2 * sp, sy, 4 * sp, 8 * sp);
+        ctx.fillRect(sx + 1 * sp, sy + 1 * sp, 6 * sp, 6 * sp);
+        ctx.fillRect(sx, sy + 2 * sp, 8 * sp, 4 * sp);
+        ctx.fillStyle = '#fde047';
+        ctx.fillRect(sx + 2 * sp, sy + 1 * sp, 4 * sp, 6 * sp);
+        ctx.fillRect(sx + 1 * sp, sy + 2 * sp, 6 * sp, 4 * sp);
       }
 
       // --- B. Đám mây pixel trôi nhẹ ---
@@ -355,105 +374,122 @@ export function FlappyBirdGame() {
   // HELPER CANVAS DRAWING ROUTINES
   // ==========================================
 
-  // Vẽ các đám mây
+  // Vẽ các đám mây Pixel Art xếp bậc thang
   const drawClouds = (ctx: CanvasRenderingContext2D, isNight: boolean) => {
-    ctx.fillStyle = isNight ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.75)';
+    const mainCol = isNight ? '#334155' : '#ffffff';
+    const shadeCol = isNight ? '#1e293b' : '#d8f3f8';
     const clouds = [
-      { x: 30, y: 160, w: 75, h: 28 },
-      { x: 170, y: 120, w: 90, h: 32 },
-      { x: 280, y: 180, w: 65, h: 26 },
+      { x: 24, y: 168 },
+      { x: 164, y: 120 },
+      { x: 268, y: 184 },
     ];
     for (const c of clouds) {
-      ctx.beginPath();
-      ctx.roundRect(c.x, c.y, c.w, c.h, 12);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.roundRect(c.x + 15, c.y - 12, c.w * 0.55, c.h, 10);
-      ctx.fill();
+      // Bóng dưới đám mây
+      ctx.fillStyle = shadeCol;
+      ctx.fillRect(c.x + 4, c.y + 16, 68, 8);
+      // Thân chính đám mây pixel
+      ctx.fillStyle = mainCol;
+      ctx.fillRect(c.x + 4, c.y + 8, 68, 12);
+      ctx.fillRect(c.x, c.y + 12, 76, 8);
+      ctx.fillRect(c.x + 12, c.y + 4, 44, 8);
+      ctx.fillRect(c.x + 20, c.y, 24, 6);
     }
   };
 
-  // Vẽ nền thành phố đằng xa
+  // Vẽ nền thành phố & bụi cây Pixel đằng xa
   const drawSkyline = (ctx: CanvasRenderingContext2D, isNight: boolean) => {
-    ctx.fillStyle = isNight ? '#162b3d' : '#88d8b0';
+    const buildingCol = isNight ? '#162b3d' : '#94d9c3';
+    const buildingDark = isNight ? '#0f1f2e' : '#7ac9b0';
+    const windowCol = isNight ? '#fde047' : '#d1fae5';
+
     const buildings = [
-      { x: 0, w: 35, h: 70 },
-      { x: 35, w: 25, h: 50 },
-      { x: 60, w: 40, h: 90 },
-      { x: 100, w: 30, h: 60 },
-      { x: 130, w: 45, h: 80 },
-      { x: 175, w: 35, h: 65 },
-      { x: 210, w: 50, h: 95 },
-      { x: 260, w: 30, h: 55 },
-      { x: 290, w: 40, h: 75 },
-      { x: 330, w: 35, h: 85 },
+      { x: 0, w: 36, h: 72 },
+      { x: 36, w: 28, h: 52 },
+      { x: 64, w: 40, h: 92 },
+      { x: 104, w: 32, h: 64 },
+      { x: 136, w: 44, h: 84 },
+      { x: 180, w: 36, h: 68 },
+      { x: 216, w: 48, h: 96 },
+      { x: 264, w: 32, h: 56 },
+      { x: 296, w: 40, h: 76 },
+      { x: 336, w: 28, h: 88 },
     ];
     for (const b of buildings) {
+      ctx.fillStyle = buildingCol;
       ctx.fillRect(b.x, GROUND_Y - b.h, b.w, b.h);
-      // Cửa sổ pixel
-      ctx.fillStyle = isNight ? 'rgba(255, 230, 110, 0.45)' : 'rgba(255, 255, 255, 0.3)';
-      for (let wy = GROUND_Y - b.h + 8; wy < GROUND_Y - 12; wy += 14) {
-        ctx.fillRect(b.x + 6, wy, 5, 6);
-        if (b.w > 30) {
-          ctx.fillRect(b.x + 18, wy, 5, 6);
+      // Bóng cạnh phải tòa nhà
+      ctx.fillStyle = buildingDark;
+      ctx.fillRect(b.x + b.w - 4, GROUND_Y - b.h, 4, b.h);
+      // Viền mái bậc thang
+      ctx.fillRect(b.x + 4, GROUND_Y - b.h - 4, b.w - 8, 4);
+
+      // Cửa sổ pixel 4x6
+      ctx.fillStyle = windowCol;
+      for (let wy = GROUND_Y - b.h + 8; wy < GROUND_Y - 22; wy += 12) {
+        ctx.fillRect(b.x + 6, wy, 4, 6);
+        ctx.fillRect(b.x + 16, wy, 4, 6);
+        if (b.w >= 40) {
+          ctx.fillRect(b.x + 26, wy, 4, 6);
         }
       }
-      ctx.fillStyle = isNight ? '#162b3d' : '#88d8b0';
+    }
+
+    // Dải bụi cây xanh Pixel ở chân thành phố
+    const bushMain = isNight ? '#1b4332' : '#6ee7b7';
+    const bushTop = isNight ? '#2d6a4f' : '#a7f3d0';
+    for (let bx = 0; bx < CANVAS_WIDTH; bx += 24) {
+      ctx.fillStyle = bushMain;
+      ctx.fillRect(bx, GROUND_Y - 12, 24, 12);
+      ctx.fillRect(bx + 4, GROUND_Y - 18, 16, 6);
+      ctx.fillStyle = bushTop;
+      ctx.fillRect(bx + 6, GROUND_Y - 18, 12, 3);
     }
   };
 
-  // Vẽ cặp cột ống nước Retro Green
+  // Vẽ cặp cột ống nước Retro Green Pixel Shading
   const drawPipePair = (ctx: CanvasRenderingContext2D, pipe: PipePair) => {
-    const px = pipe.x;
+    const px = Math.round(pipe.x);
     const rimHeight = 24;
-    const rimOverhang = 3;
+    const rimOverhang = 4;
+    const outline = '#18181b';
 
-    // --- CỘT TRÊN (Top Pipe) ---
-    // Thân cột trên
-    const topBodyGrad = ctx.createLinearGradient(px, 0, px + PIPE_WIDTH, 0);
-    topBodyGrad.addColorStop(0, '#53a018');
-    topBodyGrad.addColorStop(0.2, '#73bf2e');
-    topBodyGrad.addColorStop(0.65, '#5aa71e');
-    topBodyGrad.addColorStop(1, '#2d5e0b');
+    const drawShadedRect = (rx: number, ry: number, rw: number, rh: number) => {
+      if (rh <= 0) return;
+      // Viền đen pixel
+      ctx.fillStyle = outline;
+      ctx.fillRect(rx, ry, rw, rh);
+      // Thân xanh lá chính
+      ctx.fillStyle = '#73bf2e';
+      ctx.fillRect(rx + 2, ry + 2, rw - 4, rh - 4);
+      // Dải sáng bên trái (Highlight pixel bands)
+      ctx.fillStyle = '#9ce659';
+      ctx.fillRect(rx + 4, ry + 2, 10, rh - 4);
+      ctx.fillStyle = '#d9f99d';
+      ctx.fillRect(rx + 6, ry + 2, 3, rh - 4);
+      // Dải tối bên phải (Shadow pixel bands)
+      ctx.fillStyle = '#558c22';
+      ctx.fillRect(rx + rw - 12, ry + 2, 10, rh - 4);
+      ctx.fillStyle = '#3f6212';
+      ctx.fillRect(rx + rw - 6, ry + 2, 4, rh - 4);
+    };
 
-    ctx.fillStyle = topBodyGrad;
-    ctx.fillRect(px, 0, PIPE_WIDTH, pipe.topHeight - rimHeight);
-    ctx.strokeStyle = '#183804';
-    ctx.lineWidth = 2.5;
-    ctx.strokeRect(px, 0, PIPE_WIDTH, pipe.topHeight - rimHeight);
-
-    // Vành miệng cột trên
+    // CỘT TRÊN
     const rimTopY = pipe.topHeight - rimHeight;
-    ctx.fillStyle = topBodyGrad;
-    ctx.fillRect(px - rimOverhang, rimTopY, PIPE_WIDTH + rimOverhang * 2, rimHeight);
-    ctx.strokeStyle = '#183804';
-    ctx.strokeRect(px - rimOverhang, rimTopY, PIPE_WIDTH + rimOverhang * 2, rimHeight);
+    drawShadedRect(px, -2, PIPE_WIDTH, Math.max(0, rimTopY + 2));
+    drawShadedRect(px - rimOverhang, rimTopY, PIPE_WIDTH + rimOverhang * 2, rimHeight);
 
-    // Vạch sáng bóng trên vành
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-    ctx.fillRect(px + 4, 0, 4, pipe.topHeight - rimHeight);
-    ctx.fillRect(px + 3, rimTopY + 2, 4, rimHeight - 4);
-
-    // --- CỘT DƯỚI (Bottom Pipe) ---
-    // Vành miệng cột dưới
+    // CỘT DƯỚI
     const rimBottomY = pipe.bottomY;
-    ctx.fillStyle = topBodyGrad;
-    ctx.fillRect(px - rimOverhang, rimBottomY, PIPE_WIDTH + rimOverhang * 2, rimHeight);
-    ctx.strokeStyle = '#183804';
-    ctx.strokeRect(px - rimOverhang, rimBottomY, PIPE_WIDTH + rimOverhang * 2, rimHeight);
-
-    // Thân cột dưới
-    ctx.fillStyle = topBodyGrad;
-    ctx.fillRect(px, rimBottomY + rimHeight, PIPE_WIDTH, pipe.bottomHeight - rimHeight);
-    ctx.strokeRect(px, rimBottomY + rimHeight, PIPE_WIDTH, pipe.bottomHeight - rimHeight);
-
-    // Vạch sáng bóng cột dưới
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-    ctx.fillRect(px + 3, rimBottomY + 2, 4, rimHeight - 4);
-    ctx.fillRect(px + 4, rimBottomY + rimHeight, 4, pipe.bottomHeight - rimHeight);
+    drawShadedRect(px - rimOverhang, rimBottomY, PIPE_WIDTH + rimOverhang * 2, rimHeight);
+    drawShadedRect(
+      px,
+      rimBottomY + rimHeight,
+      PIPE_WIDTH,
+      Math.max(0, pipe.bottomHeight - rimHeight + 2)
+    );
   };
 
-  // Vẽ Chú chim Flappy Bird Pixel kinh điển
+  // Vẽ Chú chim Flappy Bird Pixel 17x12 (p = 2 => 34x24px chuẩn hitbox)
   const drawFlappyBird = (
     ctx: CanvasRenderingContext2D,
     bx: number,
@@ -462,120 +498,129 @@ export function FlappyBirdGame() {
     wingFrame: number
   ) => {
     ctx.save();
-    ctx.translate(bx + BIRD_WIDTH / 2, by + BIRD_HEIGHT / 2);
+    ctx.translate(Math.round(bx + BIRD_WIDTH / 2), Math.round(by + BIRD_HEIGHT / 2));
     ctx.rotate(rot);
 
-    const w = BIRD_WIDTH;
-    const h = BIRD_HEIGHT;
-    const x = -w / 2;
-    const y = -h / 2;
+    const p = 2; // Mỗi khối pixel = 2x2 px
+    const ox = -Math.floor((17 * p) / 2);
+    const oy = -Math.floor((12 * p) / 2);
 
-    // 1. Thân tròn vàng ấm
-    ctx.fillStyle = '#f6d02f';
-    ctx.beginPath();
-    ctx.ellipse(x + 16, y + 12, 15, 11, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.lineWidth = 2.5;
-    ctx.strokeStyle = '#272002';
-    ctx.stroke();
+    const rect = (gx: number, gy: number, gw: number, gh: number, color: string) => {
+      ctx.fillStyle = color;
+      ctx.fillRect(ox + gx * p, oy + gy * p, gw * p, gh * p);
+    };
 
-    // 2. Bụng trắng mềm
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.ellipse(x + 12, y + 16, 7, 5, -0.2, 0, Math.PI * 2);
-    ctx.fill();
+    const outline = '#18181b';
+    const bodyGold = '#f6d02f';
+    const bodyLight = '#fef08a';
+    const bodyShade = '#d97706';
 
-    // 3. Mắt to tròn đặc trưng
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(x + 23, y + 7, 6, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#272002';
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    // 1. Viền đen thân chim (Pixel silhouette)
+    rect(5, 0, 6, 1, outline);
+    rect(3, 1, 2, 1, outline);
+    rect(11, 1, 2, 1, outline);
+    rect(2, 2, 1, 2, outline);
+    rect(1, 4, 1, 4, outline);
+    rect(2, 8, 1, 2, outline);
+    rect(3, 10, 3, 1, outline);
+    rect(6, 11, 5, 1, outline);
+    rect(11, 10, 2, 1, outline);
 
-    // Con ngươi mắt
-    ctx.fillStyle = '#000000';
-    ctx.beginPath();
-    ctx.arc(x + 25, y + 7, 2.5, 0, Math.PI * 2);
-    ctx.fill();
+    // 2. Thân chim màu vàng 3 tầng sáng tối
+    rect(5, 1, 6, 1, bodyLight);
+    rect(3, 2, 8, 2, bodyGold);
+    rect(2, 4, 10, 4, bodyGold);
+    rect(3, 8, 9, 2, bodyShade);
+    rect(6, 10, 5, 1, bodyShade);
+    // Bụng kem trắng dưới ngực
+    rect(4, 9, 4, 1, '#fef3c7');
 
-    // Điểm sáng trong mắt
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(x + 24, y + 6, 1.5, 1.5);
+    // 3. Mắt to vuông Pixel đặc trưng
+    rect(10, 1, 3, 1, outline);
+    rect(9, 2, 1, 4, outline);
+    rect(13, 2, 1, 4, outline);
+    rect(10, 5, 3, 1, outline);
+    rect(10, 2, 3, 3, '#ffffff');
+    // Con ngươi đen + đốm sáng
+    rect(12, 3, 1, 2, outline);
 
-    // 4. Mỏ cam rực rỡ
-    ctx.fillStyle = '#f05323';
-    ctx.beginPath();
-    ctx.moveTo(x + 26, y + 8);
-    ctx.lineTo(x + 36, y + 12);
-    ctx.lineTo(x + 26, y + 17);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+    // 4. Mỏ cam đỏ 2 tầng
+    rect(12, 6, 4, 1, outline);
+    rect(11, 7, 1, 3, outline);
+    rect(16, 7, 1, 2, outline);
+    rect(12, 10, 4, 1, outline);
+    // Mỏ trên cam sáng
+    rect(12, 7, 4, 1, '#f97316');
+    // Khe mỏ đen
+    rect(12, 8, 4, 1, '#7c2d12');
+    // Mỏ dưới đỏ cam
+    rect(12, 9, 3, 1, '#ea580c');
 
-    // Đường rãnh giữa mỏ
-    ctx.strokeStyle = '#7c1e05';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(x + 26, y + 12.5);
-    ctx.lineTo(x + 34, y + 12.5);
-    ctx.stroke();
-
-    // 5. Cánh vỗ theo frame (0: Lên, 1: Giữa, 2: Xuống)
-    ctx.fillStyle = '#ffffff';
-    ctx.strokeStyle = '#272002';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-
+    // 5. Cánh vỗ 3 frame Pixel (0: Vểnh lên, 1: Ngang, 2: Chúc xuống)
     if (wingFrame === 0) {
-      // Cánh vểnh lên
-      ctx.ellipse(x + 9, y + 6, 7, 4.5, -0.5, 0, Math.PI * 2);
+      rect(3, 2, 4, 1, outline);
+      rect(2, 3, 1, 2, outline);
+      rect(7, 3, 1, 2, outline);
+      rect(3, 5, 4, 1, outline);
+      rect(3, 3, 4, 2, '#ffffff');
+      rect(4, 4, 2, 1, '#e4e4e7');
     } else if (wingFrame === 1) {
-      // Cánh ngang
-      ctx.ellipse(x + 9, y + 13, 7, 4.5, 0, 0, Math.PI * 2);
+      rect(2, 4, 5, 1, outline);
+      rect(1, 5, 1, 2, outline);
+      rect(7, 5, 1, 2, outline);
+      rect(2, 7, 5, 1, outline);
+      rect(2, 5, 5, 2, '#ffffff');
+      rect(3, 6, 3, 1, '#e4e4e7');
     } else {
-      // Cánh đập chúc xuống
-      ctx.ellipse(x + 9, y + 18, 7, 4.5, 0.6, 0, Math.PI * 2);
+      rect(3, 6, 4, 1, outline);
+      rect(2, 7, 1, 2, outline);
+      rect(7, 7, 1, 2, outline);
+      rect(3, 9, 4, 1, outline);
+      rect(3, 7, 4, 2, '#ffffff');
+      rect(4, 8, 2, 1, '#e4e4e7');
     }
-    ctx.fill();
-    ctx.stroke();
 
     ctx.restore();
   };
 
-  // Vẽ mặt đất cuộn liên tục
+  // Vẽ mặt đất cuộn Pixel Art (Dải cỏ răng cưa & Sỏi cát)
   const drawGround = (ctx: CanvasRenderingContext2D, offset: number) => {
+    const snapOffset = Math.floor(offset / 3) * 3;
+
     // Nền đất cát
     ctx.fillStyle = '#ded895';
     ctx.fillRect(0, GROUND_Y, CANVAS_WIDTH, CANVAS_HEIGHT - GROUND_Y);
 
-    // Dải cỏ xanh bên trên
+    // Đường viền đen ngăn cách bầu trời & mặt đất
+    ctx.fillStyle = '#18181b';
+    ctx.fillRect(0, GROUND_Y, CANVAS_WIDTH, 3);
+
+    // Dải cỏ xanh
     ctx.fillStyle = '#73bf2e';
-    ctx.fillRect(0, GROUND_Y, CANVAS_WIDTH, 14);
+    ctx.fillRect(0, GROUND_Y + 3, CANVAS_WIDTH, 13);
 
-    // Vạch cỏ nhấp nhô pixel
+    // Vạch sáng trên ngọn cỏ
     ctx.fillStyle = '#9ce659';
-    ctx.fillRect(0, GROUND_Y, CANVAS_WIDTH, 4);
+    ctx.fillRect(0, GROUND_Y + 3, CANVAS_WIDTH, 3);
 
-    // Đường viền đen ngăn cách
-    ctx.strokeStyle = '#2d5e0b';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(0, GROUND_Y);
-    ctx.lineTo(CANVAS_WIDTH, GROUND_Y);
-    ctx.moveTo(0, GROUND_Y + 14);
-    ctx.lineTo(CANVAS_WIDTH, GROUND_Y + 14);
-    ctx.stroke();
+    // Họa tiết cỏ pixel răng cưa cuộn liên tục (bước 24px)
+    for (let x = -snapOffset - 24; x < CANVAS_WIDTH + 24; x += 24) {
+      ctx.fillStyle = '#9ce659';
+      ctx.fillRect(x, GROUND_Y + 6, 12, 4);
+      ctx.fillStyle = '#558c22';
+      ctx.fillRect(x + 12, GROUND_Y + 10, 12, 6);
+    }
 
-    // Họa tiết vạch chéo mặt đất cuộn theo chuyển động
-    ctx.strokeStyle = '#cbbe72';
-    ctx.lineWidth = 3;
-    for (let x = -offset - 20; x < CANVAS_WIDTH + 30; x += 22) {
-      ctx.beginPath();
-      ctx.moveTo(x, GROUND_Y + 16);
-      ctx.lineTo(x - 12, CANVAS_HEIGHT);
-      ctx.stroke();
+    // Viền đen dưới dải cỏ
+    ctx.fillStyle = '#558c22';
+    ctx.fillRect(0, GROUND_Y + 16, CANVAS_WIDTH, 3);
+
+    // Họa tiết gạch/đá Pixel trên cát cuộn
+    ctx.fillStyle = '#d0c874';
+    for (let x = -snapOffset - 24; x < CANVAS_WIDTH + 24; x += 24) {
+      ctx.fillRect(x + 4, GROUND_Y + 26, 8, 4);
+      ctx.fillRect(x + 14, GROUND_Y + 42, 6, 4);
+      ctx.fillRect(x + 2, GROUND_Y + 58, 10, 4);
     }
   };
 
@@ -654,8 +699,15 @@ export function FlappyBirdGame() {
       {/* Top Header Bar */}
       <div className="w-full flex items-center justify-between bg-white border-2 border-zinc-900 shadow-pixel-sm px-4 py-2.5 mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-amber-300 border-2 border-zinc-900 flex items-center justify-center font-pixel text-base">
-            🐦
+          <div className="w-8 h-8 bg-[#4ec0ca] border-2 border-zinc-900 flex items-center justify-center">
+            <svg viewBox="0 0 12 10" className="w-6 h-5" shapeRendering="crispEdges">
+              <rect x="3" y="1" width="5" height="1" fill="#18181b" />
+              <rect x="2" y="2" width="7" height="5" fill="#f6d02f" />
+              <rect x="7" y="2" width="2" height="2" fill="#ffffff" />
+              <rect x="8" y="3" width="1" height="1" fill="#18181b" />
+              <rect x="9" y="4" width="3" height="2" fill="#f97316" />
+              <rect x="2" y="4" width="3" height="2" fill="#ffffff" />
+            </svg>
           </div>
           <div>
             <h2 className="font-pixel text-sm font-bold text-zinc-900 leading-tight">
@@ -704,7 +756,7 @@ export function FlappyBirdGame() {
           ref={canvasRef}
           width={CANVAS_WIDTH}
           height={CANVAS_HEIGHT}
-          className="block w-full max-w-[360px] h-auto aspect-[360/580]"
+          className="block w-full max-w-[360px] h-auto aspect-[360/580] [image-rendering:pixelated]"
         />
 
         {/* Tap Prompt Overlay for First-time player */}
