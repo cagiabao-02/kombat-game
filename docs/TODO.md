@@ -347,8 +347,11 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [ ] Hệ thống tạo 3 nhiệm vụ ngẫu nhiên mỗi ngày từ 12 trò chơi hiện có.
   - [ ] Bộ đếm chuỗi ngày vào chơi liên tiếp (Login Streak) kèm huy hiệu vinh danh độc quyền.
   - [ ] Modal pop-up nhận thưởng nhiệm vụ ngày trên Header.
-- [ ] **Trò chơi thứ 13: Tetris (Xếp gạch cổ điển 10x20)**:
-  - [ ] Khung chuẩn 10x20, 7 khối tetromino, cơ chế drop, hold piece, xoay khối và xóa 4 dòng (Tetris).
+- [x] **Trò chơi thứ 13 — Tetris Cổ Điển (Classic 10×20 Arcade)**:
+  - [x] Động cơ Tetris chuẩn (`tetrisLogic.ts`, `types.ts`): Bàn 10×20, 7 khối Tetromino, 7-Bag Randomizer, Wall Kick xoay khối, Ghost Piece, Hold Piece, Next Queue (3 khối), Soft Drop / Hard Drop, tính điểm Single/Double/Triple/TETRIS & tăng Level mỗi 10 dòng.
+  - [x] Lưu trữ trạng thái & thành tích (`tetrisStorage.ts`, `tetrisStatsService.ts`, `statsMergeService.ts`).
+  - [x] Giao diện Neo-Arcade 16-bit responsive (`TetrisGame.tsx`, `src/app/games/tetris/page.tsx`): Hỗ trợ bàn phím PC (Mũi tên / WASD / Space / C hoặc Shift để Hold / P tạm dừng) và cụm phím cảm ứng mượt mà trên điện thoại.
+  - [x] Âm thanh 8-bit chiptune (`soundService.ts`), nhạc nền Arcade (`BgmController.tsx`), Sảnh chính (`GAME_REGISTRY`, `GameTile.tsx`) và Bảng xếp hạng (`LeaderboardModal.tsx`).
 
 
 

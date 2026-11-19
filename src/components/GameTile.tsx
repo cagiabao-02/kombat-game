@@ -255,6 +255,32 @@ export function GameIcon({ id }: { id: GameId }) {
         </div>
       );
 
+    case 'tetris':
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-[#09090B]">
+          <svg viewBox="0 0 16 16" className="h-[82%] w-[82%] pixelated" shapeRendering="crispEdges">
+            {/* Khối chữ T tím rơi ở trên */}
+            <rect x="4" y="1" width="3" height="3" fill="#A855F7" />
+            <rect x="4" y="1" width="3" height="1" fill="#D8B4FE" />
+            <rect x="1" y="4" width="9" height="3" fill="#A855F7" />
+            <rect x="1" y="4" width="9" height="1" fill="#D8B4FE" />
+
+            {/* Thanh chữ I cyan dựng đứng bên phải */}
+            <rect x="12" y="2" width="3" height="12" fill="#06B6D4" />
+            <rect x="12" y="2" width="1" height="12" fill="#67E8F9" />
+
+            {/* Khối L cam ở đáy trái */}
+            <rect x="1" y="9" width="3" height="6" fill="#F97316" />
+            <rect x="1" y="12" width="6" height="3" fill="#F97316" />
+            <rect x="1" y="9" width="3" height="1" fill="#FDBA74" />
+
+            {/* Khối O vàng ở đáy giữa */}
+            <rect x="7" y="10" width="5" height="5" fill="#EAB308" />
+            <rect x="7" y="10" width="5" height="1" fill="#FEF08A" />
+          </svg>
+        </div>
+      );
+
     default:
       return null;
   }

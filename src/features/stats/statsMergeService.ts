@@ -10,6 +10,7 @@ import { BrickBreakerStats } from '@/features/games/brickBreaker/brickBreakerSta
 import { TRexStats } from '@/features/games/dinoRunner/tRexStatsService';
 import { FlappyStats } from '@/features/games/flappyBird/flappyStatsService';
 import { BlockBlastStats, BLOCK_BLAST_STATS_KEY } from '@/features/games/blockBlast/blockBlastStatsService';
+import { TetrisStats, TETRIS_STATS_KEY } from '@/features/games/tetris/tetrisStatsService';
 import {
   mergeAchievements,
   checkAllEligibleAchievements,
@@ -35,6 +36,7 @@ export const STORAGE_KEYS = {
   T_REX: 'kombat_t_rex_stats',
   FLAPPY: 'kombat_flappy_stats',
   BLOCK_BLAST: BLOCK_BLAST_STATS_KEY,
+  TETRIS: TETRIS_STATS_KEY,
   ACHIEVEMENTS: ACHIEVEMENTS_STORAGE_KEY,
   MATCH_HISTORY: MATCH_HISTORY_STORAGE_KEY,
   GUEST_NAME: 'togame_guest_display_name',
@@ -280,6 +282,24 @@ export function mergeBlockBlastStats(
   };
 }
 
+export function mergeTetrisStats(
+  local: TetrisStats | null,
+  cloud: TetrisStats | null
+): TetrisStats | null {
+  if (!local && !cloud) return null;
+  if (!local) return cloud;
+  if (!cloud) return local;
+
+  return {
+    highScore: Math.max(local.highScore || 0, cloud.highScore || 0),
+    bestLevel: Math.max(local.bestLevel || 1, cloud.bestLevel || 1),
+    totalLines: Math.max(local.totalLines || 0, cloud.totalLines || 0),
+    totalTetrises: Math.max(local.totalTetrises || 0, cloud.totalTetrises || 0),
+    totalGames: Math.max(local.totalGames || 0, cloud.totalGames || 0),
+    lastUpdated: Math.max(local.lastUpdated || 0, cloud.lastUpdated || 0),
+  };
+}
+
 /**
  * Gộp toàn bộ thành tích từ LocalStorage của máy vào tài khoản Đám mây (Google/Email).
  * Được kích hoạt tự động khi người dùng đăng nhập tài khoản.
@@ -304,6 +324,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const localTRex = safeParse<TRexStats>(STORAGE_KEYS.T_REX);
   const localFlappy = safeParse<FlappyStats>(STORAGE_KEYS.FLAPPY);
   const localBlockBlast = safeParse<BlockBlastStats>(STORAGE_KEYS.BLOCK_BLAST);
+  const localTetris = safeParse<TetrisStats>(STORAGE_KEYS.TETRIS);
   const localAchievements = safeParse<UnlockedAchievementsMap>(STORAGE_KEYS.ACHIEVEMENTS);
   const localMatchHistory = safeParse<MatchRecord[]>(STORAGE_KEYS.MATCH_HISTORY);
 
@@ -320,6 +341,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const mergedTRex = mergeTRexStats(localTRex, meta.t_rex_stats);
   const mergedFlappy = mergeFlappyStats(localFlappy, meta.flappy_stats);
   const mergedBlockBlast = mergeBlockBlastStats(localBlockBlast, meta.block_blast_stats);
+  const mergedTetris = mergeTetrisStats(localTetris, meta.tetris_stats);
   const mergedAchievements = mergeAchievements(localAchievements, meta.achievements);
   const mergedMatchHistory = mergeMatchHistory(localMatchHistory, meta.match_history);
 
@@ -336,6 +358,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   if (mergedTRex) safeSet(STORAGE_KEYS.T_REX, mergedTRex);
   if (mergedFlappy) safeSet(STORAGE_KEYS.FLAPPY, mergedFlappy);
   if (mergedBlockBlast) safeSet(STORAGE_KEYS.BLOCK_BLAST, mergedBlockBlast);
+  if (mergedTetris) safeSet(STORAGE_KEYS.TETRIS, mergedTetris);
   if (mergedAchievements) safeSet(STORAGE_KEYS.ACHIEVEMENTS, mergedAchievements);
   if (mergedMatchHistory) safeSet(STORAGE_KEYS.MATCH_HISTORY, mergedMatchHistory);
 
@@ -389,6 +412,10 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   }
   if (mergedBlockBlast && JSON.stringify(mergedBlockBlast) !== JSON.stringify(meta.block_blast_stats)) {
     updateData.block_blast_stats = mergedBlockBlast;
+    hasUpdates = true;
+  }
+  if (mergedTetris && JSON.stringify(mergedTetris) !== JSON.stringify(meta.tetris_stats)) {
+    updateData.tetris_stats = mergedTetris;
     hasUpdates = true;
   }
   if (mergedAchievements && JSON.stringify(mergedAchievements) !== JSON.stringify(meta.achievements)) {

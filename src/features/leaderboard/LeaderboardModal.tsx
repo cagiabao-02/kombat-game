@@ -111,6 +111,7 @@ export function LeaderboardModal({
     if (game === 't_rex_runner') return '/games/t-rex-runner';
     if (game === 'flappy_bird') return '/games/flappy-bird';
     if (game === 'block_blast') return '/games/block-blast';
+    if (game === 'tetris') return '/games/tetris';
     return '/games/sudoku';
   };
 
@@ -126,6 +127,7 @@ export function LeaderboardModal({
     if (game === 't_rex_runner') return language === 'vi' ? 'Khủng Long T-Rex' : 'T-Rex Runner';
     if (game === 'flappy_bird') return 'Flappy Bird';
     if (game === 'block_blast') return 'Block Blast';
+    if (game === 'tetris') return 'Tetris';
     return 'Sudoku';
   };
 
@@ -332,6 +334,19 @@ export function LeaderboardModal({
             >
               <span>🧱</span>
               <span>Block Blast</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedGame('tetris')}
+              className={`pixel-btn flex items-center justify-center gap-1 min-h-[40px] text-xs font-bold ${
+                selectedGame === 'tetris'
+                  ? 'bg-indigo-600 text-amber-300'
+                  : 'bg-white text-zinc-800 hover:bg-zinc-100'
+              }`}
+            >
+              <span>👾</span>
+              <span>Tetris</span>
             </button>
           </div>
 

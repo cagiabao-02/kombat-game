@@ -178,6 +178,19 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 - Thao tác thân thiện: Chạm xem trước bóng mờ $\rightarrow$ Bấm xác nhận, hoặc chạm đặt 1 lần.
 - Âm thanh gõ cờ đá thanh thoát kết hợp cùng nhạc nền Strategy Theme ("Zen Focus").
 
+### FR-18 — Tetris Cổ Điển (Classic 10×20 Arcade)
+
+- Bàn chơi chuẩn quốc tế **10 cột × 20 hàng** theo phong cách Neo-Arcade Pixel 16-bit.
+- Hệ thống 7 khối Tetromino chuẩn màu sắc: `I` (Cyan), `J` (Blue), `L` (Orange), `O` (Yellow), `S` (Emerald), `T` (Purple), `Z` (Rose) với thuật toán chia túi ngẫu nhiên **7-Bag Randomizer** công bằng.
+- Cơ chế điều khiển chuẩn mực:
+  - Xoay khối mượt mà kèm **Wall Kick** (SRS-lite) khi sát tường/đáy.
+  - **Ghost Piece:** Bóng mờ định vị điểm rơi của khối trên mặt bàn.
+  - **Hold Piece:** Giữ lại 1 khối dự phòng để đổi chiến thuật (mỗi lượt thả chỉ Hold 1 lần).
+  - **Next Queue:** Hiển thị 3 khối tiếp theo sắp xuất hiện.
+  - **Soft Drop & Hard Drop:** Rơi nhanh có thưởng điểm và thả rơi tức thì xuống đáy.
+- Tính điểm chuẩn Tetris: Single (100×Level), Double (300×Level), Triple (500×Level), **TETRIS 4 dòng (800×Level)** + Back-to-Back / Combo bonus. Cấp độ (Level) và tốc độ rơi tự động tăng sau mỗi 10 dòng xóa.
+- Tự động lưu & khôi phục ván đang chơi (`Auto-save & Resume`), đồng bộ kỷ lục lên Bảng xếp hạng (`LeaderboardModal`) và Hồ sơ cá nhân.
+
 ## 5. Yêu cầu phi chức năng
 
 - Mobile-first, phù hợp màn hình nhỏ và lớn; hỗ trợ xoay/ngang nếu bàn cờ cần.

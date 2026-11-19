@@ -1823,6 +1823,105 @@ class SoundService {
       });
     } catch {}
   }
+
+  /**
+   * Sound: Tetris - Di chuyển khối ngang
+   */
+  public playTetrisMove(): void {
+    if (this.isSfxMuted()) return;
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+    try {
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(280, t);
+      gain.gain.setValueAtTime(0.08, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+      osc.connect(gain);
+      gain.connect(this.getDestination(ctx));
+      osc.start(t);
+      osc.stop(t + 0.035);
+    } catch {}
+  }
+
+  /**
+   * Sound: Tetris - Xoay khối
+   */
+  public playTetrisRotate(): void {
+    if (this.isSfxMuted()) return;
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+    try {
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(420, t);
+      osc.frequency.exponentialRampToValueAtTime(660, t + 0.045);
+      gain.gain.setValueAtTime(0.16, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+      osc.connect(gain);
+      gain.connect(this.getDestination(ctx));
+      osc.start(t);
+      osc.stop(t + 0.055);
+    } catch {}
+  }
+
+  /**
+   * Sound: Tetris - Khóa / Hard Drop gạch xuống đáy
+   */
+  public playTetrisDrop(): void {
+    if (this.isSfxMuted()) return;
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+    try {
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(200, t);
+      osc.frequency.exponentialRampToValueAtTime(75, t + 0.08);
+      gain.gain.setValueAtTime(0.28, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.085);
+      osc.connect(gain);
+      gain.connect(this.getDestination(ctx));
+      osc.start(t);
+      osc.stop(t + 0.09);
+    } catch {}
+  }
+
+  /**
+   * Sound: Tetris - Xóa dòng (1-3 dòng hoặc TETRIS 4 dòng!)
+   */
+  public playTetrisClear(linesCount: number): void {
+    if (this.isSfxMuted()) return;
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+    try {
+      const t = ctx.currentTime;
+      const notes =
+        linesCount >= 4
+          ? [523.25, 659.25, 783.99, 1046.5, 1318.51] // TETRIS 4-line fanfare!
+          : linesCount >= 2
+          ? [440, 554.37, 659.25]
+          : [523.25, 659.25];
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        const start = t + idx * 0.05;
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.18, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.12);
+        osc.connect(gain);
+        gain.connect(this.getDestination(ctx));
+        osc.start(start);
+        osc.stop(start + 0.13);
+      });
+    } catch {}
+  }
 }
 
 export const sounds = new SoundService();

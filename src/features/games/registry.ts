@@ -297,6 +297,31 @@ export const GAME_REGISTRY: GameMetadata[] = [
     minPlayers: 1,
     maxPlayers: 1,
     badge: {
+      vi: 'HOT PUZZLE',
+      en: 'HOT PUZZLE',
+    },
+  },
+  {
+    id: 'tetris',
+    category: 'arcade',
+    name: {
+      vi: 'Tetris Cổ Điển',
+      en: 'Classic Tetris',
+    },
+    shortDescription: {
+      vi: 'Xếp gạch 10x20 huyền thoại - Hold, Hard Drop & xóa 4 dòng',
+      en: 'Classic 10x20 brick puzzle - Hold, Hard Drop & TETRIS',
+    },
+    description: {
+      vi: 'Trò chơi xếp gạch Arcade huyền thoại trên bàn 10x20! Xoay 7 khối Tetromino, giữ khối Hold Piece, thả nhanh Hard Drop và ăn combo TETRIS 4 dòng cực đã.',
+      en: 'Legendary 10x20 arcade brick game! Rotate 7 Tetrominoes, store a Hold Piece, slam Hard Drops, and score massive 4-line TETRIS clears.',
+    },
+    route: '/games/tetris',
+    status: 'available',
+    modes: ['single_player'],
+    minPlayers: 1,
+    maxPlayers: 1,
+    badge: {
       vi: 'MỚI RA MẮT',
       en: 'NEW RELEASE',
     },

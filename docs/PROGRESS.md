@@ -223,15 +223,19 @@
     - Tự động ghi nhận ván cờ vào Lịch sử khi kết thúc (Tính điểm đất, Xin thua hoặc Đối thủ rời phòng).
     - Nút "XEM LẠI VÁN ĐẤU NÀY" ngay trong modal kết thúc trận.
     - Bổ sung bộ lọc Cờ Vây (⚪ Cờ Vây / Go) trong tab Lịch sử tại Hồ sơ cá nhân.
+- **Hoàn thành toàn diện Chặng 24 — Trò chơi thứ 13: Tetris Cổ Điển (Classic 10×20 Arcade):**
+  - **Động cơ Tetris chuẩn quốc tế (`tetrisLogic.ts`, `types.ts`):** Bàn chơi $10 \times 20$, 7 khối Tetromino (`I`, `J`, `L`, `O`, `S`, `T`, `Z`), thuật toán chia túi công bằng **7-Bag Randomizer**, xoay khối kèm **Wall Kick** (SRS-lite), **Ghost Piece** định vị đáy, **Hold Piece**, **Next Queue** (3 khối kế tiếp), Soft Drop / Hard Drop và tính điểm Single/Double/Triple/TETRIS + Combo bonus, tăng Level sau mỗi 10 dòng.
+  - **Giao diện & Điều khiển Neo-Arcade (`TetrisGame.tsx`, `src/app/games/tetris/page.tsx`):** Bàn chơi HTML5 Canvas 60fps với khối gạch 3D bevel 16-bit (`[image-rendering:pixelated]`), hỗ trợ bàn phím PC và cụm phím cảm ứng mượt mà trên điện thoại, Auto-save & Resume (`tetrisStorage.ts`).
+  - **Âm thanh & Hệ sinh thái (`soundService.ts`, `BgmController.tsx`, `GameTile.tsx`, `LeaderboardModal.tsx`, `statsMergeService.ts`):** Bổ sung 4 hiệu ứng âm thanh 8-bit, nhạc nền Arcade, icon pixel sảnh chính và tích hợp Bảng xếp hạng + đồng bộ đám mây Supabase.
 
 ## Đang làm
 
-- Toàn bộ 12 trò chơi, hệ thống âm thanh / nhạc nền kép, chế độ Online Realtime và Lịch sử thi đấu / Xem lại ván cờ (Cờ Vua, Cờ Tướng, Cờ Caro, Cờ Vây) đã hoàn tất.
+- Toàn bộ 13 trò chơi, hệ thống âm thanh / nhạc nền kép, biểu cảm Pixel Art, chế độ Online Realtime và Lịch sử thi đấu đã hoàn tất.
 
 ## Việc kế tiếp
 
-1. **Hướng 1 — Thử thách Hàng ngày (Daily Challenges) & Chuỗi ngày chơi (Daily Streak 🔥):** Nhiệm vụ ngẫu nhiên mỗi ngày (ví dụ: giải 1 ván Sudoku, phá gạch đạt 1000 điểm, thắng Bot Cờ Vây) kèm bộ đếm chuỗi ngày đăng nhập và huy hiệu độc quyền để giữ chân người chơi (Retention).
-2. **Hướng 2 — Trò chơi thứ 13:** Bổ sung **Tetris (Xếp gạch cổ điển 10x20)** với cơ chế xoay khối, hold piece, hard drop hoặc **Othello / Reversi (Cờ lật 8x8)**.
+1. **Hướng 1 — Thử thách Hàng ngày (Daily Challenges) & Chuỗi ngày chơi (Daily Streak 🔥):** Nhiệm vụ ngẫu nhiên mỗi ngày kèm bộ đếm chuỗi ngày đăng nhập và huy hiệu độc quyền.
+2. **Hướng 2 — Chế độ Khán giả (Spectator Mode) cho các phòng Cờ Online:** Cho phép bạn bè xem trực tiếp ván cờ qua đường link chia sẻ.
 3. **Hướng 3 — Trải nghiệm PWA Offline 100% & Cài đặt App 1-Chạm:** Tối ưu hóa Service Worker cache tài nguyên để chơi mượt mà khi mất mạng/ngắt wifi và hiển thị banner cài đặt PWA về màn hình chính điện thoại.
 
 ## Quyết định còn mở
