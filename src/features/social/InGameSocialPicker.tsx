@@ -4,17 +4,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { SocialContentType } from './types';
 import { EMOTE_PRESETS, QUICK_CHAT_PRESETS } from './socialPresets';
+import { PixelEmoteIcon } from './PixelEmoteIcon';
 import { sounds } from '@/lib/sound/soundService';
 import { MessageSquare, Smile, X } from 'lucide-react';
 
 interface InGameSocialPickerProps {
   onSendMessage: (type: SocialContentType, content: string) => void;
   disabled?: boolean;
+  placement?: 'top' | 'bottom';
 }
 
 export function InGameSocialPicker({
   onSendMessage,
   disabled = false,
+  placement = 'top',
 }: InGameSocialPickerProps) {
   const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
@@ -70,12 +73,16 @@ export function InGameSocialPicker({
         title={language === 'vi' ? 'Biểu cảm & Thoại nhanh' : 'Emotes & Quick Chat'}
         aria-label="Emotes and Quick Chat"
       >
-        <span className="text-base leading-none">💬</span>
+        <PixelEmoteIcon emoji="💬" className="w-5 h-5" />
       </button>
 
       {/* Popover Menu */}
       {isOpen && (
-        <div className="absolute bottom-full right-0 mb-2 w-72 sm:w-80 pixel-box-sm bg-[#FFFDF8] p-3 z-50 animate-in zoom-in-95 duration-150 shadow-pixel-md">
+        <div
+          className={`absolute right-0 w-72 sm:w-80 pixel-box-sm bg-[#FFFDF8] p-3 z-50 animate-in zoom-in-95 duration-150 shadow-pixel-md ${
+            placement === 'bottom' ? 'top-full mt-2' : 'bottom-full mb-2'
+          }`}
+        >
           {/* Header & Tabs */}
           <div className="flex items-center justify-between pb-2 mb-2 border-b-2 border-zinc-900">
             <div className="flex items-center gap-1">
@@ -124,11 +131,11 @@ export function InGameSocialPicker({
                   type="button"
                   disabled={cooldown > 0}
                   onClick={() => handleSend('emote', preset.emoji)}
-                  className="flex h-11 w-full items-center justify-center border-2 border-transparent hover:border-zinc-900 hover:bg-amber-100 text-2xl transition-transform active:scale-90"
+                  className="flex h-11 w-full items-center justify-center border-2 border-transparent hover:border-zinc-900 hover:bg-amber-100 transition-transform active:scale-90"
                   title={language === 'vi' ? preset.labelVi : preset.labelEn}
                 >
-                  <span className="transform hover:scale-125 transition-transform">
-                    {preset.emoji}
+                  <span className="transform hover:scale-125 transition-transform flex items-center justify-center">
+                    <PixelEmoteIcon emoji={preset.emoji} className="w-7 h-7" />
                   </span>
                 </button>
               ))}

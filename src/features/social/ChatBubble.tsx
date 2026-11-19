@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ActiveSocialMessage } from './types';
+import { PixelEmoteIcon } from './PixelEmoteIcon';
 
 interface ChatBubbleProps {
   message: ActiveSocialMessage;
@@ -67,8 +68,8 @@ export function ChatBubble({
       )}
 
       {isEmote ? (
-        <span className="text-2xl sm:text-3xl leading-none animate-bounce filter drop-shadow-sm">
-          {message.content}
+        <span className="inline-flex items-center justify-center animate-bounce filter drop-shadow-sm">
+          <PixelEmoteIcon emoji={message.content} className="w-8 h-8 sm:w-9 sm:h-9" />
         </span>
       ) : (
         <span className="font-pixel text-xs sm:text-sm font-bold text-zinc-950 leading-tight max-w-[200px] sm:max-w-[240px] break-words">
