@@ -640,28 +640,39 @@ export const GoGame: React.FC<GoGameProps> = ({
     [aiDifficulty, isOnline, mode, playerColor, room?.id]
   );
 
-  // Xử lý Bỏ lượt (Pass)
-  const handlePass = useCallback(async () => {
-    if (isGameOver || isAiThinking) return;
+  // Thực thi Bỏ lượt (Pass) dùng chung cho cả Người chơi và Bot AI (đọc từ ref chống stale closure)
+  const executePass = useCallback(async () => {
+    const {
+      board: curBoard,
+      captures: curCaptures,
+      consecutivePasses: curPasses,
+      currentTurn: curTurn,
+      isGameOver: curGameOver,
+      moveHistory: curHistory,
+      isOnline: curIsOnline,
+      roomId: curRoomId,
+    } = gameStateRef.current;
+
+    if (curGameOver) return;
 
     sounds.playMove();
     setSelectedPoint(null);
 
-    const nextPassCount = consecutivePasses + 1;
+    const nextPassCount = curPasses + 1;
     const updatedHistory = [
-      ...gameStateRef.current.moveHistory,
-      { turn: currentTurn, point: null, capturesCount: 0 },
+      ...curHistory,
+      { turn: curTurn, point: null, capturesCount: 0 },
     ];
     setMoveHistory(updatedHistory);
     setConsecutivePasses(nextPassCount);
 
     // 2 lần Bỏ lượt liên tiếp -> Kết thúc ván cờ và tính điểm đất
     if (nextPassCount >= 2) {
-      await finishGameWithScoring(board, captures);
+      await finishGameWithScoring(curBoard, curCaptures);
       return;
     }
 
-    const nextTurn: GoColor = currentTurn === 'black' ? 'white' : 'black';
+    const nextTurn: GoColor = curTurn === 'black' ? 'white' : 'black';
     setCurrentTurn(nextTurn);
 
     // Cập nhật lưu trữ
@@ -674,26 +685,22 @@ export const GoGame: React.FC<GoGameProps> = ({
       moveHistory: updatedHistory,
     };
 
-    if (!isOnline) {
+    if (!curIsOnline) {
       saveGoState(nextState);
-    } else if (room?.id) {
+    } else if (curRoomId) {
       try {
-        await updateGoGameState(room.id, nextState);
+        await updateGoGameState(curRoomId, nextState);
       } catch (err) {
         console.error('Failed to sync pass to Supabase:', err);
       }
     }
-  }, [
-    board,
-    captures,
-    consecutivePasses,
-    currentTurn,
-    finishGameWithScoring,
-    isAiThinking,
-    isGameOver,
-    isOnline,
-    room?.id,
-  ]);
+  }, [finishGameWithScoring]);
+
+  // Xử lý khi Người chơi bấm nút Bỏ lượt (Pass)
+  const handlePass = useCallback(async () => {
+    if (isGameOver || isAiThinking) return;
+    await executePass();
+  }, [executePass, isAiThinking, isGameOver]);
 
   // Xử lý Xin thua (Resign)
   const handleResign = async () => {
@@ -759,14 +766,14 @@ export const GoGame: React.FC<GoGameProps> = ({
 
       if (botMove === null) {
         // Bot chọn Bỏ lượt
-        handlePass();
+        executePass();
       } else {
         executeMove(botMove, curTurn);
       }
     }, 450);
 
     return () => clearTimeout(botTimer);
-  }, [currentTurn, executeMove, handlePass, inLobby, isGameOver, mode, playerColor]);
+  }, [currentTurn, executeMove, executePass, inLobby, isGameOver, mode, playerColor]);
 
   // Chọn điểm đặt cờ
   const handleSelectPoint = (p: Point) => {
