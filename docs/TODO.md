@@ -343,10 +343,11 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Tự động ghi ván khi kết thúc trận và bổ sung nút "XEM LẠI VÁN ĐẤU NÀY" trong `GoGameOverModal.tsx`.
   - [x] Bổ sung bộ lọc Cờ Vây (`⚪ Cờ Vây / Go`) trong tab Lịch sử tại `ProfileAuthModal.tsx`.
 - [ ] **Chế độ Khán giả (Spectator Mode)**: Cho phép bạn bè vào xem trực tiếp ván cờ qua link phòng.
-- [ ] **Chặng kế tiếp — Thử thách Hàng ngày (Daily Challenges) & Chuỗi ngày chơi (Daily Streak 🔥)**:
-  - [ ] Hệ thống tạo 3 nhiệm vụ ngẫu nhiên mỗi ngày từ 12 trò chơi hiện có.
-  - [ ] Bộ đếm chuỗi ngày vào chơi liên tiếp (Login Streak) kèm huy hiệu vinh danh độc quyền.
-  - [ ] Modal pop-up nhận thưởng nhiệm vụ ngày trên Header.
+- [x] **Chặng 25 — Thử thách Hàng ngày (Daily Challenges) & Chuỗi ngày chơi (Daily Streak 🔥)**:
+  - [x] Định nghĩa kiểu dữ liệu & kho 15 nhiệm vụ hàng ngày trải đều 3 thể loại (`types.ts`, `dailyConfig.ts`).
+  - [x] Dịch vụ quản lý nhiệm vụ ngày, Baseline Snapshot, tính tiến độ từ `localStorage`, bộ đếm chuỗi ngày (`currentStreak`, `bestStreak`) và đồng bộ Supabase Cloud (`dailyService.ts`).
+  - [x] Giao diện Modal Nhiệm vụ Hàng ngày (`DailyChallengesModal.tsx`): Hiển thị ngọn lửa Streak, đếm ngược tới 00:00, 3 thẻ nhiệm vụ kèm icon Pixel game, thanh tiến độ và nút Chơi ngay / Nhận thưởng + Pháo hoa PixelFX khi hoàn tất.
+  - [x] Tích hợp nút Streak 🔥 lên Header (`Header.tsx`) kèm đồng bộ khi đăng nhập (`statsMergeService.ts`).
 - [x] **Trò chơi thứ 13 — Tetris Cổ Điển (Classic 10×20 Arcade)**:
   - [x] Động cơ Tetris chuẩn (`tetrisLogic.ts`, `types.ts`): Bàn 10×20, 7 khối Tetromino, 7-Bag Randomizer, Wall Kick xoay khối, Ghost Piece, Hold Piece, Next Queue (3 khối), Soft Drop / Hard Drop, tính điểm Single/Double/Triple/TETRIS & tăng Level mỗi 10 dòng.
   - [x] Lưu trữ trạng thái & thành tích (`tetrisStorage.ts`, `tetrisStatsService.ts`, `statsMergeService.ts`).

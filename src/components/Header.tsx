@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/features/auth/AuthContext';
-import { Menu, X } from 'lucide-react';
+import { Flame, Menu, X } from 'lucide-react';
 import { UserAvatar } from '@/components/UserAvatar';
 import {
   PixelTrophy,
@@ -13,6 +14,7 @@ import {
   PixelShieldCheck,
 } from '@/components/PixelIcons';
 import { VolumePopover, VolumeSliderInline } from '@/components/VolumeControl';
+import { getTodayChallengeViews } from '@/features/daily/dailyService';
 
 const ProfileAuthModal = dynamic(
   () => import('@/features/auth/ProfileAuthModal').then((mod) => mod.ProfileAuthModal),
@@ -24,12 +26,40 @@ const LeaderboardModal = dynamic(
   { ssr: false }
 );
 
+const DailyChallengesModal = dynamic(
+  () => import('@/features/daily/DailyChallengesModal').then((mod) => mod.DailyChallengesModal),
+  { ssr: false }
+);
+
 export function Header() {
   const { language, setLanguage } = useLanguage();
   const { guestName, avatar, isAnonymous } = useAuth();
+  const pathname = usePathname();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
+  const [isDailyOpen, setIsDailyOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [dailyStreak, setDailyStreak] = useState(0);
+  const [readyDailyCount, setReadyDailyCount] = useState(0);
+
+  const refreshDailyBadge = useCallback(() => {
+    try {
+      const view = getTodayChallengeViews();
+      setDailyStreak(view.state.currentStreak);
+      setReadyDailyCount(view.readyToClaimCount);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    refreshDailyBadge();
+    const onUpdate = () => refreshDailyBadge();
+    window.addEventListener('kombat:daily_updated', onUpdate);
+    window.addEventListener('focus', onUpdate);
+    return () => {
+      window.removeEventListener('kombat:daily_updated', onUpdate);
+      window.removeEventListener('focus', onUpdate);
+    };
+  }, [refreshDailyBadge, pathname]);
 
   const toggleLanguage = () => {
     setLanguage(language === 'vi' ? 'en' : 'vi');
@@ -57,6 +87,30 @@ export function Header() {
           </Link>
 
           <div suppressHydrationWarning className="flex items-center gap-2 sm:gap-2.5 relative z-10 pointer-events-auto">
+            {/* Daily Challenges & Streak Button (Visible on all screens) */}
+            <button
+              type="button"
+              onClick={() => {
+                refreshDailyBadge();
+                setIsDailyOpen(true);
+              }}
+              className="pixel-btn relative flex h-10 min-h-[40px] items-center gap-1 bg-orange-100 hover:bg-orange-200 px-2.5 text-xs font-bold text-orange-950 outline-none"
+              title={
+                language === 'vi'
+                  ? 'Thử thách Hàng ngày & Chuỗi ngày chơi'
+                  : 'Daily Challenges & Streak'
+              }
+              aria-label="Daily Challenges"
+            >
+              <Flame className="h-4 w-4 text-orange-600 fill-orange-500" />
+              <span className="font-pixel text-xs font-black">{dailyStreak}</span>
+              {readyDailyCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full border border-zinc-900 bg-rose-500 font-pixel text-[9px] font-black text-white animate-bounce">
+                  {readyDailyCount}
+                </span>
+              )}
+            </button>
+
             {/* User Profile Coin Token Pill (Always visible) */}
             <button
               type="button"
@@ -239,6 +293,17 @@ export function Header() {
         <LeaderboardModal
           isOpen={isLeaderboardOpen}
           onClose={() => setIsLeaderboardOpen(false)}
+        />
+      )}
+
+      {/* Daily Challenges Modal */}
+      {isDailyOpen && (
+        <DailyChallengesModal
+          isOpen={isDailyOpen}
+          onClose={() => {
+            setIsDailyOpen(false);
+            refreshDailyBadge();
+          }}
         />
       )}
     </>

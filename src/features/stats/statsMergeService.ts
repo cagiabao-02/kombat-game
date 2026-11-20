@@ -12,6 +12,11 @@ import { FlappyStats } from '@/features/games/flappyBird/flappyStatsService';
 import { BlockBlastStats, BLOCK_BLAST_STATS_KEY } from '@/features/games/blockBlast/blockBlastStatsService';
 import { TetrisStats, TETRIS_STATS_KEY } from '@/features/games/tetris/tetrisStatsService';
 import {
+  DAILY_CHALLENGES_KEY,
+  mergeDailyChallengesState,
+} from '@/features/daily/dailyService';
+import { DailyChallengesState } from '@/features/daily/types';
+import {
   mergeAchievements,
   checkAllEligibleAchievements,
   ACHIEVEMENTS_STORAGE_KEY,
@@ -37,6 +42,7 @@ export const STORAGE_KEYS = {
   FLAPPY: 'kombat_flappy_stats',
   BLOCK_BLAST: BLOCK_BLAST_STATS_KEY,
   TETRIS: TETRIS_STATS_KEY,
+  DAILY_CHALLENGES: DAILY_CHALLENGES_KEY,
   ACHIEVEMENTS: ACHIEVEMENTS_STORAGE_KEY,
   MATCH_HISTORY: MATCH_HISTORY_STORAGE_KEY,
   GUEST_NAME: 'togame_guest_display_name',
@@ -325,6 +331,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const localFlappy = safeParse<FlappyStats>(STORAGE_KEYS.FLAPPY);
   const localBlockBlast = safeParse<BlockBlastStats>(STORAGE_KEYS.BLOCK_BLAST);
   const localTetris = safeParse<TetrisStats>(STORAGE_KEYS.TETRIS);
+  const localDaily = safeParse<DailyChallengesState>(STORAGE_KEYS.DAILY_CHALLENGES);
   const localAchievements = safeParse<UnlockedAchievementsMap>(STORAGE_KEYS.ACHIEVEMENTS);
   const localMatchHistory = safeParse<MatchRecord[]>(STORAGE_KEYS.MATCH_HISTORY);
 
@@ -342,6 +349,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const mergedFlappy = mergeFlappyStats(localFlappy, meta.flappy_stats);
   const mergedBlockBlast = mergeBlockBlastStats(localBlockBlast, meta.block_blast_stats);
   const mergedTetris = mergeTetrisStats(localTetris, meta.tetris_stats);
+  const mergedDaily = mergeDailyChallengesState(localDaily, meta.daily_challenges_state);
   const mergedAchievements = mergeAchievements(localAchievements, meta.achievements);
   const mergedMatchHistory = mergeMatchHistory(localMatchHistory, meta.match_history);
 
@@ -359,6 +367,7 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   if (mergedFlappy) safeSet(STORAGE_KEYS.FLAPPY, mergedFlappy);
   if (mergedBlockBlast) safeSet(STORAGE_KEYS.BLOCK_BLAST, mergedBlockBlast);
   if (mergedTetris) safeSet(STORAGE_KEYS.TETRIS, mergedTetris);
+  if (mergedDaily) safeSet(STORAGE_KEYS.DAILY_CHALLENGES, mergedDaily);
   if (mergedAchievements) safeSet(STORAGE_KEYS.ACHIEVEMENTS, mergedAchievements);
   if (mergedMatchHistory) safeSet(STORAGE_KEYS.MATCH_HISTORY, mergedMatchHistory);
 
@@ -416,6 +425,10 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   }
   if (mergedTetris && JSON.stringify(mergedTetris) !== JSON.stringify(meta.tetris_stats)) {
     updateData.tetris_stats = mergedTetris;
+    hasUpdates = true;
+  }
+  if (mergedDaily && JSON.stringify(mergedDaily) !== JSON.stringify(meta.daily_challenges_state)) {
+    updateData.daily_challenges_state = mergedDaily;
     hasUpdates = true;
   }
   if (mergedAchievements && JSON.stringify(mergedAchievements) !== JSON.stringify(meta.achievements)) {

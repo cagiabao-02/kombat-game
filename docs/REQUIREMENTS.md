@@ -191,6 +191,13 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 - Tính điểm chuẩn Tetris: Single (100×Level), Double (300×Level), Triple (500×Level), **TETRIS 4 dòng (800×Level)** + Back-to-Back / Combo bonus. Cấp độ (Level) và tốc độ rơi tự động tăng sau mỗi 10 dòng xóa.
 - Tự động lưu & khôi phục ván đang chơi (`Auto-save & Resume`), đồng bộ kỷ lục lên Bảng xếp hạng (`LeaderboardModal`) và Hồ sơ cá nhân.
 
+### FR-19 — Thử thách Hàng ngày (Daily Challenges) & Chuỗi ngày chơi (Daily Streak)
+
+- **Sinh 3 nhiệm vụ ngẫu nhiên mỗi ngày:** Theo ngày địa phương (`YYYY-MM-DD`), hệ thống tự động chọn 3 thử thách trải đều trên 3 thể loại (Cờ chiến thuật, Giải đố, Arcade) từ kho 13 trò chơi hiện có.
+- **Theo dõi tiến độ tự động:** Ghi nhận mốc chỉ số đầu ngày (Baseline Snapshot) từ `localStorage` để tính tiến độ hoàn thành công bằng cho cả người chơi mới và người chơi lâu năm.
+- **Chuỗi ngày chơi (Daily Streak 🔥):** Khi hoàn thành và nhận thưởng ít nhất 1 nhiệm vụ trong ngày, chuỗi ngày liên tiếp được giữ/tăng; bỏ lỡ qua ngày mới sẽ reset về 0. Hỗ trợ lưu kỷ lục chuỗi dài nhất (`bestStreak`) và đồng bộ lên Supabase User Metadata nếu đã đăng nhập.
+- **Giao diện tích hợp Header:** Nút biểu tượng ngọn lửa Streak kèm số ngày & chấm thông báo nhiệm vụ sẵn sàng nhận thưởng trên cả Desktop Header và Mobile Drawer.
+
 ## 5. Yêu cầu phi chức năng
 
 - Mobile-first, phù hợp màn hình nhỏ và lớn; hỗ trợ xoay/ngang nếu bàn cờ cần.
