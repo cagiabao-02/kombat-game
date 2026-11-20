@@ -227,16 +227,20 @@
   - **Động cơ Tetris chuẩn quốc tế (`tetrisLogic.ts`, `types.ts`):** Bàn chơi $10 \times 20$, 7 khối Tetromino (`I`, `J`, `L`, `O`, `S`, `T`, `Z`), thuật toán chia túi công bằng **7-Bag Randomizer**, xoay khối kèm **Wall Kick** (SRS-lite), **Ghost Piece** định vị đáy, **Hold Piece**, **Next Queue** (3 khối kế tiếp), Soft Drop / Hard Drop và tính điểm Single/Double/Triple/TETRIS + Combo bonus, tăng Level sau mỗi 10 dòng.
   - **Giao diện & Điều khiển Neo-Arcade (`TetrisGame.tsx`, `src/app/games/tetris/page.tsx`):** Bàn chơi HTML5 Canvas 60fps với khối gạch 3D bevel 16-bit (`[image-rendering:pixelated]`), hỗ trợ bàn phím PC và cụm phím cảm ứng mượt mà trên điện thoại, Auto-save & Resume (`tetrisStorage.ts`).
   - **Âm thanh & Hệ sinh thái (`soundService.ts`, `BgmController.tsx`, `GameTile.tsx`, `LeaderboardModal.tsx`, `statsMergeService.ts`):** Bổ sung 4 hiệu ứng âm thanh 8-bit, nhạc nền Arcade, icon pixel sảnh chính và tích hợp Bảng xếp hạng + đồng bộ đám mây Supabase.
+- **Hoàn thành toàn diện Chặng 25 — Thử thách Hàng ngày (Daily Challenges) & Chuỗi ngày chơi (Daily Streak 🔥):**
+  - **Kho 15 thử thách đa dạng (`dailyConfig.ts`, `types.ts`):** Tự động chọn 3 nhiệm vụ cố định theo ngày (`YYYY-MM-DD`) trải đều 3 thể loại: 1 Cờ chiến thuật, 1 Giải đố, 1 Arcade.
+  - **Theo dõi tiến độ công bằng (`dailyService.ts`):** Chụp mốc chỉ số đầu ngày (Baseline Snapshot) từ `localStorage`, tính tiến độ tự động không cần sửa code từng game, quản lý chuỗi ngày liên tiếp (`currentStreak`, `bestStreak`) và đồng bộ đám mây Supabase.
+  - **Giao diện Ngọn lửa Streak & Modal Nhiệm vụ (`DailyChallengesModal.tsx`, `Header.tsx`):** Hiển thị nút Streak 🔥 kèm huy hiệu số nhiệm vụ sẵn sàng nhận thưởng ngay trên Header, đồng hồ đếm ngược 00:00, thanh tiến độ từng game, nút Chơi ngay / Nhận thưởng kèm pháo hoa `PixelFxOverlay`.
 
 ## Đang làm
 
-- Toàn bộ 13 trò chơi, hệ thống âm thanh / nhạc nền kép, biểu cảm Pixel Art, chế độ Online Realtime và Lịch sử thi đấu đã hoàn tất.
+- Toàn bộ 13 trò chơi, hệ thống Thử thách Hàng ngày & Daily Streak 🔥, âm thanh / nhạc nền kép, biểu cảm Pixel Art, chế độ Online Realtime và Lịch sử thi đấu đã hoàn tất.
 
 ## Việc kế tiếp
 
-1. **Hướng 1 — Thử thách Hàng ngày (Daily Challenges) & Chuỗi ngày chơi (Daily Streak 🔥):** Nhiệm vụ ngẫu nhiên mỗi ngày kèm bộ đếm chuỗi ngày đăng nhập và huy hiệu độc quyền.
-2. **Hướng 2 — Chế độ Khán giả (Spectator Mode) cho các phòng Cờ Online:** Cho phép bạn bè xem trực tiếp ván cờ qua đường link chia sẻ.
-3. **Hướng 3 — Trải nghiệm PWA Offline 100% & Cài đặt App 1-Chạm:** Tối ưu hóa Service Worker cache tài nguyên để chơi mượt mà khi mất mạng/ngắt wifi và hiển thị banner cài đặt PWA về màn hình chính điện thoại.
+1. **Hướng 1 — Chế độ Khán giả (Spectator Mode) cho các phòng Cờ Online:** Cho phép bạn bè xem trực tiếp ván cờ qua đường link chia sẻ.
+2. **Hướng 2 — Trải nghiệm PWA Offline 100% & Cài đặt App 1-Chạm:** Tối ưu hóa Service Worker cache tài nguyên để chơi mượt mà khi mất mạng/ngắt wifi và hiển thị banner cài đặt PWA về màn hình chính điện thoại.
+3. **Hướng 3 — Trò chơi thứ 14: Cờ Lật Othello / Reversi (8×8 Strategy):** Hỗ trợ Bot AI và Đấu Online 1v1.
 
 ## Quyết định còn mở
 
