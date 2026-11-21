@@ -348,6 +348,10 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Dịch vụ quản lý nhiệm vụ ngày, Baseline Snapshot, tính tiến độ từ `localStorage`, bộ đếm chuỗi ngày (`currentStreak`, `bestStreak`) và đồng bộ Supabase Cloud (`dailyService.ts`).
   - [x] Giao diện Modal Nhiệm vụ Hàng ngày (`DailyChallengesModal.tsx`): Hiển thị ngọn lửa Streak, đếm ngược tới 00:00, 3 thẻ nhiệm vụ kèm icon Pixel game, thanh tiến độ và nút Chơi ngay / Nhận thưởng + Pháo hoa PixelFX khi hoàn tất.
   - [x] Tích hợp nút Streak 🔥 lên Header (`Header.tsx`) kèm đồng bộ khi đăng nhập (`statsMergeService.ts`).
+- [x] **Chặng 26 — PWA Offline 100% & Banner Cài Đặt App 1-Chạm (Add to Home Screen)**:
+  - [x] Xây dựng Service Worker thuần (`public/sw.js`) cache Sảnh chính, 13 route game và tài nguyên tĩnh (`_next/static/`, icons) với chiến lược Network-First cho HTML và Cache-First cho tài nguyên tĩnh.
+  - [x] Xây dựng `PwaManager.tsx` tích hợp vào `layout.tsx`: Đăng ký Service Worker, hiển thị thanh trạng thái Ngoại tuyến khi mất mạng và Banner cài đặt 1-chạm cho Android/Desktop + hướng dẫn iOS Safari.
+  - [x] Cập nhật `manifest.ts` đầy đủ mô tả 13 tựa game.
 - [x] **Trò chơi thứ 13 — Tetris Cổ Điển (Classic 10×20 Arcade)**:
   - [x] Động cơ Tetris chuẩn (`tetrisLogic.ts`, `types.ts`): Bàn 10×20, 7 khối Tetromino, 7-Bag Randomizer, Wall Kick xoay khối, Ghost Piece, Hold Piece, Next Queue (3 khối), Soft Drop / Hard Drop, tính điểm Single/Double/Triple/TETRIS & tăng Level mỗi 10 dòng.
   - [x] Lưu trữ trạng thái & thành tích (`tetrisStorage.ts`, `tetrisStatsService.ts`, `statsMergeService.ts`).

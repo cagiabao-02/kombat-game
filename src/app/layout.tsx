@@ -5,6 +5,7 @@ import { AuthProvider } from '@/features/auth/AuthContext';
 import { Header } from '@/components/Header';
 import { AchievementToast } from '@/features/achievements/AchievementToast';
 import { BgmController } from '@/components/BgmController';
+import { PwaManager } from '@/components/PwaManager';
 
 export const metadata: Metadata = {
   title: 'Kombat - Sảnh Mini-Game Indie (Neo-Arcade 16-Bit)',
@@ -57,6 +58,7 @@ export default function RootLayout({
             <BgmController />
             <AchievementToast />
             <Header />
+            <PwaManager />
             <main className="flex-1">{children}</main>
             <footer className="border-t-2 border-zinc-900 bg-zinc-900 py-6 text-center text-xs text-zinc-300 font-pixel">
               <div className="mx-auto max-w-5xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
