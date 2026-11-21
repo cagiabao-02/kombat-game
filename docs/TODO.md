@@ -358,6 +358,12 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Lưu trữ trạng thái & thành tích (`tetrisStorage.ts`, `tetrisStatsService.ts`, `statsMergeService.ts`).
   - [x] Giao diện Neo-Arcade 16-bit responsive (`TetrisGame.tsx`, `src/app/games/tetris/page.tsx`): Hỗ trợ bàn phím PC (Mũi tên / WASD / Space / C hoặc Shift để Hold / P tạm dừng) và cụm phím cảm ứng mượt mà trên điện thoại.
   - [x] Âm thanh 8-bit chiptune (`soundService.ts`), nhạc nền Arcade (`BgmController.tsx`), Sảnh chính (`GAME_REGISTRY`, `GameTile.tsx`) và Bảng xếp hạng (`LeaderboardModal.tsx`).
+- [x] **Chặng 28 — Trò chơi thứ 14: Cờ Lật Othello / Reversi (8×8 Strategy)**:
+  - [x] Động cơ luật Othello 8×8 (`othelloLogic.ts`, `types.ts`): Kẹp lật 8 hướng, gợi ý nước đi hợp lệ, tự động Pass khi hết nước, đếm quân Đen/Trắng và phân định thắng/hòa.
+  - [x] Bot AI 3 cấp độ (`othelloBot.ts`): Dễ, Vừa, Khó (Minimax Alpha-Beta + ma trận trọng số góc/cạnh).
+  - [x] Chế độ Chơi đôi (Pass & Play), Auto-save & Resume (`othelloStorage.ts`) và Đấu Online 1v1 Realtime (`othelloRoomService.ts`).
+  - [x] Giao diện Neo-Arcade 16-bit (`OthelloBoard.tsx`, `OthelloLobby.tsx`, `OthelloGame.tsx`, `src/app/games/othello/page.tsx`) kèm Quick Chat, Pháo hoa thắng cuộc và Tái đấu.
+  - [x] Đăng ký Sảnh chính (`GAME_REGISTRY`), icon pixel (`GameTile.tsx`), BGM Chiến thuật (`BgmController.tsx`), PWA cache (`sw.js`), `sitemap.ts` và Bảng xếp hạng (`LeaderboardModal.tsx` + migration Supabase).
 
 
 

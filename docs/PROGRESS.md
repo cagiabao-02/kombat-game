@@ -239,6 +239,10 @@
   - **Ảnh xem trước OpenGraph động (`src/app/opengraph-image.tsx`):** Tự động render banner 1200×630 phong cách Neo-Arcade 16-bit khi chia sẻ link qua Zalo, Messenger, Discord hoặc mạng xã hội.
   - **Tối ưu công cụ tìm kiếm (`src/app/robots.ts`, `src/app/sitemap.ts`):** Khai báo `robots.txt` và `sitemap.xml` cho trang chủ cùng toàn bộ 13 route game.
   - **Kiểm tra bảo mật & Triển khai Vercel:** Xác nhận không có `service_role` key trong `src/`, mọi bảng Supabase đều bật RLS và ứng dụng đã chạy production tại `https://kombat-red.vercel.app`.
+- **Hoàn thành toàn diện Chặng 28 — Trò chơi thứ 14: Cờ Lật Othello / Reversi (8×8 Strategy):**
+  - **Động cơ luật & Bot AI (`othelloLogic.ts`, `othelloBot.ts`, `types.ts`):** Bàn cờ 8×8, kẹp lật quân 8 hướng, gợi ý nước đi hợp lệ, tự động chuyển lượt (Pass) khi hết nước đi; Bot AI 3 cấp độ (Dễ, Vừa, Khó với Minimax Alpha-Beta + ma trận trọng số góc/cạnh).
+  - **Đầy đủ 3 chế độ & Đồng bộ (`OthelloLobby.tsx`, `OthelloGame.tsx`, `OthelloBoard.tsx`, `othelloRoomService.ts`, `othelloStorage.ts`):** Đấu Máy, Chơi Đôi (Pass & Play) có Auto-save & Resume, và Đấu Online 1v1 Realtime (Phòng riêng 6 ký tự, Ghép nhanh, Tái đấu, Chat nhanh / Biểu cảm).
+  - **Tích hợp toàn hệ sinh thái:** Đăng ký Sảnh chính (`GAME_REGISTRY`), icon pixel (`GameTile.tsx`), BGM Chiến thuật (`BgmController.tsx`), PWA cache (`sw.js`), `sitemap.ts` và Bảng xếp hạng (`LeaderboardModal.tsx` + migration `20261122000000_add_othello_to_leaderboard.sql`).
 
 ## Đang làm
 
@@ -247,7 +251,6 @@
 ## Việc kế tiếp
 
 1. **Hướng 1 — Chế độ Khán giả (Spectator Mode) cho các phòng Cờ Online:** Cho phép bạn bè xem trực tiếp ván cờ qua đường link chia sẻ.
-2. **Hướng 2 — Trò chơi thứ 14: Cờ Lật Othello / Reversi (8×8 Strategy):** Hỗ trợ Bot AI và Đấu Online 1v1.
 
 ## Quyết định còn mở
 

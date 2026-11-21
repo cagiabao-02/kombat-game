@@ -14,6 +14,7 @@ const GAME_ROUTES = [
   '/games/flappy-bird',
   '/games/block-blast',
   '/games/tetris',
+  '/games/othello',
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

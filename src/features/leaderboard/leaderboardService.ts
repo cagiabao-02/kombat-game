@@ -12,6 +12,7 @@ import { getTRexStats } from '@/features/games/dinoRunner/tRexStatsService';
 import { getFlappyStats } from '@/features/games/flappyBird/flappyStatsService';
 import { getBlockBlastStats } from '@/features/games/blockBlast/blockBlastStatsService';
 import { getTetrisStats } from '@/features/games/tetris/tetrisStatsService';
+import { getOthelloStats } from '@/features/games/othello/othelloStatsService';
 import { getGoStats } from '@/features/games/go/goStatsService';
 
 function formatTime(seconds: number): string {
@@ -257,6 +258,22 @@ export function getLocalLeaderboardData(
         secondaryInfo: undefined,
         isCurrentUser: true,
         tierBadge: stats.highScore >= 10000 ? 'Đại Sư Tetris' : stats.highScore >= 3000 ? 'Cao Thủ Xếp Gạch' : 'Tập Sự',
+      };
+    }
+  } else if (game === 'othello') {
+    const stats = getOthelloStats();
+    if (stats.bestScore > 0) {
+      userEntry = {
+        id: currentUserId || 'current_user',
+        userId: currentUserId,
+        name: currentUserName,
+        avatar: currentUserAvatar,
+        rank: 1,
+        scoreValue: stats.bestScore,
+        scoreLabel: `${stats.bestScore} quân`,
+        secondaryInfo: undefined,
+        isCurrentUser: true,
+        tierBadge: stats.bestScore >= 50 ? 'Đại Sư Cờ Lật' : stats.bestScore >= 40 ? 'Chiến Thuật Gia' : 'Tập Sự',
       };
     }
   } else if (game === 'go') {
@@ -638,6 +655,11 @@ export async function syncLeaderboardScoreForGame(
       if (stats.totalGames === 0) return;
       scoreValue = Math.max(800, 1200 + stats.wins * 25 - stats.losses * 15);
       scoreLabel = `${scoreValue} Elo`;
+    } else if (game === 'othello') {
+      const stats = getOthelloStats();
+      if (stats.bestScore === 0) return;
+      scoreValue = stats.bestScore;
+      scoreLabel = `${stats.bestScore} quân`;
     }
 
     await upsertSingleScore(
@@ -671,5 +693,6 @@ export async function syncAllLeaderboardScores() {
     syncLeaderboardScoreForGame('flappy_bird'),
     syncLeaderboardScoreForGame('block_blast'),
     syncLeaderboardScoreForGame('tetris'),
+    syncLeaderboardScoreForGame('othello'),
   ]);
 }
