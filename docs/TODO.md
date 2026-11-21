@@ -71,8 +71,9 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [x] Thêm PWA manifest, viewport mobile app và icon cho phép cài đặt ra màn hình chính.
 - [x] Tích hợp bộ tạo âm thanh procedural chân thực Web Audio API (đi cờ, ăn quân, chiếu tướng, gõ số sudoku, chiến thắng) kèm nút Bật/Tắt âm thanh trên Header.
 - [ ] Cải thiện accessibility, thao tác bàn phím và thông báo lỗi.
-- [ ] Chọn nơi deploy và cấu hình biến môi trường production riêng (Vercel).
-- [ ] Kiểm tra quyền truy cập/RLS và không đưa secret key lên client.
+- [x] Chọn nơi deploy và cấu hình biến môi trường production riêng (Vercel: `kombat-red.vercel.app`).
+- [x] Kiểm tra quyền truy cập/RLS và không đưa secret key lên client.
+- [x] Hoàn thiện SEO, `robots.txt`, `sitemap.xml` và OpenGraph Preview (`opengraph-image.tsx`).
 - [ ] Viết hướng dẫn build/deploy và danh sách giới hạn đã biết.
 - [ ] Tạo PR phát hành, review diff và merge sau khi sẵn sàng.
 
