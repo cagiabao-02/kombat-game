@@ -8,8 +8,41 @@ import { BgmController } from '@/components/BgmController';
 import { PwaManager } from '@/components/PwaManager';
 
 export const metadata: Metadata = {
-  title: 'Kombat - Sảnh Mini-Game Indie (Neo-Arcade 16-Bit)',
-  description: 'Sảnh trò chơi ngắn phong cách Pixel Arcade 16-bit, chơi mượt mà trên di động và máy tính.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://kombat-red.vercel.app'),
+  title: {
+    default: 'Kombat - Sảnh Mini-Game Indie (Neo-Arcade 16-Bit)',
+    template: '%s | Kombat Arcade',
+  },
+  description:
+    'Sảnh trò chơi ngắn phong cách Pixel Arcade 16-bit: Cờ Vua, Cờ Tướng, Cờ Caro, Cờ Vây, Sudoku, Tetris, 2048, Block Blast... chơi Offline PWA & Online Realtime.',
+  keywords: [
+    'Kombat',
+    'mini game',
+    'cờ vua online',
+    'cờ tướng online',
+    'cờ caro',
+    'cờ vây',
+    'sudoku',
+    'tetris',
+    '2048',
+    'pixel arcade',
+    'PWA',
+  ],
+  openGraph: {
+    type: 'website',
+    locale: 'vi_VN',
+    url: '/',
+    siteName: 'Kombat Arcade',
+    title: 'Kombat - Sảnh Mini-Game Indie (Neo-Arcade 16-Bit)',
+    description:
+      '13 tựa game Chiến thuật, Giải đố & Arcade 16-bit. Chơi Offline PWA hoặc đấu Online Realtime 1v1 cùng bạn bè!',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Kombat - Sảnh Mini-Game Indie (Neo-Arcade 16-Bit)',
+    description:
+      '13 tựa game Chiến thuật, Giải đố & Arcade 16-bit. Chơi Offline PWA hoặc đấu Online Realtime 1v1 cùng bạn bè!',
+  },
   manifest: '/manifest.webmanifest',
   icons: {
     icon: [

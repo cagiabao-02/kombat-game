@@ -234,6 +234,11 @@
 - **Hoàn thành toàn diện Chặng 26 — PWA Offline 100% & Banner Cài Đặt App 1-Chạm:**
   - **Service Worker ngoại tuyến (`public/sw.js`):** Tự động cache trước Sảnh chính, toàn bộ 13 route trò chơi, biểu tượng PWA và tài nguyên tĩnh Next.js (`/_next/static/`), bỏ qua API Supabase để đảm bảo không ảnh hưởng luồng Online Realtime.
   - **Trạng thái Ngoại tuyến & Cài đặt 1-Chạm (`PwaManager.tsx`, `layout.tsx`, `manifest.ts`):** Tự động hiển thị thanh thông báo khi mất mạng và Banner cài đặt ứng dụng lên màn hình chính (hỗ trợ cả `beforeinstallprompt` trên Android/Desktop và hướng dẫn 2 bước trên iOS Safari).
+- **Hoàn thành toàn diện Chặng 27 — Hoàn thiện Production, SEO & OpenGraph Preview (`kombat-red.vercel.app`):**
+  - **Thẻ Meta SEO & OpenGraph (`src/app/layout.tsx`):** Bổ sung `metadataBase` trỏ tới `NEXT_PUBLIC_SITE_URL` (mặc định `https://kombat-red.vercel.app`), cấu hình `openGraph`, `twitter` (`summary_large_image`), `keywords` và `title.template`.
+  - **Ảnh xem trước OpenGraph động (`src/app/opengraph-image.tsx`):** Tự động render banner 1200×630 phong cách Neo-Arcade 16-bit khi chia sẻ link qua Zalo, Messenger, Discord hoặc mạng xã hội.
+  - **Tối ưu công cụ tìm kiếm (`src/app/robots.ts`, `src/app/sitemap.ts`):** Khai báo `robots.txt` và `sitemap.xml` cho trang chủ cùng toàn bộ 13 route game.
+  - **Kiểm tra bảo mật & Triển khai Vercel:** Xác nhận không có `service_role` key trong `src/`, mọi bảng Supabase đều bật RLS và ứng dụng đã chạy production tại `https://kombat-red.vercel.app`.
 
 ## Đang làm
 
@@ -243,7 +248,6 @@
 
 1. **Hướng 1 — Chế độ Khán giả (Spectator Mode) cho các phòng Cờ Online:** Cho phép bạn bè xem trực tiếp ván cờ qua đường link chia sẻ.
 2. **Hướng 2 — Trò chơi thứ 14: Cờ Lật Othello / Reversi (8×8 Strategy):** Hỗ trợ Bot AI và Đấu Online 1v1.
-3. **Hướng 3 — Chuẩn bị Triển khai Production (Vercel & OpenGraph Preview):** Tối ưu SEO/OpenGraph khi chia sẻ link phòng và kiểm tra tổng thể trước khi deploy.
 
 ## Quyết định còn mở
 
