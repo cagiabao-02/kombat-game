@@ -54,6 +54,19 @@ export function GameIcon({ id }: { id: GameId }) {
         </div>
       );
 
+    case 'othello':
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-emerald-700">
+          <svg viewBox="0 0 16 16" className="h-[80%] w-[80%] pixelated" shapeRendering="crispEdges">
+            <path d="M0 7.5h16v1H0z M7.5 0h1v16h-1z" fill="#064E3B" />
+            <circle cx="4.5" cy="4.5" r="2.8" fill="#FFFFFF" />
+            <circle cx="11.5" cy="4.5" r="2.8" fill="#18181B" />
+            <circle cx="4.5" cy="11.5" r="2.8" fill="#18181B" />
+            <circle cx="11.5" cy="11.5" r="2.8" fill="#FFFFFF" />
+          </svg>
+        </div>
+      );
+
     case 'caro':
       return (
         <div className="flex h-full w-full items-center justify-center bg-rose-100">

@@ -20,6 +20,7 @@ const PRECACHE_URLS = [
   '/games/flappy-bird',
   '/games/block-blast',
   '/games/tetris',
+  '/games/othello',
 ];
 
 self.addEventListener('install', (event) => {

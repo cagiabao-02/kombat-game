@@ -127,6 +127,31 @@ export const GAME_REGISTRY: GameMetadata[] = [
     },
   },
   {
+    id: 'othello',
+    category: 'strategy',
+    name: {
+      vi: 'Cờ Lật Othello',
+      en: 'Othello (Reversi)',
+    },
+    shortDescription: {
+      vi: 'Kẹp quân 8 hướng - lật ngược thế cờ kinh điển 8x8',
+      en: 'Classic 8x8 disc-flipping strategy - outflank & conquer',
+    },
+    description: {
+      vi: 'Trò chơi Cờ Lật Othello / Reversi 8x8 kinh điển. Đấu với Bot AI 3 cấp độ, Chơi đôi trên cùng máy hoặc Tạo phòng PvP Online 1v1.',
+      en: 'Classic 8x8 Othello / Reversi. Battle 3-level Bot AI, pass & play locally, or compete in 1v1 Online PvP rooms.',
+    },
+    route: '/games/othello',
+    status: 'available',
+    modes: ['single_player', 'multiplayer_room'],
+    minPlayers: 1,
+    maxPlayers: 2,
+    badge: {
+      vi: 'MỚI RA MẮT',
+      en: 'NEW RELEASE',
+    },
+  },
+  {
     id: 'snake',
     category: 'arcade',
     name: {

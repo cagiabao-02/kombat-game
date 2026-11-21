@@ -204,6 +204,15 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 - **Trạng thái Ngoại tuyến (`PwaManager.tsx`):** Tự động nhận diện khi mất kết nối mạng (`offline`) và hiển thị thanh thông báo thân thiện để người chơi yên tâm tiếp tục các trò chơi 1 người / chơi đôi.
 - **Banner Cài đặt 1-Chạm:** Bắt sự kiện `beforeinstallprompt` trên Android/Desktop và cung cấp hướng dẫn trực quan 2 bước trên iOS Safari, kèm ghi nhớ trạng thái ẩn trong 7 ngày nếu người dùng đóng banner.
 
+### FR-21 — Cờ Lật Othello / Reversi (8×8 Strategy)
+
+- Bàn cờ 8×8 truyền thống với 4 quân khởi đầu đối xứng ở trung tâm.
+- Động cơ luật Othello chuẩn quốc tế:
+  - Kẹp và lật toàn bộ quân đối thủ bị kẹp theo 8 hướng (ngang, dọc, chéo).
+  - Hiển thị gợi ý các ô nước đi hợp lệ; tự động chuyển lượt (Pass) khi một bên không có nước đi; kết thúc khi bàn đầy hoặc cả 2 bên hết nước.
+- 3 chế độ chơi: Đấu với Bot AI 3 cấp độ (Dễ, Vừa, Khó dùng Minimax Alpha-Beta + ma trận trọng số góc), Chơi đôi (Pass & Play) và Đấu Online 1v1 Realtime (Phòng riêng 6 ký tự & Ghép nhanh).
+- Tự động lưu ván chơi offline (`Auto-save & Resume`), tích hợp Chat nhanh / Biểu cảm Online, Bảng xếp hạng và đồng bộ thống kê.
+
 ## 5. Yêu cầu phi chức năng
 
 - Mobile-first, phù hợp màn hình nhỏ và lớn; hỗ trợ xoay/ngang nếu bàn cờ cần.
