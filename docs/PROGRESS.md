@@ -231,16 +231,19 @@
   - **Kho 15 thử thách đa dạng (`dailyConfig.ts`, `types.ts`):** Tự động chọn 3 nhiệm vụ cố định theo ngày (`YYYY-MM-DD`) trải đều 3 thể loại: 1 Cờ chiến thuật, 1 Giải đố, 1 Arcade.
   - **Theo dõi tiến độ công bằng (`dailyService.ts`):** Chụp mốc chỉ số đầu ngày (Baseline Snapshot) từ `localStorage`, tính tiến độ tự động không cần sửa code từng game, quản lý chuỗi ngày liên tiếp (`currentStreak`, `bestStreak`) và đồng bộ đám mây Supabase.
   - **Giao diện Ngọn lửa Streak & Modal Nhiệm vụ (`DailyChallengesModal.tsx`, `Header.tsx`):** Hiển thị nút Streak 🔥 kèm huy hiệu số nhiệm vụ sẵn sàng nhận thưởng ngay trên Header, đồng hồ đếm ngược 00:00, thanh tiến độ từng game, nút Chơi ngay / Nhận thưởng kèm pháo hoa `PixelFxOverlay`.
+- **Hoàn thành toàn diện Chặng 26 — PWA Offline 100% & Banner Cài Đặt App 1-Chạm:**
+  - **Service Worker ngoại tuyến (`public/sw.js`):** Tự động cache trước Sảnh chính, toàn bộ 13 route trò chơi, biểu tượng PWA và tài nguyên tĩnh Next.js (`/_next/static/`), bỏ qua API Supabase để đảm bảo không ảnh hưởng luồng Online Realtime.
+  - **Trạng thái Ngoại tuyến & Cài đặt 1-Chạm (`PwaManager.tsx`, `layout.tsx`, `manifest.ts`):** Tự động hiển thị thanh thông báo khi mất mạng và Banner cài đặt ứng dụng lên màn hình chính (hỗ trợ cả `beforeinstallprompt` trên Android/Desktop và hướng dẫn 2 bước trên iOS Safari).
 
 ## Đang làm
 
-- Toàn bộ 13 trò chơi, hệ thống Thử thách Hàng ngày & Daily Streak 🔥, âm thanh / nhạc nền kép, biểu cảm Pixel Art, chế độ Online Realtime và Lịch sử thi đấu đã hoàn tất.
+- Toàn bộ 13 trò chơi, hệ thống Thử thách Hàng ngày & Daily Streak 🔥, PWA Offline & Cài đặt App 1-Chạm, âm thanh / nhạc nền kép, biểu cảm Pixel Art, chế độ Online Realtime và Lịch sử thi đấu đã hoàn tất.
 
 ## Việc kế tiếp
 
 1. **Hướng 1 — Chế độ Khán giả (Spectator Mode) cho các phòng Cờ Online:** Cho phép bạn bè xem trực tiếp ván cờ qua đường link chia sẻ.
-2. **Hướng 2 — Trải nghiệm PWA Offline 100% & Cài đặt App 1-Chạm:** Tối ưu hóa Service Worker cache tài nguyên để chơi mượt mà khi mất mạng/ngắt wifi và hiển thị banner cài đặt PWA về màn hình chính điện thoại.
-3. **Hướng 3 — Trò chơi thứ 14: Cờ Lật Othello / Reversi (8×8 Strategy):** Hỗ trợ Bot AI và Đấu Online 1v1.
+2. **Hướng 2 — Trò chơi thứ 14: Cờ Lật Othello / Reversi (8×8 Strategy):** Hỗ trợ Bot AI và Đấu Online 1v1.
+3. **Hướng 3 — Chuẩn bị Triển khai Production (Vercel & OpenGraph Preview):** Tối ưu SEO/OpenGraph khi chia sẻ link phòng và kiểm tra tổng thể trước khi deploy.
 
 ## Quyết định còn mở
 

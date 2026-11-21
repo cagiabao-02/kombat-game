@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Kombat — Sảnh Trò Chơi Indie 16-Bit',
     short_name: 'Kombat',
-    description: 'Sảnh trò chơi mini phong cách arcade cổ điển: Sudoku, Cờ vua, Cờ tướng và Cờ Caro.',
+    description: 'Sảnh 13 trò chơi mini phong cách arcade cổ điển: Cờ Vua, Cờ Tướng, Cờ Vây, Cờ Caro, Sudoku, Tetris, Block Blast và nhiều game hấp dẫn khác.',
     start_url: '/',
     id: '/',
     display: 'standalone',

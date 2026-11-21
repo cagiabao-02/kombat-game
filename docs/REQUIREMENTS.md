@@ -198,6 +198,12 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 - **Chuỗi ngày chơi (Daily Streak 🔥):** Khi hoàn thành và nhận thưởng ít nhất 1 nhiệm vụ trong ngày, chuỗi ngày liên tiếp được giữ/tăng; bỏ lỡ qua ngày mới sẽ reset về 0. Hỗ trợ lưu kỷ lục chuỗi dài nhất (`bestStreak`) và đồng bộ lên Supabase User Metadata nếu đã đăng nhập.
 - **Giao diện tích hợp Header:** Nút biểu tượng ngọn lửa Streak kèm số ngày & chấm thông báo nhiệm vụ sẵn sàng nhận thưởng trên cả Desktop Header và Mobile Drawer.
 
+### FR-20 — Trải nghiệm PWA Offline & Cài đặt App 1-Chạm (Add to Home Screen)
+
+- **Service Worker Offline (`public/sw.js`):** Tự động cache Sảnh chính, toàn bộ 13 đường dẫn game, tài nguyên tĩnh Next.js (`/_next/static/`), biểu tượng PWA và manifest (bỏ qua API Supabase để không ảnh hưởng luồng Realtime).
+- **Trạng thái Ngoại tuyến (`PwaManager.tsx`):** Tự động nhận diện khi mất kết nối mạng (`offline`) và hiển thị thanh thông báo thân thiện để người chơi yên tâm tiếp tục các trò chơi 1 người / chơi đôi.
+- **Banner Cài đặt 1-Chạm:** Bắt sự kiện `beforeinstallprompt` trên Android/Desktop và cung cấp hướng dẫn trực quan 2 bước trên iOS Safari, kèm ghi nhớ trạng thái ẩn trong 7 ngày nếu người dùng đóng banner.
+
 ## 5. Yêu cầu phi chức năng
 
 - Mobile-first, phù hợp màn hình nhỏ và lớn; hỗ trợ xoay/ngang nếu bàn cờ cần.
