@@ -327,6 +327,31 @@ export const GAME_REGISTRY: GameMetadata[] = [
     },
   },
   {
+    id: 'wordle',
+    category: 'puzzle',
+    name: {
+      vi: 'Wordle 5×6',
+      en: 'Wordle 5×6',
+    },
+    shortDescription: {
+      vi: 'Đoán từ tiếng Anh 5 chữ cái trong 6 lượt thử thách',
+      en: 'Guess the secret 5-letter word in 6 tries',
+    },
+    description: {
+      vi: 'Trò chơi giải đố đoán từ 5 chữ cái kinh điển. Có cả chế độ Từ Hôm Nay (Daily Word) và Chơi Vô Tận (Endless) kèm chia sẻ ô vuông!',
+      en: 'Classic 5-letter word guessing puzzle. Includes Daily Word and Endless modes plus emoji grid sharing!',
+    },
+    route: '/games/wordle',
+    status: 'available',
+    modes: ['single_player'],
+    minPlayers: 1,
+    maxPlayers: 1,
+    badge: {
+      vi: 'MỚI RA MẮT',
+      en: 'NEW RELEASE',
+    },
+  },
+  {
     id: 'tetris',
     category: 'arcade',
     name: {

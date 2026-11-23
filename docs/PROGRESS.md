@@ -243,6 +243,9 @@
   - **Động cơ luật & Bot AI (`othelloLogic.ts`, `othelloBot.ts`, `types.ts`):** Bàn cờ 8×8, kẹp lật quân 8 hướng, gợi ý nước đi hợp lệ, tự động chuyển lượt (Pass) khi hết nước đi; Bot AI 3 cấp độ (Dễ, Vừa, Khó với Minimax Alpha-Beta + ma trận trọng số góc/cạnh).
   - **Đầy đủ 3 chế độ & Đồng bộ (`OthelloLobby.tsx`, `OthelloGame.tsx`, `OthelloBoard.tsx`, `othelloRoomService.ts`, `othelloStorage.ts`):** Đấu Máy, Chơi Đôi (Pass & Play) có Auto-save & Resume, và Đấu Online 1v1 Realtime (Phòng riêng 6 ký tự, Ghép nhanh, Tái đấu, Chat nhanh / Biểu cảm).
   - **Tích hợp toàn hệ sinh thái:** Đăng ký Sảnh chính (`GAME_REGISTRY`), icon pixel (`GameTile.tsx`), BGM Chiến thuật (`BgmController.tsx`), PWA cache (`sw.js`), `sitemap.ts` và Bảng xếp hạng (`LeaderboardModal.tsx` + migration `20261122000000_add_othello_to_leaderboard.sql`).
+- **Hoàn thành toàn diện Chặng 29 — Trò chơi thứ 15: Wordle 5×6 (Đoán Từ Bí Mật):**
+  - **Động cơ từ vựng & Đánh giá 2-pass (`wordleWords.ts`, `types.ts`):** Kho từ tiếng Anh 5 chữ cái, hỗ trợ 2 chế độ **Từ Hôm Nay (Daily Word)** và **Chơi Vô Tận (Endless)**.
+  - **Giao diện & Lưu trữ (`WordleGame.tsx`, `wordleStorage.ts`, `wordleStatsService.ts`, `src/app/games/wordle/page.tsx`):** Bảng 6×5 Neo-Arcade, bàn phím QWERTY ảo + bàn phím vật lý, chia sẻ kết quả dạng ô vuông emoji (`🟩🟨⬛`), Pháo hoa thắng cuộc và đồng bộ Streak lên Bảng xếp hạng (`20261123000000_add_wordle_to_leaderboard.sql`).
 
 ## Đang làm
 

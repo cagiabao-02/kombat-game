@@ -364,6 +364,11 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
   - [x] Chế độ Chơi đôi (Pass & Play), Auto-save & Resume (`othelloStorage.ts`) và Đấu Online 1v1 Realtime (`othelloRoomService.ts`).
   - [x] Giao diện Neo-Arcade 16-bit (`OthelloBoard.tsx`, `OthelloLobby.tsx`, `OthelloGame.tsx`, `src/app/games/othello/page.tsx`) kèm Quick Chat, Pháo hoa thắng cuộc và Tái đấu.
   - [x] Đăng ký Sảnh chính (`GAME_REGISTRY`), icon pixel (`GameTile.tsx`), BGM Chiến thuật (`BgmController.tsx`), PWA cache (`sw.js`), `sitemap.ts` và Bảng xếp hạng (`LeaderboardModal.tsx` + migration Supabase).
+- [x] **Chặng 29 — Trò chơi thứ 15: Wordle 5×6 (Đoán Từ Bí Mật)**:
+  - [x] Kho từ 5 chữ cái & thuật toán đánh giá 2-pass chuẩn Wordle (`wordleWords.ts`, `types.ts`).
+  - [x] Chế độ Từ Hôm Nay (Daily Word) & Chơi Vô Tận (Endless), Auto-save (`wordleStorage.ts`) và thống kê Streak (`wordleStatsService.ts`).
+  - [x] Giao diện Neo-Arcade (`WordleGame.tsx`, `src/app/games/wordle/page.tsx`) với bàn phím QWERTY ảo, hỗ trợ bàn phím PC, Pháo hoa thắng cuộc và chia sẻ kết quả emoji.
+  - [x] Đăng ký Sảnh chính (`GAME_REGISTRY`), icon pixel (`GameTile.tsx`), BGM (`BgmController.tsx`), PWA cache (`sw.js`), `sitemap.ts` và Bảng xếp hạng (`LeaderboardModal.tsx` + migration Supabase).
 
 
 

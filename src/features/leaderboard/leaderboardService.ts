@@ -13,6 +13,7 @@ import { getFlappyStats } from '@/features/games/flappyBird/flappyStatsService';
 import { getBlockBlastStats } from '@/features/games/blockBlast/blockBlastStatsService';
 import { getTetrisStats } from '@/features/games/tetris/tetrisStatsService';
 import { getOthelloStats } from '@/features/games/othello/othelloStatsService';
+import { getWordleStats } from '@/features/games/wordle/wordleStatsService';
 import { getGoStats } from '@/features/games/go/goStatsService';
 
 function formatTime(seconds: number): string {
@@ -274,6 +275,22 @@ export function getLocalLeaderboardData(
         secondaryInfo: undefined,
         isCurrentUser: true,
         tierBadge: stats.bestScore >= 50 ? 'Đại Sư Cờ Lật' : stats.bestScore >= 40 ? 'Chiến Thuật Gia' : 'Tập Sự',
+      };
+    }
+  } else if (game === 'wordle') {
+    const stats = getWordleStats();
+    if (stats.bestStreak > 0) {
+      userEntry = {
+        id: currentUserId || 'current_user',
+        userId: currentUserId,
+        name: currentUserName,
+        avatar: currentUserAvatar,
+        rank: 1,
+        scoreValue: stats.bestStreak,
+        scoreLabel: `${stats.bestStreak} Streak`,
+        secondaryInfo: undefined,
+        isCurrentUser: true,
+        tierBadge: stats.bestStreak >= 10 ? 'Bậc Thầy Từ Vựng' : stats.bestStreak >= 5 ? 'Nhà Ngôn Ngữ' : 'Tập Sự',
       };
     }
   } else if (game === 'go') {
@@ -660,6 +677,11 @@ export async function syncLeaderboardScoreForGame(
       if (stats.bestScore === 0) return;
       scoreValue = stats.bestScore;
       scoreLabel = `${stats.bestScore} quân`;
+    } else if (game === 'wordle') {
+      const stats = getWordleStats();
+      if (stats.bestStreak === 0) return;
+      scoreValue = stats.bestStreak;
+      scoreLabel = `${stats.bestStreak} Streak`;
     }
 
     await upsertSingleScore(
@@ -694,5 +716,6 @@ export async function syncAllLeaderboardScores() {
     syncLeaderboardScoreForGame('block_blast'),
     syncLeaderboardScoreForGame('tetris'),
     syncLeaderboardScoreForGame('othello'),
+    syncLeaderboardScoreForGame('wordle'),
   ]);
 }
