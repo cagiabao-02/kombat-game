@@ -21,6 +21,7 @@ const PRECACHE_URLS = [
   '/games/block-blast',
   '/games/tetris',
   '/games/othello',
+  '/games/wordle',
 ];
 
 self.addEventListener('install', (event) => {

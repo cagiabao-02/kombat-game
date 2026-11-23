@@ -31,7 +31,8 @@ function getThemeForPath(pathname: string): BgmTheme {
     pathname.startsWith('/games/xiangqi') ||
     pathname.startsWith('/games/go') ||
     pathname.startsWith('/games/othello') ||
-    pathname.startsWith('/games/sudoku')
+    pathname.startsWith('/games/sudoku') ||
+    pathname.startsWith('/games/wordle')
   ) {
     return 'strategy';
   }

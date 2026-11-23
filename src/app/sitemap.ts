@@ -15,6 +15,7 @@ const GAME_ROUTES = [
   '/games/block-blast',
   '/games/tetris',
   '/games/othello',
+  '/games/wordle',
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

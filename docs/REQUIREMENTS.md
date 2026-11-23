@@ -213,6 +213,13 @@ Tạo một website đơn giản, thân thiện trên điện thoại và máy t
 - 3 chế độ chơi: Đấu với Bot AI 3 cấp độ (Dễ, Vừa, Khó dùng Minimax Alpha-Beta + ma trận trọng số góc), Chơi đôi (Pass & Play) và Đấu Online 1v1 Realtime (Phòng riêng 6 ký tự & Ghép nhanh).
 - Tự động lưu ván chơi offline (`Auto-save & Resume`), tích hợp Chat nhanh / Biểu cảm Online, Bảng xếp hạng và đồng bộ thống kê.
 
+### FR-22 — Wordle 5×6 (Đoán Từ Bí Mật)
+
+- Bảng đoán từ 6 hàng × 5 chữ cái tiếng Anh chuẩn mực.
+- Thuật toán tô màu 2-pass chuẩn Wordle: Xanh lá (`correct`), Vàng (`present` — xử lý đúng số lượng chữ trùng), Xám (`absent`).
+- Hai chế độ chơi: **Từ Hôm Nay (Daily Word)** cố định theo ngày và **Chơi Vô Tận (Endless)**.
+- Bàn phím QWERTY ảo tối ưu cảm ứng di động kết hợp gõ phím vật lý trên PC, tự động lưu ván đang chơi, chia sẻ kết quả dạng ô vuông emoji (`🟩🟨⬛`), theo dõi Streak và đồng bộ Bảng xếp hạng.
+
 ## 5. Yêu cầu phi chức năng
 
 - Mobile-first, phù hợp màn hình nhỏ và lớn; hỗ trợ xoay/ngang nếu bàn cờ cần.

@@ -294,6 +294,22 @@ export function GameIcon({ id }: { id: GameId }) {
         </div>
       );
 
+    case 'wordle':
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-zinc-900">
+          <svg viewBox="0 0 16 16" className="h-[82%] w-[82%] pixelated" shapeRendering="crispEdges">
+            {/* Hàng trên: Xanh - Vàng - Xám */}
+            <rect x="1" y="2" width="4" height="5" fill="#10B981" />
+            <rect x="6" y="2" width="4" height="5" fill="#FBBF24" />
+            <rect x="11" y="2" width="4" height="5" fill="#71717A" />
+            {/* Hàng dưới: Xám - Xanh - Xanh */}
+            <rect x="1" y="9" width="4" height="5" fill="#71717A" />
+            <rect x="6" y="9" width="4" height="5" fill="#10B981" />
+            <rect x="11" y="9" width="4" height="5" fill="#10B981" />
+          </svg>
+        </div>
+      );
+
     default:
       return null;
   }

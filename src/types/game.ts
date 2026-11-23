@@ -1,4 +1,4 @@
-export type GameId = 'sudoku' | 'chess' | 'caro' | 'xiangqi' | 'go' | 'othello' | 'snake' | 'game2048' | 'minesweeper' | 'brick_breaker' | 't_rex_runner' | 'flappy_bird' | 'block_blast' | 'tetris';
+export type GameId = 'sudoku' | 'chess' | 'caro' | 'xiangqi' | 'go' | 'othello' | 'snake' | 'game2048' | 'minesweeper' | 'brick_breaker' | 't_rex_runner' | 'flappy_bird' | 'block_blast' | 'tetris' | 'wordle';
 
 export type GameStatus = 'available' | 'beta' | 'coming_soon';
 
