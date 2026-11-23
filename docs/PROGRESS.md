@@ -246,6 +246,10 @@
 - **Hoàn thành toàn diện Chặng 29 — Trò chơi thứ 15: Wordle 5×6 (Đoán Từ Bí Mật):**
   - **Động cơ từ vựng & Đánh giá 2-pass (`wordleWords.ts`, `types.ts`):** Kho từ tiếng Anh 5 chữ cái, hỗ trợ 2 chế độ **Từ Hôm Nay (Daily Word)** và **Chơi Vô Tận (Endless)**.
   - **Giao diện & Lưu trữ (`WordleGame.tsx`, `wordleStorage.ts`, `wordleStatsService.ts`, `src/app/games/wordle/page.tsx`):** Bảng 6×5 Neo-Arcade, bàn phím QWERTY ảo + bàn phím vật lý, chia sẻ kết quả dạng ô vuông emoji (`🟩🟨⬛`), Pháo hoa thắng cuộc và đồng bộ Streak lên Bảng xếp hạng (`20261123000000_add_wordle_to_leaderboard.sql`).
+- **Hoàn thành toàn diện Chặng 30 — Hoàn thiện luồng Tài khoản, Gộp dữ liệu Khách & Bảo mật (`AuthContext.tsx`, `statsMergeService.ts`):**
+  - **Liên kết & Gộp dữ liệu trọn vẹn 15 game:** Mở rộng `statsMergeService.ts` và `syncAllCloudStats` để đồng bộ đầy đủ cả `othello_stats` và `wordle_stats` cùng Daily Streak, Huy hiệu và Lịch sử đấu khi đăng nhập Email/Google.
+  - **Nâng cấp phiên Khách (Guest Upgrade):** Hỗ trợ `linkIdentity` cho Google OAuth khi đang ở phiên Khách (fallback mượt sang OAuth + merge local stats nếu tài khoản Google đã tồn tại), và tự động gộp thành tích local khi đăng nhập Email.
+  - **Cô lập dữ liệu khi Đăng xuất:** `signOut()` xóa sạch toàn bộ `STORAGE_KEYS` thành tích trên trình duyệt để tránh rò rỉ dữ liệu giữa các tài khoản dùng chung máy.
 
 ## Đang làm
 

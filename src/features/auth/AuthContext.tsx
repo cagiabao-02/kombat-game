@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import type { User, Session, SupabaseClient } from '@supabase/supabase-js';
 import { DEFAULT_AVATAR, getValidAvatar } from './avatarConstants';
-import { syncAndMergeAllStatsOnLogin } from '@/features/stats/statsMergeService';
+import { STORAGE_KEYS, syncAndMergeAllStatsOnLogin } from '@/features/stats/statsMergeService';
 import { syncAllLeaderboardScores } from '@/features/leaderboard/leaderboardService';
 
 export interface AuthContextType {
@@ -59,10 +59,20 @@ function syncAllCloudStats(userMetadata: any) {
   if (userMetadata.caro_stats) syncKey(CARO_STATS_KEY, userMetadata.caro_stats);
   if (userMetadata.sudoku_stats) syncKey(SUDOKU_STATS_KEY, userMetadata.sudoku_stats);
   if (userMetadata.xiangqi_stats) syncKey(XIANGQI_STATS_KEY, userMetadata.xiangqi_stats);
+  if (userMetadata.go_stats) syncKey(STORAGE_KEYS.GO, userMetadata.go_stats);
+  if (userMetadata.othello_stats) syncKey(STORAGE_KEYS.OTHELLO, userMetadata.othello_stats);
   if (userMetadata.snake_stats) syncKey(SNAKE_STATS_KEY, userMetadata.snake_stats);
   if (userMetadata.game2048_stats) syncKey(GAME2048_STATS_KEY, userMetadata.game2048_stats);
   if (userMetadata.minesweeper_stats) syncKey(MINESWEEPER_STATS_KEY, userMetadata.minesweeper_stats);
   if (userMetadata.brick_breaker_stats) syncKey(BRICK_BREAKER_STATS_KEY, userMetadata.brick_breaker_stats);
+  if (userMetadata.t_rex_stats) syncKey(STORAGE_KEYS.T_REX, userMetadata.t_rex_stats);
+  if (userMetadata.flappy_stats) syncKey(STORAGE_KEYS.FLAPPY, userMetadata.flappy_stats);
+  if (userMetadata.block_blast_stats) syncKey(STORAGE_KEYS.BLOCK_BLAST, userMetadata.block_blast_stats);
+  if (userMetadata.tetris_stats) syncKey(STORAGE_KEYS.TETRIS, userMetadata.tetris_stats);
+  if (userMetadata.wordle_stats) syncKey(STORAGE_KEYS.WORDLE, userMetadata.wordle_stats);
+  if (userMetadata.daily_challenges_state) syncKey(STORAGE_KEYS.DAILY_CHALLENGES, userMetadata.daily_challenges_state);
+  if (userMetadata.achievements) syncKey(STORAGE_KEYS.ACHIEVEMENTS, userMetadata.achievements);
+  if (userMetadata.match_history) syncKey(STORAGE_KEYS.MATCH_HISTORY, userMetadata.match_history);
 }
 
 function generateDefaultGuestName(userId?: string): string {
@@ -378,13 +388,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(data.user);
         setSession(data.session);
         const name = data.user.user_metadata?.display_name || data.user.email?.split('@')[0] || 'Player';
-        const av = getValidAvatar(data.user.user_metadata?.avatar);
+        const av = getValidAvatar(data.user.user_metadata?.avatar, true);
         setGuestName(name);
         setAvatar(av);
         if (typeof window !== 'undefined') {
           localStorage.setItem(GUEST_NAME_KEY, name);
           localStorage.setItem(AVATAR_KEY, av);
         }
+        // Tự động gộp thành tích phiên Khách hiện tại vào tài khoản đã có và đồng bộ BXH
+        syncAndMergeAllStatsOnLogin(data.user, sb)
+          .then(() => syncAllLeaderboardScores())
+          .catch(() => {});
       }
       return {};
     } catch (err: any) {
@@ -444,12 +458,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, isAnonymous, guestName, avatar]);
 
-  // Sign in with Google OAuth
+  // Sign in with Google OAuth (ưu tiên liên kết phiên Khách hiện tại nếu có)
   const signInWithGoogle = useCallback(async (): Promise<{ error?: string }> => {
     try {
       setAuthError(null);
       const redirectUrl = typeof window !== 'undefined' ? window.location.origin : undefined;
       const sb = await getClient();
+
+      if (user && isAnonymous && typeof sb.auth.linkIdentity === 'function') {
+        const { error: linkError } = await sb.auth.linkIdentity({
+          provider: 'google',
+          options: {
+            redirectTo: redirectUrl,
+          },
+        });
+        if (!linkError) {
+          return {};
+        }
+        // Fallback sang đăng nhập OAuth thông thường nếu Google đã liên kết tài khoản khác hoặc chưa bật Manual Linking
+      }
+
       const { error } = await sb.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -464,7 +492,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (err: any) {
       return { error: err?.message || 'Đăng nhập Google thất bại' };
     }
-  }, []);
+  }, [user, isAnonymous]);
 
   // Sign out (and immediately establish a new anonymous session for seamless play)
   const signOut = useCallback(async (): Promise<void> => {
@@ -485,15 +513,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (typeof window !== 'undefined') {
           localStorage.setItem(GUEST_NAME_KEY, defaultName);
           localStorage.setItem(AVATAR_KEY, DEFAULT_AVATAR);
-          // Xóa các key stats để tránh lây nhiễm dữ liệu sang tài khoản khác đăng nhập sau trên cùng trình duyệt
-          localStorage.removeItem(CHESS_STATS_KEY);
-          localStorage.removeItem(CARO_STATS_KEY);
-          localStorage.removeItem(SUDOKU_STATS_KEY);
-          localStorage.removeItem(XIANGQI_STATS_KEY);
-          localStorage.removeItem(SNAKE_STATS_KEY);
-          localStorage.removeItem(GAME2048_STATS_KEY);
-          localStorage.removeItem(MINESWEEPER_STATS_KEY);
-          localStorage.removeItem(BRICK_BREAKER_STATS_KEY);
+          // Xóa toàn bộ key stats để tránh lây nhiễm dữ liệu sang tài khoản khác đăng nhập sau trên cùng trình duyệt
+          Object.values(STORAGE_KEYS).forEach((key) => {
+            if (key !== STORAGE_KEYS.GUEST_NAME && key !== STORAGE_KEYS.AVATAR) {
+              localStorage.removeItem(key);
+            }
+          });
         }
       }
     } catch (err) {
