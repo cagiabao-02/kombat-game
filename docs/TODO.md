@@ -39,8 +39,8 @@ Các mục được chia thành chặng nhỏ để dễ hoàn thành và review
 - [x] Cài đặt thư viện `@supabase/supabase-js` và khởi tạo Supabase client an toàn.
 - [x] Tạo migration đầu tiên cho bảng phòng (`rooms`) cùng đầy đủ Row Level Security (RLS) và Realtime publication.
 - [x] Bật Supabase Auth anonymous sign-in cho phiên khách; hỗ trợ hiển thị và cập nhật tên riêng trong header.
-- [ ] Thiết kế nâng cấp/liên kết phiên khách thành tài khoản thường và giữ dữ liệu/user id; quyết định cách xử lý khi đăng nhập vào tài khoản đã tồn tại.
-- [ ] Chốt quyền/tính năng của khách và tài khoản đăng nhập; bảo vệ phần chỉ dành cho tài khoản ở server/database.
+- [x] Thiết kế nâng cấp/liên kết phiên khách thành tài khoản thường và giữ dữ liệu/user id; quyết định cách xử lý khi đăng nhập vào tài khoản đã tồn tại (tự động gộp toàn bộ thành tích 15 game + Daily + Huy hiệu từ phiên Khách vào tài khoản đám mây).
+- [x] Chốt quyền/tính năng của khách và tài khoản đăng nhập; bảo vệ phần chỉ dành cho tài khoản ở server/database (RLS `leaderboard_scores` chỉ cho phép tài khoản đã đăng ký).
 - [ ] Cấu hình chống lạm dụng anonymous sign-in trước khi public rộng (ví dụ CAPTCHA/Turnstile nếu cần).
 - [ ] Thêm hướng dẫn Supabase và biến môi trường vào README.
 

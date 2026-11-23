@@ -11,6 +11,8 @@ import { TRexStats } from '@/features/games/dinoRunner/tRexStatsService';
 import { FlappyStats } from '@/features/games/flappyBird/flappyStatsService';
 import { BlockBlastStats, BLOCK_BLAST_STATS_KEY } from '@/features/games/blockBlast/blockBlastStatsService';
 import { TetrisStats, TETRIS_STATS_KEY } from '@/features/games/tetris/tetrisStatsService';
+import { OthelloStats } from '@/features/games/othello/othelloStatsService';
+import { WordleStats } from '@/features/games/wordle/wordleStatsService';
 import {
   DAILY_CHALLENGES_KEY,
   mergeDailyChallengesState,
@@ -42,6 +44,8 @@ export const STORAGE_KEYS = {
   FLAPPY: 'kombat_flappy_stats',
   BLOCK_BLAST: BLOCK_BLAST_STATS_KEY,
   TETRIS: TETRIS_STATS_KEY,
+  OTHELLO: 'kombat_othello_stats',
+  WORDLE: 'kombat_wordle_stats',
   DAILY_CHALLENGES: DAILY_CHALLENGES_KEY,
   ACHIEVEMENTS: ACHIEVEMENTS_STORAGE_KEY,
   MATCH_HISTORY: MATCH_HISTORY_STORAGE_KEY,
@@ -306,6 +310,47 @@ export function mergeTetrisStats(
   };
 }
 
+function mergeOthelloStats(local: OthelloStats | null, cloud: OthelloStats | null): OthelloStats | null {
+  if (!local && !cloud) return null;
+  if (!local) return cloud;
+  if (!cloud) return local;
+
+  return {
+    wins: Math.max(local.wins || 0, cloud.wins || 0),
+    losses: Math.max(local.losses || 0, cloud.losses || 0),
+    draws: Math.max(local.draws || 0, cloud.draws || 0),
+    botWins: Math.max(local.botWins || 0, cloud.botWins || 0),
+    pvpWins: Math.max(local.pvpWins || 0, cloud.pvpWins || 0),
+    bestScore: Math.max(local.bestScore || 0, cloud.bestScore || 0),
+    currentStreak: Math.max(local.currentStreak || 0, cloud.currentStreak || 0),
+    bestStreak: Math.max(local.bestStreak || 0, cloud.bestStreak || 0),
+  };
+}
+
+function mergeWordleStats(local: WordleStats | null, cloud: WordleStats | null): WordleStats | null {
+  if (!local && !cloud) return null;
+  if (!local) return cloud;
+  if (!cloud) return local;
+
+  const localDist = Array.isArray(local.guessDistribution) ? local.guessDistribution : [0, 0, 0, 0, 0, 0];
+  const cloudDist = Array.isArray(cloud.guessDistribution) ? cloud.guessDistribution : [0, 0, 0, 0, 0, 0];
+
+  return {
+    played: Math.max(local.played || 0, cloud.played || 0),
+    wins: Math.max(local.wins || 0, cloud.wins || 0),
+    currentStreak: Math.max(local.currentStreak || 0, cloud.currentStreak || 0),
+    bestStreak: Math.max(local.bestStreak || 0, cloud.bestStreak || 0),
+    guessDistribution: [
+      Math.max(localDist[0] || 0, cloudDist[0] || 0),
+      Math.max(localDist[1] || 0, cloudDist[1] || 0),
+      Math.max(localDist[2] || 0, cloudDist[2] || 0),
+      Math.max(localDist[3] || 0, cloudDist[3] || 0),
+      Math.max(localDist[4] || 0, cloudDist[4] || 0),
+      Math.max(localDist[5] || 0, cloudDist[5] || 0),
+    ],
+  };
+}
+
 /**
  * Gộp toàn bộ thành tích từ LocalStorage của máy vào tài khoản Đám mây (Google/Email).
  * Được kích hoạt tự động khi người dùng đăng nhập tài khoản.
@@ -331,6 +376,8 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const localFlappy = safeParse<FlappyStats>(STORAGE_KEYS.FLAPPY);
   const localBlockBlast = safeParse<BlockBlastStats>(STORAGE_KEYS.BLOCK_BLAST);
   const localTetris = safeParse<TetrisStats>(STORAGE_KEYS.TETRIS);
+  const localOthello = safeParse<OthelloStats>(STORAGE_KEYS.OTHELLO);
+  const localWordle = safeParse<WordleStats>(STORAGE_KEYS.WORDLE);
   const localDaily = safeParse<DailyChallengesState>(STORAGE_KEYS.DAILY_CHALLENGES);
   const localAchievements = safeParse<UnlockedAchievementsMap>(STORAGE_KEYS.ACHIEVEMENTS);
   const localMatchHistory = safeParse<MatchRecord[]>(STORAGE_KEYS.MATCH_HISTORY);
@@ -349,6 +396,8 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   const mergedFlappy = mergeFlappyStats(localFlappy, meta.flappy_stats);
   const mergedBlockBlast = mergeBlockBlastStats(localBlockBlast, meta.block_blast_stats);
   const mergedTetris = mergeTetrisStats(localTetris, meta.tetris_stats);
+  const mergedOthello = mergeOthelloStats(localOthello, meta.othello_stats);
+  const mergedWordle = mergeWordleStats(localWordle, meta.wordle_stats);
   const mergedDaily = mergeDailyChallengesState(localDaily, meta.daily_challenges_state);
   const mergedAchievements = mergeAchievements(localAchievements, meta.achievements);
   const mergedMatchHistory = mergeMatchHistory(localMatchHistory, meta.match_history);
@@ -367,6 +416,8 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   if (mergedFlappy) safeSet(STORAGE_KEYS.FLAPPY, mergedFlappy);
   if (mergedBlockBlast) safeSet(STORAGE_KEYS.BLOCK_BLAST, mergedBlockBlast);
   if (mergedTetris) safeSet(STORAGE_KEYS.TETRIS, mergedTetris);
+  if (mergedOthello) safeSet(STORAGE_KEYS.OTHELLO, mergedOthello);
+  if (mergedWordle) safeSet(STORAGE_KEYS.WORDLE, mergedWordle);
   if (mergedDaily) safeSet(STORAGE_KEYS.DAILY_CHALLENGES, mergedDaily);
   if (mergedAchievements) safeSet(STORAGE_KEYS.ACHIEVEMENTS, mergedAchievements);
   if (mergedMatchHistory) safeSet(STORAGE_KEYS.MATCH_HISTORY, mergedMatchHistory);
@@ -425,6 +476,14 @@ export async function syncAndMergeAllStatsOnLogin(user: any, sbClient: any) {
   }
   if (mergedTetris && JSON.stringify(mergedTetris) !== JSON.stringify(meta.tetris_stats)) {
     updateData.tetris_stats = mergedTetris;
+    hasUpdates = true;
+  }
+  if (mergedOthello && JSON.stringify(mergedOthello) !== JSON.stringify(meta.othello_stats)) {
+    updateData.othello_stats = mergedOthello;
+    hasUpdates = true;
+  }
+  if (mergedWordle && JSON.stringify(mergedWordle) !== JSON.stringify(meta.wordle_stats)) {
+    updateData.wordle_stats = mergedWordle;
     hasUpdates = true;
   }
   if (mergedDaily && JSON.stringify(mergedDaily) !== JSON.stringify(meta.daily_challenges_state)) {
