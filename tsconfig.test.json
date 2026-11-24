@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": ".test-dist",
+    "rootDir": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": false
+  },
+  "include": [
+    "tests/**/*.test.ts",
+    "src/features/games/othello/types.ts",
+    "src/features/games/othello/othelloLogic.ts",
+    "src/features/games/othello/othelloBot.ts",
+    "src/features/games/wordle/types.ts",
+    "src/features/games/wordle/wordleWords.ts"
+  ]
+}
